@@ -77,6 +77,26 @@ public class OrderController {
         return new Result<>();
     }
 
+    /**
+     * 取消订单
+     *
+     * @return
+     */
+    @RequestMapping(value = "cancelOrder", method = RequestMethod.GET, produces = {"application/json;charset=utf-8"})
+    public Result<Object> cancelOrder(Integer id, String reason, HttpServletRequest request) throws Exception {
+        Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+        boolean flag;
+        flag = orderService.cancelorder(id, reason);
+        if (flag) {
+            result.setCode(ResultStatusEnum.SUCCESS.getCode());
+            result.setMsg(ResultStatusEnum.SUCCESS.getMsg());
+            return result;
+        }
+        return result;
+    }
+
 /*    */
 
     /**

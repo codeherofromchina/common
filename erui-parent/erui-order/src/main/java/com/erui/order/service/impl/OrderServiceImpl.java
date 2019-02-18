@@ -574,24 +574,25 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Integer cancelorder (Integer id, String reason) throws Exception {
+    public boolean cancelorder(Integer id, String reason) throws Exception {
         Order order = null;
-        int flag = 1;
         if (id != null) {
             order = orderDao.findOne(id);
-            if (order.getStatus() < 3) {
+            if (0 < order.getStatus() && order.getStatus() < 3) {
                 order.setStatus(0);
                 order.setCancelReason(reason);
                 order.getProject().setProjectStatus("ORDERCANCEL");
+            } else {
+                throw new MyException(String.format("%s%s%s", "订单状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "status error"));
             }
             orderDao.save(order);
             List<CheckLog> checkLogList = checkLogDao.findByOrderIdOrderByCreateTimeDesc(id);
-            List<CheckLog> dingList = checkLogList.stream().filter(vo -> vo.getType() <= 2).filter(vo -> !vo.getOperation().equals("-1")).collect(Collectors.toList());
-            for (CheckLog ck:dingList){
-                sendDingtalk(order,ck.getAuditingUserName(),true,2);
+            List<CheckLog> dingList = checkLogList.stream().filter(vo -> vo.getType() <= 2 && vo.getOperation().equals("-1")).collect(Collectors.toList());
+            for (CheckLog ck : dingList) {
+                sendDingtalk(order, ck.getAuditingUserName(), true, 2);
             }
         }
-        return flag;
+        return true;
     }
 
     //确认检测销售合同号
@@ -885,7 +886,7 @@ public class OrderServiceImpl implements OrderService {
             order.setAuditingProcess(null);
         }
         order.setAuditingUserId(auditingUserId_i);
-        sendDingtalk(order, auditingUserId_i, rejectFlag,1);
+        sendDingtalk(order, auditingUserId_i, rejectFlag, 1);
         order.setAuditingStatus(auditingStatus_i);
         order.setAudiRemark(auditorIds.toString());
         orderDao.save(order);
@@ -1489,7 +1490,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     //销售订单钉钉通知 审批人
-    public void sendDingtalk(Order order, String user, boolean rejectFlag,Integer type) throws Exception {
+    public void sendDingtalk(Order order, String user, boolean rejectFlag, Integer type) throws Exception {
         //获取token
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         new Thread(new Runnable() {
@@ -1526,7 +1527,7 @@ public class OrderServiceImpl implements OrderService {
                     String sendTime02 = DateUtil.format(DateUtil.FULL_FORMAT_STR, sendTime);
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("type=userNo");
-                    if (type == 1){
+                    if (type == 1) {
                         if (!rejectFlag) {
                             stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
                                     "" + sendTime02 + "");
@@ -1534,7 +1535,7 @@ public class OrderServiceImpl implements OrderService {
                             stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审核未通过。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
                                     "" + sendTime02 + "");
                         }
-                    }else if (type == 2){
+                    } else if (type == 2) {
                         stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
                                 "" + sendTime02 + "");
                     }

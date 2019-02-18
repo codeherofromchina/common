@@ -66,7 +66,7 @@ public interface OrderService {
      * @param id
      * @return
      */
-    Integer cancelorder(Integer id,String reason) throws Exception;
+    boolean cancelorder(Integer id,String reason) throws Exception;
 
     /**
      * 修改订单
