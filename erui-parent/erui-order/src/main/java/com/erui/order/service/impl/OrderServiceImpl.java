@@ -588,6 +588,7 @@ public class OrderServiceImpl implements OrderService {
             orderDao.save(order);
             List<CheckLog> checkLogList = checkLogDao.findByOrderIdOrderByCreateTimeDesc(id);
             List<CheckLog> dingList = checkLogList.stream().filter(vo -> vo.getType() <= 2 && vo.getOperation().equals("-1")).collect(Collectors.toList());
+            //向通过审核人发送钉钉取消通知
             for (CheckLog ck : dingList) {
                 sendDingtalk(order, ck.getAuditingUserName(), true, 2);
             }
