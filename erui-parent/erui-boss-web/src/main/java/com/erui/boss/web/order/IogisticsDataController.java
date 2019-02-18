@@ -1,8 +1,6 @@
 package com.erui.boss.web.order;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
-import com.erui.comm.ThreadLocalUtil;
-import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.entity.*;
 import com.erui.order.service.IogisticsDataService;
@@ -15,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -177,11 +174,9 @@ public class IogisticsDataController {
      * @return
      */
     @RequestMapping(value = "logisticsActionAddOrSave", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> logisticsActionAddOrSave(HttpServletRequest request, @RequestBody IogisticsData iogisticsData){
+    public Result<Object> logisticsActionAddOrSave(@RequestBody IogisticsData iogisticsData){
         String errMsg = null;
-        String eruiToken = CookiesUtil.getEruiToken(request);
-        ThreadLocalUtil.setObject(eruiToken);
-        if (iogisticsData.getLogisticsPriceUsd() == null) {
+        if(iogisticsData.getLogisticsPriceUsd() == null){
             errMsg = "物流发运金额(USD)不能为空";
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR).setMsg(errMsg);
         }

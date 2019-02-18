@@ -113,7 +113,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
      */
     @Transactional(rollbackFor = Exception.class)
     public boolean insert(InspectApply inspectApply) throws Exception {
-        String eruiToken = (String) ThreadLocalUtil.getObject();
         Purch purch = purchDao.findOne(inspectApply.getpId());
         if (purch == null || purch.getStatus() != Purch.StatusEnum.BEING.getCode()) {
             // 采购为空或采购已完成，则返回报检失败
@@ -184,7 +183,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 }
                 goodsDao.save(goods);
                 //已报检
-                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 4, eruiToken));
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 4));
             }
             // 设置预报检商品数量
             purchGoods.setPreInspectNum(purchGoods.getPreInspectNum() + inspectNum);
@@ -312,16 +311,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         if (doneFlag) {
             purch.setStatus(Purch.StatusEnum.DONE.getCode());
             purchDao.save(purch);
-            try {
-                // 删除办理报检单待办事项列表
-                //全部质检合格以后，删除   “办理报检单”  待办提示
-                BackLog backLog = new BackLog();
-                backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
-                backLog.setHostId(purch.getId());
-                backLogService.updateBackLogByDelYn(backLog);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
         }
     }
 
@@ -334,7 +323,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean save(InspectApply inspectApply) throws Exception {
-        String eruiToken = (String) ThreadLocalUtil.getObject();
         InspectApply dbInspectApply = inspectApplyDao.findOne(inspectApply.getId());
         if (dbInspectApply == null || dbInspectApply.getStatus() != InspectApply.StatusEnum.SAVED.getCode()) {
             throw new Exception(String.format("%s%s%s", "报检信息不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Inspection information does not exist"));
@@ -401,7 +389,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 }
                 goodsDao.save(goods);
                 //已报检
-                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 4, eruiToken));
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 4));
             }
             // 更新预报检数量
             purchGoods.setPreInspectNum(purchGoods.getPreInspectNum() + inspectNum - oldInspectNum);

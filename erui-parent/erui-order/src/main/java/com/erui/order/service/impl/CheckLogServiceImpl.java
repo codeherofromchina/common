@@ -23,6 +23,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @Author:SHIGS
@@ -78,43 +79,12 @@ public class CheckLogServiceImpl implements CheckLogService {
     @Override
     public List<CheckLog> findListByOrderId(Integer orderId) {
         if (orderId != null) {
-            List<CheckLog> checkLogList = checkLogDao.findByOrderIdOrderByCreateTimeDesc(orderId);
+            List<CheckLog> checkLogList = checkLogDao.findByOrderId(orderId);
             if (checkLogList != null && checkLogList.size() > 0) {
-                List<CheckLog> collect = checkLogList.stream().filter(vo -> vo.getType() == 1 || vo.getType() == 2).collect(Collectors.toList());
-                return collect;
+                return checkLogList;
             }
         }
         return null;
-    }
-
-    @Override
-    public List<CheckLog> findListByOrderIdAndType(Integer orderId, Integer type) {
-        List<CheckLog> checkLogList = null;
-        if (orderId != null) {
-            checkLogList = checkLogDao.findByOrderIdAndType(orderId, type);
-        }
-        if (checkLogList == null) {
-            checkLogList = new ArrayList<>();
-        }
-        return checkLogList;
-    }
-
-    @Override
-    public List<CheckLog> findListByPurchId(Integer purchId, Integer type) {
-        List<CheckLog> checkLogList = null;
-        if (purchId != null) {
-            checkLogList = checkLogDao.findAll(new Specification<CheckLog>() {
-                @Override
-                public Predicate toPredicate(Root<CheckLog> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                    cb.equal(root.get("type").as(Integer.class), type);
-                    return cb.equal(root.get("purchId").as(Integer.class), purchId);
-                }
-            }, new Sort(Sort.Direction.DESC, "createTime"));
-        }
-        if (checkLogList == null) {
-            checkLogList = new ArrayList<>();
-        }
-        return checkLogList;
     }
 
     /**
@@ -152,7 +122,6 @@ public class CheckLogServiceImpl implements CheckLogService {
             checkLogList = checkLogDao.findAll(new Specification<CheckLog>() {
                 @Override
                 public Predicate toPredicate(Root<CheckLog> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                    cb.lessThanOrEqualTo(root.get("type").as(Integer.class), 2);
                     return cb.equal(root.get("orderId").as(Integer.class), orderId);
                 }
             }, new Sort(Sort.Direction.DESC, "type", "auditingProcess"));
@@ -167,11 +136,10 @@ public class CheckLogServiceImpl implements CheckLogService {
     @Override
     public List<CheckLog> findPassed(Integer orderId) {
         List<CheckLog> resultCheckLogs = new ArrayList<>();
-        Order order = null;
         if (orderId != null) {
             List<CheckLog> checkLogList = findListByOrderIdOrderByTypeAndAuditingProcess(orderId);
 //            List<CheckLog> checkLogList = findListByOrderIdOrderByCreateTimeDesc(orderId);
-            order = orderService.findById(orderId);
+            Order order = orderService.findById(orderId);
             Integer orderAuditingStatus = order.getAuditingStatus();// 订单审核状态，如果为空说明没有任何审核进度
             if (orderAuditingStatus == null) {
                 return resultCheckLogs;
@@ -180,7 +148,7 @@ public class CheckLogServiceImpl implements CheckLogService {
             // 通过项目和订单判断可以驳回到之前的步骤列表
             for (CheckLog checkLog : checkLogList) {
                 // 只查找通过和立项的审核
-                if (StringUtils.equals("-1", checkLog.getOperation())) {
+                if (checkLog.getOperation() == "-1") {
                     continue;
                 }
                 if (orderAuditingStatus == 4 && checkLog.getType() == 1) {
@@ -220,12 +188,9 @@ public class CheckLogServiceImpl implements CheckLogService {
         for (CheckLog cLog : resultCheckLogs) {
             if (map.containsKey(cLog.getAuditingProcess() + "_" + cLog.getType())) {
                 map.remove(cLog.getAuditingProcess() + "_" + cLog.getType());
+                map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
             } else {
                 map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
-            }
-            map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
-            if (order.getAuditingProcess() != null && order.getAuditingProcess() == 8) {
-                map.remove(order.getAuditingProcess() + "_" + cLog.getType());
             }
         }
         List<CheckLog> cList = map.values().stream().collect(Collectors.toList());
@@ -244,14 +209,14 @@ public class CheckLogServiceImpl implements CheckLogService {
             if (orderAuditingStatus == null) {
                 return resultCheckLogs;
             }
-            if (order.getProject().getAuditingStatus() == 4 && "999".equals(order.getProject().getAuditingProcess())) {
+            if (order.getProject().getAuditingStatus() == 4 && order.getProject().getAuditingProcess() == null){
                 for (CheckLog checkLog : checkLogList) {
                     // 只查找通过和立项的审核
                     if (!checkLog.getOperation().equals("-1")) {
                         resultCheckLogs.add(checkLog);
                     }
                 }
-            } else {
+            }else {
                 return resultCheckLogs;
             }
             Map<String, CheckLog> map = new LinkedMap<>();
@@ -268,10 +233,5 @@ public class CheckLogServiceImpl implements CheckLogService {
             return collect;
         }
         return null;
-    }
-
-    @Override
-    public List<CheckLog> findCheckLogsByPurchId(int purchId) {
-        return checkLogDao.findByPurchIdOrderByCreateTime(purchId);
     }
 }

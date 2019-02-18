@@ -12,7 +12,6 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.event.OrderProgressEvent;
-import com.erui.order.event.TasksAddEvent;
 import com.erui.order.requestVo.DeliverD;
 import com.erui.order.requestVo.DeliverDetailVo;
 import com.erui.order.requestVo.DeliverW;
@@ -703,7 +702,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             pushWareHouseman(one,2);
 
             //已出库
-            applicationContext.publishEvent(new OrderProgressEvent(deliverConsign1.getOrder(), 8, eruiToken));
+            applicationContext.publishEvent(new OrderProgressEvent(deliverConsign1.getOrder(), 8));
 
             //  V2.0订单执行跟踪   推送商品出库
              pushGoodsLeaverDate(deliverConsign1,deliverDetail2);
@@ -837,7 +836,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void logisticsActionAddOrSave(DeliverDetail deliverDetail) {
-        String eruiToken = (String) ThreadLocalUtil.getObject();
         DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getId());
         //物流经办人
         if (deliverDetail.getLogisticsUserId() != null) {
@@ -939,7 +937,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             }
             if (deliverDetail.getStatus() == 6 && deliverDetail.getLeaveFactory() != null) {
                 //已发运
-                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 9, eruiToken));
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 9));
             }
             if (deliverDetail.getStatus() == 7) {
                 Date date = new Date();
@@ -1275,7 +1273,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean saveQuality(DeliverDetail deliverDetail) throws Exception {
-        String eruiToken = (String) ThreadLocalUtil.getObject();
         DeliverDetail dbDeliverDetail = deliverDetailDao.findOne(deliverDetail.getId());
 
         if (dbDeliverDetail == null ||
@@ -1316,7 +1313,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     one1.setReleaseDate(deliverDetail.getReleaseDate());//推送   放行日期    到商品表
                     goodsDao.save(one1);
                     //出库质检
-                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 7, eruiToken));
+                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 7));
                 }
             }
 
@@ -1329,7 +1326,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             Map<String, Object> map = new HashMap<>();
             map.put("qualityUid", dbDeliverDetail.getWareHouseman());       //仓库经办人id
             map.put("projectNo", project.getProjectNo());        //项目号
-            map.put("deliverDetailNo", dbDeliverDetail.getDeliverDetailNo());        //产品放行单号
+            map.put("deliverDetailNo",dbDeliverDetail.getDeliverDetailNo());        //产品放行单号
             map.put("status",4);        //发送短信标识
             sendSms(map);
 
@@ -1349,11 +1346,12 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.NOTARIZEDELIVER.getMsg());  //功能名称
             newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.NOTARIZEDELIVER.getNum());    //功能访问路径标识
             newBackLog.setReturnNo(deliverConsign.getDeliverConsignNo());  //返回单号
-            newBackLog.setInformTheContent(order.getContractNo() + " | " + project1.getProjectNo());  //提示内容
+            newBackLog.setInformTheContent(order.getContractNo()+ " | "+project1.getProjectNo());  //提示内容
             newBackLog.setHostId(dbDeliverDetail.getId());    //父ID，列表页id
             newBackLog.setFollowId(4);  // 1：为办理和分单    4：为确认出库
             newBackLog.setUid(dbDeliverDetail.getWareHouseman());   //经办人id  仓库经办人id
             backLogService.addBackLogByDelYn(newBackLog);
+
         }
 
 

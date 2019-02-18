@@ -10,7 +10,6 @@ import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.*;
-import com.erui.order.event.NotifyPointProjectEvent;
 import com.erui.order.requestVo.OrderAcciuntAdd;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.DeliverConsignService;
@@ -20,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -45,8 +43,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
     @Autowired
     private OrderAccountDao orderAccountDao;
-    @Autowired
-    private ApplicationContext applicationContext;
+
     @Autowired
     private OrderDao orderDao;
 
@@ -343,17 +340,12 @@ public class OrderAccountServiceImpl implements OrderAccountService {
          */
         List<OrderAccount> byOrderId = orderAccountDao.findByOrderIdAndDelYn(id, 1);
         if (byOrderId.size() == 0) {
-            throw new Exception(String.format("%s%s%s", "无收款记录", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Non receivable record"));
+            throw new Exception(String.format("%s%s%s","无收款记录", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Non receivable record"));
         }
         Order order = orderDao.findOne(id);
         order.setPayStatus(3);
-
-        if (Order.fromCode(order.getStatus()) == Order.StatusEnum.DONE) { // 如果订单全部收款完成且订单是完成状态，则发送通知到积分系统
-            String token = (String) ThreadLocalUtil.getObject();
-            applicationContext.publishEvent(new NotifyPointProjectEvent(applicationContext, order.getId(), token));
-        }
-
         orderDao.saveAndFlush(order);
+
     }
 
 

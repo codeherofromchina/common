@@ -31,22 +31,12 @@ public interface CheckLogService {
      */
     void insert(CheckLog checkLog_i);
      /**
-     * @Author:SHIGS
-     * @Description 根据订单查找审批日志
-     * @Date:18:38 2018/8/29
-     * @modified By
-     */
-    List<CheckLog> findListByOrderId(Integer orderId);
-
-
-    List<CheckLog> findListByOrderIdAndType(Integer orderId, Integer type);
-    /**
-     * @Author:SHIGS
-     * @Description 根据订单查找审批日志
-     * @Date:18:38 2018/8/29
-     * @modified By
-     */
-    List<CheckLog> findListByPurchId(Integer purchId,Integer type);
+      * @Author:SHIGS
+      * @Description 根据订单查找审批日志
+      * @Date:18:38 2018/8/29
+      * @modified By
+      */
+     List<CheckLog> findListByOrderId(Integer orderId);
     /**
      * @Author:SHIGS
      * @Description 根据订单查找已经通过审核的日志
@@ -61,11 +51,4 @@ public interface CheckLogService {
      * @modified By
      */
     List<CheckLog> findPassed2(Integer orderId);
-
-    /**
-     * 查询采购的所有审核记录
-     * @param purchId
-     * @return
-     */
-    List<CheckLog> findCheckLogsByPurchId(int purchId);
 }

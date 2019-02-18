@@ -55,9 +55,7 @@ public class InstockController {
      * @return
      */
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> save(HttpServletRequest request, @RequestBody Instock instock) {
-        String eruiToken = CookiesUtil.getEruiToken(request);
-        ThreadLocalUtil.setObject(eruiToken);
+    public Result<Object> save(@RequestBody Instock instock) {
         Result<Object> result = new Result<>();
         boolean continueFlag = true;
         Integer status = instock.getStatus();

@@ -1,8 +1,6 @@
 package com.erui.out.web.order;
 
 import com.alibaba.fastjson.JSONObject;
-import com.erui.comm.ThreadLocalUtil;
-import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.encrypt.MD5;
 import com.erui.order.entity.ComplexOrder;
 import com.erui.order.requestVo.OutListCondition;
@@ -29,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -161,12 +158,10 @@ public class OrderOutController {
      * @return
      */
     @RequestMapping(value = "orderFinish", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> orderFinish(HttpServletRequest request, @RequestBody Order order) throws Exception {
+    public Result<Object> orderFinish(@RequestBody Order order) {
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
-
-        String eruiToken = CookiesUtil.getEruiToken(request);
-        ThreadLocalUtil.setObject(eruiToken);
-        boolean flag = orderService.orderFinish(order);
+        boolean flag;
+        flag = orderService.orderFinish(order);
         if (flag) {
             result.setCode(ResultStatusEnum.SUCCESS.getCode());
             result.setMsg(ResultStatusEnum.SUCCESS.getMsg());

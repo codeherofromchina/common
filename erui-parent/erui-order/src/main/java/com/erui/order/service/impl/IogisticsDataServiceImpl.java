@@ -1,6 +1,5 @@
 package com.erui.order.service.impl;
 
-import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.dao.*;
@@ -150,7 +149,7 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void logisticsActionAddOrSave(IogisticsData iogisticsData) throws Exception {
-        String eruiToken = (String) ThreadLocalUtil.getObject();
+
         IogisticsData one = iogisticsDataDao.findOne(iogisticsData.getId());
         //物流经办人
         if (iogisticsData.getLogisticsUserId() != null) {
@@ -308,7 +307,7 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
 
                     if (iogisticsData.getStatus() == 6 && iogisticsData.getLeaveFactory() != null) {
                         //已发运
-                        applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 9, eruiToken));
+                        applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 9));
                     }
 
                     if (iogisticsData.getStatus() == 7) {

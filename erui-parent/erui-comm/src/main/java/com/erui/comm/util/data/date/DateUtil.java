@@ -630,6 +630,39 @@ public class DateUtil {
         return calendar.getTime();
     }
 
+
+    /**
+     * 获取给定日期的年，如果日期为空，则返回-1
+     * @param date
+     * @return
+     */
+    public static int getDateYear(Date date) {
+        if (date != null) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(date);
+            int year = cal.get(Calendar.YEAR);
+            return year;
+        }
+        return -1;
+    }
+
+    /**
+     * 获取给定日期的上一年日期
+     * @param date
+     * @return
+     */
+    public static Date getPreYearDate(Date date) {
+        if (date != null) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(date);
+            cal.add(Calendar.YEAR, -1);
+            Date time = cal.getTime();
+            return time;
+        }
+        return null;
+    }
+
+
     /**
      * 解析 "yyyyy年MM月"成 "yyyy-MM-dd" 格式的字符串
      *
