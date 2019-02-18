@@ -578,6 +578,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = null;
         if (id != null) {
             order = orderDao.findOne(id);
+            //草稿状态可以取消
             if (0 < order.getStatus() && order.getStatus() < 3) {
                 order.setStatus(0);
                 order.setCancelReason(reason);
