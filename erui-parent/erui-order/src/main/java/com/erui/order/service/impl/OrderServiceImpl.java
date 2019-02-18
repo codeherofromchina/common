@@ -587,10 +587,10 @@ public class OrderServiceImpl implements OrderService {
                 throw new MyException(String.format("%s%s%s", "订单状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "status error"));
             }
             orderDao.save(order);
-            List<CheckLog> checkLogList = checkLogDao.findByOrderIdOrderByCreateTimeDesc(id);
-            List<CheckLog> dingList = checkLogList.stream().filter(vo -> vo.getType() <= 2 && vo.getOperation().equals("-1")).collect(Collectors.toList());
+            List<CheckLog> checkLogList = checkLogService.findPassed(id);
+            //List<CheckLog> dingList = checkLogList.stream().filter(vo -> vo.getType() <= 2 && vo.getOperation().equals("-1")).collect(Collectors.toList());
             //向通过审核人发送钉钉取消通知
-            for (CheckLog ck : dingList) {
+            for (CheckLog ck : checkLogList) {
                 sendDingtalk(order, ck.getAuditingUserName(), true, 2);
             }
         }
