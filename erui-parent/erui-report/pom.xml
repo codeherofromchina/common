@@ -173,7 +173,25 @@
 			</properties>
 		</profile>
 		<profile>
+			<id>master</id>
+			<properties>
+				<package.environment>zhengshi</package.environment>
+			</properties>
+		</profile>
+		<profile>
+			<id>dev</id>
+			<properties>
+				<package.environment>dev</package.environment>
+			</properties>
+		</profile>
+		<profile>
 			<id>production</id>
+			<properties>
+				<package.environment>production</package.environment>
+			</properties>
+		</profile>
+		<profile>
+			<id>prepare</id>
 			<properties>
 				<package.environment>production</package.environment>
 			</properties>
