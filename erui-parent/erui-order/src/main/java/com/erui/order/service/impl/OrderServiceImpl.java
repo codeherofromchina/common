@@ -579,7 +579,7 @@ public class OrderServiceImpl implements OrderService {
         if (id != null) {
             order = orderDao.findOne(id);
             //草稿状态可以取消
-            if (0 < order.getStatus() && order.getStatus() < 3) {
+            if (order.getStatus() == 2) {
                 order.setStatus(0);
                 order.setCancelReason(reason);
                 order.getProject().setProjectStatus("ORDERCANCEL");
@@ -2989,7 +2989,7 @@ public class OrderServiceImpl implements OrderService {
                 String stringR24C10 = sheet1.getRow(24).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(24).getCell(10).setCellValue(stringR24C10);
 
-                if (orderDec.getProject().getLogisticsAudit() != 2 ) {
+                if (orderDec.getProject().getLogisticsAudit() != 2) {
                     //事业部总监审核接收时间
                     String stringR29C10 = sheet1.getRow(29).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                     sheet1.getRow(29).getCell(10).setCellValue(stringR29C10);

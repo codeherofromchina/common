@@ -93,6 +93,7 @@ public class OrderController {
         if (flag) {
             result.setCode(ResultStatusEnum.SUCCESS.getCode());
             result.setMsg(ResultStatusEnum.SUCCESS.getMsg());
+            result.setMsg(ResultStatusEnum.SUCCESS.getEnMsg());
             return result;
         }
         return result;
