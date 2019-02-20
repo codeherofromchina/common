@@ -97,8 +97,8 @@ public class OrderController {
         }
         // 获取当前登录用户ID并比较是否是当前用户审核
         Object userId = request.getSession().getAttribute("userid");
-        String auditingUserIds = order.getAuditingUserId();
-        if (auditingUserIds == null || !StringUtils.equals(String.valueOf(userId), auditingUserIds)) {
+        Integer agentId = order.getAgentId();
+        if (agentId == null || !StringUtils.equals(String.valueOf(userId), agentId.toString())) {
             return new Result<>(ResultStatusEnum.NOT_NOW_USER);
         }
         boolean flag;
