@@ -577,7 +577,6 @@ public class OrderServiceImpl implements OrderService {
     public boolean cancelorder(Integer id, String reason) throws Exception {
         Order order = null;
         if (id != null) {
-            order = orderDao.findOne(id);
             //草稿状态可以取消
             if (order.getStatus() == 2) {
                 order.setStatus(0);

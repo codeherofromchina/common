@@ -4,11 +4,14 @@ import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
+import com.erui.comm.util.constant.Constant;
+import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderLog;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderService;
+import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,9 +88,19 @@ public class OrderController {
     @RequestMapping(value = "cancelOrder", method = RequestMethod.GET, produces = {"application/json;charset=utf-8"})
     public Result<Object> cancelOrder(Integer id, String reason, HttpServletRequest request) throws Exception {
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
-        //获取token
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
+        // 判断订单是否存在，
+        Order order = orderService.findById(id);
+        if (order == null) {
+            return new Result<>(ResultStatusEnum.PROJECT_NOT_EXIST);
+        }
+        // 获取当前登录用户ID并比较是否是当前用户审核
+        Object userId = request.getSession().getAttribute("userid");
+        String auditingUserIds = order.getAuditingUserId();
+        if (auditingUserIds == null || !StringUtils.equals(String.valueOf(userId), auditingUserIds)) {
+            return new Result<>(ResultStatusEnum.NOT_NOW_USER);
+        }
         boolean flag;
         flag = orderService.cancelorder(id, reason);
         if (flag) {
