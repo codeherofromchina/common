@@ -601,7 +601,7 @@ public class OrderServiceImpl implements OrderService {
             //List<CheckLog> dingList = checkLogList.stream().filter(vo -> vo.getType() <= 2 && vo.getOperation().equals("-1")).collect(Collectors.toList());
             //向通过审核人发送钉钉取消通知
             for (CheckLog ck : checkLogList) {
-                sendDingtalk(order, ck.getAuditingUserName(), true, 2);
+                sendDingtalk(order, ck.getAuditingUserId().toString(), true, 2);
             }
         }
         return true;
@@ -1548,7 +1548,7 @@ public class OrderServiceImpl implements OrderService {
                                     "" + sendTime02 + "");
                         }
                     } else if (type == 2) {
-                        stringBuffer.append("&message=【Erui】您好！客户代码：" + order.getCrmCode() + "，销售合同号：" + order.getContractNo() + "已取消。取消原因如下：" + order.getCancelReason() + "，感谢您对我们的支持与信任！！" +
+                        stringBuffer.append("&message=【Erui】 您好！客户代码：" + order.getCrmCode() + "，销售合同号：" + order.getContractNo() + "已取消。取消原因如下：" + order.getCancelReason() + "，感谢您对我们的支持与信任！！" +
                                 "" + sendTime02 + "");
                     }
                     stringBuffer.append("&toUser=").append(userNo);
