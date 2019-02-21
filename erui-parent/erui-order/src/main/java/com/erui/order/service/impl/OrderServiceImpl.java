@@ -1548,7 +1548,7 @@ public class OrderServiceImpl implements OrderService {
                                     "" + sendTime02 + "");
                         }
                     } else if (type == 2) {
-                        stringBuffer.append("&message=【Erui】 您好！客户代码：" + order.getCrmCode() + "，销售合同号：" + order.getContractNo() + "已取消。取消原因如下：" + order.getCancelReason() + "，感谢您对我们的支持与信任！！" +
+                        stringBuffer.append("&message=【Erui】 您好！客户代码：" + order.getCrmCode() + "，该销售合同号：" + order.getContractNo() + "订单已取消。取消原因如下：" + order.getCancelReason() + "，感谢您对我们的支持与信任！！" +
                                 "" + sendTime02 + "");
                     }
                     stringBuffer.append("&toUser=").append(userNo);
