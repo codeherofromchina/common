@@ -582,7 +582,12 @@ public class OrderServiceImpl implements OrderService {
             if (order.getStatus() == 2) {
                 order.setStatus(0);
                 order.setCancelReason(reason);
-                order.getProject().setProjectStatus("ORDERCANCEL");
+                if (order.getProject() != null) {
+                    order.getProject().setProjectStatus("ORDERCANCEL");
+                }
+                if (order.getContractNo() == null) {
+                    order.setContractNo("");
+                }
             } else {
                 throw new MyException(String.format("%s%s%s", "订单状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "status error"));
             }
@@ -1543,7 +1548,7 @@ public class OrderServiceImpl implements OrderService {
                                     "" + sendTime02 + "");
                         }
                     } else if (type == 2) {
-                        stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                        stringBuffer.append("&message=【Erui】您好！客户代码：" + order.getCrmCode() + "，销售合同号：" + order.getContractNo() + "已取消。取消原因如下：" + order.getCancelReason() + "，感谢您对我们的支持与信任！！" +
                                 "" + sendTime02 + "");
                     }
                     stringBuffer.append("&toUser=").append(userNo);
