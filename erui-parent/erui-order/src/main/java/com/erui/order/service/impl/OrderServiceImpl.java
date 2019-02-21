@@ -603,8 +603,9 @@ public class OrderServiceImpl implements OrderService {
             for (CheckLog ck : checkLogList) {
                 sendDingtalk(order, ck.getAuditingUserId().toString(), true, 2);
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
     //确认检测销售合同号
