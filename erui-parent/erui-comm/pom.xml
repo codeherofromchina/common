@@ -209,15 +209,42 @@
 
 	<profiles>
 		<profile>
-			<id>zhengshi</id>
+			<id>test</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
 			<properties>
-				<package.environment>zhengshi</package.environment>
+				<package.environment>test</package.environment>
+			</properties>
+		</profile>
+		<profile>
+			<id>dev</id>
+			<properties>
+				<package.environment>dev</package.environment>
 			</properties>
 		</profile>
 		<profile>
 			<id>production</id>
 			<properties>
 				<package.environment>production</package.environment>
+			</properties>
+		</profile>
+		<profile>
+			<id>prepare</id>
+			<properties>
+				<package.environment>production</package.environment>
+			</properties>
+		</profile>
+		<profile>
+			<id>zhengshi</id>
+			<properties>
+				<package.environment>zhengshi</package.environment>
+			</properties>
+		</profile>
+		<profile>
+			<id>master</id>
+			<properties>
+				<package.environment>zhengshi</package.environment>
 			</properties>
 		</profile>
 	</profiles>
