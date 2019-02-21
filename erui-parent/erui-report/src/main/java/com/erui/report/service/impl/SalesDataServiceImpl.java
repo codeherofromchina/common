@@ -291,7 +291,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         Date startTime = DateUtil.parseString2DateNoException(startTimeStr, DateUtil.FULL_FORMAT_STR);
         Date endTime = DateUtil.parseString2DateNoException(endTimeStr, DateUtil.FULL_FORMAT_STR);
         // 判断开始日期和结束日期是否是同一年
-        if (DateUtil.getDateYear(startTime) == DateUtil.getDateYear(endTime)) {
+        if (DateUtil.getDateYear(startTime) != DateUtil.getDateYear(endTime)) {
             return  null;
         }
         // 获取上年的日期
@@ -305,6 +305,9 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         params.put("startTime", preYearStartTime);
         params.put("endTime", preYearEndTime);
         Map<String, Object> preMapData = selectAreaDetailByType(params);
+
+
+
         //计算同比
         List<String> areasList = (List<String>) curMapData.get("areas");
         List<String> preAreasList = (List<String>) preMapData.get("areas");
@@ -331,7 +334,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         Date startTime = DateUtil.parseString2DateNoException(startTimeStr, DateUtil.FULL_FORMAT_STR);
         Date endTime = DateUtil.parseString2DateNoException(endTimeStr, DateUtil.FULL_FORMAT_STR);
         // 判断开始日期和结束日期是否是同一年
-        if (DateUtil.getDateYear(startTime) == DateUtil.getDateYear(endTime)) {
+        if (DateUtil.getDateYear(startTime) != DateUtil.getDateYear(endTime)) {
             return  null;
         }
         // 获取上年的日期
@@ -420,7 +423,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         Date startTime = DateUtil.parseString2DateNoException(startTimeStr, DateUtil.FULL_FORMAT_STR);
         Date endTime = DateUtil.parseString2DateNoException(endTimeStr, DateUtil.FULL_FORMAT_STR);
         // 判断开始日期和结束日期是否是同一年
-        if (DateUtil.getDateYear(startTime) == DateUtil.getDateYear(endTime)) {
+        if (DateUtil.getDateYear(startTime) != DateUtil.getDateYear(endTime)) {
             return  null;
         }
         // 获取上年的日期
@@ -430,10 +433,11 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
             return null;
         }
         // 获取数据并做同比数据
-        Map<String, Object> curMapData = selectInquiryInfoByCountry(params);
+        Map<String, Object> curMapData = selectQuoteInfoByCountry(params);
         params.put("startTime", preYearStartTime);
         params.put("endTime", preYearEndTime);
-        Map<String, Object> preMapData = selectInquiryInfoByCountry(params);
+        Map<String, Object> preMapData = selectQuoteInfoByCountry(params);
+
         //计算同比
         List<String> nameList = (List<String>) curMapData.get("names");
         List<String> preNameList = (List<String>) preMapData.get("names");
@@ -518,7 +522,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         Date startTime = DateUtil.parseString2DateNoException(startTimeStr, DateUtil.FULL_FORMAT_STR);
         Date endTime = DateUtil.parseString2DateNoException(endTimeStr, DateUtil.FULL_FORMAT_STR);
         // 判断开始日期和结束日期是否是同一年
-        if (DateUtil.getDateYear(startTime) == DateUtil.getDateYear(endTime)) {
+        if (DateUtil.getDateYear(startTime) != DateUtil.getDateYear(endTime)) {
             return  null;
         }
         // 获取上年的日期
@@ -583,7 +587,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
             int index = preOrgList.indexOf(org);
             if (index != -1) {
                 Number count01 = curDateList.get(i);
-                Number count02 = preDateList.get(i);
+                Number count02 = preDateList.get(index);
                 rateList.add((count01.doubleValue() / count02.doubleValue() - 1));
             } else {
                 rateList.add(0D);
