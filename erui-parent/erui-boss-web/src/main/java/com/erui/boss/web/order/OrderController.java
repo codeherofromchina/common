@@ -104,10 +104,7 @@ public class OrderController {
         boolean flag;
         flag = orderService.cancelorder(id, reason);
         if (flag) {
-            result.setCode(ResultStatusEnum.SUCCESS.getCode());
-            result.setMsg(ResultStatusEnum.SUCCESS.getMsg());
-            result.setEnMsg(ResultStatusEnum.SUCCESS.getEnMsg());
-            return result;
+            return new Result<>();
         }
         return result;
     }
