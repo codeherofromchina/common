@@ -19,7 +19,7 @@ public interface AttachmentDao extends JpaRepository<Attachment, Serializable>,J
     @Query(value = "SELECT a1.id,a1.group,a1.title,a1.url,a1.user_id,a1.user_name,a1.front_date,a1.delete_flag,a1.delete_time,a1.create_time,a1.type,a1.category,a1.rel_obj_id FROM attachment a1 where a1.category =:category and a1.rel_obj_id =:relObjId",nativeQuery = true)
     List<Attachment> findByIdIn(Integer relObjId,String category);
 
-    @Modifying
+    //@Modifying
     //@Query("update attachment o set  where o.id in :ids")
-    void updateAttachment(@Param(value = "ids") List<Integer> ids);
+    /*void updateAttachment(@Param(value = "ids") List<Integer> ids);*/
 }
