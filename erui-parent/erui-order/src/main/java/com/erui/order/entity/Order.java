@@ -181,10 +181,11 @@ public class Order {
     private BigDecimal receivableAccountRemaining;  //应收账款余额
 
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "order_attach",
-            joinColumns = @JoinColumn(name = "order_id"),
-            inverseJoinColumns = @JoinColumn(name = "attach_id"))
+//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @JoinTable(name = "order_attach",
+//            joinColumns = @JoinColumn(name = "order_id"),
+//            inverseJoinColumns = @JoinColumn(name = "attach_id"))
+    @Transient
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private List<Attachment> attachmentSet = new ArrayList<>();
 

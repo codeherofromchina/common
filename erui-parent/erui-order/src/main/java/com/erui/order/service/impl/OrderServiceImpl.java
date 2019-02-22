@@ -578,8 +578,8 @@ public class OrderServiceImpl implements OrderService {
         Order order = null;
         if (id != null) {
             order = orderDao.findOne(id);
-            //草稿状态可以取消
-            if (order.getStatus() == 2) {
+            //草稿状态或者未执行状态下可以取消
+            if (order.getStatus() == 1 || order.getStatus() == 2) {
                 order.setStatus(0);
                 order.setCancelReason(reason);
                 if (order.getProject() != null) {
