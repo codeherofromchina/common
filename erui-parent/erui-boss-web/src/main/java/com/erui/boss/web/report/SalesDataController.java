@@ -115,7 +115,7 @@ public class SalesDataController {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         Map<String, Object> data = salesDataService.selectAreaDetailByTypeYearOnYear(params);
-        if (data == null || data.size() == 0 || ((List) data.get("datas")).size() == 0) {
+        if (data == null || data.size() == 0 || ((List) data.get("areas")).size() == 0) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         return new Result<>(data);
@@ -152,7 +152,7 @@ public class SalesDataController {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
 
-        if (data == null || data.size() == 0) {
+        if (data == null || data.size() == 0 || ((List) data.get("names")).size() == 0) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
 
@@ -269,7 +269,7 @@ public class SalesDataController {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         Map<String, Object> data = salesDataService.selectOrgDetailByTypeYearOnYear(params);
-        if (data == null || data.size() == 0) {
+        if (data == null || data.size() == 0 || ((List) data.get("orgs")).size() == 0) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         return new Result<>(data);
