@@ -16,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,8 +34,6 @@ public class OrderController {
     private final static Logger logger = LoggerFactory.getLogger(OrderController.class);
     @Autowired
     private OrderService orderService;
-    @Autowired
-    private ApplicationContext applicationContext;
 
     /**
      * 获取单列表
@@ -49,8 +46,6 @@ public class OrderController {
         if (condition.getPage() < 1) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
-        String eruiToken = CookiesUtil.getEruiToken(request);
-        ThreadLocalUtil.setObject(eruiToken);
         // 设置请求语言
         String lang = CookiesUtil.getLang(request);
         condition.setLang(lang);
@@ -409,9 +404,7 @@ public class OrderController {
      * @return
      */
     @RequestMapping(value = "orderFinish", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> orderFinish(HttpServletRequest request, @RequestBody Order order) throws Exception {
-        String eruiToken = CookiesUtil.getEruiToken(request);
-        ThreadLocalUtil.setObject(eruiToken);
+    public Result<Object> orderFinish(@RequestBody Order order) {
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
         boolean flag;
         flag = orderService.orderFinish(order);

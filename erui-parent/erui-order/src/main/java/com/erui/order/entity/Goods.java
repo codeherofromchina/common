@@ -223,7 +223,8 @@ public class Goods {
 
 
     // 务必没有修改PurchGoods权限的能力
-    @OneToMany(mappedBy = "goods", fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "goods_id")
     @JsonIgnore
     private List<PurchGoods> purchGoods;
 
@@ -578,9 +579,6 @@ public class Goods {
     }
 
     public Boolean getExchanged() {
-        if (exchanged == null) {
-            return false;
-        }
         return exchanged;
     }
 

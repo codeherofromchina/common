@@ -1045,28 +1045,26 @@ public class Order {
 
     public String getPayStatusName() {
         // 1:未付款 2:部分付款 3:收款完成
-        String str = null;
         if (getPayStatus() == 1) {
-            str = "未收款";
+            return "未收款";
         } else if (getPayStatus() == 2) {
-            str = "部分收款";
+            return "部分收款";
         } else if (getPayStatus() == 3) {
-            str = "收款完成";
+            return "收款完成";
         }
-        return str;
+        return null;
     }
 
     public String getEnPayStatusName() {
         // 1:未付款 2:部分付款 3:收款完成
-        String str = null;
         if (getPayStatus() == 1) {
-            str = "Uncollected";
+            return "Uncollected";
         } else if (getPayStatus() == 2) {
-            str = "Partly collected";
+            return "Partly collected";
         } else if (getPayStatus() == 3) {
-            str = "Totally collected";
+            return "Totally collected";
         }
-        return str;
+        return null;
     }
 
     public void setPayStatus(Integer payStatus) {
