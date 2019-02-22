@@ -572,7 +572,7 @@ public class OrderServiceImpl implements OrderService {
                 }).collect(Collectors.toList());
         orderDao.save(collect);
     }
-
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean cancelorder(Integer id, String reason) throws Exception {
         Order order = null;
