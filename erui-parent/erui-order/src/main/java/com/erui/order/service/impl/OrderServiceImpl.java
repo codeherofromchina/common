@@ -597,10 +597,13 @@ public class OrderServiceImpl implements OrderService {
             backLog.setFunctionExplainId(999);    //功能访问路径标识
             backLog.setHostId(order.getId());
             backLogService.updateBackLogByDelYn(backLog);
-            List<CheckLog> checkLogList = checkLogService.findPassed(id);
-            //List<CheckLog> dingList = checkLogList.stream().filter(vo -> vo.getType() <= 2 && vo.getOperation().equals("-1")).collect(Collectors.toList());
+            //只给当前审核节点之前的员工发通知
+            //List<CheckLog> checkLogList = checkLogService.findPassed(id);
+            //给所有之前通过的节点发通知
+            List<CheckLog> checkLogList = checkLogService.findPassed2(id);
+            List<CheckLog> dingList = checkLogList.stream().filter(vo -> vo.getType() <= 2 && vo.getOperation().equals("-1")).collect(Collectors.toList());
             //向通过审核人发送钉钉取消通知
-            for (CheckLog ck : checkLogList) {
+            for (CheckLog ck : dingList) {
                 sendDingtalk(order, ck.getAuditingUserId().toString(), true, 2);
             }
             return true;
