@@ -24,6 +24,7 @@ public class Attachment {
 
     @Column(name = "user_id")
     private Integer userId;
+
     @Column(name = "user_name")
     private String userName;
 
@@ -42,6 +43,26 @@ public class Attachment {
     @JsonIgnore
     private Date createTime;
     private Integer type;
+    @Column(name = "rel_obj_id")
+    private Integer relObjId;//关联附件id
+
+    private String category;//附件分类值统一为大写例如ORDER
+
+    public Integer getRelObjId() {
+        return relObjId;
+    }
+
+    public void setRelObjId(Integer relObjId) {
+        this.relObjId = relObjId;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
 
     public Integer getType() {
         return type;
