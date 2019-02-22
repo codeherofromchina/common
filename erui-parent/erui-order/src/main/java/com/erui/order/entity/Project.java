@@ -142,7 +142,7 @@ public class Project {
     //是否已生成出口通知单
     @Column(name = "deliver_consign_has")
     private Integer deliverConsignHas;
-    //订单类别 1预投 2 售后 3 试用 4 现货（出库） 5 订单
+    //订单类别 1预投 2 售后 3 试用 4 现货（出库） 5 订单 6 国内订单
     @Column(name = "order_category")
     private Integer orderCategory;
 
@@ -783,7 +783,7 @@ public class Project {
         if (project.exeChgDate == null) {
             project.setExeChgDate(this.exeChgDate);
         }
-        //project.setRequirePurchaseDate(this.requirePurchaseDate);
+        project.setRequirePurchaseDate(this.requirePurchaseDate);
         project.setPurchaseUid(this.purchaseUid);
         project.setPurchaseName(this.purchaseName);
         project.setQualityUid(this.qualityUid);

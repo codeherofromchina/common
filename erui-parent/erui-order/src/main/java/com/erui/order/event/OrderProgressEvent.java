@@ -9,17 +9,23 @@ import org.springframework.context.ApplicationEvent;
 public class OrderProgressEvent extends ApplicationEvent {
 
     private Integer type = 0;
+    private final String token;
     /**
      * Create a new ApplicationEvent.
      *
      * @param source the object on which the event initially occurred (never {@code null})
      */
-    public OrderProgressEvent(Object source, Integer type) {
+    public OrderProgressEvent(Object source, Integer type, String token) {
         super(source);
+        this.token = token;
         this.type = type;
     }
 
     public Integer getType() {
         return type;
+    }
+
+    public String getToken() {
+        return token;
     }
 }

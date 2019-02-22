@@ -81,7 +81,7 @@ public class PurchRequisitionController {
             map.put("contractNo", project.getContractNo());
             map.put("sendDeptId", project.getSendDeptId());
             map.put("transModeBn", project.getOrder().getTradeTerms());
-            map.put("tradeMethod",project.getProjectProfit().getProjectType());
+            map.put("tradeMethod", project.getProjectProfit().getProjectType());
             map.put("goodList", project.getOrder().getGoodsList());
             return new Result<>(map);
 

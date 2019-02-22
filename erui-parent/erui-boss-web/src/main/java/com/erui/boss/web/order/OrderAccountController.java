@@ -190,20 +190,20 @@ public class OrderAccountController {
      * 确认全部收款完成
      * @return
      */
-    @RequestMapping(value = "endGatheringRecord",method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> endGatheringRecord(@RequestBody OrderAcciuntAdd orderAccount ,HttpServletRequest request){
+    @RequestMapping(value = "endGatheringRecord", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> endGatheringRecord(@RequestBody OrderAcciuntAdd orderAccount, HttpServletRequest request) {
 
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
 
         Result<Object> result = new Result<>();
-        if(orderAccount == null || orderAccount.getId() == null){
+        if (orderAccount == null || orderAccount.getId() == null) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("订单收款信息id不能为空");
-        }else{
+        } else {
             try {
                 orderAccountService.endGatheringRecord(orderAccount.getId());
-            }catch (Exception e){
+            } catch (Exception e) {
                 logger.error("(根据id)确认全部收款完成失败：", orderAccount.getId(), e);
                 result.setCode(ResultStatusEnum.FAIL.getCode());
                 result.setMsg(e.getMessage());
