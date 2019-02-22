@@ -311,11 +311,13 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         // 声明放置同比信息的容器
         List<Number> curDataList = (List<Number>) curMapData.get("datas");
         List<Number> preDataList = (List<Number>) preMapData.get("datas");
-        List<Double> rateList = computYearOnYearRate(areasList, preAreasList, curDataList, preDataList);
+        //
+        List<Number> preYearResultList = computYearOnYearRate(areasList, preAreasList, curDataList, preDataList);
         // 返回数据
         Map<String, Object> result = new HashMap<>();
         result.put("areas", areasList);
-        result.put("rates", rateList);
+        result.put("curYearData", curDataList);
+        result.put("preYearData", preYearResultList);
         return result;
     }
 
@@ -350,11 +352,12 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         List<String> preNameList = (List<String>) preMapData.get("names");
         List<Number> curDataList = (List<Number>) curMapData.get("datas");
         List<Number> preDataList = (List<Number>) preMapData.get("datas");
-        List<Double> rateList = computYearOnYearRate(nameList, preNameList, curDataList, preDataList);
+        List<Number> preYearResultList = computYearOnYearRate(nameList, preNameList, curDataList, preDataList);
 
         Map<String, Object> result = new HashMap<>();
         result.put("names", nameList);
-        result.put("rates", rateList);
+        result.put("curYearData", curDataList);
+        result.put("preYearData", preYearResultList);
         return result;
     }
 
@@ -439,11 +442,12 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         List<String> preNameList = (List<String>) preMapData.get("names");
         List<Number> curDataList = (List<Number>) curMapData.get("datas");
         List<Number> preDataList = (List<Number>) preMapData.get("datas");
-        List<Double> rateList = computYearOnYearRate(nameList, preNameList, curDataList, preDataList);
+        List<Number> preYearResultList = computYearOnYearRate(nameList, preNameList, curDataList, preDataList);
 
         Map<String, Object> result = new HashMap<>();
         result.put("names", nameList);
-        result.put("rates", rateList);
+        result.put("curYearData", curDataList);
+        result.put("preYearData", preYearResultList);
         return result;
 
     }
@@ -538,33 +542,35 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         List<String> orgList = (List<String>) curMapData.get("orgs");
         List<String> preOrgList = (List<String>) preMapData.get("orgs");
         // 声明放置同比信息的容器
-        List<Double> rateList = null;
+        List<? extends Number> curDataList = null;
+        List<Number> preYearResultList = null;
         if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) { //如果分析类型为询单数量
-            List<Integer> curInqCountList = (List<Integer>) curMapData.get("inqCountList");
+            curDataList = (List<Integer>) curMapData.get("inqCountList");
             List<Integer> preInqCountList = (List<Integer>) preMapData.get("inqCountList");
-            rateList = computYearOnYearRate(orgList, preOrgList, curInqCountList, preInqCountList);
+            preYearResultList = computYearOnYearRate(orgList, preOrgList, curDataList, preInqCountList);
         } else if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) { //分析类型为询单金额
-            List<Double> curInqCountList = (List<Double>) curMapData.get("inqAmountList");
+            curDataList = (List<Double>) curMapData.get("inqAmountList");
             List<Double> preInqCountList = (List<Double>) preMapData.get("inqAmountList");
-            rateList = computYearOnYearRate(orgList, preOrgList, curInqCountList, preInqCountList);
+            preYearResultList = computYearOnYearRate(orgList, preOrgList, curDataList, preInqCountList);
         } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) { //分析类型为报价数量
-            List<Integer> curInqCountList = (List<Integer>) curMapData.get("quoteCountList");
+            curDataList = (List<Integer>) curMapData.get("quoteCountList");
             List<Integer> preInqCountList = (List<Integer>) preMapData.get("quoteCountList");
-            rateList = computYearOnYearRate(orgList, preOrgList, curInqCountList, preInqCountList);
+            preYearResultList = computYearOnYearRate(orgList, preOrgList, curDataList, preInqCountList);
         } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) { //分析类型为报价金额
-            List<Double> curInqCountList = (List<Double>) curMapData.get("quoteAmountList");
+            curDataList = (List<Double>) curMapData.get("quoteAmountList");
             List<Double> preInqCountList = (List<Double>) preMapData.get("quoteAmountList");
-            rateList = computYearOnYearRate(orgList, preOrgList, curInqCountList, preInqCountList);
+            preYearResultList = computYearOnYearRate(orgList, preOrgList, curDataList, preInqCountList);
         } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_TIME_COST.getTypeName())) { //分析类型为报价用时
-            List<Double> curInqCountList = (List<Double>) curMapData.get("inqAmountList");
+            curDataList = (List<Double>) curMapData.get("inqAmountList");
             List<Double> preInqCountList = (List<Double>) preMapData.get("inqAmountList");
-            rateList = computYearOnYearRate(orgList, preOrgList, curInqCountList, preInqCountList);
+            preYearResultList = computYearOnYearRate(orgList, preOrgList, curDataList, preInqCountList);
         } else { // 其他返回空
             return null;
         }
         Map<String, Object> result = new HashMap<>();
         result.put("orgs", orgList);
-        result.put("rates", rateList);
+        result.put("curYearData", curDataList);
+        result.put("preYearData", preYearResultList);
         return result;
     }
 
@@ -576,20 +582,33 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
      * @param preDateList
      * @return
      */
-    private List<Double> computYearOnYearRate(List<String> orgList, List<String> preOrgList, List<? extends Number> curDateList, List<? extends Number> preDateList) {
-        List<Double> rateList = new ArrayList<>();
+    private List<Number> computYearOnYearRate(List<String> orgList, List<String> preOrgList, List<? extends Number> curDateList, List<? extends Number> preDateList) {
+//        List<Double> rateList = new ArrayList<>();
+//        for (int i = 0; i < orgList.size(); i++) {
+//            String org = orgList.get(i);
+//            int index = preOrgList.indexOf(org);
+//            if (index != -1) {
+//                Number count01 = curDateList.get(i);
+//                Number count02 = preDateList.get(i);
+//                rateList.add((count01.doubleValue() / count02.doubleValue() - 1));
+//            } else {
+//                rateList.add(0D);
+//            }
+//        }
+//        return rateList;
+
+        List<Number> preYearData = new ArrayList<>();
         for (int i = 0; i < orgList.size(); i++) {
             String org = orgList.get(i);
             int index = preOrgList.indexOf(org);
             if (index != -1) {
-                Number count01 = curDateList.get(i);
-                Number count02 = preDateList.get(i);
-                rateList.add((count01.doubleValue() / count02.doubleValue() - 1));
+                Number count02 = preDateList.get(index);
+                preYearData.add(count02);
             } else {
-                rateList.add(0D);
+                preYearData.add(0);
             }
         }
-        return rateList;
+        return preYearData;
     }
 
 
