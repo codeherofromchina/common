@@ -89,6 +89,8 @@ public class OrderServiceImpl implements OrderService {
     private CheckLogService checkLogService;
     @Autowired
     private CheckLogDao checkLogDao;
+    @Autowired
+    private AttachmentDao attachmentDao;
 
     @Value("#{orderProp[CRM_URL]}")
     private String crmUrl;  //CRM接口地址
@@ -136,6 +138,10 @@ public class OrderServiceImpl implements OrderService {
                 for (Goods goods : goodsList) {
                     goods.setPurchGoods(null);
                 }
+            }
+            List<Attachment> orderAttachment = attachmentDao.findByRelObjIdAndCategory(id, "ORDER");
+            if (orderAttachment != null && orderAttachment.size() > 0) {
+                order.setAttachmentSet(orderAttachment);
             }
             order.getAttachmentSet().size();
             order.getOrderPayments().size();
@@ -1188,10 +1194,13 @@ public class OrderServiceImpl implements OrderService {
         addOrderVo.copyBaseInfoTo(order);
         order.setCreateUserId(addOrderVo.getCreateUserId());
         order.setCreateUserName(addOrderVo.getCreateUserName());
-        order.setAttachmentSet(addOrderVo.getAttachDesc());
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setCreateTime(new Date());
         order.setDeleteFlag(false);
+        //order.setAttachmentSet(addOrderVo.getAttachDesc());
+        if (addOrderVo.getAttachDesc() != null) {
+            attachmentDao.save(addOrderVo.getAttachDesc());
+        }
         //根据订单金额判断 填写审批人级别
         if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != null && addOrderVo.getOrderCategory() != 6) {
             if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {

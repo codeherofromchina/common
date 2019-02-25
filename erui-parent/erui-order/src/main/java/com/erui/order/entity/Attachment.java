@@ -151,4 +151,32 @@ public class Attachment {
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
+
+    public static enum AttachmentCategory {
+        ORDER("ORDER", "订单", 1), PROJECT("PROJECT", "项目", 2),
+        PURCHREQUEST("PURCHREQUEST", "采购申请", 3), PURCH("PURCH", "采购", 4), INSPECTAPPLY("INSTOCKQUALITY", "入库质检", 5),
+        OUTSTOCKQUALITY("OUTSTOCKQUALITY", "出库质检", 6), WAREHOUSEINSTOCK("WAREHOUSEINSTOCK", "入库", 7),
+        WAREHOUSEOUTSTOCK("WAREHOUSEOUTSTOCK", "出库", 8), DELIVERCONSIGN("DELIVERCONSIGN", "出口通知单", 9);
+        private String code;
+        private String msg;
+        private Integer num;
+
+        AttachmentCategory(String code, String msg, Integer num) {
+            this.code = code;
+            this.msg = msg;
+            this.num = num;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+
+        public Integer getNum() {
+            return num;
+        }
+    }
 }
