@@ -601,7 +601,7 @@ public class OrderServiceImpl implements OrderService {
             //只给当前审核节点之前的员工发通知
             //List<CheckLog> checkLogList = checkLogService.findPassed(id);
             //给所有之前通过的节点发通知
-            List<CheckLog> checkLogList = checkLogService.findListByOrderIdAndType(id,1);
+            List<CheckLog> checkLogList = checkLogService.findListByOrderIdAndType(id, 1);
             List<CheckLog> dingList = checkLogList.stream().filter(vo -> vo.getType() <= 2 && !vo.getOperation().equals("-1")).collect(Collectors.toList());
             //向通过审核人发送钉钉取消通知
             for (CheckLog ck : dingList) {
@@ -727,7 +727,7 @@ public class OrderServiceImpl implements OrderService {
                     //如果是国内订单 没有国家负责人 直接法务审核
                     if (order.getOrderCategory() == 6) {
                         auditingProcess_i = "8";
-                        auditingUserId_i = addOrderVo.getLawId();
+                        auditingUserId_i = "32567";
                         auditorIds.append("," + auditingUserId_i + ",");
                     } else {
                         auditingProcess_i = "2";
@@ -740,7 +740,7 @@ public class OrderServiceImpl implements OrderService {
                     //根据订单金额判断 填写审批人级别
                     //国家负责人审核完成交给法务审核
                     auditingProcess_i = "8";
-                    auditingUserId_i = addOrderVo.getLawId();
+                    auditingUserId_i = "32567";
                     auditorIds.append("," + auditingUserId_i + ",");
                     break;
                 case 8: // 法务审核 20181211法务审核由 31025 崔荣光修改为 赵明 28107   2019-01-30  法务替换为 39564，魏新宝
