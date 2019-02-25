@@ -139,7 +139,7 @@ public class OrderServiceImpl implements OrderService {
                     goods.setPurchGoods(null);
                 }
             }
-            List<Attachment> orderAttachment = attachmentDao.findByRelObjIdAndCategory(id, "ORDER");
+            List<Attachment> orderAttachment = attachmentDao.findByRelObjIdAndCategory(id, Attachment.AttachmentCategory.ORDER.getCode());
             if (orderAttachment != null && orderAttachment.size() > 0) {
                 order.setAttachmentSet(orderAttachment);
             }
@@ -1004,8 +1004,6 @@ public class OrderServiceImpl implements OrderService {
 
         }
         addOrderVo.copyBaseInfoTo(order);
-        // 处理附件信息
-        order.setAttachmentSet(addOrderVo.getAttachDesc());
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setDeleteFlag(false);
         //根据订单金额判断 填写审批人级别
@@ -1045,6 +1043,9 @@ public class OrderServiceImpl implements OrderService {
         }
         CheckLog checkLog_i = null; // 审核日志
         Order orderUpdate = orderDao.saveAndFlush(order);
+        // 处理附件信息
+        //order.setAttachmentSet(addOrderVo.getAttachDesc());
+        updateAttachments(addOrderVo);
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             checkLog_i = fullCheckLogInfo(order.getId(), null, 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
            /* if (orderUpdate.getPerLiableRepayId() != null) {
@@ -1132,6 +1133,31 @@ public class OrderServiceImpl implements OrderService {
         return order.getId();
     }
 
+    private void updateAttachments(AddOrderVo addOrderVo) throws Exception {
+        Order order = orderDao.findOne(addOrderVo.getId());
+        List<Attachment> attachmentList = addOrderVo.getAttachDesc();
+        Goods goods = null;
+        Attachment attachment = null;
+        List<Attachment> addAttachments = new ArrayList<>();
+        Map<Integer, Attachment> dbAttahmentsMap = order.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        for (Attachment attachment1 : attachmentList) {
+            if (attachment1.getId() == null) {
+                attachment = new Attachment();
+            } else {
+                attachment = dbAttahmentsMap.remove(attachment1.getId());
+                if (attachment == null) {
+                    throw new MyException("不存在的附件标识&&Non-existent attachment identifier");
+                }
+            }
+            attachment.setRelObjId(order.getId());
+            attachment.copyBaseInfoTo(attachment1);
+            addAttachments.add(attachment);
+            attachmentDao.delete(dbAttahmentsMap.values());
+            attachmentDao.save(addAttachments);
+        }
+
+    }
+
     private List<Goods> updateOrderGoods(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
@@ -1197,10 +1223,6 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setCreateTime(new Date());
         order.setDeleteFlag(false);
-        //order.setAttachmentSet(addOrderVo.getAttachDesc());
-        if (addOrderVo.getAttachDesc() != null) {
-            attachmentDao.save(addOrderVo.getAttachDesc());
-        }
         //根据订单金额判断 填写审批人级别
         if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != null && addOrderVo.getOrderCategory() != 6) {
             if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
@@ -1231,6 +1253,15 @@ public class OrderServiceImpl implements OrderService {
         }
         CheckLog checkLog_i = null; //审批流日志
         Order order1 = orderDao.save(order);
+        //order.setAttachmentSet(addOrderVo.getAttachDesc());
+        if (addOrderVo.getAttachDesc() != null) {
+            List<Attachment> attachments = new ArrayList<>();
+            for (Attachment attachment : addOrderVo.getAttachDesc()) {
+                attachment.setRelObjId(order1.getId());
+                attachments.add(attachment);
+            }
+            attachmentDao.save(attachments);
+        }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             checkLog_i = fullCheckLogInfo(order.getId(), null, 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
             checkLogService.insert(checkLog_i);

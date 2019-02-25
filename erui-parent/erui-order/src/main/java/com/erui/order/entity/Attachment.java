@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.erui.order.util.exception.MyException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -151,6 +152,24 @@ public class Attachment {
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
+
+    public void copyBaseInfoTo(Attachment attachment) {
+        if (attachment == null) {
+            throw new MyException("附件为空&null");
+        }
+        attachment.setCategory(this.getCategory());
+        attachment.setCreateTime(this.getCreateTime());
+        attachment.setDeleteFlag(this.getDeleteFlag());
+        attachment.setFrontDate(this.getFrontDate());
+        attachment.setGroup(this.getGroup());
+        attachment.setRelObjId(this.getRelObjId());
+        attachment.setTitle(this.getTitle());
+        attachment.setType(this.getType());
+        attachment.setUrl(this.getUrl());
+        attachment.setUserId(this.getUserId());
+        attachment.setUserName(this.getUserName());
+    }
+
 
     public static enum AttachmentCategory {
         ORDER("ORDER", "订单", 1), PROJECT("PROJECT", "项目", 2),
