@@ -727,7 +727,7 @@ public class OrderServiceImpl implements OrderService {
                     //如果是国内订单 没有国家负责人 直接法务审核
                     if (order.getOrderCategory() == 6) {
                         auditingProcess_i = "8";
-                        auditingUserId_i = "39564";
+                        auditingUserId_i = addOrderVo.getLawId();
                         auditorIds.append("," + auditingUserId_i + ",");
                     } else {
                         auditingProcess_i = "2";
@@ -740,7 +740,7 @@ public class OrderServiceImpl implements OrderService {
                     //根据订单金额判断 填写审批人级别
                     //国家负责人审核完成交给法务审核
                     auditingProcess_i = "8";
-                    auditingUserId_i = "39564";
+                    auditingUserId_i = addOrderVo.getLawId();
                     auditorIds.append("," + auditingUserId_i + ",");
                     break;
                 case 8: // 法务审核 20181211法务审核由 31025 崔荣光修改为 赵明 28107   2019-01-30  法务替换为 39564，魏新宝
