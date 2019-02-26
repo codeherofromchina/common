@@ -97,6 +97,68 @@ public class SalesDataController {
         return new Result<>(data);
     }
 
+
+    /**
+     * 询报价同比数据统计-大区明细
+     *
+     * @param params
+     * @return
+     */
+    @RequestMapping(value = "/inquiryQuoteAreaYearOnYearRate", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+    public Object inquiryQuoteAreaYearOnYearRate(@RequestBody(required = true) Map<String, Object> params) {
+        //处理参数
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        if (params.get("analyzeType") == null || StringUtils.isEmpty(String.valueOf(params.get("analyzeType")))) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        Map<String, Object> data = salesDataService.selectAreaDetailByTypeYearOnYear(params);
+        if (data == null || data.size() == 0 || ((List) data.get("areas")).size() == 0) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        return new Result<>(data);
+    }
+
+
+    /**
+     * 查询国家的询报价同比信息（询单数量、询单金额、报价数量、报价金额）
+     *
+     * @param params
+     * @return
+     */
+    @RequestMapping(value = "/inquiryQuoteByCountryYearOnYearRate", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+    public Result<Object> inquiryQuoteByCountryYearOnYearRate(@RequestBody(required = true) Map<String, Object> params) {
+        //处理参数
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        if (params.get("analyzeType") == null || StringUtils.isEmpty(String.valueOf(params.get("analyzeType")))) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        String analyzeType = String.valueOf(params.get("analyzeType"));
+        Map<String, Object> data = null;
+        if (AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName().equalsIgnoreCase(analyzeType)) {
+            // 询单数量或询单金额
+            data = salesDataService.selectInquiryInfoByCountryYearOnYear(params);
+        } else if (AnalyzeTypeEnum.QUOTE_COUNT.getTypeName().equalsIgnoreCase(analyzeType) || AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)
+                || AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) {
+            // TODO  || AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)   这里应该在上面的if中，临时修改为请求询单金额时返回报价金额内容，service中也有修改
+            // 报价数量或报价金额
+            data = salesDataService.selectQuoteInfoByCountryYearOnYear(params);
+        } else {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+
+        if (data == null || data.size() == 0 || ((List) data.get("names")).size() == 0) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+
+        return new Result<>(data);
+    }
+
     /**
      * 查询国家的询报价信息（询单数量、询单金额、报价数量、报价金额）
      *
@@ -184,6 +246,30 @@ public class SalesDataController {
         }
         Map<String, Object> data = salesDataService.selectOrgDetailByType(params);
         if (data == null || data.size() == 0) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        return new Result<>(data);
+    }
+
+
+    /**
+     * 询报价数据统计-事业部同比明细
+     *
+     * @param params
+     * @return
+     */
+    @RequestMapping(value = "/inquiryQuoteOrgYearOnYearRate", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+    public Object inquiryQuoteOrgYearOnYearRate(@RequestBody(required = true) Map<String, Object> params) {
+        //处理参数
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        if (params.get("analyzeType") == null || StringUtils.isEmpty(String.valueOf(params.get("analyzeType")))) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        Map<String, Object> data = salesDataService.selectOrgDetailByTypeYearOnYear(params);
+        if (data == null || data.size() == 0 || ((List) data.get("orgs")).size() == 0) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         return new Result<>(data);
