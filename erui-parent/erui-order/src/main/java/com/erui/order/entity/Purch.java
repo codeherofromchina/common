@@ -184,6 +184,12 @@ public class Purch {
     private Integer chairmanId;
     //chairman          总裁姓名
     private String chairman;
+    //chairman_board_id       董事长id
+    @Column(name = "chairman_board_id")
+    private Integer chairmanBoardId;
+    //chairman          董事长姓名
+    @Column(name = "chairman_board")
+    private String chairmanBoard;
 
     @Column(name = "audi_remark")
     private String audiRemark;
@@ -253,6 +259,22 @@ public class Purch {
     @JoinColumn(name = "purch_id")
     @OrderBy("id asc")
     private List<PurchGoods> purchGoodsList = new ArrayList<>();
+
+    public Integer getChairmanBoardId() {
+        return chairmanBoardId;
+    }
+
+    public void setChairmanBoardId(Integer chairmanBoardId) {
+        this.chairmanBoardId = chairmanBoardId;
+    }
+
+    public String getChairmanBoard() {
+        return chairmanBoard;
+    }
+
+    public void setChairmanBoard(String chairmanBoard) {
+        this.chairmanBoard = chairmanBoard;
+    }
 
     public BigDecimal getExchangeRate() {
         return exchangeRate;
