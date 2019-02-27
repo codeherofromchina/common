@@ -271,7 +271,7 @@ public class PurchServiceImpl implements PurchService {
                         auditingUserId_i = null;
                         //如果订单金额大于三百万需要董事长审批
                     } else if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() >= 3000000) {
-                        auditingStatus_i = 27; // 董事长审核
+                        auditingProcess_i = 27; // 董事长审核
                         auditingUserId_i = purch.getChairmanBoardId();
                     }
                     break;
