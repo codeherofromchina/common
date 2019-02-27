@@ -943,7 +943,8 @@ public class Purch {
         if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() >= 1000000) {
             this.setChairmanId(purch.getChairmanId());
             this.setChairman(purch.getChairman());
-        } else if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() >= 3000000) {
+        }
+        if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() >= 3000000) {
             this.setChairmanBoardId(purch.getChairmanBoardId());
             this.setChairmanBoard(purch.getChairmanBoard());
         }
