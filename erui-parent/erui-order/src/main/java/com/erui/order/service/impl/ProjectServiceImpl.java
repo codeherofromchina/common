@@ -15,10 +15,7 @@ import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.event.PurchDoneCheckEvent;
 import com.erui.order.event.TasksAddEvent;
 import com.erui.order.requestVo.ProjectListCondition;
-import com.erui.order.service.BackLogService;
-import com.erui.order.service.CheckLogService;
-import com.erui.order.service.ProjectService;
-import com.erui.order.service.StatisticsService;
+import com.erui.order.service.*;
 import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
@@ -73,6 +70,10 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
+    @Autowired
+    private AttachmentDao attachmentDao;
+    @Autowired
+    AttachmentService attachmentService;
 
     @Override
     @Transactional(readOnly = true)
@@ -81,6 +82,11 @@ public class ProjectServiceImpl implements ProjectService {
         if (project != null) {
             project.getOrder();
         }
+        List<Attachment> orderAttachment = attachmentDao.findByRelObjIdAndCategory(id, Attachment.AttachmentCategory.PROJECT.getCode());
+        if (orderAttachment != null && orderAttachment.size() > 0) {
+            project.setAttachmentList(orderAttachment);
+        }
+        project.getAttachmentList().size();
         return project;
     }
 
@@ -119,7 +125,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public boolean updateProject(Project project) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        Project projectUpdate = projectDao.findOne(project.getId());
+        Project projectUpdate = findById(project.getId());
         Order order = projectUpdate.getOrder();
         Project.ProjectStatusEnum nowProjectStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         Project.ProjectStatusEnum paramProjectStatusEnum = Project.ProjectStatusEnum.fromCode(project.getProjectStatus());
@@ -183,7 +189,12 @@ public class ProjectServiceImpl implements ProjectService {
                 ProjectProfit projectProfit = project.getProjectProfit();
                 projectProfit.setProject(project);
                 projectProfitDao.save(projectProfit);
-                projectUpdate.setAttachmentList(project.getAttachmentList());
+                // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
+                //projectUpdate.setAttachmentList(project.getAttachmentList());
+                List<Attachment> attachmentList = project.getAttachmentList();
+                Map<Integer, Attachment> dbAttahmentsMap = projectUpdate.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+                attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, projectUpdate.getId(), Attachment.AttachmentCategory.PROJECT.getCode());
+
                 project.copyProjectDescTo(projectUpdate);
                 //order.setStatus(Order.StatusEnum.DONE.getCode());
                 //applicationContext.publishEvent(new OrderProgressEvent(order, 2));
@@ -211,7 +222,13 @@ public class ProjectServiceImpl implements ProjectService {
                     projectProfit.setProject(project);
                     projectProfitDao.save(projectProfit);
                     project.copyProjectDescTo(projectUpdate);
-                    projectUpdate.setAttachmentList(project.getAttachmentList());
+                    //projectUpdate.setAttachmentList(project.getAttachmentList());
+                    // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
+                    //projectUpdate.setAttachmentList(project.getAttachmentList());
+                    List<Attachment> attachmentList = project.getAttachmentList();
+                    Map<Integer, Attachment> dbAttahmentsMap = projectUpdate.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+                    attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, projectUpdate.getId(), Attachment.AttachmentCategory.PROJECT.getCode());
+
                     Integer auditingLevel = project.getAuditingLevel();
                     Integer orderCategory = order.getOrderCategory();
                     if (orderCategory != null && orderCategory == 1) { // 预投
@@ -1578,7 +1595,7 @@ public class ProjectServiceImpl implements ProjectService {
         checkLog.setOperation(operation);
         checkLog.setType(type);
 
-        CheckLog.AuditProcessingEnum ape =  CheckLog.AuditProcessingEnum.findEnum(type, auditingProcess);
+        CheckLog.AuditProcessingEnum ape = CheckLog.AuditProcessingEnum.findEnum(type, auditingProcess);
         checkLog.setAuditSeq(ape.getAuditSeq());
 
         return checkLog;

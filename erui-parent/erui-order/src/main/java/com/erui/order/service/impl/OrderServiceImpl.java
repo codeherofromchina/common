@@ -91,6 +91,8 @@ public class OrderServiceImpl implements OrderService {
     private CheckLogDao checkLogDao;
     @Autowired
     private AttachmentDao attachmentDao;
+    @Autowired
+    private AttachmentService attachmentService;
 
     @Value("#{orderProp[CRM_URL]}")
     private String crmUrl;  //CRM接口地址
@@ -993,7 +995,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(rollbackFor = Exception.class)
     public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        Order order = orderDao.findOne(addOrderVo.getId());
+        Order order = findByIdLang(addOrderVo.getId(), "zh");
         if ((order.getOverseasSales() != 2 && order.getOverseasSales() != 4) && (addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4)) {
             order.setContractNo("");
         } else if ((addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4) && !order.getSigningCo().equals(addOrderVo.getSigningCo())) {
@@ -1044,9 +1046,12 @@ public class OrderServiceImpl implements OrderService {
         }
         CheckLog checkLog_i = null; // 审核日志
         Order orderUpdate = orderDao.saveAndFlush(order);
-        // 处理附件信息
+        // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
         //order.setAttachmentSet(addOrderVo.getAttachDesc());
-        updateAttachments(addOrderVo);
+        List<Attachment> attachmentList = addOrderVo.getAttachDesc();
+        Map<Integer, Attachment> dbAttahmentsMap = order.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, orderUpdate.getId(), Attachment.AttachmentCategory.ORDER.getCode());
+
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             checkLog_i = fullCheckLogInfo(order.getId(), null, 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
            /* if (orderUpdate.getPerLiableRepayId() != null) {
@@ -1135,31 +1140,6 @@ public class OrderServiceImpl implements OrderService {
         return order.getId();
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    private void updateAttachments(AddOrderVo addOrderVo) throws Exception {
-        Order order = findByIdLang(addOrderVo.getId(), "zh");
-        List<Attachment> attachmentList = addOrderVo.getAttachDesc();
-        Attachment attachment = null;
-        List<Attachment> addAttachments = new ArrayList<>();
-        Map<Integer, Attachment> dbAttahmentsMap = order.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
-        for (Attachment attachment1 : attachmentList) {
-            if (attachment1.getId() == null) {
-                attachment = new Attachment();
-            } else {
-                attachment = dbAttahmentsMap.remove(attachment1.getId());
-                if (attachment == null) {
-                    throw new MyException("不存在的附件标识&&Non-existent attachment identifier");
-                }
-            }
-            attachment1.copyBaseInfoTo(attachment);
-            attachment.setRelObjId(order.getId());
-            addAttachments.add(attachment);
-        }
-        attachmentDao.save(addAttachments);
-        attachmentDao.delete(dbAttahmentsMap.values());
-
-
-    }
 
     private List<Goods> updateOrderGoods(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
