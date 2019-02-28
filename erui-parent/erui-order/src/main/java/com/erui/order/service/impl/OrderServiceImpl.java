@@ -1135,10 +1135,10 @@ public class OrderServiceImpl implements OrderService {
         return order.getId();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     private void updateAttachments(AddOrderVo addOrderVo) throws Exception {
-        Order order = orderDao.findOne(addOrderVo.getId());
+        Order order = findByIdLang(addOrderVo.getId(), "zh");
         List<Attachment> attachmentList = addOrderVo.getAttachDesc();
-        Goods goods = null;
         Attachment attachment = null;
         List<Attachment> addAttachments = new ArrayList<>();
         Map<Integer, Attachment> dbAttahmentsMap = order.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
@@ -1151,12 +1151,13 @@ public class OrderServiceImpl implements OrderService {
                     throw new MyException("不存在的附件标识&&Non-existent attachment identifier");
                 }
             }
+            attachment1.copyBaseInfoTo(attachment);
             attachment.setRelObjId(order.getId());
-            attachment.copyBaseInfoTo(attachment1);
             addAttachments.add(attachment);
-            attachmentDao.delete(dbAttahmentsMap.values());
-            attachmentDao.save(addAttachments);
         }
+        attachmentDao.save(addAttachments);
+        attachmentDao.delete(dbAttahmentsMap.values());
+
 
     }
 
