@@ -237,7 +237,7 @@ public class PurchServiceImpl implements PurchService {
             checkLog_i = orderService.fullCheckLogInfo(null, purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "-1", 3);
         } else {
             switch (curAuditProcess) {
-                case 21: // 采购负责人审核
+                case 21: // 采购负责人-变更为-采购经理
                     auditingProcess_i = 22;
                     auditingUserId_i = purch.getBusinessAuditerId();
                     break;
@@ -253,17 +253,29 @@ public class PurchServiceImpl implements PurchService {
                     auditingProcess_i = 25;
                     auditingUserId_i = purch.getBuVpAuditerId();
                     break;
-                case 25://事业部vp审核
-                    if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() >= 1000000) {
-                        auditingProcess_i = 26;
-                        auditingUserId_i = purch.getChairmanId();
-                    } else {
+                case 25://事业部VP-变更为供应链中心总经理-金龙
+                    if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() <= 1000000) {
                         auditingStatus_i = 4; // 完成
                         auditingProcess_i = 999;
                         auditingUserId_i = null;
+                    } else {
+                        auditingProcess_i = 26;
+                        auditingUserId_i = purch.getChairmanId();
                     }
                     break;
                 case 26://总裁审核
+                    //如果采购金额 大于一百万小于三百万 总裁审批完成
+                    if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() >= 1000000 && purch.getTotalPrice().doubleValue() <= 3000000) {
+                        auditingStatus_i = 4; // 完成
+                        auditingProcess_i = 999;
+                        auditingUserId_i = null;
+                        //如果订单金额大于三百万需要董事长审批
+                    } else if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() >= 3000000) {
+                        auditingProcess_i = 27; // 董事长审核
+                        auditingUserId_i = purch.getChairmanBoardId();
+                    }
+                    break;
+                case 27://董事长审核
                     auditingStatus_i = 4; // 完成
                     auditingProcess_i = 999;
                     auditingUserId_i = null;
@@ -729,7 +741,6 @@ public class PurchServiceImpl implements PurchService {
         }
         return result;
     }
-
 
 
     /**
