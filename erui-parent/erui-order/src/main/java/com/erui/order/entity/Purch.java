@@ -940,14 +940,12 @@ public class Purch {
         this.setBuVpAuditerId(purch.getBuVpAuditerId());
         this.setBuVpAuditer(purch.getBuVpAuditer());
 
-        if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() >= 1000000) {
-            this.setChairmanId(purch.getChairmanId());
-            this.setChairman(purch.getChairman());
-        }
-        if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() >= 3000000) {
-            this.setChairmanBoardId(purch.getChairmanBoardId());
-            this.setChairmanBoard(purch.getChairmanBoard());
-        }
+        this.setChairmanId(purch.getChairmanId());
+        this.setChairman(purch.getChairman());
+
+        this.setChairmanBoardId(purch.getChairmanBoardId());
+        this.setChairmanBoard(purch.getChairmanBoard());
+
         this.setSupplyArea(purch.getSupplyArea());
         this.setContractVersion(purch.getContractVersion());
         this.setContractTag(purch.getContractTag());
