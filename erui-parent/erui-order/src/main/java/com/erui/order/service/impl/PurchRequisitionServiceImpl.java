@@ -49,7 +49,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     @Autowired
     private BackLogService backLogService;
     @Autowired
-    private BackLogDao backLogDao;
+    private AttachmentDao attachmentDao;
 
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
@@ -70,6 +70,10 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                 for (Goods goods : goodsList) {
                     goods.setPurchGoods(null);
                 }
+            }
+            List<Attachment> attachments = attachmentDao.findByRelObjIdAndCategory(purchRequisition.getId(), Attachment.AttachmentCategory.PURCHREQUEST.getCode());
+            if (attachments != null && attachments.size() > 0) {
+                purchRequisition.setAttachmentSet(attachments);
             }
             purchRequisition.getAttachmentSet().size();
             return purchRequisition;
@@ -149,6 +153,12 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionUpdate.setGoodsList(list);
         purchRequisitionUpdate.setStatus(purchRequisition.getStatus());
         PurchRequisition purchRequisition1 = purchRequisitionDao.save(purchRequisitionUpdate);
+        // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
+        //purchRequisition1.setAttachmentList(purchRequisition.getAttachmentList());
+        List<Attachment> attachmentList = purchRequisition.getAttachmentSet();
+        Map<Integer, Attachment> dbAttahmentsMap = purchRequisition1.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, purchRequisition1.getId(), Attachment.AttachmentCategory.PURCHREQUEST.getCode());
+
         if (purchRequisition1.getStatus() == PurchRequisition.StatusEnum.SUBMITED.getCode()) {
             Project project1 = purchRequisition1.getProject();
             project1.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
@@ -243,6 +253,12 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionAdd.setGoodsList(list);
         purchRequisitionAdd.setStatus(purchRequisition.getStatus());
         PurchRequisition purchRequisition1 = purchRequisitionDao.save(purchRequisitionAdd);
+        // 添加附件
+        //purchRequisition1.setAttachmentList(purchRequisition.getAttachmentList());
+        if (purchRequisitionAdd.getAttachmentSet() != null && purchRequisitionAdd.getAttachmentSet().size() > 0) {
+            attachmentService.addAttachments(purchRequisitionAdd.getAttachmentSet(), purchRequisition1.getId(), Attachment.AttachmentCategory.PURCHREQUEST.getCode());
+        }
+
         if (purchRequisition1.getStatus() == PurchRequisition.StatusEnum.SUBMITED.getCode()) {
             Project project1 = purchRequisition1.getProject();
             project1.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());

@@ -222,7 +222,6 @@ public class ProjectServiceImpl implements ProjectService {
                     projectProfit.setProject(project);
                     projectProfitDao.save(projectProfit);
                     project.copyProjectDescTo(projectUpdate);
-                    //projectUpdate.setAttachmentList(project.getAttachmentList());
                     // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
                     //projectUpdate.setAttachmentList(project.getAttachmentList());
                     List<Attachment> attachmentList = project.getAttachmentList();

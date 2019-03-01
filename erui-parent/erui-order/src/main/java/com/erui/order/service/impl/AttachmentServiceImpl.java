@@ -88,4 +88,15 @@ public class AttachmentServiceImpl implements AttachmentService {
         attachmentDao.delete(dbAttahmentsMap.values());
 
     }
+
+    @Override
+    public void addAttachments(List<Attachment> attachmentList,Integer id,String category) {
+        List<Attachment> attachments = new ArrayList<>();
+        for (Attachment attachment : attachmentList) {
+            attachment.setRelObjId(id);
+            attachment.setCategory(category);
+            attachments.add(attachment);
+        }
+        attachmentDao.save(attachments);
+    }
 }

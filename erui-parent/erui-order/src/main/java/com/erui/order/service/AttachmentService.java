@@ -13,6 +13,7 @@ public interface AttachmentService {
 
     /**
      * 处理附件信息
+     *
      * @param existAttachments
      * @param paramsAttachments
      * @param userId
@@ -20,6 +21,8 @@ public interface AttachmentService {
      * @return
      */
     List<Attachment> handleParamAttachment(List<Attachment> existAttachments, List<Attachment> paramsAttachments, Integer userId, String userName);
+
     void updateAttachments(List<Attachment> attachmentList, Map<Integer, Attachment> dbAttahmentsMap, Integer relObjId, String category) throws Exception;
 
+    void addAttachments(List<Attachment> attachmentList, Integer id, String category);
 }

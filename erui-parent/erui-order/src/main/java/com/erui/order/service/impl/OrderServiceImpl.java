@@ -1237,13 +1237,9 @@ public class OrderServiceImpl implements OrderService {
         CheckLog checkLog_i = null; //审批流日志
         Order order1 = orderDao.save(order);
         //order.setAttachmentSet(addOrderVo.getAttachDesc());
+        //添加附件
         if (addOrderVo.getAttachDesc() != null) {
-            List<Attachment> attachments = new ArrayList<>();
-            for (Attachment attachment : addOrderVo.getAttachDesc()) {
-                attachment.setRelObjId(order1.getId());
-                attachments.add(attachment);
-            }
-            attachmentDao.save(attachments);
+            attachmentService.addAttachments(addOrderVo.getAttachDesc(), order1.getId(), Attachment.AttachmentCategory.ORDER.getCode());
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             checkLog_i = fullCheckLogInfo(order.getId(), null, 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
