@@ -770,8 +770,13 @@ public class PurchServiceImpl implements PurchService {
             vo.setCreateTime(now);
         });
         // 处理附件信息
-        List<Attachment> attachments = attachmentService.handleParamAttachment(null, purch.getAttachments(), purch.getCreateUserId(), purch.getCreateUserName());
-        purch.setAttachments(attachments);
+        //List<Attachment> attachments = attachmentService.handleParamAttachment(null, purch.getAttachments(), purch.getCreateUserId(), purch.getCreateUserName());
+        //purch.setAttachments(attachments);
+        // 添加附件
+        //purchRequisition1.setAttachmentList(purchRequisition.getAttachmentList());
+        if (purch.getAttachments() != null && purch.getAttachments().size() > 0) {
+            attachmentService.addAttachments(purch.getAttachments(), purch.getId(), Attachment.AttachmentCategory.PURCH.getCode());
+        }
         // 处理商品信息
         List<PurchGoods> purchGoodsList = new ArrayList<>();
         Set<Project> projectSet = new HashSet<>();
@@ -934,8 +939,8 @@ public class PurchServiceImpl implements PurchService {
             purchPaymentDao.delete(collect.values());
         }
         // 处理附件信息
-        List<Attachment> attachmentlist = attachmentService.handleParamAttachment(dbPurch.getAttachments(), purch.getAttachments(), purch.getCreateUserId(), purch.getCreateUserName());
-        dbPurch.setAttachments(attachmentlist);
+        //List<Attachment> attachmentlist = attachmentService.handleParamAttachment(dbPurch.getAttachments(), purch.getAttachments(), purch.getCreateUserId(), purch.getCreateUserName());
+        //dbPurch.setAttachments(attachmentlist);
 
         // 处理商品
         List<PurchGoods> purchGoodsList = new ArrayList<>(); // 声明最终采购商品容器
@@ -1154,6 +1159,12 @@ public class PurchServiceImpl implements PurchService {
         CheckLog checkLog_i = null; //审批流日志
 
         Purch save = purchDao.save(dbPurch);
+        // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
+        //save.setAttachmentList(save.getAttachmentList());
+        List<Attachment> attachmentList = purch.getAttachments();
+        Map<Integer, Attachment> dbAttahmentsMap = dbPurch.getAttachments().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, save.getId(), Attachment.AttachmentCategory.PURCH.getCode());
+
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
             checkLog_i = orderService.fullCheckLogInfo(null, save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
             checkLogService.insert(checkLog_i);

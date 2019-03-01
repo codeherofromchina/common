@@ -156,7 +156,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
         //purchRequisition1.setAttachmentList(purchRequisition.getAttachmentList());
         List<Attachment> attachmentList = purchRequisition.getAttachmentSet();
-        Map<Integer, Attachment> dbAttahmentsMap = purchRequisition1.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        Map<Integer, Attachment> dbAttahmentsMap = purchRequisitionUpdate.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
         attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, purchRequisition1.getId(), Attachment.AttachmentCategory.PURCHREQUEST.getCode());
 
         if (purchRequisition1.getStatus() == PurchRequisition.StatusEnum.SUBMITED.getCode()) {
@@ -230,8 +230,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionAdd.setRequirements(purchRequisition.getRequirements());
         purchRequisitionAdd.setRemarks(purchRequisition.getRemarks());
         // 处理附件信息
-//        Set<Attachment> attachments = attachmentService.handleParamAttachment(null, purchRequisition.getAttachmentSet(), null, null);
-        purchRequisitionAdd.setAttachmentSet(purchRequisition.getAttachmentSet());
+        //Set<Attachment> attachments = attachmentService.handleParamAttachment(null, purchRequisition.getAttachmentSet(), null, null);
+        //purchRequisitionAdd.setAttachmentSet(purchRequisition.getAttachmentSet());
         ArrayList<Goods> list = new ArrayList<>();
         Map<Integer, Goods> goodsMap = project.getOrder().getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
         purchRequisition.getGoodsList().stream().forEach(dcGoods -> {
