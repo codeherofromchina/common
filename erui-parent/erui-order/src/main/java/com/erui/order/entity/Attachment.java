@@ -176,7 +176,7 @@ public class Attachment {
         PURCHREQUEST("PURCHREQUEST", "采购申请", 3), PURCH("PURCH", "采购", 4), INSTOCKQUALITY("INSTOCKQUALITY", "入库质检", 5),
         OUTSTOCKQUALITY("OUTSTOCKQUALITY", "出库质检", 6), WAREHOUSEINSTOCK("WAREHOUSEINSTOCK", "入库", 7),
         WAREHOUSEOUTSTOCK("WAREHOUSEOUTSTOCK", "出库", 8), DELIVERCONSIGN("DELIVERCONSIGN", "出口通知单", 9),
-        INSPECTAPPLY("INSPECTAPPLY", "报检单", 10);
+        INSPECTAPPLY("INSPECTAPPLY", "报检单", 10), DELIVERDETAIL("DELIVERDETAIL", "出库单详情", 11);
         private String code;
         private String msg;
         private Integer num;

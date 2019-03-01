@@ -453,8 +453,8 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         InspectApply save = inspectApplyDao.save(dbInspectApply);
         // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
         //deliverConsign1.setAttachmentList(deliverConsign1.getAttachmentList());
-        List<Attachment> attachmentList = dbInspectApply.getAttachmentList();
-        Map<Integer, Attachment> dbAttahmentsMap = inspectApply.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        List<Attachment> attachmentList = inspectApply.getAttachmentList();
+        Map<Integer, Attachment> dbAttahmentsMap = dbInspectApply.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
         if (attachmentList != null && attachmentList.size() > 0) {
             attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbInspectApply.getId(), Attachment.AttachmentCategory.INSPECTAPPLY.getCode());
         }
@@ -519,7 +519,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean againApply(InspectApply inspectApply) throws Exception {
-        InspectApply lastInspectApply = inspectApplyDao.findOne(inspectApply.getId());
+        InspectApply lastInspectApply = findDetail(inspectApply.getId());
         if (lastInspectApply == null) {
             throw new Exception(String.format("%s%s%s", "不存在的报检单", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "A nonexistent check list"));
         }
@@ -598,9 +598,15 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         //插入新报检单附件信息
         newInspectApply.setStatus(InspectApply.StatusEnum.SUBMITED.getCode());
         newInspectApply.setPubStatus(InspectApply.StatusEnum.SUBMITED.getCode());
-        List<Attachment> attachmentList = attachmentService.handleParamAttachment(null, inspectApply.getAttachmentList(), inspectApply.getCreateUserId(), inspectApply.getCreateUserName());
-        newInspectApply.setAttachmentList(attachmentList);
-
+        //List<Attachment> attachmentList = attachmentService.handleParamAttachment(null, inspectApply.getAttachmentList(), inspectApply.getCreateUserId(), inspectApply.getCreateUserName());
+        //newInspectApply.setAttachmentList(attachmentList);
+        // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
+        //deliverConsign1.setAttachmentList(deliverConsign1.getAttachmentList());
+        List<Attachment> attachmentList = inspectApply.getAttachmentList();
+        Map<Integer, Attachment> dbAttahmentsMap = lastInspectApply.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        if (attachmentList != null && attachmentList.size() > 0) {
+            attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, lastInspectApply.getId(), Attachment.AttachmentCategory.INSPECTAPPLY.getCode());
+        }
         newInspectApply.setInspectApplyGoodsList(goodsDataList);
 
         newInspectApply = inspectApplyDao.save(newInspectApply);
