@@ -131,7 +131,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionUpdate.setFactorySend(purchRequisition.isFactorySend());
         purchRequisitionUpdate.setRequirements(purchRequisition.getRequirements());
         purchRequisitionUpdate.setRemarks(purchRequisition.getRemarks());
-        purchRequisitionUpdate.setAttachmentSet(purchRequisition.getAttachmentSet());
+        //purchRequisitionUpdate.setAttachmentSet(purchRequisition.getAttachmentSet());
         ArrayList<Goods> list = new ArrayList<>();
         Map<Integer, Goods> goodsMap = project.getOrder().getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
         purchRequisition.getGoodsList().stream().forEach(dcGoods -> {
