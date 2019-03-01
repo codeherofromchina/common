@@ -48,6 +48,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     private GoodsDao goodsDao;
     @Autowired
     private AttachmentService attachmentService;
+    @Autowired
+    private AttachmentDao attachmentDao;
 
     @Autowired
     private DeliverNoticeDao deliverNoticeDao;
@@ -87,6 +89,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     deliverConsignGoods.getGoods().setPurchGoods(null);
                 }
             }
+            List<Attachment> attachments = attachmentDao.findByRelObjIdAndCategory(deliverConsign.getId(), Attachment.AttachmentCategory.DELIVERCONSIGN.getCode());
+            deliverConsign.setAttachmentSet(attachments);
             deliverConsign.getAttachmentSet().size();
         }
         Order order = deliverConsign.getOrder();
@@ -131,7 +135,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
 
         }
-
         return deliverConsign;
     }
 
@@ -139,7 +142,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Transactional(rollbackFor = Exception.class)
     public boolean updateDeliverConsign(DeliverConsign deliverConsign) throws Exception {
         Order order = orderDao.findOne(deliverConsign.getoId());
-        DeliverConsign deliverConsignUpdate = deliverConsignDao.findOne(deliverConsign.getId());
+        DeliverConsign deliverConsignUpdate = findById(deliverConsign.getId());
         deliverConsignUpdate.setOrder(order);
         deliverConsignUpdate.setDeptId(order.getExecCoId());
         deliverConsignUpdate.setCreateUserId(order.getAgentId());

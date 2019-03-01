@@ -66,6 +66,8 @@ public class PurchServiceImpl implements PurchService {
     @Autowired
     private AttachmentService attachmentService;
     @Autowired
+    private AttachmentDao attachmentDao;
+    @Autowired
     private BackLogService backLogService;
     @Autowired
     private OrderService orderService;
@@ -94,6 +96,10 @@ public class PurchServiceImpl implements PurchService {
         if (id != null && id > 0) {
             Purch puch = purchDao.findOne(id);
             puch.getPurchPaymentList().size(); /// 获取合同结算类型信息
+            List<Attachment> attachments = attachmentDao.findByRelObjIdAndCategory(puch.getId(), Attachment.AttachmentCategory.PURCH.getCode());
+            if (attachments != null && attachments.size() > 0) {
+                puch.setAttachments(attachments);
+            }
             puch.getAttachments().size(); // 获取采购的附件信息
             List<PurchGoods> purchGoodsList = puch.getPurchGoodsList();
             if (purchGoodsList.size() > 0) {
@@ -902,7 +908,7 @@ public class PurchServiceImpl implements PurchService {
     @Transactional(rollbackFor = Exception.class)
     public boolean update(Purch purch) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        Purch dbPurch = purchDao.findOne(purch.getId());
+        Purch dbPurch = findDetailInfo(purch.getId());
         // 之前的采购必须不能为空且未提交状态
         if (dbPurch == null || dbPurch.getDeleteFlag()) {
             throw new Exception(String.format("%s%s%s", "采购信息不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Procurement information does not exist"));
