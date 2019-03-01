@@ -68,10 +68,11 @@ public class PurchRequisition {
     private String remarks;
 
     //
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    /*@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "purch_requisition_attach",
             joinColumns = @JoinColumn(name = "purch_requisition_id"),
-            inverseJoinColumns = @JoinColumn(name = "attach_id"))
+            inverseJoinColumns = @JoinColumn(name = "attach_id"))*/
+    @Transient
     private List<Attachment> attachmentSet = new ArrayList<>();
 
 
