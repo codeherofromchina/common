@@ -847,6 +847,11 @@ public class ProjectServiceImpl implements ProjectService {
                     goods.setPurchGoods(null);
                 }
             }
+            List<Attachment> orderAttachment = attachmentDao.findByRelObjIdAndCategory(id, Attachment.AttachmentCategory.PROJECT.getCode());
+            if (orderAttachment != null && orderAttachment.size() > 0) {
+                project.setAttachmentList(orderAttachment);
+            }
+            project.getAttachmentList().size();
 
         }
         return project;
@@ -864,6 +869,11 @@ public class ProjectServiceImpl implements ProjectService {
                     goods.setPurchGoods(null);
                 }
             }
+            List<Attachment> orderAttachment = attachmentDao.findByRelObjIdAndCategory(project.getId(), Attachment.AttachmentCategory.PROJECT.getCode());
+            if (orderAttachment != null && orderAttachment.size() > 0) {
+                project.setAttachmentList(orderAttachment);
+            }
+            project.getAttachmentList().size();
 
             return project;
         }
