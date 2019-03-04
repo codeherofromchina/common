@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.report.dao.CategoryMapper">
+
+    <!-- 根据时间查询各品类的询单数量 -->
+    <select id="selectCategoryInquiryNumByAreaAndCountry" resultType="java.util.Map">
+        SELECT
+        category, COUNT(DISTINCT id) AS num
+        FROM
+        (SELECT
+        t1.category, t2.id AS id
+        FROM
+        erui_rfq.inquiry_item t1, erui_rfq.inquiry t2, (SELECT
+        inquiry_id AS log_inquiry_id, MIN(out_at) AS log_create_at
+        FROM
+        erui_rfq.inquiry_check_log
+        WHERE
+        out_node = 'MARKET_APPROVING'
+        GROUP BY inquiry_id
+        <if test="startTime!=null and endTime!=null">
+            HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
+        </if>
+        ) AS t3
+        WHERE
+        t1.inquiry_id = t2.id
+        AND t1.inquiry_id = t3.log_inquiry_id
+        AND t1.deleted_flag = 'N'
+        AND t2.deleted_flag = 'N'
+        AND t1.category IS NOT NULL
+        AND t1.category != ''
+        <if test="areaBn!=null and areaBn!='' and areaBn!='null'">
+            AND t2.area_bn = #{areaBn}
+        </if>
+        <if test="countryBn!=null and countryBn!='' and countryBn!='null'">
+            AND t2.country_bn = #{countryBn}
+        </if>
+        <if test="tradeTerms!=null and tradeTerms!='' and tradeTerms!='null'">
+            AND t2.trade_terms_bn = #{tradeTerms}
+        </if>
+        AND t2.`status` IN ('BIZ_DISPATCHING' , 'CC_DISPATCHING', 'BIZ_QUOTING', 'LOGI_DISPATCHING', 'LOGI_QUOTING', 'LOGI_APPROVING', 'BIZ_APPROVING', 'MARKET_APPROVING', 'MARKET_CONFIRMING', 'QUOTE_SENT', 'INQUIRY_CLOSED') UNION ALL SELECT
+        t1.material_cat_name AS category, t2.id AS id
+        FROM
+        erui_rfq.inquiry_item t1, erui_rfq.inquiry t2, (SELECT
+        inquiry_id AS log_inquiry_id, MIN(out_at) AS log_create_at
+        FROM
+        erui_rfq.inquiry_check_log
+        WHERE
+        out_node = 'MARKET_APPROVING'
+        GROUP BY inquiry_id
+        <if test="startTime!=null and endTime!=null">
+            HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
+        </if>
+        ) AS t3
+        WHERE
+        t1.inquiry_id = t2.id
+        AND t1.inquiry_id = t3.log_inquiry_id
+        AND t1.deleted_flag = 'N'
+        AND t2.deleted_flag = 'N'
+        AND t1.material_cat_name IS NOT NULL
+        AND t1.material_cat_name != ''
+        AND (t1.category IS NULL OR t1.category = '')
+        <if test="areaBn!=null and areaBn!='' and areaBn!='null'">
+            AND t2.area_bn = #{areaBn}
+        </if>
+        <if test="countryBn!=null and countryBn!='' and countryBn!='null'">
+            AND t2.country_bn = #{countryBn}
+        </if>
+        <if test="tradeTerms!=null and tradeTerms!='' and tradeTerms!='null'">
+            AND t2.trade_terms_bn = #{tradeTerms}
+        </if>
+        AND t2.`status` IN ('BIZ_DISPATCHING' , 'CC_DISPATCHING', 'BIZ_QUOTING', 'LOGI_DISPATCHING', 'LOGI_QUOTING', 'LOGI_APPROVING', 'BIZ_APPROVING', 'MARKET_APPROVING', 'MARKET_CONFIRMING', 'QUOTE_SENT', 'INQUIRY_CLOSED')) t
+        GROUP BY category
+        ORDER BY 2 DESC
+    </select>
+
+
+
+    <!-- 根据时间查询各品类的报价数量 -->
+    <select id="selectCategoryQuoteNumByAreaAndCountry" resultType="java.util.Map">
+        SELECT
+        category, COUNT(DISTINCT id) AS num
+        FROM
+        (SELECT
+        t1.category, t4.id
+        FROM
+        erui_rfq.inquiry_item t1, erui_rfq.inquiry t2, (SELECT
+        inquiry_id AS log_inquiry_id, MIN(out_at) AS log_create_at
+        FROM
+        erui_rfq.inquiry_check_log
+        WHERE
+        out_node = 'MARKET_CONFIRMING'
+        GROUP BY inquiry_id
+        <if test="startTime!=null and endTime!=null">
+            HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
+        </if>
+        ) AS t3, erui_rfq.final_quote t4
+        WHERE
+        t1.inquiry_id = t2.id
+        <if test="areaBn!=null and areaBn!='' and areaBn!='null'">
+            AND t2.area_bn = #{areaBn}
+        </if>
+        <if test="countryBn!=null and countryBn!='' and countryBn!='null'">
+            AND t2.country_bn = #{countryBn}
+        </if>
+        <if test="tradeTerms!=null and tradeTerms!='' and tradeTerms!='null'">
+            AND t2.trade_terms_bn = #{tradeTerms}
+        </if>
+        AND t1.inquiry_id = t3.log_inquiry_id
+        AND t2.id = t4.inquiry_id
+        AND t1.deleted_flag = 'N'
+        AND t2.deleted_flag = 'N'
+        AND t4.deleted_flag = 'N'
+        AND t1.category IS NOT NULL
+        AND t1.category != ''
+        AND t2.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED') UNION ALL SELECT
+        t1.material_cat_name AS category, t4.id
+        FROM
+        erui_rfq.inquiry_item t1, erui_rfq.inquiry t2, (SELECT
+        inquiry_id AS log_inquiry_id, MIN(out_at) AS log_create_at
+        FROM
+        erui_rfq.inquiry_check_log
+        WHERE
+        out_node = 'MARKET_CONFIRMING'
+        GROUP BY inquiry_id
+        <if test="startTime!=null and endTime!=null">
+            HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
+        </if>
+        ) AS t3, erui_rfq.final_quote t4
+        WHERE
+        t1.inquiry_id = t2.id
+        <if test="areaBn!=null and areaBn!='' and areaBn!='null'">
+            AND t2.area_bn = #{areaBn}
+        </if>
+        <if test="countryBn!=null and countryBn!='' and countryBn!='null'">
+            AND t2.country_bn = #{countryBn}
+        </if>
+        <if test="tradeTerms!=null and tradeTerms!='' and tradeTerms!='null'">
+            AND t2.trade_terms_bn = #{tradeTerms}
+        </if>
+        AND t1.inquiry_id = t3.log_inquiry_id
+        AND t2.id = t4.inquiry_id
+        AND t1.deleted_flag = 'N'
+        AND t2.deleted_flag = 'N'
+        AND t4.deleted_flag = 'N'
+        AND t1.material_cat_name IS NOT NULL
+        AND t1.material_cat_name != ''
+        AND (t1.category IS NULL OR t1.category = '')
+        AND t2.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')) AS t
+        GROUP BY category
+        ORDER BY 2 DESC
+    </select>
+
+
+
+    <!-- 根据时间查询各分类报价金额 -->
+    <select id="selectCategoryQuoteAmountByAreaAndCountry" resultType="java.util.Map">
+        SELECT
+        category, SUM(amount) / 10000 AS num
+        FROM
+        (SELECT
+        t1.category, t1.qty * IFNULL(t2.exw_unit_price, 0) AS amount
+        FROM
+        erui_rfq.inquiry_item t1, erui_rfq.quote_item t2, (SELECT
+        inquiry_id AS log_inquiry_id, MIN(out_at) AS log_create_at
+        FROM
+        erui_rfq.inquiry_check_log
+        WHERE
+        out_node = 'MARKET_CONFIRMING'
+        GROUP BY inquiry_id
+        <if test="startTime!=null and endTime!=null">
+            HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
+        </if>
+        ) AS t3,erui_rfq.inquiry t4
+        WHERE
+        t1.id = t2.inquiry_item_id
+        AND t1.inquiry_id = t4.id
+        <if test="areaBn!=null and areaBn!='' and areaBn!='null'">
+            AND t4.area_bn = #{areaBn}
+        </if>
+        <if test="countryBn!=null and countryBn!='' and countryBn!='null'">
+            AND t4.country_bn = #{countryBn}
+        </if>
+        <if test="tradeTerms!=null and tradeTerms!='' and tradeTerms!='null'">
+            AND t4.trade_terms_bn = #{tradeTerms}
+        </if>
+        AND t1.inquiry_id = t3.log_inquiry_id
+        AND t1.deleted_flag = 'N'
+        AND t2.deleted_flag = 'N'
+        AND t1.category IS NOT NULL
+        AND t1.category != '' UNION ALL SELECT
+        t1.material_cat_name AS category,
+        t1.qty * IFNULL(t2.exw_unit_price, 0) AS amount
+        FROM
+        erui_rfq.inquiry_item t1, erui_rfq.quote_item t2, (SELECT
+        inquiry_id AS log_inquiry_id, MIN(out_at) AS log_create_at
+        FROM
+        erui_rfq.inquiry_check_log
+        WHERE
+        out_node = 'MARKET_CONFIRMING'
+        GROUP BY inquiry_id
+        <if test="startTime!=null and endTime!=null">
+            HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
+        </if>
+        ) AS t3,erui_rfq.inquiry t4
+        WHERE
+        t1.id = t2.inquiry_item_id
+        AND t1.inquiry_id = t4.id
+        <if test="areaBn!=null and areaBn!='' and areaBn!='null'">
+            AND t4.area_bn = #{areaBn}
+        </if>
+        <if test="countryBn!=null and countryBn!='' and countryBn!='null'">
+            AND t4.country_bn = #{countryBn}
+        </if>
+        <if test="tradeTerms!=null and tradeTerms!='' and tradeTerms!='null'">
+            AND t4.trade_terms_bn = #{tradeTerms}
+        </if>
+        AND t1.inquiry_id = t3.log_inquiry_id
+        AND t1.deleted_flag = 'N'
+        AND t2.deleted_flag = 'N'
+        AND t1.material_cat_name IS NOT NULL
+        AND t1.material_cat_name != '' AND (t1.category IS NULL OR t1.category = '')) AS t
+        GROUP BY category
+        ORDER BY 2 DESC
+    </select>
+</mapper>
