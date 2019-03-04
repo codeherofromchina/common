@@ -213,10 +213,12 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<Order> findByPage(OrderListCondition condition) {
         LOGGER.info("findByPage -> params : {}", condition);
+        System.out.println("findByPage -> params : " + condition);
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
         // 2019-01-30 增加需求 如果登录用户存在o34角色（国家负责人角色）则用户只能查看他所在国家的订单内容
         String[] countryArr = getCountryHeaderByRole();
         LOGGER.info("findByPage -> countryArr : {}", Arrays.toString(countryArr));
+        System.out.println("findByPage -> countryArr : " + Arrays.toString(countryArr));
         Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -1658,10 +1660,12 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<Order> findOrderExport(final OrderListCondition condition) {
         LOGGER.info("findOrderExport -> params : {}", condition);
+        System.out.println("findOrderExport -> params : "  + condition);
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
         // 2019-01-30 增加需求，如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
         String[] countryArr = getCountryHeaderByRole();
         LOGGER.info("findOrderExport -> countryArr : {}", Arrays.toString(countryArr));
+        System.out.println("findOrderExport -> countryArr : "  + Arrays.toString(countryArr));
         Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
