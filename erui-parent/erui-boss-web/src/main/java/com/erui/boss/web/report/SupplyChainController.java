@@ -6,6 +6,8 @@ import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.model.*;
 import com.erui.report.service.SupplyChainService;
+import com.erui.report.util.AnalyzeTypeEnum;
+import com.erui.report.util.ParamsUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -391,4 +393,36 @@ public class SupplyChainController {
         result.setData(list);
         return result;
     }
+
+
+
+    /**
+     * 供应商统计：根据供应商统计报价金额、报价数量
+     *  查询报价信息
+     * @param params
+     * @return
+     */
+    @RequestMapping(value = "/quoteInfo", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+    public Result<Object> selectCategoryNumByArea(@RequestBody(required = true) Map<String, Object> params) {
+        //处理参数
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        Map<String, List<Object>> data = null;
+        String analyzeType = String.valueOf(params.get("type"));
+        String startTime = String.valueOf(params.get("startTime"));
+        String endTime = String.valueOf(params.get("endTime"));
+        if (AnalyzeTypeEnum.QUOTE_COUNT.getTypeName().equalsIgnoreCase(analyzeType)) {  // 查询供应商的报价数量
+            data = supplyChainService.selectSupplyQuoteCount(startTime, endTime);
+        } else if (AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) { // 查询供应商的报价金额
+            data = supplyChainService.selectSupplyQuoteAmount(startTime, endTime);
+        }
+
+        if (data == null || data.size() == 0 || ((List) data.get("names")).size() == 0) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        return new Result<>(data);
+    }
+
 }
