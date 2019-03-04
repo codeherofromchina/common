@@ -51,6 +51,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class OrderServiceImpl implements OrderService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceImpl.class);
     // 用户升级方法
     static final String CRM_URL_METHOD = "/buyer/autoUpgrade";
     static final BigDecimal STEP_ONE_PRICE = new BigDecimal("100000");
@@ -211,10 +212,11 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public Page<Order> findByPage(OrderListCondition condition) {
+        LOGGER.info("findByPage -> params : {}", condition);
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
         // 2019-01-30 增加需求 如果登录用户存在o34角色（国家负责人角色）则用户只能查看他所在国家的订单内容
         String[] countryArr = getCountryHeaderByRole();
-
+        LOGGER.info("findByPage -> countryArr : {}", Arrays.toString(countryArr));
         Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -1655,10 +1657,11 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     @Override
     public List<Order> findOrderExport(final OrderListCondition condition) {
+        LOGGER.info("findOrderExport -> params : {}", condition);
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
         // 2019-01-30 增加需求，如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
         String[] countryArr = getCountryHeaderByRole();
-
+        LOGGER.info("findOrderExport -> countryArr : {}", Arrays.toString(countryArr));
         Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
