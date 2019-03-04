@@ -229,7 +229,7 @@
     <!-- 根据时间查询国家的询单数量 -->
     <select id="selectCountryInqueryCountInfo" resultType="java.util.Map">
           SELECT
-            t2.bn, t2.`name` as category, COUNT(t0.id) AS count
+            t2.bn, t2.`name` as category, COUNT(t0.id) AS num
         FROM
             erui_rfq.inquiry t0,
             (SELECT
@@ -254,7 +254,7 @@
     <!-- 根据时间查询国家的报价数量 -->
     <select id="selectCountryQuoteCountInfo" resultType="java.util.Map">
           SELECT
-                t2.bn, t2.`name` as category, COUNT(t4.id) AS count
+                t2.bn, t2.`name` as category, COUNT(t4.id) AS num
             FROM
                 erui_rfq.inquiry t0,
                 (SELECT
@@ -276,14 +276,14 @@
                     AND t2.lang = 'zh'
                     AND t0.id = t4.inquiry_id
             GROUP BY t2.bn , t2.`name`
-            ORDER BY 3 DESC limit 15;
+            ORDER BY 3 DESC limit 15
     </select>
     <!-- 根据时间查询国家的报价金额 -->
     <select id="selectCountryQuoteAmountInfo" resultType="java.util.Map">
             SELECT
                 t2.bn,
                 t2.`name` as category,
-                SUM(t3.total_quote_price) / 10000 AS amount
+                SUM(t3.total_quote_price) / 10000 AS num
             FROM
                 erui_rfq.inquiry t0,
                 (SELECT
