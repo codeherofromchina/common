@@ -3,6 +3,7 @@ package com.erui.boss.web.order;
 import com.alibaba.fastjson.JSON;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
@@ -181,6 +182,8 @@ public class ExportDataController {
             OrderListCondition obj = JSON.parseObject(JSON.toJSONString(params), OrderListCondition.class);
             List<Order> orderList = orderService.findOrderExport(obj);
             String lang = CookiesUtil.getLang(request);
+            String eruiToken = CookiesUtil.getEruiToken(request);
+            ThreadLocalUtil.setObject(eruiToken);
             if (orderList.size() > 0) {
                 orderList.forEach(vo -> {
                     vo.setOrderPayments(null);
