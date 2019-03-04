@@ -4,9 +4,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import com.erui.comm.NewDateUtil;
-import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
-import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.model.*;
 import com.erui.report.util.SupplyPlanVo;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +19,7 @@ import com.erui.report.util.ImportDataResponse;
 
 @Service
 public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> implements SupplyChainService {
-    private final static Logger logger = LoggerFactory.getLogger(RequestCreditServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RequestCreditServiceImpl.class);
 
     /**
      * @Author:SHIGS
@@ -156,7 +154,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
                 sc.setCreateAt(DateUtil.parseString2Date(strArr[0], "yyyy/M/d", "yyyy/M/d hh:mm:ss",
                         DateUtil.FULL_FORMAT_STR, DateUtil.SHORT_FORMAT_STR));
             } catch (Exception e) {
-                logger.error(e.getMessage());
+                LOGGER.error(e.getMessage());
                 response.incrFail();
                 response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), cellIndex, "日期字段格式错误");
                 continue;
@@ -168,7 +166,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
             try {
                 sc.setPlanSkuNum(new BigDecimal(strArr[4]).intValue());
             } catch (Exception ex) {
-                logger.error(ex.getMessage());
+                LOGGER.error(ex.getMessage());
                 response.incrFail();
                 response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), cellIndex, "计划SKU字段非数字");
                 continue;
@@ -176,7 +174,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
             try {
                 sc.setFinishSkuNum(new BigDecimal(strArr[5]).intValue());
             } catch (Exception ex) {
-                logger.error(ex.getMessage());
+                LOGGER.error(ex.getMessage());
                 response.incrFail();
                 response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), cellIndex, "SKU实际完成字段非数字");
                 continue;
@@ -184,7 +182,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
             try {
                 sc.setPlanSpuNum(new BigDecimal(strArr[6]).intValue());
             } catch (Exception ex) {
-                logger.error(ex.getMessage());
+                LOGGER.error(ex.getMessage());
                 response.incrFail();
                 response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), cellIndex, "计划SPU字段非数字");
                 continue;
@@ -192,7 +190,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
             try {
                 sc.setFinishSpuNum(new BigDecimal(strArr[7]).intValue());
             } catch (Exception ex) {
-                logger.error(ex.getMessage());
+                LOGGER.error(ex.getMessage());
                 response.incrFail();
                 response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), cellIndex, "SPU实际完成字段非数字");
                 continue;
@@ -200,7 +198,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
             try {
                 sc.setPlanSuppliNum(new BigDecimal(strArr[8]).intValue());
             } catch (Exception ex) {
-                logger.error(ex.getMessage());
+                LOGGER.error(ex.getMessage());
                 response.incrFail();
                 response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), cellIndex, "计划供应商数量非数字");
                 continue;
@@ -208,7 +206,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
             try {
                 sc.setFinishSuppliNum(new BigDecimal(strArr[9]).intValue());
             } catch (Exception ex) {
-                logger.error(ex.getMessage());
+                LOGGER.error(ex.getMessage());
                 response.incrFail();
                 response.pushFailItem(ExcelUploadTypeEnum.SUPPLY_CHAIN.getTable(), cellIndex, "供应商数量实际开发字段非数字");
                 continue;
@@ -238,7 +236,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     public List<SupplyChain> queryListByDate(Date startTime, Date endTime) {
         SupplyChainExample example = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = example.createCriteria();
-        if (startTime != null ) {
+        if (startTime != null) {
             criteria.andCreateAtGreaterThanOrEqualTo(startTime);
         }
         if (endTime != null) {
@@ -252,7 +250,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     public List<SuppliyChainOrgVo> selectOrgSuppliyChain(Date startTime, Date endTime) {
         SupplyChainExample example = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = example.createCriteria();
-        if (startTime != null ) {
+        if (startTime != null) {
             criteria.andCreateAtGreaterThanOrEqualTo(startTime);
         }
         if (endTime != null) {
@@ -266,7 +264,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     public List<SuppliyChainItemClassVo> selectItemCalssSuppliyChain(Date startTime, Date endTime) {
         SupplyChainExample supplyChainExample = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = supplyChainExample.createCriteria();
-        if (startTime != null ) {
+        if (startTime != null) {
             criteria.andCreateAtGreaterThanOrEqualTo(startTime);
         }
         if (endTime != null) {
@@ -280,7 +278,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     public SuppliyChainItemClassVo selectSuppliyChainByItemClass(Date startTime, Date endTime, String itemClass) {
         SupplyChainExample supplyChainExample = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = supplyChainExample.createCriteria();
-        if (startTime != null ) {
+        if (startTime != null) {
             criteria.andCreateAtGreaterThanOrEqualTo(startTime);
         }
         if (endTime != null) {
@@ -296,7 +294,7 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     public List<SuppliyChainCateVo> selectCateSuppliyChain(Date startTime, Date endTime) {
         SupplyChainExample supplyChainExample = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = supplyChainExample.createCriteria();
-        if (startTime != null ) {
+        if (startTime != null) {
             criteria.andCreateAtGreaterThanOrEqualTo(startTime);
         }
         if (endTime != null) {
@@ -311,17 +309,17 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
         int days = DateUtil.getDayBetween(startTime, endTime);
         SupplyChainExample example = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = example.createCriteria();
-        if (startTime != null){
+        if (startTime != null) {
             criteria.andCreateAtGreaterThanOrEqualTo(startTime);
         }
-        if(endTime != null) {
+        if (endTime != null) {
             criteria.andCreateAtLessThan(endTime);
         }
         List<SupplyChain> list = readMapper.selectByExample(example);
-        String[] DateTime = new String[days];
+        String[] dateTime = new String[days];
         Integer[] suppliyFinishCount = new Integer[days];
-        Integer[] SPUFinishCount = new Integer[days];
-        Integer[] SKUFinishCount = new Integer[days];
+        Integer[] spuFinishCount = new Integer[days];
+        Integer[] skuFinishCount = new Integer[days];
         if (list != null && list.size() > 0) {
             Map<String, Map<String, Integer>> dateMap = new HashMap<>();
             Map<String, Integer> datamap;
@@ -349,14 +347,14 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
                 Date date = DateUtil.sometimeCalendar(startTime, -i);
                 String datet2 = DateUtil.format("yyyy-MM-dd", date);
                 if (dateMap.containsKey(datet2)) {
-                    DateTime[i] = (datet2);
-                    SPUFinishCount[i] = (dateMap.get(datet2).get("spu"));
-                    SKUFinishCount[i] = (dateMap.get(datet2).get("sku"));
+                    dateTime[i] = (datet2);
+                    spuFinishCount[i] = (dateMap.get(datet2).get("spu"));
+                    skuFinishCount[i] = (dateMap.get(datet2).get("sku"));
                     suppliyFinishCount[i] = (dateMap.get(datet2).get("suppliy"));
                 } else {
-                    DateTime[i] = (datet2);
-                    SPUFinishCount[i] = (0);
-                    SKUFinishCount[i] = (0);
+                    dateTime[i] = (datet2);
+                    spuFinishCount[i] = (0);
+                    skuFinishCount[i] = (0);
                     suppliyFinishCount[i] = (0);
                 }
             }
@@ -365,13 +363,13 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
             for (int i = 0; i < days; i++) {
                 Date date = DateUtil.sometimeCalendar(startTime, -i);
                 String datet2 = DateUtil.format("yyyy-MM-dd", date);
-                DateTime[i] = datet2;
+                dateTime[i] = datet2;
                 suppliyFinishCount[i] = 0;
-                SPUFinishCount[i] = 0;
-                SKUFinishCount[i] = 0;
+                spuFinishCount[i] = 0;
+                skuFinishCount[i] = 0;
             }
         }
-        SupplyTrendVo trend = new SupplyTrendVo(DateTime, suppliyFinishCount, SPUFinishCount, SKUFinishCount);
+        SupplyTrendVo trend = new SupplyTrendVo(dateTime, suppliyFinishCount, spuFinishCount, skuFinishCount);
 
         return trend;
     }
@@ -385,17 +383,69 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
     public List<String> selectOrgList() {
         return readMapper.selectOrgList();
     }
+
     @Override
     public SupplyPlanVo getPlanNum(Date startTime, Date endTime) {
         SupplyChainExample example = new SupplyChainExample();
         SupplyChainExample.Criteria criteria = example.createCriteria();
-        if (startTime != null){
+        if (startTime != null) {
             criteria.andCreateAtGreaterThanOrEqualTo(startTime);
         }
-        if(endTime != null) {
+        if (endTime != null) {
             criteria.andCreateAtLessThan(endTime);
         }
-        return   this.readMapper.selectPlanCount(example);
+        return this.readMapper.selectPlanCount(example);
     }
 
+    @Override
+    public Map<String, List<Object>> selectSupplyQuoteCount(String startTime, String endTime) {
+        LOGGER.info("查询供应商的报价数量信息 [startTime:{},endTime:{}]", startTime, endTime);
+        List<Map<String, Object>> supplyQuoteCountList = readMapper.selectSupplyQuoteCount(startTime, endTime);
+        Map<String, List<Object>> result = null;
+        if (supplyQuoteCountList != null && supplyQuoteCountList.size() > 0) {
+            // 声明存放结果的容器
+            result = new HashMap<>();
+            List<Object> supplyNameList = new ArrayList<>();
+            List<Object> quoteCountList = new ArrayList<>();
+            for (Map<String, Object> supplyQuoteCountInfo : supplyQuoteCountList) {
+                String supplyName = (String) supplyQuoteCountInfo.get("name");
+                Long quoteCount = (Long) supplyQuoteCountInfo.get("count");
+                supplyNameList.add(supplyName);
+                quoteCountList.add(quoteCount);
+            }
+            result.put("names", supplyNameList);
+            result.put("values", quoteCountList);
+        }
+        LOGGER.debug("查询供应商的报价数量信息结果 [{}]", result);
+        return result;
+    }
+
+
+    @Override
+    public Map<String, List<Object>> selectSupplyQuoteAmount(String startTime, String endTime) {
+        LOGGER.info("查询供应商的报价金额信息 [startTime:{},endTime:{}]", startTime, endTime);
+        List<Map<String, Object>> supplyQuoteAmountList = readMapper.selectSupplyQuoteAmount(startTime, endTime);
+        Map<String, List<Object>> result = null;
+        if (supplyQuoteAmountList != null && supplyQuoteAmountList.size() > 0) {
+            // 声明存放结果的容器
+            result = new HashMap<>();
+            List<Object> supplyNameList = new ArrayList<>();
+            List<Object> quoteAmountList = new ArrayList<>();
+            BigDecimal oneDouble = new BigDecimal("0.01");
+            for (Map<String, Object> supplyQuoteCountInfo : supplyQuoteAmountList) {
+                String supplyName = (String) supplyQuoteCountInfo.get("name");
+                BigDecimal quoteAmount = (BigDecimal) supplyQuoteCountInfo.get("amount");
+                BigDecimal bigDecimal2 = quoteAmount.setScale(2, BigDecimal.ROUND_DOWN);
+                if (oneDouble.compareTo(bigDecimal2) == 1) {
+                    continue;
+                }
+                supplyNameList.add(supplyName);
+                quoteAmountList.add(quoteAmount);
+            }
+            result.put("names", supplyNameList);
+            result.put("values", quoteAmountList);
+        }
+        LOGGER.debug("查询供应商的报价金额信息结果 [{}]", result);
+        return result;
+    }
 }

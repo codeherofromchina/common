@@ -47,4 +47,19 @@ public interface SupplyChainMapper {
 
     SupplyPlanVo  selectPlanCount(SupplyChainExample example);
 
+    /**
+     * 查询供应商的报价数量信息
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    List<Map<String, Object>> selectSupplyQuoteCount(String startTime, String endTime);
+
+    /**
+     * 查询供应商的报价金额信息
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    List<Map<String, Object>> selectSupplyQuoteAmount(String startTime, String endTime);
 }

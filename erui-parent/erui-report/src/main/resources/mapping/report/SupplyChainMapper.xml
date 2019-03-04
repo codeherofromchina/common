@@ -435,4 +435,65 @@
     <update id="truncateTable">
     truncate table supply_chain
   </update>
+
+
+
+
+
+    <!-- 根据时间查询各分类报价金额 -->
+    <select id="selectSupplyQuoteCount" resultType="java.util.Map">
+        SELECT
+            t0.`name`, COUNT(DISTINCT t1.quote_id) AS count
+        FROM
+            erui_supplier.supplier t0,
+            erui_rfq.final_quote_item t1,
+            (SELECT
+                inquiry_id
+            FROM
+                erui_rfq.inquiry_check_log
+            WHERE
+                out_node = 'MARKET_CONFIRMING'
+            GROUP BY inquiry_id
+            <if test="startTime!=null and endTime!=null">
+                HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+            </if>
+            ) AS t2
+        WHERE
+            t0.id = t1.supplier_id
+                AND t1.inquiry_id = t2.inquiry_id
+                AND t0.`status` = 'APPROVED'
+                AND t0.erui_status = 'VALID'
+        GROUP BY t0.`name`
+        ORDER BY 2 DESC
+        LIMIT 25
+    </select>
+
+
+    <!-- 根据时间查询各分类报价金额 -->
+    <select id="selectSupplyQuoteAmount" resultType="java.util.Map">
+        SELECT
+        t0.`name`, SUM(t1.exw_unit_price) / 10000 AS amount
+        FROM
+        erui_supplier.supplier t0,
+        erui_rfq.final_quote_item t1,
+        (SELECT
+        inquiry_id
+        FROM
+        erui_rfq.inquiry_check_log
+        WHERE
+        out_node = 'MARKET_CONFIRMING'
+        GROUP BY inquiry_id
+        <if test="startTime!=null and endTime!=null">
+            HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
+        </if>
+        ) AS t2
+        WHERE
+        t0.id = t1.supplier_id
+        AND t1.inquiry_id = t2.inquiry_id
+        AND t0.`status` = 'APPROVED'
+        AND t0.erui_status = 'VALID'
+        GROUP BY t0.`name`
+        ORDER BY 2 DESC
+        LIMIT 25
+    </select>
 </mapper>
