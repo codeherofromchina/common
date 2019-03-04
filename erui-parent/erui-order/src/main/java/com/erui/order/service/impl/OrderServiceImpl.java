@@ -1654,7 +1654,7 @@ public class OrderServiceImpl implements OrderService {
         return resultMap;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public List<Order> findOrderExport(final OrderListCondition condition) {
         LOGGER.info("findOrderExport -> params : {}", condition);
