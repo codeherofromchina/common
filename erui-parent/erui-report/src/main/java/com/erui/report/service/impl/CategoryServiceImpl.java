@@ -83,6 +83,51 @@ public class CategoryServiceImpl extends BaseService<CategoryQualityMapper> impl
 
 
     /**
+     * 查询国家的询单数量
+     * @param startTime	开始时间 格式为：yyyy-MM-dd HH:mm:ss
+     * @param endTime	结束时间 格式为：yyyy-MM-dd HH:mm:ss
+     * @return    {"names":["国家1","国家2", ... ],"values":[n1,n2, ... ]}}
+     */
+    @Override
+    public Map<String, List<Object>> selectCountryInqueryCountInfo(String startTime, String endTime) {
+        LOGGER.info("查询国家的询单数量信息 [startTime:{},endTime:{}]", startTime, endTime);
+        List<Map<String, Object>> countryInqueryCountList = categoryMapper.selectCountryInqueryCountInfo(startTime, endTime);
+        Map<String, List<Object>> result = handlerDbCategoryResult(countryInqueryCountList);
+        LOGGER.debug("查询国家的询单数量信息结果 [{}]", result);
+        return result;
+    }
+
+    /**
+     * 查询国家的报价数量
+     * @param startTime	开始时间 格式为：yyyy-MM-dd HH:mm:ss
+     * @param endTime	结束时间 格式为：yyyy-MM-dd HH:mm:ss
+     * @return    {"names":["国家1","国家2", ... ],"values":[n1,n2, ... ]}}
+     */
+    @Override
+    public Map<String, List<Object>> selectCountryQuoteCountInfo(String startTime, String endTime) {
+        LOGGER.info("查询国家的报价数量信息 [startTime:{},endTime:{}]", startTime, endTime);
+        List<Map<String, Object>> countryQuoteCountList = categoryMapper.selectCountryQuoteCountInfo(startTime, endTime);
+        Map<String, List<Object>> result = handlerDbCategoryResult(countryQuoteCountList);
+        LOGGER.debug("查询国家的报价数量信息结果 [{}]", result);
+        return result;
+    }
+
+    /**
+     * 查询国家的报价金额
+     * @param startTime	开始时间 格式为：yyyy-MM-dd HH:mm:ss
+     * @param endTime	结束时间 格式为：yyyy-MM-dd HH:mm:ss
+     * @return    {"names":["国家1","国家2", ... ],"values":[n1,n2, ... ]}}
+     */
+    @Override
+    public Map<String, List<Object>> selectCountryQuoteAmountInfo(String startTime, String endTime) {
+        LOGGER.info("查询国家的报价金额信息 [startTime:{},endTime:{}]", startTime, endTime);
+        List<Map<String, Object>> countryQuoteAmountList = categoryMapper.selectCountryQuoteAmountInfo(startTime, endTime);
+        Map<String, List<Object>> result = handlerDbCategoryResult(countryQuoteAmountList);
+        LOGGER.debug("查询国家的报价金额信息结果 [{}]", result);
+        return result;
+    }
+
+    /**
      * 直接出来数据库层查询出来的简单品类列表信息
      * @param categoryList
      * @return

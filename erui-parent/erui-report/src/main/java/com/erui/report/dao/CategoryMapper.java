@@ -56,5 +56,27 @@ public interface CategoryMapper {
                                                                      @Param("tradeTerms") String tradeTerms,
                                                                      @Param("startTime") String startTime,
                                                                      @Param("endTime") String endTime);
+    /**
+     * 查询国家的询单数量
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    List<Map<String, Object>> selectCountryInqueryCountInfo(@Param("startTime") String startTime, @Param("endTime") String endTime);
 
+    /**
+     * 查询国家的报价数量
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    List<Map<String, Object>> selectCountryQuoteCountInfo(@Param("startTime") String startTime, @Param("endTime") String endTime);
+
+    /**
+     * 查询国家的报价金额
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+    List<Map<String, Object>> selectCountryQuoteAmountInfo(@Param("startTime") String startTime, @Param("endTime") String endTime);
 }
