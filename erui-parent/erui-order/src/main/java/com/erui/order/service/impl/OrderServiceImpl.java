@@ -51,6 +51,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class OrderServiceImpl implements OrderService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceImpl.class);
     // 用户升级方法
     static final String CRM_URL_METHOD = "/buyer/autoUpgrade";
     static final BigDecimal STEP_ONE_PRICE = new BigDecimal("100000");
@@ -211,10 +212,11 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public Page<Order> findByPage(OrderListCondition condition) {
+        LOGGER.info("findByPage -> params : {}", condition);
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
-        // 2019-01-30 增加需求 如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
+        // 2019-01-30 增加需求 如果登录用户存在o34角色（国家负责人角色）则用户只能查看他所在国家的订单内容
         String[] countryArr = getCountryHeaderByRole();
-
+        LOGGER.info("findByPage -> countryArr : {}", Arrays.toString(countryArr));
         Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -1652,14 +1654,14 @@ public class OrderServiceImpl implements OrderService {
         return resultMap;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public List<Order> findOrderExport(final OrderListCondition condition) {
-        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
+        LOGGER.info("findOrderExport -> params : {}", condition);
         // 2019-01-30 增加需求，如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
         String[] countryArr = getCountryHeaderByRole();
-
-        Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
+        LOGGER.info("findOrderExport -> countryArr : {}", Arrays.toString(countryArr));
+        List<Order> pageList = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>(); // 相当于前台查询条件
@@ -1862,9 +1864,9 @@ public class OrderServiceImpl implements OrderService {
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
             }
-        }, pageRequest);
-        if (pageList.hasContent()) {
-            pageList.getContent().forEach(vo -> {
+        }, new Sort(Sort.Direction.DESC, "createTime"));
+        if (pageList != null && pageList.size() > 0) {
+            pageList.forEach(vo -> {
                 //vo.setAttachmentSet(null);
                 if (vo.getDeliverConsignC() && vo.getStatus() != null && vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
                     boolean flag;
@@ -1884,11 +1886,11 @@ public class OrderServiceImpl implements OrderService {
                 }
             });
         }
-        List<Order> orderList = new ArrayList<>();
-        if (pageList.getContent() != null && pageList.getContent().size() > 0) {
-            orderList = pageList.getContent();
+        if (pageList == null) {
+            pageList = new ArrayList<>();
         }
-        return orderList;
+
+        return pageList;
     }
 
     @Override

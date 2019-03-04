@@ -179,11 +179,15 @@ public class ExportDataController {
     public ModelAndView orderExport(HttpServletResponse response, HttpServletRequest request) throws Exception {
         Map<String, String> params = getParameters(request);
         try {
+            String lang = CookiesUtil.getLang(request);
+            //service获取token信息
+            String eruiToken = CookiesUtil.getEruiToken(request);
+            ThreadLocalUtil.setObject(eruiToken);
+
             OrderListCondition obj = JSON.parseObject(JSON.toJSONString(params), OrderListCondition.class);
             String eruiToken = CookiesUtil.getEruiToken(request);
             ThreadLocalUtil.setObject(eruiToken);
             List<Order> orderList = orderService.findOrderExport(obj);
-            String lang = CookiesUtil.getLang(request);
             if (orderList.size() > 0) {
                 orderList.forEach(vo -> {
                     vo.setOrderPayments(null);

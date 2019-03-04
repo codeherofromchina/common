@@ -215,17 +215,6 @@ public class AddOrderVo {
     @Transient
     private Integer checkLogId;//要驳回日志Id
 
-    @Transient
-    private String lawId;//法务审核人
-
-
-    public String getLawId() {
-        return lawId;
-    }
-
-    public void setLawId(String lawId) {
-        this.lawId = lawId;
-    }
 
     //附件信息
     private List<Attachment> attachDesc = new ArrayList<>();
