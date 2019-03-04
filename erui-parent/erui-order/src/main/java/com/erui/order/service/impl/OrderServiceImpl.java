@@ -1652,7 +1652,7 @@ public class OrderServiceImpl implements OrderService {
         return resultMap;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public List<Order> findOrderExport(final OrderListCondition condition) {
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
