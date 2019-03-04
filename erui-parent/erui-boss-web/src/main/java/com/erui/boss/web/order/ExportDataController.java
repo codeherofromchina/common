@@ -175,8 +175,8 @@ public class ExportDataController {
      * @modified By
      */
 
-    @RequestMapping(value = "/orderExport")
-    public ModelAndView orderExport(HttpServletResponse response, HttpServletRequest request) throws Exception {
+    @RequestMapping(value = "/orderExport", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public ModelAndView orderExport(@RequestBody HttpServletResponse response, HttpServletRequest request) throws Exception {
         Map<String, String> params = getParameters(request);
         try {
             String lang = CookiesUtil.getLang(request);
