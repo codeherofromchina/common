@@ -194,7 +194,10 @@ public class OrderServiceImpl implements OrderService {
         // 2019-01-30 增加需求，如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
         String token = (String) ThreadLocalUtil.getObject();
         JSONObject userInfo = SsoUtils.ssoUserInfo(orderConf.getSsoUser(), token);
-        JSONArray roloNos = userInfo.getJSONArray("role_no");
+        JSONArray roloNos = null;
+        if (userInfo != null) {
+            roloNos = userInfo.getJSONArray("role_no");
+        }
         if (roloNos != null && roloNos.size() > 0) {
             boolean o34Exist = roloNos.stream().anyMatch(vo -> "O34".equals(vo));
             if (o34Exist) {
