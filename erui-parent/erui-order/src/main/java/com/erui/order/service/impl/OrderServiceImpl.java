@@ -212,7 +212,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<Order> findByPage(OrderListCondition condition) {
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
-        // 2019-01-30 增加需求，如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
+        // 2019-01-30 增加需求 如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
         String[] countryArr = getCountryHeaderByRole();
 
         Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
