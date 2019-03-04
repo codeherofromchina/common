@@ -94,6 +94,37 @@ public class CategoryController {
     }
 
 
+
+    /**
+     * 国家的询单数量、报价数量、报价金额信息
+     *
+     * @param params
+     * @return
+     */
+    @RequestMapping(value = "/countryInqueryAndQuoteInfo", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+    public Result<Object> countryInqueryAndQuoteInfo(@RequestBody(required = true) Map<String, Object> params) {
+        //处理参数
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        Map<String, List<Object>> data = null;
+        String analyzeType = String.valueOf(params.get("type"));
+        String startTime = String.valueOf(params.get("startTime"));
+        String endTime = String.valueOf(params.get("endTime"));
+        if (AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName().equalsIgnoreCase(analyzeType)) { // 询单数量
+            data = categoryService.selectCountryInqueryCountInfo(startTime, endTime);
+        } else if (AnalyzeTypeEnum.QUOTE_COUNT.getTypeName().equalsIgnoreCase(analyzeType)) {  // 报价数量
+            data = categoryService.selectCountryQuoteCountInfo(startTime, endTime);
+        } else if (AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) { // 报价金额
+            data = categoryService.selectCountryQuoteAmountInfo(startTime, endTime);
+        }
+        if (data == null || data.size() == 0 || ((List) data.get("names")).size() == 0) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        return new Result<>(data);
+    }
+
 }
 
 

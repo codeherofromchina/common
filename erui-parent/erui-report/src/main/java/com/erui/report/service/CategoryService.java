@@ -40,4 +40,28 @@ public interface CategoryService {
 	 * @return
 	 */
 	Map<String, List<Object>> selectCategoryQuoteAmountByAreaAndCountryAndTradeTerms(String areaBn, String countryBn, String tradeTerms, String startTime, String endTime);
+
+	/**
+	 * 查询国家的询单数量
+	 * @param startTime
+	 * @param endTime
+	 * @return
+	 */
+	Map<String, List<Object>> selectCountryInqueryCountInfo(String startTime, String endTime);
+
+	/**
+	 * 查询国家的报价数量
+	 * @param startTime
+	 * @param endTime
+	 * @return
+	 */
+	Map<String, List<Object>> selectCountryQuoteCountInfo(String startTime, String endTime);
+
+	/**
+	 * 查询国家的报价金额
+	 * @param startTime
+	 * @param endTime
+	 * @return
+	 */
+	Map<String, List<Object>> selectCountryQuoteAmountInfo(String startTime, String endTime);
 }
