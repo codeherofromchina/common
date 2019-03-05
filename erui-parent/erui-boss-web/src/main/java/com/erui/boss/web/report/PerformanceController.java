@@ -74,14 +74,14 @@ public class PerformanceController {
     @ResponseBody
     public Object areaList(@RequestBody Map<String, String> params) {
         Result<Object> result = new Result<>();
-        List<InquiryAreaVO> arayList = performanceService.selectAllAreaAndCountryList();
+        // List<InquiryAreaVO> arayList = performanceService.selectAllAreaAndCountryList();
         if (MapUtils.isNotEmpty(params) && StringUtils.isNotEmpty(params.get("areaName"))) {
             List<String> countryList = performanceService.findCountryByArea(params.get("areaName"));
             result.setData(countryList);
         } else {
             // 查询所有销售地区
             List<String> areaList = performanceService.findAllMarketArea();
-            result.setData(arayList);
+            result.setData(areaList);
         }
         return result;
     }
