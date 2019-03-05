@@ -538,5 +538,36 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
         assignWriterMapper.auditPerformance(params);
     }
 
+    /**
+     * 查询所有销售区域
+     * @return
+     */
+    @Override
+    public List<String> findAllMarketArea() {
+        List<Map<String, Object>> data = readMapper.findAllMarketArea();
 
+        List<String> result = new ArrayList<>();
+        if (data != null && data.size() > 0) {
+            for (Map<String, Object> obj: data) {
+                String area = (String) obj.get("area");
+                result.add(area);
+            }
+        }
+        return result;
+    }
+
+
+    @Override
+    public List<String> findCountryByArea(String area) {
+        List<Map<String, Object>> data = readMapper.findCountryByArea(area);
+
+        List<String> result = new ArrayList<>();
+        if (data != null && data.size() > 0) {
+            for (Map<String, Object> obj: data) {
+                String country = (String) obj.get("country");
+                result.add(country);
+            }
+        }
+        return result;
+    }
 }
