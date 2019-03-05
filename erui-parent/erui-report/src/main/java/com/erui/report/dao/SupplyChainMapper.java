@@ -53,7 +53,7 @@ public interface SupplyChainMapper {
      * @param endTime
      * @return
      */
-    List<Map<String, Object>> selectSupplyQuoteCount(String startTime, String endTime);
+    List<Map<String, Object>> selectSupplyQuoteCount(@Param("startTime") String startTime, @Param("endTime") String endTime);
 
     /**
      * 查询供应商的报价金额信息
@@ -61,5 +61,6 @@ public interface SupplyChainMapper {
      * @param endTime
      * @return
      */
-    List<Map<String, Object>> selectSupplyQuoteAmount(String startTime, String endTime);
+    List<Map<String, Object>> selectSupplyQuoteAmount(@Param("startTime") String startTime, @Param("endTime") String endTime);
+
 }
