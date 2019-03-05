@@ -52,8 +52,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
     @Autowired
     private AttachmentServiceImpl attachmentService;
-    @Autowired
-    private AttachmentDao attachmentDao;
 
 
     @Autowired
@@ -135,7 +133,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         DeliverDetail deliverDetail = deliverDetailDao.findOne(id);
         /*deliverDetail.getDeliverNotice().getId();*/
         if (deliverDetail != null) {
-            List<Attachment> attachments = attachmentDao.findByRelObjIdAndCategory(deliverDetail.getId(), Attachment.AttachmentCategory.DELIVERDETAIL.getCode());
+            List<Attachment> attachments = attachmentService.queryAttachs(deliverDetail.getId(), Attachment.AttachmentCategory.DELIVERDETAIL.getCode());
             deliverDetail.setAttachmentList(attachments);
         }
         deliverDetail.getAttachmentList().size();
@@ -814,6 +812,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     public DeliverDetail logisticsMoveFollow(Integer id) {
         DeliverDetail one = deliverDetailDao.findOne(id);
         one.getDeliverConsignGoodsList().size();
+        List<Attachment> attachments = attachmentService.queryAttachs(one.getId(), Attachment.AttachmentCategory.DELIVERDETAIL.getCode());
+        if (attachments != null && attachments.size() > 0) {
+            one.setAttachmentList(attachments);
+        }
         one.getAttachmentList().size();
         List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
         for (DeliverConsign deliverConsign : deliverConsigns) {
@@ -1400,7 +1402,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         List<Attachment> attachmentList = deliverDetail.getAttachmentList();
         Map<Integer, Attachment> dbAttahmentsMap = dbDeliverDetail.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
         if (attachmentList != null && attachmentList.size() > 0) {
-            attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbDeliverDetail.getId(), Attachment.AttachmentCategory.INSPECTAPPLY.getCode());
+            attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbDeliverDetail.getId(), Attachment.AttachmentCategory.DELIVERDETAIL.getCode());
         }
 
 

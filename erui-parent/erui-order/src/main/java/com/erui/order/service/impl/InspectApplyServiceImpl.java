@@ -51,8 +51,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     @Autowired
     private AttachmentService attachmentService;
     @Autowired
-    private AttachmentDao attachmentDao;
-    @Autowired
     private InspectReportDao inspectReportDao;
     @Autowired
     private InspectApplyTmpAttachDao inspectApplyTmpAttachDao;
@@ -84,7 +82,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     public InspectApply findById(Integer id) {
         InspectApply inspectApply = inspectApplyDao.findOne(id);
         if (inspectApply != null) {
-            List<Attachment> attachments = attachmentDao.findByRelObjIdAndCategory(inspectApply.getId(), Attachment.AttachmentCategory.INSPECTAPPLY.getCode());
+            List<Attachment> attachments = attachmentService.queryAttachs(inspectApply.getId(), Attachment.AttachmentCategory.INSPECTAPPLY.getCode());
             inspectApply.setAttachmentList(attachments);
             inspectApply.getAttachmentList().size();
         }
@@ -635,7 +633,13 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     public InspectApply findDetail(Integer id) {
         InspectApply inspectApply = inspectApplyDao.findOne(id);
         if (inspectApply != null) {
-            inspectApply.getAttachmentList().size();
+            if (inspectApply.getId() != null) {
+                List<Attachment> attachments = attachmentService.queryAttachs(inspectApply.getId(), Attachment.AttachmentCategory.INSPECTAPPLY.getCode());
+                if (attachments != null && attachments.size() > 0) {
+                    inspectApply.setAttachmentList(attachments);
+                }
+            }
+            inspectApply.getAttachmentList();
             inspectApply.getInspectApplyGoodsList().size();
         }
 
