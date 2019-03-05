@@ -90,7 +90,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public void addAttachments(List<Attachment> attachmentList,Integer id,String category) {
+    public void addAttachments(List<Attachment> attachmentList, Integer id, String category) {
         List<Attachment> attachments = new ArrayList<>();
         for (Attachment attachment : attachmentList) {
             attachment.setRelObjId(id);
@@ -98,5 +98,17 @@ public class AttachmentServiceImpl implements AttachmentService {
             attachments.add(attachment);
         }
         attachmentDao.save(attachments);
+    }
+
+    @Override
+    public List<Attachment> queryAttachs(Integer id, String category) {
+        List<Attachment> attachments = new ArrayList<>();
+        if (id != null && category != null) {
+            attachments = attachmentDao.findByRelObjIdAndCategory(id, category);
+        }
+        if (attachments != null && attachments.size() > 0) {
+            return attachments;
+        }
+        return null;
     }
 }

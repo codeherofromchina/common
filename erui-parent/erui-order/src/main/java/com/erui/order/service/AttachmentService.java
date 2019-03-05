@@ -25,4 +25,6 @@ public interface AttachmentService {
     void updateAttachments(List<Attachment> attachmentList, Map<Integer, Attachment> dbAttahmentsMap, Integer relObjId, String category) throws Exception;
 
     void addAttachments(List<Attachment> attachmentList, Integer id, String category);
+
+    List<Attachment> queryAttachs(Integer id, String category);
 }

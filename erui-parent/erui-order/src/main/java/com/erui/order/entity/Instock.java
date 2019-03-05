@@ -37,7 +37,7 @@ public class Instock {
     // 下发部门，和仓库经办人管理
     private String department;
 
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "instock_date")
     private Date instockDate;   //入库日期
 
@@ -58,20 +58,21 @@ public class Instock {
     private Integer outCheck; //是否外检（ 0：否   1：是）
 
     @Column(name = "submenu_name ")
-    private String submenuName ; //入库分单人姓名
+    private String submenuName; //入库分单人姓名
 
     @Column(name = "submenu_id ")
-    private Integer submenuId ; //入库分单人id
+    private Integer submenuId; //入库分单人id
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "instock_id")
     private List<InstockGoods> instockGoodsList = new ArrayList<>();
 
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    /*@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "instock_attach",
             joinColumns = @JoinColumn(name = "instock_id"),
-            inverseJoinColumns = @JoinColumn(name = "attach_id"))
+            inverseJoinColumns = @JoinColumn(name = "attach_id"))*/
+    @Transient
     private List<Attachment> attachmentList = new ArrayList<>();
 
     public Integer getId() {
