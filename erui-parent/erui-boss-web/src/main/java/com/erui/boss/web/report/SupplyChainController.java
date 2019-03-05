@@ -402,6 +402,7 @@ public class SupplyChainController {
      * @param params
      * @return
      */
+    @ResponseBody
     @RequestMapping(value = "/quoteInfo", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
     public Result<Object> selectCategoryNumByArea(@RequestBody(required = true) Map<String, Object> params) {
         //处理参数

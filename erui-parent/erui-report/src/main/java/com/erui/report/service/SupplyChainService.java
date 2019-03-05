@@ -124,4 +124,5 @@ public interface SupplyChainService {
      * @return {"names":['供应商1','供应商2',...],"values":[161.58,161.58,...]}
      */
     Map<String, List<Object>> selectSupplyQuoteAmount(String startTime, String endTime);
+
 }
