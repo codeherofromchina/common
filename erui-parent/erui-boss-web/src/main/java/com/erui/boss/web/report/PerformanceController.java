@@ -76,17 +76,12 @@ public class PerformanceController {
         Result<Object> result = new Result<>();
         List<InquiryAreaVO> arayList = performanceService.selectAllAreaAndCountryList();
         if (MapUtils.isNotEmpty(params) && StringUtils.isNotEmpty(params.get("areaName"))) {
-            List<InquiryAreaVO> ll = arayList.parallelStream().filter(vo -> vo.getAreaName().equals(params.get("areaName")))
-                    .collect(Collectors.toList());
-            if (ll.size() > 0) {
-                result.setData(ll.get(0).getCountries());
-            } else {
-                return result.setStatus(ResultStatusEnum.AREA_NOT_EXIST);
-            }
+            List<String> countryList = performanceService.findCountryByArea(params.get("areaName"));
+            result.setData(countryList);
         } else {
-            List<String> areaList = arayList.parallelStream().map(InquiryAreaVO::getAreaName)
-                    .collect(Collectors.toList());
-            result.setData(areaList);
+            // 查询所有销售地区
+            List<String> areaList = performanceService.findAllMarketArea();
+            result.setData(arayList);
         }
         return result;
     }
