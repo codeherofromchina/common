@@ -84,7 +84,7 @@ public class InspectReportServiceImpl implements InspectReportService {
         InspectReport inspectReport = inspectReportDao.findOne(id);
         if (inspectReport != null) {
             if (inspectReport.getId() != null) {
-                List<Attachment> attachments = attachmentService.queryAttachs(inspectReport.getId(), Attachment.AttachmentCategory.INSTOCKQUALITY.getCode());
+                List<Attachment> attachments = attachmentService.queryAttachs(inspectReport.getId(), Attachment.AttachmentCategory.INSPECTREPORT.getCode());
                 if (attachments != null && attachments.size() > 0) {
                     inspectReport.setAttachments(attachments);
                 }
@@ -416,7 +416,7 @@ public class InspectReportServiceImpl implements InspectReportService {
         List<Attachment> attachmentList = inspectReport.getAttachments();
         if (attachmentList != null && attachmentList.size() > 0) {
             Map<Integer, Attachment> dbAttahmentsMap = dbInspectReport.getAttachments().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
-            attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbInspectReport.getId(), Attachment.AttachmentCategory.INSTOCKQUALITY.getCode());
+            attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbInspectReport.getId(), Attachment.AttachmentCategory.INSPECTREPORT.getCode());
         }
 
 

@@ -106,6 +106,7 @@ public class InspectApply {
     @JoinTable(name = "inspect_apply_attach",
             joinColumns = @JoinColumn(name = "inspect_apply_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))*/
+    //报检单
     @Transient
     private List<Attachment> attachmentList = new ArrayList<>();
 
