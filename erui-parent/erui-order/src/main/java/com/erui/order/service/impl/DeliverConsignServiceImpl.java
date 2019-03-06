@@ -215,7 +215,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if (deliverConsign.getStatus() == 3) {
             Project project = order.getProject();
             order.setDeliverConsignHas(2);
-            project.setDeliverConsignHas(2);
+            //project.setDeliverConsignHas(2);
             orderDao.save(order);
             projectDao.save(project);
             orderService.updateOrderDeliverConsignC(orderIds);
@@ -317,7 +317,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if (deliverConsign.getStatus() == 3) {
             Project project = order.getProject();
             order.setDeliverConsignHas(2);
-            project.setDeliverConsignHas(2);
+            //project.setDeliverConsignHas(2);
             orderDao.save(order);
             projectDao.save(project);
             orderService.updateOrderDeliverConsignC(orderIds);

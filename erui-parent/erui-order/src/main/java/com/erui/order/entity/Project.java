@@ -110,9 +110,10 @@ public class Project {
 
     @Column(name = "create_time")
     private Date createTime;
+    //删除字段 暂未删除
     @Column(name = "exec_co_name")
     private String execCoName;
-    //分销部名称
+    //分销部名称 删除
     @Column(name = "distribution_dept_name")
     private String distributionDeptName;
     //下发部门
@@ -132,7 +133,9 @@ public class Project {
     //合同总价（美元）
     @Column(name = "total_price_usd")
     private BigDecimal totalPriceUsd;
+    @Transient
     private String region;
+    //删除字段
     private String country;
     private String remarks;
     //流程进度
@@ -141,7 +144,7 @@ public class Project {
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private List<Goods> goodsList = new ArrayList<>();
-    //是否已生成出口通知单
+    //是否已生成出口通知单 删除字段
     @Column(name = "deliver_consign_has")
     private Integer deliverConsignHas;
     //订单类别 1预投 2 售后 3 试用 4 现货（出库） 5 订单 6 国内订单

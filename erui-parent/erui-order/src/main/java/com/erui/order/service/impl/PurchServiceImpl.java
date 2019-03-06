@@ -99,8 +99,8 @@ public class PurchServiceImpl implements PurchService {
             List<Attachment> attachments = attachmentDao.findByRelObjIdAndCategory(puch.getId(), Attachment.AttachmentCategory.PURCH.getCode());
             if (attachments != null && attachments.size() > 0) {
                 puch.setAttachments(attachments);
+                puch.getAttachments().size(); // 获取采购的附件信息
             }
-            puch.getAttachments().size(); // 获取采购的附件信息
             List<PurchGoods> purchGoodsList = puch.getPurchGoodsList();
             if (purchGoodsList.size() > 0) {
                 for (PurchGoods purchGoods : purchGoodsList) {
@@ -1167,9 +1167,12 @@ public class PurchServiceImpl implements PurchService {
         Purch save = purchDao.save(dbPurch);
         // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
         //save.setAttachmentList(save.getAttachmentList());
-        List<Attachment> attachmentList = purch.getAttachments();
+        List<Attachment> attachmentList = new ArrayList<>();
+        if (purch.getAttachments() != null) {
+            attachmentList = purch.getAttachments();
+        }
         Map<Integer, Attachment> dbAttahmentsMap = dbPurch.getAttachments().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
-        attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, save.getId(), Attachment.AttachmentCategory.PURCH.getCode());
+        attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbPurch.getId(), Attachment.AttachmentCategory.PURCH.getCode());
 
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
             checkLog_i = orderService.fullCheckLogInfo(null, save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);

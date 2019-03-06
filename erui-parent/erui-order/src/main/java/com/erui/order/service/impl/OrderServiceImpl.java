@@ -1087,16 +1087,16 @@ public class OrderServiceImpl implements OrderService {
                 projectAdd = order.getProject();
             }
             projectAdd.setOrder(orderUpdate);
-            projectAdd.setExecCoName(orderUpdate.getExecCoName());
+            //projectAdd.setExecCoName(orderUpdate.getExecCoName());
             projectAdd.setBusinessUid(orderUpdate.getTechnicalId());
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
             projectAdd.setBusinessUnitName(orderUpdate.getBusinessUnitName());
             projectAdd.setSendDeptId(orderUpdate.getBusinessUnitId());
-            projectAdd.setRegion(orderUpdate.getRegion());
-            projectAdd.setCountry(orderUpdate.getCountry());
+            //projectAdd.setRegion(orderUpdate.getRegion());
+            //projectAdd.setCountry(orderUpdate.getCountry());
             projectAdd.setTotalPriceUsd(orderUpdate.getTotalPriceUsd());
-            projectAdd.setDistributionDeptName(orderUpdate.getDistributionDeptName());
-            projectAdd.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
+            //projectAdd.setDistributionDeptName(orderUpdate.getDistributionDeptName());
+            //projectAdd.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             projectAdd.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             projectAdd.setOrderCategory(orderUpdate.getOrderCategory());
             projectAdd.setOverseasSales(orderUpdate.getOverseasSales());
@@ -1273,9 +1273,9 @@ public class OrderServiceImpl implements OrderService {
             project.setExecCoName(order1.getExecCoName());
             project.setBusinessUnitName(order1.getBusinessUnitName());
             project.setSendDeptId(order1.getBusinessUnitId());
-            project.setDistributionDeptName(order1.getDistributionDeptName());
-            project.setRegion(order1.getRegion());
-            project.setCountry(order1.getCountry());
+            //project.setDistributionDeptName(order1.getDistributionDeptName());
+            //project.setRegion(order1.getRegion());
+            //project.setCountry(order1.getCountry());
             project.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             project.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             project.setTotalPriceUsd(order1.getTotalPriceUsd());
@@ -2135,13 +2135,13 @@ public class OrderServiceImpl implements OrderService {
             project.setContractNo(strArr[2]);
             //项目创建日期和开始日期
             if (strArr[41] != null) {
-                Date createDate = DateUtil.parseString2DateNoException(strArr[41], "yyyy-MM-dd");
+                Date createDate = DateUtil.parseString2DateNoException(strArr[41], "yyyy-MM-dd hh:mm:ss");
                 project.setCreateTime(createDate);
                 project.setStartDate(createDate);
             }
             project.setProjectName(strArr[42]);
             // 国家
-            project.setCountry(strArr[16]);
+            //project.setCountry(strArr[16]);
             //执行约定交付日期
             project.setDeliveryDate(strArr[43]);
             //合同总价
@@ -2176,15 +2176,15 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
             //执行分公司
-            if (strArr[14] != null) {
+            /*if (strArr[14] != null) {
                 project.setExecCoName(order.getExecCoName());
-            }
+            }*/
 
-            if (strArr[15] != null) {
+            /*if (strArr[15] != null) {
                 project.setRegion(strArr[15]);
             } else {
                 project.setRegion("");
-            }
+            }*/
 
             //执行变更日期
             if (strArr[47] != null) {
@@ -2688,7 +2688,7 @@ public class OrderServiceImpl implements OrderService {
             }
             //项目开始日期
             if (StringUtils.isNotBlank(strArr[2])) {
-                project.setStartDate(DateUtil.parseString2DateNoException(strArr[2], "yyyy-MM-dd"));
+                project.setStartDate(DateUtil.parseString2DateNoException(strArr[2], "yyyy-MM-dd hh:mm:ss"));
             }
             //项目名称
             if (StringUtils.isNotBlank(strArr[3])) {
