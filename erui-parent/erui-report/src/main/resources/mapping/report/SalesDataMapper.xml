@@ -424,6 +424,7 @@
         AND t4.deleted_flag = 'N'
         AND t1.material_cat_name IS NOT NULL
         AND t1.material_cat_name != ''
+        AND (t1.category IS NULL OR t1.category = '')
         AND t2.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')) AS t
         GROUP BY category
         ORDER BY 2 DESC
@@ -463,6 +464,7 @@
         AND t1.inquiry_id = t3.log_inquiry_id
         AND t1.deleted_flag = 'N'
         AND t2.deleted_flag = 'N'
+        AND t4.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
         AND t1.category IS NOT NULL
         AND t1.category != '' UNION ALL SELECT
         t1.material_cat_name AS category,
@@ -494,7 +496,9 @@
         AND t1.deleted_flag = 'N'
         AND t2.deleted_flag = 'N'
         AND t1.material_cat_name IS NOT NULL
-        AND t1.material_cat_name != '') AS t
+        AND t1.material_cat_name != ''
+        AND t4.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
+        AND (t1.category IS NULL OR t1.category = '')) AS t
         GROUP BY category
         ORDER BY 2 DESC
     </select>

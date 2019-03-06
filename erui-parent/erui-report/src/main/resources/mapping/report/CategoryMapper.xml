@@ -170,7 +170,7 @@
         <if test="startTime!=null and endTime!=null">
             HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
         </if>
-        ) AS t3,erui_rfq.inquiry t4
+        ) AS t3,erui_rfq.inquiry t4,erui_rfq.final_quote t5
         WHERE
         t1.id = t2.inquiry_item_id
         AND t1.inquiry_id = t4.id
@@ -184,8 +184,11 @@
             AND t4.trade_terms_bn = #{tradeTerms}
         </if>
         AND t1.inquiry_id = t3.log_inquiry_id
+        AND t4.id = t5.inquiry_id
+        AND t5.deleted_flag = 'N'
         AND t1.deleted_flag = 'N'
         AND t2.deleted_flag = 'N'
+        AND t4.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
         AND t1.category IS NOT NULL
         AND t1.category != '' UNION ALL SELECT
         t1.material_cat_name AS category,
@@ -201,7 +204,7 @@
         <if test="startTime!=null and endTime!=null">
             HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
         </if>
-        ) AS t3,erui_rfq.inquiry t4
+        ) AS t3,erui_rfq.inquiry t4,erui_rfq.final_quote t5
         WHERE
         t1.id = t2.inquiry_item_id
         AND t1.inquiry_id = t4.id
@@ -214,9 +217,12 @@
         <if test="tradeTerms!=null and tradeTerms!='' and tradeTerms!='null'">
             AND t4.trade_terms_bn = #{tradeTerms}
         </if>
+        AND t4.id = t5.inquiry_id
+        AND t5.deleted_flag = 'N'
         AND t1.inquiry_id = t3.log_inquiry_id
         AND t1.deleted_flag = 'N'
         AND t2.deleted_flag = 'N'
+        AND t4.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED')
         AND t1.material_cat_name IS NOT NULL
         AND t1.material_cat_name != '' AND (t1.category IS NULL OR t1.category = '')) AS t
         GROUP BY category
