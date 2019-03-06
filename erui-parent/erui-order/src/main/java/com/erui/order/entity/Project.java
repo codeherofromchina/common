@@ -40,7 +40,7 @@ public class Project {
     private String projectName;
 
     @Column(name = "start_date")
-    @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date startDate;
     //20180711因事业部订单导入需要修改为文本格式
     //@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
