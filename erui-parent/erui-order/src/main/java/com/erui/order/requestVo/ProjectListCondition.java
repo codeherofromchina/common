@@ -19,7 +19,7 @@ public class ProjectListCondition {
     //执行分公司名称
     private String execCoName;
     //项目开始时期
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date startDate;
     //分销部
     private String distributionDeptName;
