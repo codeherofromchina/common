@@ -500,7 +500,16 @@ public class ProjectServiceImpl implements ProjectService {
                 }
                 //根据项目开始时间查询
                 if (condition.getStartDate() != null) {
-                    searchList.add(cb.equal(root.get("startDate").as(Date.class), condition.getStartDate()));
+                    String startDateStr = condition.getStartDate().toString();
+                    String endDateStr = condition.getStartDate().toString();
+                    if (StringUtils.isNotBlank(startDateStr)) {
+                        Date startT = DateUtil.getOperationTime(condition.getStartDate(), 0, 0, 0);
+                        searchList.add(cb.greaterThanOrEqualTo(root.get("startDate").as(Date.class), startT));
+                    }
+                    if (StringUtils.isNotBlank(endDateStr)) {
+                        Date endT = DateUtil.getOperationTime(condition.getStartDate(), 23, 59, 59);
+                        searchList.add(cb.lessThan(root.get("startDate").as(Date.class), endT));
+                    }
                 }
                 //根据项目状态
                 String[] projectStatus = null;
@@ -1578,7 +1587,7 @@ public class ProjectServiceImpl implements ProjectService {
         checkLog.setOperation(operation);
         checkLog.setType(type);
 
-        CheckLog.AuditProcessingEnum ape =  CheckLog.AuditProcessingEnum.findEnum(type, auditingProcess);
+        CheckLog.AuditProcessingEnum ape = CheckLog.AuditProcessingEnum.findEnum(type, auditingProcess);
         checkLog.setAuditSeq(ape.getAuditSeq());
 
         return checkLog;
