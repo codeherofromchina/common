@@ -689,52 +689,8 @@ public class OrderServiceImpl implements OrderService {
             CheckLog checkLog = checkLogService.findLogOne(order.getId());
             switch (curAuditProcess) {
                 case 0:
-                   /* auditingProcess_i = "1";
-                    auditingUserId_i = addOrderVo.getPerLiableRepayId().toString();
-                    auditorIds.append("," + auditingUserId_i + ",");
-                    addOrderVo.copyBaseInfoTo(order);
-                    if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != 6) {
-                        if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
-                            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                            order.setCountryLeader(addOrderVo.getCountryLeader());
-                        } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
-                            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                            order.setCountryLeader(addOrderVo.getCountryLeader());
-                            order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-                            order.setAreaLeader(addOrderVo.getAreaLeader());
-                        } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_THREE_PRICE.doubleValue()) {
-                            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                            order.setCountryLeader(addOrderVo.getCountryLeader());
-                            order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-                            order.setAreaLeader(addOrderVo.getAreaLeader());
-                            order.setAreaVpId(addOrderVo.getAreaVpId());
-                            order.setAreaVp(addOrderVo.getAreaVp());
-                        }
-                    }
-                    order.setOrderPayments(addOrderVo.getContractDesc());
-                    order.setAttachmentSet(addOrderVo.getAttachDesc());
-                    if (order.getId() != null) {
-                        order.getProject().setExecCoName(order.getExecCoName());
-                        order.getProject().setBusinessUid(order.getTechnicalId());
-                        order.getProject().setExecCoName(order.getExecCoName());
-                        order.getProject().setBusinessUnitName(order.getBusinessUnitName());
-                        order.getProject().setSendDeptId(order.getBusinessUnitId());
-                        order.getProject().setRegion(order.getRegion());
-                        order.getProject().setCountry(order.getCountry());
-                        order.getProject().setTotalPriceUsd(order.getTotalPriceUsd());
-                        order.getProject().setDistributionDeptName(order.getDistributionDeptName());
-                        order.getProject().setBusinessName(order.getBusinessName());
-                        order.getProject().setCreateTime(new Date());
-                    }*/
                     break;
                 case 1:
-                    /* if (checkLog != null && "-1".equals(checkLog.getOperation())) {
-                        auditingProcess_i = checkLog.getNextAuditingProcess();
-                        auditingUserId_i = checkLog.getNextAuditingUserId();
-                        auditorIds.append("," + auditingUserId_i + ",");
-
-                    } else {
-                    }*/
                     //如果是国内订单 没有国家负责人 直接法务审核
                     if (order.getOrderCategory() == 6) {
                         auditingProcess_i = "8";
