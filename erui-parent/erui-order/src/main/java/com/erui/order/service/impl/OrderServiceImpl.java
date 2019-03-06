@@ -51,6 +51,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class OrderServiceImpl implements OrderService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceImpl.class);
     // 用户升级方法
     static final String CRM_URL_METHOD = "/buyer/autoUpgrade";
     static final BigDecimal STEP_ONE_PRICE = new BigDecimal("100000");
@@ -219,10 +220,11 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public Page<Order> findByPage(OrderListCondition condition) {
+        LOGGER.info("findByPage -> params : {}", condition);
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
-        // 2019-01-30 增加需求 如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
+        // 2019-01-30 增加需求 如果登录用户存在o34角色（国家负责人角色）则用户只能查看他所在国家的订单内容
         String[] countryArr = getCountryHeaderByRole();
-
+        LOGGER.info("findByPage -> countryArr : {}", Arrays.toString(countryArr));
         Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -689,52 +691,8 @@ public class OrderServiceImpl implements OrderService {
             CheckLog checkLog = checkLogService.findLogOne(order.getId());
             switch (curAuditProcess) {
                 case 0:
-                   /* auditingProcess_i = "1";
-                    auditingUserId_i = addOrderVo.getPerLiableRepayId().toString();
-                    auditorIds.append("," + auditingUserId_i + ",");
-                    addOrderVo.copyBaseInfoTo(order);
-                    if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != 6) {
-                        if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
-                            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                            order.setCountryLeader(addOrderVo.getCountryLeader());
-                        } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
-                            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                            order.setCountryLeader(addOrderVo.getCountryLeader());
-                            order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-                            order.setAreaLeader(addOrderVo.getAreaLeader());
-                        } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_THREE_PRICE.doubleValue()) {
-                            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                            order.setCountryLeader(addOrderVo.getCountryLeader());
-                            order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-                            order.setAreaLeader(addOrderVo.getAreaLeader());
-                            order.setAreaVpId(addOrderVo.getAreaVpId());
-                            order.setAreaVp(addOrderVo.getAreaVp());
-                        }
-                    }
-                    order.setOrderPayments(addOrderVo.getContractDesc());
-                    order.setAttachmentSet(addOrderVo.getAttachDesc());
-                    if (order.getId() != null) {
-                        order.getProject().setExecCoName(order.getExecCoName());
-                        order.getProject().setBusinessUid(order.getTechnicalId());
-                        order.getProject().setExecCoName(order.getExecCoName());
-                        order.getProject().setBusinessUnitName(order.getBusinessUnitName());
-                        order.getProject().setSendDeptId(order.getBusinessUnitId());
-                        order.getProject().setRegion(order.getRegion());
-                        order.getProject().setCountry(order.getCountry());
-                        order.getProject().setTotalPriceUsd(order.getTotalPriceUsd());
-                        order.getProject().setDistributionDeptName(order.getDistributionDeptName());
-                        order.getProject().setBusinessName(order.getBusinessName());
-                        order.getProject().setCreateTime(new Date());
-                    }*/
                     break;
                 case 1:
-                    /* if (checkLog != null && "-1".equals(checkLog.getOperation())) {
-                        auditingProcess_i = checkLog.getNextAuditingProcess();
-                        auditingUserId_i = checkLog.getNextAuditingUserId();
-                        auditorIds.append("," + auditingUserId_i + ",");
-
-                    } else {
-                    }*/
                     //如果是国内订单 没有国家负责人 直接法务审核
                     if (order.getOrderCategory() == 6) {
                         auditingProcess_i = "8";
@@ -1669,14 +1627,14 @@ public class OrderServiceImpl implements OrderService {
         return resultMap;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public List<Order> findOrderExport(final OrderListCondition condition) {
-        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
+        LOGGER.info("findOrderExport -> params : {}", condition);
         // 2019-01-30 增加需求，如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
         String[] countryArr = getCountryHeaderByRole();
-
-        Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
+        LOGGER.info("findOrderExport -> countryArr : {}", Arrays.toString(countryArr));
+        List<Order> pageList = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>(); // 相当于前台查询条件
@@ -1879,9 +1837,9 @@ public class OrderServiceImpl implements OrderService {
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
             }
-        }, pageRequest);
-        if (pageList.hasContent()) {
-            pageList.getContent().forEach(vo -> {
+        }, new Sort(Sort.Direction.DESC, "createTime"));
+        if (pageList != null && pageList.size() > 0) {
+            pageList.forEach(vo -> {
                 //vo.setAttachmentSet(null);
                 if (vo.getDeliverConsignC() && vo.getStatus() != null && vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
                     boolean flag;
@@ -1901,11 +1859,11 @@ public class OrderServiceImpl implements OrderService {
                 }
             });
         }
-        List<Order> orderList = new ArrayList<>();
-        if (pageList.getContent() != null && pageList.getContent().size() > 0) {
-            orderList = pageList.getContent();
+        if (pageList == null) {
+            pageList = new ArrayList<>();
         }
-        return orderList;
+
+        return pageList;
     }
 
     @Override
