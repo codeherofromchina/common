@@ -3,6 +3,7 @@ package com.erui.report.dao;
 
 import com.erui.report.model.PerformanceAssign;
 import com.erui.report.model.PerformanceCount;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
 import java.util.List;
@@ -81,4 +82,16 @@ public interface PerformanceCountMapper {
      */
     Date selectEndTime();
 
+    /**
+     * 查询所有销售区域
+     * @return
+     */
+    List<Map<String, Object>> findAllMarketArea();
+
+
+    /**
+     * 查询销售区域下的国家列表
+     * @return
+     */
+    List<Map<String, Object>> findCountryByArea(@Param("area") String area);
 }
