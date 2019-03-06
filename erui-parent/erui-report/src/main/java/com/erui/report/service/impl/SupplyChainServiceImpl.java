@@ -436,11 +436,11 @@ public class SupplyChainServiceImpl extends BaseService<SupplyChainMapper> imple
                 String supplyName = (String) supplyQuoteCountInfo.get("name");
                 BigDecimal quoteAmount = (BigDecimal) supplyQuoteCountInfo.get("amount");
                 BigDecimal bigDecimal2 = quoteAmount.setScale(2, BigDecimal.ROUND_DOWN);
-                if (oneDouble.compareTo(bigDecimal2) == 1) {
+                if (oneDouble.compareTo(bigDecimal2) > 1) {
                     continue;
                 }
                 supplyNameList.add(supplyName);
-                quoteAmountList.add(quoteAmount);
+                quoteAmountList.add(bigDecimal2);
             }
             result.put("names", supplyNameList);
             result.put("values", quoteAmountList);
