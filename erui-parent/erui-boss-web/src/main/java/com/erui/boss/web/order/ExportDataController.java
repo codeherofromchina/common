@@ -183,10 +183,7 @@ public class ExportDataController {
             //service获取token信息
             String eruiToken = CookiesUtil.getEruiToken(request);
             ThreadLocalUtil.setObject(eruiToken);
-
             OrderListCondition obj = JSON.parseObject(JSON.toJSONString(params), OrderListCondition.class);
-            String eruiToken = CookiesUtil.getEruiToken(request);
-            ThreadLocalUtil.setObject(eruiToken);
             List<Order> orderList = orderService.findOrderExport(obj);
             if (orderList.size() > 0) {
                 orderList.forEach(vo -> {
