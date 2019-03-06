@@ -516,7 +516,7 @@ public class ProjectServiceImpl implements ProjectService {
                 }
                 //根据项目开始时间查询
                 if (condition.getStartDate() != null) {
-                    searchList.add(cb.equal(root.get("startDate").as(Date.class), NewDateUtil.getDate(condition.getStartDate())));
+                    searchList.add(cb.equal(root.get("startDate").as(Date.class), condition.getStartDate()));
                 }
                 //根据项目状态
                 String[] projectStatus = null;
