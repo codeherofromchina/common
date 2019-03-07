@@ -265,7 +265,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         // 添加附件
         //purchRequisition1.setAttachmentList(purchRequisition.getAttachmentList());
         if (purchRequisition.getAttachmentSet() != null && purchRequisition.getAttachmentSet().size() > 0) {
-            attachmentService.addAttachments(purchRequisitionAdd.getAttachmentSet(), purchRequisition1.getId(), Attachment.AttachmentCategory.PURCHREQUEST.getCode());
+            attachmentService.addAttachments(purchRequisition.getAttachmentSet(), purchRequisition1.getId(), Attachment.AttachmentCategory.PURCHREQUEST.getCode());
         }
 
         if (purchRequisition1.getStatus() == PurchRequisition.StatusEnum.SUBMITED.getCode()) {
