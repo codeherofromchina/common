@@ -369,11 +369,19 @@ public class InstockServiceImpl implements InstockService {
         }
         instockDao.save(dbInstock);
         //附件处理
-        List<Attachment> attachmentList = dbInstock.getAttachmentList();
-        if (attachmentList != null && attachmentList.size() > 0) {
-            Map<Integer, Attachment> dbAttahmentsMap = dbInstock.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
-            attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbInstock.getId(), Attachment.AttachmentCategory.INSTOCKQUALITY.getCode());
+        List<Attachment> attachmentList = null;
+        if (instock.getAttachmentList() != null && instock.getAttachmentList().size() > 0) {
+            attachmentList = instock.getAttachmentList();
+        } else {
+            attachmentList = new ArrayList<>();
         }
+        Map<Integer, Attachment> dbAttahmentsMap = null;
+        if (dbInstock.getAttachmentList() != null && dbInstock.getAttachmentList().size() > 0) {
+            dbAttahmentsMap = dbInstock.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        } else {
+            dbAttahmentsMap = new HashMap<>();
+        }
+        attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbInstock.getId(), Attachment.AttachmentCategory.INSTOCKQUALITY.getCode());
 
         return true;
     }

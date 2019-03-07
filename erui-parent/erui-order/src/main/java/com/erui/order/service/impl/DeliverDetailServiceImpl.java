@@ -132,11 +132,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     public DeliverDetail findDetailById(Integer id) {
         DeliverDetail deliverDetail = deliverDetailDao.findOne(id);
         /*deliverDetail.getDeliverNotice().getId();*/
-        if (deliverDetail != null) {
-            List<Attachment> attachments = attachmentService.queryAttachs(deliverDetail.getId(), Attachment.AttachmentCategory.DELIVERDETAIL.getCode());
+        List<Attachment> attachments = attachmentService.queryAttachs(deliverDetail.getId(), Attachment.AttachmentCategory.DELIVERDETAIL.getCode());
+        if (attachments != null && attachments.size() > 0) {
             deliverDetail.setAttachmentList(attachments);
+            deliverDetail.getAttachmentList().size();
         }
-        deliverDetail.getAttachmentList().size();
         List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
         if (deliverConsignGoodsList.size() > 0) {
             for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList) {
