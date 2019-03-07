@@ -84,10 +84,12 @@ public class IogisticsData {
 
     private Integer status; //物流状态 5：合并出库信息 6：完善物流状态中 7：项目完结
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  /*  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "logistics_data_attach",
             joinColumns = @JoinColumn(name = "logistics_data_id"),
-            inverseJoinColumns = @JoinColumn(name = "attach_id"))
+            inverseJoinColumns = @JoinColumn(name = "attach_id"))*/
+    //LOGISTICS
+    @Transient
     private List<Attachment> attachmentList = new ArrayList<>();
 
 

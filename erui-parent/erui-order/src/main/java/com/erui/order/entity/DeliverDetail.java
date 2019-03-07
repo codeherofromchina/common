@@ -227,11 +227,12 @@ public class DeliverDetail {
     @Column(name = "submenu_id ")
     private Integer submenuId ; //出库分单人id
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+   /* @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_detail_attach",
             joinColumns = @JoinColumn(name = "deliver_detail_id"),
-            inverseJoinColumns = @JoinColumn(name = "attach_id"))
+            inverseJoinColumns = @JoinColumn(name = "attach_id"))*/
     /*@JsonIgnore*/
+    @Transient
     private List<Attachment> attachmentList = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

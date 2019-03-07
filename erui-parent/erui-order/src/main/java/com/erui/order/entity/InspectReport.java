@@ -104,10 +104,12 @@ public class InspectReport {
     private Date createTime;
 
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+   /* @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "inspect_report_attach",
             joinColumns = @JoinColumn(name = "inspect_report_id"),
-            inverseJoinColumns = @JoinColumn(name = "attach_id"))
+            inverseJoinColumns = @JoinColumn(name = "attach_id"))*/
+   //INSTOCKQUALITY
+   @Transient
     private List<Attachment> attachments = new ArrayList<>();
 
 

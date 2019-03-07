@@ -831,9 +831,16 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         Map<String, Object> result = new HashMap<>();
         List<String> names = new ArrayList<>();
         List<BigDecimal> nums = new ArrayList<>();
+        BigDecimal oneDouble = new BigDecimal("0.01");
         for (Map<String, Object> entry : maps) {
-            names.add(String.valueOf(entry.get("category")));
-            nums.add(((BigDecimal) entry.get("num")).setScale(2, BigDecimal.ROUND_DOWN));
+            String name = String.valueOf(entry.get("category"));
+
+            BigDecimal value = ((BigDecimal) entry.get("num")).setScale(2, BigDecimal.ROUND_DOWN);
+            if (value.compareTo(oneDouble) < 0) {
+                continue;
+            }
+            names.add(name);
+            nums.add(value);
         }
         result.put("names", names);
         result.put("nums", nums);

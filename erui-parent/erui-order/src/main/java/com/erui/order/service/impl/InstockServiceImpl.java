@@ -248,7 +248,7 @@ public class InstockServiceImpl implements InstockService {
     @Transactional(rollbackFor = Exception.class)
     public boolean save(Instock instock) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        Instock dbInstock = instockDao.findOne(instock.getId());
+        Instock dbInstock = detail(instock.getId());
 
         // 保存基本信息
         dbInstock.setUid(instock.getUid());
@@ -318,8 +318,8 @@ public class InstockServiceImpl implements InstockService {
 
         }
         // 保存附件信息
-        List<Attachment> attachments = attachmentService.handleParamAttachment(dbInstock.getAttachmentList(), instock.getAttachmentList(), instock.getCurrentUserId(), instock.getCurrentUserName());
-        dbInstock.setAttachmentList(attachments);
+        //List<Attachment> attachments = attachmentService.handleParamAttachment(dbInstock.getAttachmentList(), instock.getAttachmentList(), instock.getCurrentUserId(), instock.getCurrentUserName());
+        //dbInstock.setAttachmentList(attachments);
         // 处理商品信息
         Map<Integer, InstockGoods> instockGoodsMap = instockGoodsList.parallelStream().collect(Collectors.toMap(InstockGoods::getId, vo -> vo));
         for (InstockGoods instockGoods : instock.getInstockGoodsList()) {
@@ -368,6 +368,20 @@ public class InstockServiceImpl implements InstockService {
             throw new Exception(String.format("%s%s%s", "入库商品数量错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The number of goods in the warehouse"));
         }
         instockDao.save(dbInstock);
+        //附件处理
+        List<Attachment> attachmentList = null;
+        if (instock.getAttachmentList() != null && instock.getAttachmentList().size() > 0) {
+            attachmentList = instock.getAttachmentList();
+        } else {
+            attachmentList = new ArrayList<>();
+        }
+        Map<Integer, Attachment> dbAttahmentsMap = null;
+        if (dbInstock.getAttachmentList() != null && dbInstock.getAttachmentList().size() > 0) {
+            dbAttahmentsMap = dbInstock.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        } else {
+            dbAttahmentsMap = new HashMap<>();
+        }
+        attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbInstock.getId(), Attachment.AttachmentCategory.INSTOCKQUALITY.getCode());
 
         return true;
     }
@@ -377,6 +391,12 @@ public class InstockServiceImpl implements InstockService {
     @Transactional(readOnly = true)
     public Instock detail(Integer id) {
         Instock instock = instockDao.findOne(id);
+        if (instock.getId() != null) {
+            List<Attachment> attachments = attachmentService.queryAttachs(instock.getId(), Attachment.AttachmentCategory.INSTOCKQUALITY.getCode());
+            if (attachments != null && attachments.size() > 0) {
+                instock.setAttachmentList(attachments);
+            }
+        }
         instock.getAttachmentList().size();
         List<InstockGoods> instockGoodsList = instock.getInstockGoodsList();
         for (InstockGoods v : instockGoodsList) {

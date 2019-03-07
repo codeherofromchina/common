@@ -110,7 +110,7 @@ public interface DeliverDetailService {
      * @param deliverDetail
      * @return
      */
-    void logisticsActionAddOrSave(DeliverDetail deliverDetail);
+    void logisticsActionAddOrSave(DeliverDetail deliverDetail) throws Exception;
 
     /**
      * 物流管理 - 查看页面

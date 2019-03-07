@@ -90,6 +90,10 @@ public class OrderServiceImpl implements OrderService {
     private CheckLogService checkLogService;
     @Autowired
     private CheckLogDao checkLogDao;
+    @Autowired
+    private AttachmentDao attachmentDao;
+    @Autowired
+    private AttachmentService attachmentService;
 
     @Value("#{orderProp[CRM_URL]}")
     private String crmUrl;  //CRM接口地址
@@ -137,6 +141,10 @@ public class OrderServiceImpl implements OrderService {
                 for (Goods goods : goodsList) {
                     goods.setPurchGoods(null);
                 }
+            }
+            List<Attachment> orderAttachment = attachmentDao.findByRelObjIdAndCategory(id, Attachment.AttachmentCategory.ORDER.getCode());
+            if (orderAttachment != null && orderAttachment.size() > 0) {
+                order.setAttachmentSet(orderAttachment);
             }
             order.getAttachmentSet().size();
             order.getOrderPayments().size();
@@ -683,52 +691,8 @@ public class OrderServiceImpl implements OrderService {
             CheckLog checkLog = checkLogService.findLogOne(order.getId());
             switch (curAuditProcess) {
                 case 0:
-                   /* auditingProcess_i = "1";
-                    auditingUserId_i = addOrderVo.getPerLiableRepayId().toString();
-                    auditorIds.append("," + auditingUserId_i + ",");
-                    addOrderVo.copyBaseInfoTo(order);
-                    if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != 6) {
-                        if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
-                            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                            order.setCountryLeader(addOrderVo.getCountryLeader());
-                        } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
-                            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                            order.setCountryLeader(addOrderVo.getCountryLeader());
-                            order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-                            order.setAreaLeader(addOrderVo.getAreaLeader());
-                        } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_THREE_PRICE.doubleValue()) {
-                            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                            order.setCountryLeader(addOrderVo.getCountryLeader());
-                            order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-                            order.setAreaLeader(addOrderVo.getAreaLeader());
-                            order.setAreaVpId(addOrderVo.getAreaVpId());
-                            order.setAreaVp(addOrderVo.getAreaVp());
-                        }
-                    }
-                    order.setOrderPayments(addOrderVo.getContractDesc());
-                    order.setAttachmentSet(addOrderVo.getAttachDesc());
-                    if (order.getId() != null) {
-                        order.getProject().setExecCoName(order.getExecCoName());
-                        order.getProject().setBusinessUid(order.getTechnicalId());
-                        order.getProject().setExecCoName(order.getExecCoName());
-                        order.getProject().setBusinessUnitName(order.getBusinessUnitName());
-                        order.getProject().setSendDeptId(order.getBusinessUnitId());
-                        order.getProject().setRegion(order.getRegion());
-                        order.getProject().setCountry(order.getCountry());
-                        order.getProject().setTotalPriceUsd(order.getTotalPriceUsd());
-                        order.getProject().setDistributionDeptName(order.getDistributionDeptName());
-                        order.getProject().setBusinessName(order.getBusinessName());
-                        order.getProject().setCreateTime(new Date());
-                    }*/
                     break;
                 case 1:
-                    /* if (checkLog != null && "-1".equals(checkLog.getOperation())) {
-                        auditingProcess_i = checkLog.getNextAuditingProcess();
-                        auditingUserId_i = checkLog.getNextAuditingUserId();
-                        auditorIds.append("," + auditingUserId_i + ",");
-
-                    } else {
-                    }*/
                     //如果是国内订单 没有国家负责人 直接法务审核
                     if (order.getOrderCategory() == 6) {
                         auditingProcess_i = "8";
@@ -992,7 +956,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(rollbackFor = Exception.class)
     public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        Order order = orderDao.findOne(addOrderVo.getId());
+        Order order = findByIdLang(addOrderVo.getId(), "zh");
         if ((order.getOverseasSales() != 2 && order.getOverseasSales() != 4) && (addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4)) {
             order.setContractNo("");
         } else if ((addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4) && !order.getSigningCo().equals(addOrderVo.getSigningCo())) {
@@ -1004,8 +968,6 @@ public class OrderServiceImpl implements OrderService {
 
         }
         addOrderVo.copyBaseInfoTo(order);
-        // 处理附件信息
-        order.setAttachmentSet(addOrderVo.getAttachDesc());
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setDeleteFlag(false);
         //根据订单金额判断 填写审批人级别
@@ -1045,6 +1007,12 @@ public class OrderServiceImpl implements OrderService {
         }
         CheckLog checkLog_i = null; // 审核日志
         Order orderUpdate = orderDao.saveAndFlush(order);
+        // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
+        //order.setAttachmentSet(addOrderVo.getAttachDesc());
+        List<Attachment> attachmentList = addOrderVo.getAttachDesc();
+        Map<Integer, Attachment> dbAttahmentsMap = order.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, orderUpdate.getId(), Attachment.AttachmentCategory.ORDER.getCode());
+
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             checkLog_i = fullCheckLogInfo(order.getId(), null, 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
            /* if (orderUpdate.getPerLiableRepayId() != null) {
@@ -1133,6 +1101,7 @@ public class OrderServiceImpl implements OrderService {
         return order.getId();
     }
 
+
     private List<Goods> updateOrderGoods(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
@@ -1195,7 +1164,6 @@ public class OrderServiceImpl implements OrderService {
         addOrderVo.copyBaseInfoTo(order);
         order.setCreateUserId(addOrderVo.getCreateUserId());
         order.setCreateUserName(addOrderVo.getCreateUserName());
-        order.setAttachmentSet(addOrderVo.getAttachDesc());
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setCreateTime(new Date());
         order.setDeleteFlag(false);
@@ -1229,6 +1197,11 @@ public class OrderServiceImpl implements OrderService {
         }
         CheckLog checkLog_i = null; //审批流日志
         Order order1 = orderDao.save(order);
+        //order.setAttachmentSet(addOrderVo.getAttachDesc());
+        //添加附件
+        if (addOrderVo.getAttachDesc() != null) {
+            attachmentService.addAttachments(addOrderVo.getAttachDesc(), order1.getId(), Attachment.AttachmentCategory.ORDER.getCode());
+        }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             checkLog_i = fullCheckLogInfo(order.getId(), null, 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
             checkLogService.insert(checkLog_i);

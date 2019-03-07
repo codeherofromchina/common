@@ -102,10 +102,12 @@ public class InspectApply {
     private String remark;
 
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    /*@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "inspect_apply_attach",
             joinColumns = @JoinColumn(name = "inspect_apply_id"),
-            inverseJoinColumns = @JoinColumn(name = "attach_id"))
+            inverseJoinColumns = @JoinColumn(name = "attach_id"))*/
+    //报检单
+    @Transient
     private List<Attachment> attachmentList = new ArrayList<>();
 
 
