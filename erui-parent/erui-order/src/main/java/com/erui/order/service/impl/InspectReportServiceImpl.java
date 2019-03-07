@@ -413,12 +413,17 @@ public class InspectReportServiceImpl implements InspectReportService {
         }
         InspectReport save1 = inspectReportDao.save(dbInspectReport);
         //附件处理
-        List<Attachment> attachmentList = inspectReport.getAttachments();
-        if (attachmentList != null && attachmentList.size() > 0) {
-            Map<Integer, Attachment> dbAttahmentsMap = dbInspectReport.getAttachments().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
-            attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbInspectReport.getId(), Attachment.AttachmentCategory.INSPECTREPORT.getCode());
+        List<Attachment> attachmentList = null;
+        if (inspectReport.getAttachments() != null && inspectReport.getAttachments().size() > 0) {
+            attachmentList = inspectReport.getAttachments();
+        } else {
+            attachmentList = new ArrayList<>();
         }
-
+        Map<Integer, Attachment> dbAttahmentsMap = new HashMap<>();
+        if (dbInspectReport.getAttachments() != null && dbInspectReport.getAttachments().size() > 0) {
+            dbAttahmentsMap = dbInspectReport.getAttachments().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        }
+        attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbInspectReport.getId(), Attachment.AttachmentCategory.INSPECTREPORT.getCode());
 
         if (statusEnum == InspectReport.StatusEnum.DONE) { // 提交动作
             //质检以后，删除   “办理入库质检”  待办提示
