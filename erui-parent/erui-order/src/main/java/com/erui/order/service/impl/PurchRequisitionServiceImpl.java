@@ -162,10 +162,11 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         }
         Map<Integer, Attachment> dbAttahmentsMap = new HashMap<>();
         if (prt.getAttachmentSet() != null && prt.getAttachmentSet().size() > 0) {
-
             dbAttahmentsMap = prt.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+            attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, prt.getId(), Attachment.AttachmentCategory.PURCHREQUEST.getCode());
+        } else {
+            attachmentService.addAttachments(attachmentList, prt.getId(), Attachment.AttachmentCategory.PURCHREQUEST.getCode());
         }
-        attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, prt.getId(), Attachment.AttachmentCategory.PURCHREQUEST.getCode());
 
         if (purchRequisition1.getStatus() == PurchRequisition.StatusEnum.SUBMITED.getCode()) {
             Project project1 = purchRequisition1.getProject();
@@ -263,7 +264,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         PurchRequisition purchRequisition1 = purchRequisitionDao.save(purchRequisitionAdd);
         // 添加附件
         //purchRequisition1.setAttachmentList(purchRequisition.getAttachmentList());
-        if (purchRequisitionAdd.getAttachmentSet() != null && purchRequisitionAdd.getAttachmentSet().size() > 0) {
+        if (purchRequisition.getAttachmentSet() != null && purchRequisition.getAttachmentSet().size() > 0) {
             attachmentService.addAttachments(purchRequisitionAdd.getAttachmentSet(), purchRequisition1.getId(), Attachment.AttachmentCategory.PURCHREQUEST.getCode());
         }
 

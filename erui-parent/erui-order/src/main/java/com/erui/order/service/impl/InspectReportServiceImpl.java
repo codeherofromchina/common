@@ -87,9 +87,9 @@ public class InspectReportServiceImpl implements InspectReportService {
                 List<Attachment> attachments = attachmentService.queryAttachs(inspectReport.getId(), Attachment.AttachmentCategory.INSPECTREPORT.getCode());
                 if (attachments != null && attachments.size() > 0) {
                     inspectReport.setAttachments(attachments);
+                    inspectReport.getAttachments().size();
                 }
             }
-            inspectReport.getAttachments().size();
             inspectReport.getInspectGoodsList().size();
             InspectApply inspectApply = inspectReport.getInspectApply();
             inspectReport.setPurchNo(inspectApply.getPurchNo());
@@ -266,7 +266,7 @@ public class InspectReportServiceImpl implements InspectReportService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean save(InspectReport inspectReport) throws Exception {
-        InspectReport dbInspectReport = inspectReportDao.findOne(inspectReport.getId());
+        InspectReport dbInspectReport = detail(inspectReport.getId());
         if (dbInspectReport == null) {
             throw new Exception(String.format("%s%s%s", "质检单不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The quality check list does not exist"));
         }
