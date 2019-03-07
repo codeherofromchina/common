@@ -195,7 +195,6 @@ public class OrderAccountController {
 
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
-
         Result<Object> result = new Result<>();
         if (orderAccount == null || orderAccount.getId() == null) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
