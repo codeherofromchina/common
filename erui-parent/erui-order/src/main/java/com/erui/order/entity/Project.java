@@ -39,7 +39,7 @@ public class Project {
     @Size(max = 255, message = "项目名称填写不规范，请重新输入")
     private String projectName;
 
-    @Column(name = "start_date")
+    @Column(name = "start_date")//0307修改时间格式
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date startDate;
     //20180711因事业部订单导入需要修改为文本格式
