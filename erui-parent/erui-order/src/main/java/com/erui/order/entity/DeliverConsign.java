@@ -55,10 +55,11 @@ public class DeliverConsign {
     private String region;
     private String remarks;
     //出口通知单附件
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+   /* @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "deliver_consign_attach",
             joinColumns = @JoinColumn(name = "deliver_consign_id"),
-            inverseJoinColumns = @JoinColumn(name = "attach_id"))
+            inverseJoinColumns = @JoinColumn(name = "attach_id"))*/
+   @Transient
     private List<Attachment> attachmentSet = new ArrayList<>();
     //收款信息
     @JoinColumn(name = "deliver_consign_id")

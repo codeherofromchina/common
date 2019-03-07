@@ -146,10 +146,10 @@ public class DeliverDetailwController {
      * @return
      */
     @RequestMapping(value = "logisticsActionAddOrSave", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> logisticsActionAddOrSave(HttpServletRequest request, @RequestBody DeliverDetail deliverDetail){
+    public Result<Object> logisticsActionAddOrSave(HttpServletRequest request, @RequestBody DeliverDetail deliverDetail) throws Exception {
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
-       deliverDetailService.logisticsActionAddOrSave(deliverDetail);
+        deliverDetailService.logisticsActionAddOrSave(deliverDetail);
         return new Result<>();
     }
 /*

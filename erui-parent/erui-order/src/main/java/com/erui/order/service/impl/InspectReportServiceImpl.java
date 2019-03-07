@@ -83,7 +83,13 @@ public class InspectReportServiceImpl implements InspectReportService {
     public InspectReport detail(Integer id) {
         InspectReport inspectReport = inspectReportDao.findOne(id);
         if (inspectReport != null) {
-            inspectReport.getAttachments().size();
+            if (inspectReport.getId() != null) {
+                List<Attachment> attachments = attachmentService.queryAttachs(inspectReport.getId(), Attachment.AttachmentCategory.INSPECTREPORT.getCode());
+                if (attachments != null && attachments.size() > 0) {
+                    inspectReport.setAttachments(attachments);
+                    inspectReport.getAttachments().size();
+                }
+            }
             inspectReport.getInspectGoodsList().size();
             InspectApply inspectApply = inspectReport.getInspectApply();
             inspectReport.setPurchNo(inspectApply.getPurchNo());
@@ -174,7 +180,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                     list.add(cb.equal(root.get("process").as(Boolean.class), condition.getProcess()));
                 }
                 // 只查询是第一次报检单的质检信息
-                 list.add(cb.equal(root.get("reportFirst"), Boolean.TRUE));
+                list.add(cb.equal(root.get("reportFirst"), Boolean.TRUE));
 
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
@@ -260,7 +266,7 @@ public class InspectReportServiceImpl implements InspectReportService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean save(InspectReport inspectReport) throws Exception {
-        InspectReport dbInspectReport = inspectReportDao.findOne(inspectReport.getId());
+        InspectReport dbInspectReport = detail(inspectReport.getId());
         if (dbInspectReport == null) {
             throw new Exception(String.format("%s%s%s", "质检单不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The quality check list does not exist"));
         }
@@ -286,8 +292,8 @@ public class InspectReportServiceImpl implements InspectReportService {
         dbInspectReport.setStatus(statusEnum.getCode());
 
         // 处理附件信息
-        List<Attachment> attachments = attachmentService.handleParamAttachment(dbInspectReport.getAttachments(), inspectReport.getAttachments(), inspectReport.getCreateUserId(), inspectReport.getCreateUserName());
-        dbInspectReport.setAttachments(attachments);
+        //List<Attachment> attachments = attachmentService.handleParamAttachment(dbInspectReport.getAttachments(), inspectReport.getAttachments(), inspectReport.getCreateUserId(), inspectReport.getCreateUserName());
+        //dbInspectReport.setAttachments(attachments);
 
         // 处理商品信息
         Map<Integer, InspectApplyGoods> inspectGoodsMap = inspectReport.getInspectGoodsList().parallelStream().
@@ -384,7 +390,7 @@ public class InspectReportServiceImpl implements InspectReportService {
         if (statusEnum == InspectReport.StatusEnum.DONE) {
 
             //入库质检结果通知：质检人员将不合格商品通知采购经办人
-            disposeData(hegeFlag,hegeNum ,sum ,dbInspectReport ,project);
+            disposeData(hegeFlag, hegeNum, sum, dbInspectReport, project);
 
             dbInspectReport.setProcess(false);
             if (hegeFlag && !dbInspectReport.getReportFirst()) {
@@ -406,7 +412,18 @@ public class InspectReportServiceImpl implements InspectReportService {
 
         }
         InspectReport save1 = inspectReportDao.save(dbInspectReport);
-
+        //附件处理
+        List<Attachment> attachmentList = null;
+        if (inspectReport.getAttachments() != null && inspectReport.getAttachments().size() > 0) {
+            attachmentList = inspectReport.getAttachments();
+        } else {
+            attachmentList = new ArrayList<>();
+        }
+        Map<Integer, Attachment> dbAttahmentsMap = new HashMap<>();
+        if (dbInspectReport.getAttachments() != null && dbInspectReport.getAttachments().size() > 0) {
+            dbAttahmentsMap = dbInspectReport.getAttachments().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        }
+        attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbInspectReport.getId(), Attachment.AttachmentCategory.INSPECTREPORT.getCode());
 
         if (statusEnum == InspectReport.StatusEnum.DONE) { // 提交动作
             //质检以后，删除   “办理入库质检”  待办提示
@@ -483,7 +500,7 @@ public class InspectReportServiceImpl implements InspectReportService {
             });
 
             if (hegeNum != 0) {
-                    //质检合格提交以后  通知分单员办理入库/分单
+                //质检合格提交以后  通知分单员办理入库/分单
                 List<Integer> listAll = new ArrayList<>(); //分单员id
 
                 //获取token
@@ -510,10 +527,10 @@ public class InspectReportServiceImpl implements InspectReportService {
                                 listAll.add(ob.getInteger("id"));    //获取物流分单员id
                             }
                         } else {
-                            throw new  Exception("出库分单员待办事项推送失败");
+                            throw new Exception("出库分单员待办事项推送失败");
                         }
                     } catch (Exception e) {
-                        throw new  Exception("出库分单员待办事项推送失败");
+                        throw new Exception("出库分单员待办事项推送失败");
                     }
                 }
                 if (listAll.size() > 0) {
@@ -550,7 +567,7 @@ public class InspectReportServiceImpl implements InspectReportService {
     @Transactional(readOnly = true)
     public List<InspectReport> history(Integer id) {
         List<InspectReport> result = null;
-        InspectReport inspectReport = inspectReportDao.findOne(id);
+        InspectReport inspectReport = detail(id);
         // 质检多次的才有历史
         if (inspectReport != null && inspectReport.getReportFirst() != null && inspectReport.getReportFirst() && inspectReport.getCheckTimes() > 1) {
             InspectApply inspectApply = inspectReport.getInspectApply();
@@ -567,7 +584,7 @@ public class InspectReportServiceImpl implements InspectReportService {
 
 
     //质检结果通知：质检人员将不合格商品通知采购经办人
-    public  void sendSms(Map<String, Object> map1) throws Exception {
+    public void sendSms(Map<String, Object> map1) throws Exception {
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
         if (StringUtils.isNotBlank(eruiToken)) {
@@ -603,10 +620,10 @@ public class InspectReportServiceImpl implements InspectReportService {
 
                     //去除重复
                     Set<String> listAll = new HashSet<>();
-                    for (int i = 0; i < data1.size(); i++){
-                        JSONObject ob  = (JSONObject)data1.get(i);
+                    for (int i = 0; i < data1.size(); i++) {
+                        JSONObject ob = (JSONObject) data1.get(i);
                         String mobile = ob.getString("mobile");
-                        if(StringUtils.isNotBlank(mobile)){
+                        if (StringUtils.isNotBlank(mobile)) {
                             listAll.add(mobile);    //获取人员手机号
                         }
                     }
@@ -616,7 +633,6 @@ public class InspectReportServiceImpl implements InspectReportService {
                         smsarray.add(me);
                     }
                 }
-
 
 
                 Map<String, String> map = new HashMap();
@@ -645,7 +661,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                         String ss1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
                         logger.info("发送短信返回状态" + ss1);
                     }
-                } else{
+                } else {
                     if (yn == 2) {  // 2 全部不合格
                         // 根据id获取人员信息
                         if (s != null) {

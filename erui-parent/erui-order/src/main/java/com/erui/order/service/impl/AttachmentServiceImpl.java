@@ -3,15 +3,13 @@ package com.erui.order.service.impl;
 import com.erui.order.dao.AttachmentDao;
 import com.erui.order.entity.Attachment;
 import com.erui.order.service.AttachmentService;
+import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -28,7 +26,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     public List<Attachment> handleParamAttachment(List<Attachment> existAttachments, List<Attachment> paramsAttachments, Integer userId, String userName) {
 
         Map<Integer, Attachment> attachmentMap = new HashMap<>();
-        if (existAttachments != null && existAttachments.size() > 0){
+        if (existAttachments != null && existAttachments.size() > 0) {
             attachmentMap = existAttachments.parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
         }
         Map<Integer, Attachment> attachmentMap2 = attachmentMap;
@@ -65,5 +63,52 @@ public class AttachmentServiceImpl implements AttachmentService {
             attachmentDao.save(delAttachmentList);
         }
         return result;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void updateAttachments(List<Attachment> attachmentList, Map<Integer, Attachment> dbAttahmentsMap, Integer relObjId, String category) throws Exception {
+        Attachment attachment = null;
+        List<Attachment> addAttachments = new ArrayList<>();
+        for (Attachment attachment1 : attachmentList) {
+            if (attachment1.getId() == null) {
+                attachment = new Attachment();
+            } else {
+                attachment = dbAttahmentsMap.remove(attachment1.getId());
+                if (attachment == null) {
+                    throw new MyException("不存在的附件标识&&Non-existent attachment identifier");
+                }
+            }
+            attachment1.copyBaseInfoTo(attachment);
+            //设置附件关联id 和附件类型
+            attachment.setRelObjId(relObjId);
+            attachment.setCategory(category);
+            addAttachments.add(attachment);
+        }
+        attachmentDao.save(addAttachments);
+        attachmentDao.delete(dbAttahmentsMap.values());
+
+    }
+
+    @Override
+    public void addAttachments(List<Attachment> attachmentList, Integer id, String category) {
+        List<Attachment> attachments = new ArrayList<>();
+        for (Attachment attachment : attachmentList) {
+            attachment.setRelObjId(id);
+            attachment.setCategory(category);
+            attachments.add(attachment);
+        }
+        attachmentDao.save(attachments);
+    }
+
+    @Override
+    public List<Attachment> queryAttachs(Integer id, String category) {
+        List<Attachment> attachments = new ArrayList<>();
+        if (id != null && category != null) {
+            attachments = attachmentDao.findByRelObjIdAndCategory(id, category);
+        }
+        if (attachments != null && attachments.size() > 0) {
+            return attachments;
+        }
+        return null;
     }
 }

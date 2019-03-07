@@ -314,4 +314,30 @@
       </if>
     </trim>
   </insert>
+
+
+  <!--查询所有销售区域-->
+  <select id="findAllMarketArea" resultType="java.util.Map" >
+      select `name` as area from erui_operation.market_area where lang = 'zh' and deleted_flag = 'N'
+  </select>
+
+  <!--查询销售区域下的国家列表-->
+  <select id="findCountryByArea" resultType="java.util.Map" >
+    SELECT
+        t3.`name` AS country
+    FROM
+        erui_operation.market_area t1,
+        erui_operation.market_area_country t2,
+        erui_dict.country t3
+    WHERE
+        t1.`name` = #{area}
+          AND t1.bn = t2.market_area_bn
+          AND t2.country_bn = t3.bn
+          AND t1.lang = 'zh'
+          AND t1.deleted_flag = 'N'
+          AND t3.lang = 'zh'
+          AND t3.deleted_flag = 'N'
+          AND t2.`status` = 'VALID'
+  </select>
+
 </mapper>

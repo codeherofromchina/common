@@ -35,7 +35,7 @@ public interface OrderService {
      * @param id
      * @return
      */
-    public Order findByIdLang(Integer id, String lang);
+    Order findByIdLang(Integer id, String lang);
 
     /**
      * 根据条件分页查询订单列表
