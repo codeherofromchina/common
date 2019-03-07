@@ -1009,9 +1009,18 @@ public class OrderServiceImpl implements OrderService {
         Order orderUpdate = orderDao.saveAndFlush(order);
         // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
         //order.setAttachmentSet(addOrderVo.getAttachDesc());
-        List<Attachment> attachmentList = addOrderVo.getAttachDesc();
-        Map<Integer, Attachment> dbAttahmentsMap = order.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
-        attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, orderUpdate.getId(), Attachment.AttachmentCategory.ORDER.getCode());
+        List<Attachment> attachmentList = null;
+        if (addOrderVo.getAttachDesc() != null && addOrderVo.getAttachDesc().size() > 0) {
+            attachmentList = addOrderVo.getAttachDesc();
+        } else {
+            new ArrayList<>();
+        }
+        if (order.getAttachmentSet() != null && order.getAttachmentSet().size() > 0) {
+            Map<Integer, Attachment> dbAttahmentsMap = order.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+            attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, orderUpdate.getId(), Attachment.AttachmentCategory.ORDER.getCode());
+        } else {
+            attachmentService.addAttachments(attachmentList, order.getId(), Attachment.AttachmentCategory.ORDER.getCode());
+        }
 
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             checkLog_i = fullCheckLogInfo(order.getId(), null, 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
