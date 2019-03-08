@@ -11,6 +11,7 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.event.TasksAddEvent;
+import com.erui.order.requestVo.DeliverConsignListCondition;
 import com.erui.order.service.*;
 import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
@@ -43,6 +44,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     private DeliverConsignDao deliverConsignDao;
 
     @Autowired
+    DeliverConsignBookingSpaceDao deliverConsignBookingSpaceDao;
+
+    @Autowired
     private OrderDao orderDao;
     @Autowired
     private OrderService orderService;
@@ -67,6 +71,12 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     @Autowired
     private StatisticsService statisticsService;
+
+    @Autowired
+    private CheckLogDao checkLogDao;
+
+    @Autowired
+    private CheckLogService checkLogService;
 
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
@@ -137,6 +147,13 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
 
         }
+
+        deliverConsign.setoId(deliverConsign.getOrder().getId());//order表id
+        deliverConsign.setContractNo(deliverConsign.getOrder().getContractNo());//销售合同号
+        deliverConsign.setTotalPriceUsd(deliverConsign.getOrder().getTotalPriceUsd());//合同总价
+        deliverConsign.setReceivablePriceUsd(deliverConsign.getOrder().getTotalPriceUsd());//应收账款金额
+        deliverConsign.setPerLiableRepay(deliverConsign.getOrder().getPerLiableRepay());//回款责任人
+
         return deliverConsign;
     }
 
@@ -152,8 +169,37 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignUpdate.setArrivalDate(deliverConsign.getArrivalDate());
         deliverConsignUpdate.setBookingDate(deliverConsign.getBookingDate());
         deliverConsignUpdate.setCreateUserId(deliverConsign.getCreateUserId());
+        deliverConsignUpdate.setCreateUserName(deliverConsign.getCreateUserName());
         deliverConsignUpdate.setRemarks(deliverConsign.getRemarks());
         deliverConsignUpdate.setStatus(deliverConsign.getStatus());
+
+        deliverConsignUpdate.setBusinessNature(deliverConsign.getBusinessNature());
+        deliverConsignUpdate.setBusinessSketch(deliverConsign.getBusinessSketch());
+        deliverConsignUpdate.setDeclareCustomsMoney(deliverConsign.getDeclareCustomsMoney());
+        deliverConsignUpdate.setTradeMoney(deliverConsign.getTradeMoney());
+        deliverConsignUpdate.setDirectTransferMoney(deliverConsign.getDirectTransferMoney());
+        deliverConsignUpdate.setIndirectTransferMoney(deliverConsign.getIndirectTransferMoney());
+        deliverConsignUpdate.setClearCustomsMoney(deliverConsign.getClearCustomsMoney());
+        deliverConsignUpdate.setPayMethod(deliverConsign.getPayMethod());
+        deliverConsignUpdate.setShippingBatch(deliverConsign.getShippingBatch());
+        deliverConsignUpdate.setMoreBatchExplain(deliverConsign.getMoreBatchExplain());
+        deliverConsignUpdate.setIsDangerous(deliverConsign.getIsDangerous());
+        deliverConsignUpdate.setGoodsDepositPlace(deliverConsign.getGoodsDepositPlace());
+        deliverConsignUpdate.setHasInsurance(deliverConsign.getHasInsurance());
+
+        deliverConsignUpdate.setCountryLeader(deliverConsign.getCountryLeader());
+        deliverConsignUpdate.setCountryLeaderId(deliverConsign.getCountryLeaderId());
+        deliverConsignUpdate.setSettlementLeader(deliverConsign.getSettlementLeader());
+        deliverConsignUpdate.setSettlementLeaderId(deliverConsign.getSettlementLeaderId());
+        deliverConsignUpdate.setLogisticsLeader(deliverConsign.getLogisticsLeader());
+        deliverConsignUpdate.setLogisticsLeaderId(deliverConsign.getLogisticsLeaderId());
+        deliverConsignUpdate.setBusinessLeader(deliverConsign.getBusinessLeader());
+        deliverConsignUpdate.setBusinessLeaderId(deliverConsign.getBusinessLeaderId());
+        deliverConsignUpdate.setAuditingStatus(deliverConsign.getAuditingStatus());
+        deliverConsignUpdate.setAuditingProcess(deliverConsign.getAuditingProcess());
+        deliverConsignUpdate.setAuditingUserId(deliverConsign.getAuditingUserId());
+        deliverConsignUpdate.setAuditingUser(deliverConsign.getAuditingUser());
+        deliverConsignUpdate.setCrmCodeOrName(order.getCrmCode());
         // 授信信息  and
         if (deliverConsign.getStatus() == 3) {    //如果是提交操作保存 可用授信额度
             deliverConsignUpdate.setCreditAvailable(deliverConsign.getCreditAvailable());  //可用授信额度
@@ -205,13 +251,40 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             goodsDao.save(goods);
         }
         //goodsDao.save(goodsList.values());
-        DeliverConsign deliverConsign1 = deliverConsignDao.saveAndFlush(deliverConsignUpdate);
+        // 出口通知单审批添加部分
+        if (deliverConsignUpdate.getStatus() == DeliverConsign.StatusEnum.READY.getCode()) {
+            deliverConsignUpdate.setAuditingStatus(0);
+        } else if (deliverConsignUpdate.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
+            deliverConsignUpdate.setAuditingProcess(21);
+            deliverConsignUpdate.setAuditingStatus(1);
+            deliverConsignUpdate.setAuditingUserId(deliverConsignUpdate.getBusinessLeaderId());
+
+        }
+        CheckLog checkLog_i = null; //审批流日志
+
+
+        DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignUpdate);
+        if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
+            if (deliverConsign1.getBusinessLeaderId() != null) {
+//                sendDingtalk(deliverConsign, deliverConsign.getBusinessLeaderId().toString(), false);
+            }
+            checkLog_i = orderService.fullCheckLogInfo(null, deliverConsign1.getId(), 20, deliverConsign1.getCreateUserId(), deliverConsign1.getCreateUserName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getBusinessLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 3);
+            checkLogService.insert(checkLog_i);
+            // 待办
+//            auditBackLogHandle(deliverConsign1, false, deliverConsign1.getBusinessLeaderId());
+        }
         // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
         //deliverConsign1.setAttachmentList(deliverConsign1.getAttachmentList());
         List<Attachment> attachmentList = deliverConsign.getAttachmentSet();
         Map<Integer, Attachment> dbAttahmentsMap = deliverConsignUpdate.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
         if (attachmentList != null && attachmentList.size() > 0) {
             attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, deliverConsign1.getId(), Attachment.AttachmentCategory.DELIVERCONSIGN.getCode());
+        }
+        //出口发货通知单订舱信息
+        if(deliverConsign.getDeliverConsignBookingSpace() != null){
+            DeliverConsignBookingSpace deliverConsignBookingSpace = deliverConsign.getDeliverConsignBookingSpace();
+            deliverConsignBookingSpace.setDeliverConsign(deliverConsign1);
+            deliverConsignBookingSpaceDao.saveAndFlush(deliverConsignBookingSpace);
         }
 
         if (deliverConsign.getStatus() == 3) {
@@ -270,6 +343,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignAdd.setArrivalDate(deliverConsign.getArrivalDate());
         deliverConsignAdd.setBookingDate(deliverConsign.getBookingDate());
         deliverConsignAdd.setCreateUserId(deliverConsign.getCreateUserId());
+        deliverConsignAdd.setCreateUserName(deliverConsign.getCreateUserName());
         deliverConsignAdd.setDeliverYn(deliverConsign.getDeliverYn());
         deliverConsignAdd.setRemarks(deliverConsign.getRemarks());
         deliverConsignAdd.setCountry(order.getCountry());
@@ -311,11 +385,68 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 throw new Exception(String.format("%s%s%s", "发货总数量超过合同数量", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Total quantity of shipments exceeds the number of contracts"));
             }
         }
-        //出口通知单附件添加
+        deliverConsignAdd.setInvoiceRise(deliverConsign.getInvoiceRise());
+        deliverConsignAdd.setBusinessNature(deliverConsign.getBusinessNature());
+        deliverConsignAdd.setBusinessSketch(deliverConsign.getBusinessSketch());
+        deliverConsignAdd.setDeclareCustomsMoney(deliverConsign.getDeclareCustomsMoney());
+        deliverConsignAdd.setTradeMoney(deliverConsign.getTradeMoney());
+        deliverConsignAdd.setDirectTransferMoney(deliverConsign.getDirectTransferMoney());
+        deliverConsignAdd.setIndirectTransferMoney(deliverConsign.getIndirectTransferMoney());
+        deliverConsignAdd.setClearCustomsMoney(deliverConsign.getClearCustomsMoney());
+        deliverConsignAdd.setPayMethod(deliverConsign.getPayMethod());
+        deliverConsignAdd.setShippingBatch(deliverConsign.getShippingBatch());
+        deliverConsignAdd.setMoreBatchExplain(deliverConsign.getMoreBatchExplain());
+        deliverConsignAdd.setIsDangerous(deliverConsign.getIsDangerous());
+        deliverConsignAdd.setGoodsDepositPlace(deliverConsign.getGoodsDepositPlace());
+        deliverConsignAdd.setHasInsurance(deliverConsign.getHasInsurance());
+
+        deliverConsignAdd.setCountryLeader(deliverConsign.getCountryLeader());
+        deliverConsignAdd.setCountryLeaderId(deliverConsign.getCountryLeaderId());
+        deliverConsignAdd.setSettlementLeader(deliverConsign.getSettlementLeader());
+        deliverConsignAdd.setSettlementLeaderId(deliverConsign.getSettlementLeaderId());
+        deliverConsignAdd.setLogisticsLeader(deliverConsign.getLogisticsLeader());
+        deliverConsignAdd.setLogisticsLeaderId(deliverConsign.getLogisticsLeaderId());
+        deliverConsignAdd.setBusinessLeader(deliverConsign.getBusinessLeader());
+        deliverConsignAdd.setBusinessLeaderId(deliverConsign.getBusinessLeaderId());
+        deliverConsignAdd.setAuditingStatus(deliverConsign.getAuditingStatus());
+        deliverConsignAdd.setAuditingProcess(deliverConsign.getAuditingProcess());
+        deliverConsignAdd.setAuditingUserId(deliverConsign.getAuditingUserId());
+        deliverConsignAdd.setAuditingUser(deliverConsign.getAuditingUser());
+        deliverConsignAdd.setCrmCodeOrName(order.getCrmCode());
+        // 出口通知单审批添加部分
+        if (deliverConsignAdd.getStatus() == DeliverConsign.StatusEnum.READY.getCode()) {
+            deliverConsignAdd.setAuditingStatus(0);
+        } else if (deliverConsignAdd.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
+            deliverConsignAdd.setAuditingProcess(21);
+            deliverConsignAdd.setAuditingStatus(1);
+            deliverConsignAdd.setAuditingUserId(deliverConsignAdd.getBusinessLeaderId());
+
+        }
+        CheckLog checkLog_i = null; //审批流日志
+
+
         DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignAdd);
+        if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
+            if (deliverConsign1.getBusinessLeaderId() != null) {
+//                sendDingtalk(deliverConsign, deliverConsign.getBusinessLeaderId().toString(), false);
+            }
+            checkLog_i = orderService.fullCheckLogInfo(null, deliverConsign1.getId(), 20, deliverConsign1.getCreateUserId(), deliverConsign1.getCreateUserName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getBusinessLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 3);
+            checkLogService.insert(checkLog_i);
+            // 待办
+//            auditBackLogHandle(deliverConsign1, false, deliverConsign1.getBusinessLeaderId());
+        }
+        //出口通知单附件添加
         if (deliverConsign.getAttachmentSet() != null && deliverConsign.getAttachmentSet().size() > 0) {
             attachmentService.addAttachments(deliverConsign.getAttachmentSet(), deliverConsign1.getId(), Attachment.AttachmentCategory.DELIVERCONSIGN.getCode());
         }
+
+        //出口发货通知单订舱信息
+        if(deliverConsign.getDeliverConsignBookingSpace() != null){
+            DeliverConsignBookingSpace deliverConsignBookingSpace = deliverConsign.getDeliverConsignBookingSpace();
+            deliverConsignBookingSpace.setDeliverConsign(deliverConsign1);
+            deliverConsignBookingSpaceDao.saveAndFlush(deliverConsignBookingSpace);
+        }
+
         if (deliverConsign.getStatus() == 3) {
             Project project = order.getProject();
             order.setDeliverConsignHas(2);
@@ -347,10 +478,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             } catch (Exception e) {
                 throw new Exception(e.getMessage());
             }
-
             //出口发货通知单提交的时候，推送给出库分单员  办理分单
             addBackLog(order, deliverDetail);
-
         }
         return true;
     }
@@ -378,6 +507,102 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
         }
         return deliverConsignList;
+    }
+
+    /**
+     * 根据条件分页查询订舱列表
+     *
+     * @param condition
+     * @return
+     */
+    @Transactional(readOnly = true)
+    @Override
+    public Page<DeliverConsign> findByPage(DeliverConsignListCondition condition) {
+        PageRequest pageRequest = new PageRequest(condition.getPage()-1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
+        Page<DeliverConsign> pageList = deliverConsignDao.findAll(new Specification<DeliverConsign>() {
+            @Override
+            public Predicate toPredicate(Root<DeliverConsign> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> searchList = new ArrayList<>(); // 前端查询条件的AND关系列表
+                List<Predicate> backList = new ArrayList<>(); // 隐藏的背后过滤条件AND关系列表
+//                // 根据订舱执行状态模糊查询
+//                if (condition.getStatus() != null) {
+//                    searchList.add(cb.equal(root.get("status").as(Integer.class), condition.getStatus()));
+//                }
+                // 根据出口通知单号模糊查询
+                if (condition.getDeliverConsignNo() != null) {
+                    searchList.add(cb.equal(root.get("deliverConsignNo").as(String.class), "%" + condition.getDeliverConsignNo() + "%"));
+                }
+                // 根据客户代码或名称模糊查询
+                if (condition.getCrmCodeOrName() != null) {
+                    searchList.add(cb.equal(root.get("crmCodeOrName").as(String.class), "%" + condition.getCrmCodeOrName() + "%"));
+                }
+                // 根据销售同号模糊查询
+                if (StringUtil.isNotBlank(condition.getContractNo())) {
+                    searchList.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
+                }
+//                // 款项状态查询
+//                if (null != condition.getAuditingStatus()) {
+//                    backList.add(cb.equal(root.get("auditingStatus").as(Integer.class), condition.getAuditingStatus()));
+//                }
+//                // 流程进度查询
+//                if (null != condition.getAuditingStatus()) {
+//                    backList.add(cb.equal(root.get("auditingStatus").as(Integer.class), condition.getAuditingStatus()));
+//                }
+                // 审核状态查询
+                if (null != condition.getAuditingStatus()) {
+                    searchList.add(cb.equal(root.get("auditingStatus").as(Integer.class), condition.getAuditingStatus()));
+                }
+                // 根据审核进度
+                if (condition.getAuditingProcess() != null) {
+                    searchList.add(cb.equal(root.get("auditingProcess").as(String.class), condition.getAuditingProcess()));
+                }
+
+
+                //根据执行分公司查询
+                if (StringUtil.isNotBlank(condition.getExecCoName())) {
+                    backList.add(cb.like(root.get("execCoName").as(String.class), "%" + condition.getExecCoName() + "%"));
+                }
+                //根据国家负责人
+                if (condition.getCountryLeaderId() != null) {
+                    backList.add(cb.equal(root.get("countryLeaderId").as(Integer.class), condition.getCountryLeaderId()));
+                }
+                //根据结算专员
+                if (condition.getSettlementLeaderId() != null) {
+                    backList.add(cb.equal(root.get("settlementLeaderId").as(Integer.class), condition.getSettlementLeaderId()));
+                }
+                //根据物流负责人
+                if (condition.getLogisticsLeaderId() != null) {
+                    backList.add(cb.equal(root.get("logisticsLeaderId").as(Integer.class), condition.getLogisticsLeaderId()));
+                }
+                String[] country = null;
+                if (StringUtils.isNotBlank(condition.getCountry())) {
+                    country = condition.getCountry().split(",");
+                }
+                if (country != null) {
+                    Join<Project, Order> orderRoot = root.join("order");
+                    backList.add(orderRoot.get("country").in(country));
+                }
+
+                // 审核人查询,和其他关系是or，所有写在最后
+                Predicate[] backPredicates = new Predicate[backList.size()];
+                backPredicates = backList.toArray(backPredicates);
+                Predicate and = cb.and(backPredicates);
+                if (StringUtils.isNotBlank(condition.getAuditingUserId())) {
+                    Predicate auditingUserIdP = cb.like(root.get("auditingUserId").as(String.class), "%" + condition.getAuditingUserId() + "%");
+                    Predicate or1 = cb.or(and, auditingUserIdP);
+                    Predicate auditingUserId02 = cb.like(root.get("audiRemark").as(String.class), "%," + condition.getAuditingUserId() + ",%");
+                    searchList.add(cb.or(or1, auditingUserId02));
+                } else {
+                    searchList.add(and);
+                }
+
+                Predicate[] predicates = new Predicate[searchList.size()];
+                predicates = searchList.toArray(predicates);
+                return cb.and(predicates);
+            }
+        }, pageRequest);
+
+        return pageList;
     }
 
 
@@ -799,11 +1024,19 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     }
 
+    /**
+     * 审核出口发货通知单
+     * @param deliverConsign
+     * @param auditorId
+     * @param auditorName
+     * @param rDeliverConsign  请求的参数
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean audit(DeliverConsign deliverConsign, String auditorId, String auditorName, DeliverConsign paramsDeliverConsign) {
-        return true;
+    public boolean audit(DeliverConsign deliverConsign, String auditorId, String auditorName, DeliverConsign rDeliverConsign) {
+        return false;
     }
-
 
     public JSONObject disposeAdvanceMoney(Order order, DeliverConsign deliverConsign1) throws Exception {
 
