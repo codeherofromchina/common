@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.erui.order.entity.DeliverConsign;
 import com.erui.order.entity.DeliverNotice;
 import com.erui.order.entity.Order;
+import com.erui.order.requestVo.DeliverConsignListCondition;
 import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
@@ -63,8 +64,25 @@ public interface DeliverConsignService {
      */
     List<DeliverConsign> findByOrderId(Integer orderId);
 
+    /**
+     * 根据条件分页查询订舱列表
+     *
+     * @param condition
+     * @return
+     */
+    Page<DeliverConsign> findByPage(DeliverConsignListCondition condition);
+
 
     DeliverConsign queryCreditData(Order order) throws Exception;
 
     JSONObject buyerCreditPaymentByOrder(Order order , Integer flag, BigDecimal orderMoney) throws Exception;
+    /**
+     * 审核出口发货通知单
+     * @param deliverConsign
+     * @param auditorId
+     * @param auditorName
+     * @param rDeliverConsign  请求的参数
+     * @return
+     */
+    boolean audit(DeliverConsign deliverConsign, String auditorId, String auditorName, DeliverConsign rDeliverConsign);
 }

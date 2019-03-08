@@ -39,7 +39,8 @@ public enum ResultStatusEnum {
     ORDER_AUDIT_NOT_DONE_ERROR(26, "订单审核状态未完成", "Order audit status is not completed"),
     PROJECT_NOT_EXIST(27, "项目不存在", "project not exist"),
     NOT_NOW_AUDITOR(28, "非审核人，不能操作", "Non auditor can not operate."),
-    NOT_NOW_USER(29, "非市场经办人不能操作", "Non agent can not operate.");
+    NOT_NOW_USER(29, "非市场经办人不能操作", "Non agent can not operate."),
+    DELIVER_CONSIGN_NOT_EXIST(30, "出口发货通知单不存在", "delivery notice not exist");
 
     private int code;
     private String msg;
