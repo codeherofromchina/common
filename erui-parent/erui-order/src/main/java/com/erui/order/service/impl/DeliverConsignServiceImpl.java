@@ -10,7 +10,9 @@ import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
+import com.erui.order.event.TasksAddEvent;
 import com.erui.order.service.*;
+import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -795,6 +797,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
         return null;
 
+    }
+
+    @Override
+    public boolean audit(DeliverConsign deliverConsign, String auditorId, String auditorName, DeliverConsign paramsDeliverConsign) {
+        return true;
     }
 
 

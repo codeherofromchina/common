@@ -67,4 +67,13 @@ public interface DeliverConsignService {
     DeliverConsign queryCreditData(Order order) throws Exception;
 
     JSONObject buyerCreditPaymentByOrder(Order order , Integer flag, BigDecimal orderMoney) throws Exception;
+
+    /**
+     * 审核项目
+     * @param deliverConsign
+     * @param auditorId
+     * @param paramsDeliverConsign  请求的参数
+     * @return
+     */
+    boolean audit(DeliverConsign deliverConsign, String auditorId,String auditorName, DeliverConsign paramsDeliverConsign);
 }
