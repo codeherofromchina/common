@@ -267,6 +267,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsignUpdate.setAuditingStatus(2);
             if(deliverConsignUpdate.getCountryLeaderId() != null)
                 deliverConsignUpdate.setAuditingUserId(deliverConsignUpdate.getCountryLeaderId().toString());
+            else
+                deliverConsignUpdate.setAuditingUserId(null);
 
         }
         CheckLog checkLog_i = null; //审批流日志
@@ -428,7 +430,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsignAdd.setAuditingStatus(2);
             if(deliverConsignAdd.getCountryLeaderId() != null)
                 deliverConsignAdd.setAuditingUserId(deliverConsignAdd.getCountryLeaderId().toString());
-
+            else
+                deliverConsignAdd.setAuditingUserId(null);
         }
         CheckLog checkLog_i = null; //审批流日志
 
