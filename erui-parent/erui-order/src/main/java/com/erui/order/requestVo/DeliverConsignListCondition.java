@@ -1,9 +1,5 @@
 package com.erui.order.requestVo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
-import java.util.Date;
-
 /**
  * Created by GS on 2017/12/14 0014.
  * 订单列表模糊查询条件
@@ -18,26 +14,17 @@ public class DeliverConsignListCondition {
     //销售同号
     private String contractNo;
 
-    //审核进度
+    //审核进度 1提交审核 2国家负责人审核 3结算专员审核 4物流负责人审核 5事业部项目负责人审核
     private Integer auditingProcess;
 
-    //审核状态
+    //审核状态 1未审核 2审核中 3已完成
     private Integer auditingStatus;
 
-    // 发货申请部门
-    private String execCoName;
+    //款项状态 1未收款 2部分收款 3收款完成
+    private Integer payStatus;
 
-    //国家负责人Id
-    private Integer countryLeaderId;
-
-    //结算专员Id
-    private Integer settlementLeaderId;
-
-    //物流负责人Id
-    private Integer logisticsLeaderId;
-
-    //当前审核人ID，逗号分隔多个
-    private String auditingUserId;
+    //流程进度 1未执行 2执行中 3已采购 4已报检 5已入库质检 6已入库 7已出库质检 8已出库 9已发运 10已完成
+    private Integer processProgress;
 
     //国家
     private String country;
@@ -47,23 +34,6 @@ public class DeliverConsignListCondition {
     private int rows = 20; // 默认每页20条记录
     // 语言 en / zh
     private String lang;
-
-
-    public int getPage() {
-        return page;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
-    }
-
-    public int getRows() {
-        return rows;
-    }
-
-    public void setRows(int rows) {
-        this.rows = rows;
-    }
 
     public String getDeliverConsignNo() {
         return deliverConsignNo;
@@ -105,52 +75,20 @@ public class DeliverConsignListCondition {
         this.auditingStatus = auditingStatus;
     }
 
-    public String getLang() {
-        return lang;
+    public Integer getPayStatus() {
+        return payStatus;
     }
 
-    public void setLang(String lang) {
-        this.lang = lang;
+    public void setPayStatus(Integer payStatus) {
+        this.payStatus = payStatus;
     }
 
-    public String getExecCoName() {
-        return execCoName;
+    public Integer getProcessProgress() {
+        return processProgress;
     }
 
-    public void setExecCoName(String execCoName) {
-        this.execCoName = execCoName;
-    }
-
-    public Integer getCountryLeaderId() {
-        return countryLeaderId;
-    }
-
-    public void setCountryLeaderId(Integer countryLeaderId) {
-        this.countryLeaderId = countryLeaderId;
-    }
-
-    public Integer getSettlementLeaderId() {
-        return settlementLeaderId;
-    }
-
-    public void setSettlementLeaderId(Integer settlementLeaderId) {
-        this.settlementLeaderId = settlementLeaderId;
-    }
-
-    public Integer getLogisticsLeaderId() {
-        return logisticsLeaderId;
-    }
-
-    public void setLogisticsLeaderId(Integer logisticsLeaderId) {
-        this.logisticsLeaderId = logisticsLeaderId;
-    }
-
-    public String getAuditingUserId() {
-        return auditingUserId;
-    }
-
-    public void setAuditingUserId(String auditingUserId) {
-        this.auditingUserId = auditingUserId;
+    public void setProcessProgress(Integer processProgress) {
+        this.processProgress = processProgress;
     }
 
     public String getCountry() {
@@ -161,6 +99,30 @@ public class DeliverConsignListCondition {
         this.country = country;
     }
 
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public int getRows() {
+        return rows;
+    }
+
+    public void setRows(int rows) {
+        this.rows = rows;
+    }
+
+    public String getLang() {
+        return lang;
+    }
+
+    public void setLang(String lang) {
+        this.lang = lang;
+    }
+
     @Override
     public String toString() {
         return "DeliverConsignListCondition{" +
@@ -169,11 +131,8 @@ public class DeliverConsignListCondition {
                 ", contractNo='" + contractNo + '\'' +
                 ", auditingProcess=" + auditingProcess +
                 ", auditingStatus=" + auditingStatus +
-                ", execCoName='" + execCoName + '\'' +
-                ", countryLeaderId=" + countryLeaderId +
-                ", settlementLeaderId=" + settlementLeaderId +
-                ", logisticsLeaderId=" + logisticsLeaderId +
-                ", auditingUserId='" + auditingUserId + '\'' +
+                ", payStatus=" + payStatus +
+                ", processProgress=" + processProgress +
                 ", country='" + country + '\'' +
                 ", page=" + page +
                 ", rows=" + rows +

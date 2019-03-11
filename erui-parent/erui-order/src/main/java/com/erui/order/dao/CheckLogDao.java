@@ -19,5 +19,5 @@ public interface CheckLogDao extends JpaRepository<CheckLog, Serializable> , Jpa
     List<CheckLog> findByOrderIdOrderByCreateTimeDesc(Integer orderId);
     List<CheckLog> findByOrderIdAndType(Integer orderId, Integer type);
 
-    List<CheckLog> findByPurchIdOrderByCreateTime(Integer purchId);
+    List<CheckLog> findByJoinIdOrderByCreateTime(Integer purchId);
 }

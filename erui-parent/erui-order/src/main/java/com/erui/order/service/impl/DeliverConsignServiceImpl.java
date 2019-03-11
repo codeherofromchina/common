@@ -81,6 +81,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Autowired
     private CheckLogService checkLogService;
 
+    @Autowired
+    private InstockServiceImpl getInstockServiceImpl;
+
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
 
@@ -545,12 +548,12 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     searchList.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
 //                // 款项状态查询
-//                if (null != condition.getAuditingStatus()) {
-//                    backList.add(cb.equal(root.get("auditingStatus").as(Integer.class), condition.getAuditingStatus()));
+//                if (null != condition.getPayStatus()) {
+//                    backList.add(cb.equal(root.get("payStatus").as(Integer.class), condition.getPayStatus()));
 //                }
 //                // 流程进度查询
-//                if (null != condition.getAuditingStatus()) {
-//                    backList.add(cb.equal(root.get("auditingStatus").as(Integer.class), condition.getAuditingStatus()));
+//                if (null != condition.getProcessProgress()) {
+//                    backList.add(cb.equal(root.get("processProgress").as(Integer.class), condition.getProcessProgress()));
 //                }
                 // 审核状态查询
                 if (null != condition.getAuditingStatus()) {
@@ -559,24 +562,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 // 根据审核进度
                 if (condition.getAuditingProcess() != null) {
                     searchList.add(cb.equal(root.get("auditingProcess").as(String.class), condition.getAuditingProcess()));
-                }
-
-
-                //根据执行分公司查询
-                if (StringUtil.isNotBlank(condition.getExecCoName())) {
-                    backList.add(cb.like(root.get("execCoName").as(String.class), "%" + condition.getExecCoName() + "%"));
-                }
-                //根据国家负责人
-                if (condition.getCountryLeaderId() != null) {
-                    backList.add(cb.equal(root.get("countryLeaderId").as(Integer.class), condition.getCountryLeaderId()));
-                }
-                //根据结算专员
-                if (condition.getSettlementLeaderId() != null) {
-                    backList.add(cb.equal(root.get("settlementLeaderId").as(Integer.class), condition.getSettlementLeaderId()));
-                }
-                //根据物流负责人
-                if (condition.getLogisticsLeaderId() != null) {
-                    backList.add(cb.equal(root.get("logisticsLeaderId").as(Integer.class), condition.getLogisticsLeaderId()));
                 }
                 String[] country = null;
                 if (StringUtils.isNotBlank(condition.getCountry())) {
@@ -591,10 +576,13 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 Predicate[] backPredicates = new Predicate[backList.size()];
                 backPredicates = backList.toArray(backPredicates);
                 Predicate and = cb.and(backPredicates);
-                if (StringUtils.isNotBlank(condition.getAuditingUserId())) {
-                    Predicate auditingUserIdP = cb.like(root.get("auditingUserId").as(String.class), "%" + condition.getAuditingUserId() + "%");
+                String eruiToken = (String) ThreadLocalUtil.getObject();
+                if (StringUtils.isNotBlank(eruiToken)) {
+                    Map<String, String> stringStringMap = getInstockServiceImpl.ssoUser(eruiToken);
+                    String submenuId = stringStringMap.get("id");
+                    Predicate auditingUserIdP = cb.like(root.get("auditingUserId").as(String.class), "%" + submenuId + "%");
                     Predicate or1 = cb.or(and, auditingUserIdP);
-                    Predicate auditingUserId02 = cb.like(root.get("audiRemark").as(String.class), "%," + condition.getAuditingUserId() + ",%");
+                    Predicate auditingUserId02 = cb.like(root.get("createUserId").as(String.class), "%," + submenuId + ",%");
                     searchList.add(cb.or(or1, auditingUserId02));
                 } else {
                     searchList.add(and);

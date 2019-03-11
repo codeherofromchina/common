@@ -295,6 +295,6 @@ public class CheckLogServiceImpl implements CheckLogService {
 
     @Override
     public List<CheckLog> findCheckLogsByPurchId(int purchId) {
-        return checkLogDao.findByPurchIdOrderByCreateTime(purchId);
+        return checkLogDao.findByJoinIdOrderByCreateTime(purchId);
     }
 }
