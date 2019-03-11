@@ -175,7 +175,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignUpdate.setDeptId(order.getExecCoId());
         deliverConsignUpdate.setCreateUserId(order.getAgentId());
         deliverConsignUpdate.setWriteDate(deliverConsign.getWriteDate());
-        deliverConsignUpdate.setArrivalDate(deliverConsign.getArrivalDate());
         deliverConsignUpdate.setBookingDate(deliverConsign.getBookingDate());
         deliverConsignUpdate.setCreateUserId(deliverConsign.getCreateUserId());
         deliverConsignUpdate.setCreateUserName(deliverConsign.getCreateUserName());
@@ -347,7 +346,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignAdd.setDeptId(order.getExecCoId());
         deliverConsignAdd.setExecCoName(order.getExecCoName());
         deliverConsignAdd.setWriteDate(deliverConsign.getWriteDate());
-        deliverConsignAdd.setArrivalDate(deliverConsign.getArrivalDate());
         deliverConsignAdd.setBookingDate(deliverConsign.getBookingDate());
         deliverConsignAdd.setCreateUserId(deliverConsign.getCreateUserId());
         deliverConsignAdd.setCreateUserName(deliverConsign.getCreateUserName());
@@ -420,6 +418,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignAdd.setAuditingUserId(deliverConsign.getAuditingUserId());
         deliverConsignAdd.setAuditingUser(deliverConsign.getAuditingUser());
         deliverConsignAdd.setCrmCodeOrName(order.getCrmCode());
+
         // 出口通知单审批添加部分
         if (deliverConsignAdd.getStatus() == DeliverConsign.StatusEnum.READY.getCode()) {
             deliverConsignAdd.setAuditingStatus(1);
@@ -583,7 +582,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     Predicate auditingUserIdP = cb.like(root.get("auditingUserId").as(String.class), "%" + submenuId + "%");
                     Predicate or1 = cb.or(and, auditingUserIdP);
                     Predicate auditingUserId02 = cb.like(root.get("createUserId").as(String.class), "%," + submenuId + ",%");
-                    searchList.add(cb.or(or1, auditingUserId02));
+                    Predicate or2 = cb.or(or1, auditingUserId02);
+                    Predicate auditingUserId03 = cb.like(root.get("audiRemark").as(String.class), "%," + submenuId + ",%");
+                    searchList.add(cb.or(or2, auditingUserId03));
                 } else {
                     searchList.add(and);
                 }
