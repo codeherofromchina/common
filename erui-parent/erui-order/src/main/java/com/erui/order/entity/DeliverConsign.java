@@ -41,7 +41,7 @@ public class DeliverConsign {
      * 发货申请部门
      */
     @OneToOne
-    @JoinColumn(name = "dept_id")
+    @JoinColumn(name = "dept_id", referencedColumnName = "id")
     @JsonIgnore
     private Dept dept;
 
