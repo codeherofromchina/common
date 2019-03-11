@@ -259,7 +259,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             goods.setOutstockApplyNum(goods.getOutstockApplyNum() - dcGoods.getSendNum());
             goodsDao.save(goods);
         }
-        //goodsDao.save(goodsList.values());
         // 出口通知单审批添加部分
         if (deliverConsignUpdate.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
             deliverConsignUpdate.setAuditingStatus(1);
@@ -270,17 +269,16 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 deliverConsignUpdate.setAuditingUserId(deliverConsignUpdate.getCountryLeaderId().toString());
             else
                 deliverConsignUpdate.setAuditingUserId(null);
-
         }
         CheckLog checkLog_i = null; //审批流日志
         DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignUpdate);
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
-            if (deliverConsign1.getBusinessLeaderId() != null && deliverConsign.getCountryLeaderId() != null) {
-                sendDingtalk(deliverConsign, deliverConsign.getCountryLeaderId().toString(), false);
-            }
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign1.getId(), 30, order.getAgentId(), order.getAgentName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getCountryLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 4);
             checkLogService.insert(checkLog_i);
             // 待办
+            if (deliverConsign.getCountryLeaderId() != null) {
+                sendDingtalk(deliverConsign, deliverConsign.getCountryLeaderId().toString(), false);
+            }
             auditBackLogHandle(deliverConsign1, false, deliverConsign1.getCountryLeaderId());
         }
         // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
@@ -438,7 +436,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         CheckLog checkLog_i = null; //审批流日志
         DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignAdd);
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
-            if (deliverConsign1.getBusinessLeaderId() != null && deliverConsign.getCountryLeaderId() != null) {
+            if (deliverConsign.getCountryLeaderId() != null) {
                 sendDingtalk(deliverConsign, deliverConsign.getCountryLeaderId().toString(), false);
             }
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign1.getId(), 30, order.getAgentId(), order.getAgentName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getCountryLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 4);
@@ -1138,10 +1136,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         try {
             // 删除上一个待办
             BackLog backLog2 = new BackLog();
-            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCH_AUDIT.getNum());    //功能访问路径标识
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERCONSIGN_AUDIT.getNum());    //功能访问路径标识
             backLog2.setHostId(deliverConsign.getId());
             backLogService.updateBackLogByDelYn(backLog2);
-            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCH_REJECT.getNum());    //功能访问路径标识
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERCONSIGN_REJECT.getNum());    //功能访问路径标识
             backLogService.updateBackLogByDelYn(backLog2);
 
             if (auditingUserId != null) {
@@ -1149,7 +1147,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 String infoContent = String.format("%s", "");
                 String purchNo = deliverConsign.getDeliverConsignNo();
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
-                        rejectFlag ? BackLog.ProjectStatusEnum.PURCH_REJECT : BackLog.ProjectStatusEnum.PURCH_AUDIT,
+                        rejectFlag ? BackLog.ProjectStatusEnum.DELIVERCONSIGN_AUDIT : BackLog.ProjectStatusEnum.DELIVERCONSIGN_REJECT,
                         purchNo,
                         infoContent,
                         deliverConsign.getId(),
@@ -1165,11 +1163,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 Integer userId = deliverConsign.getCreateUserId(); //经办人id
                 // 推送增加待办事件，通知采购经办人办理报检单
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
-                        BackLog.ProjectStatusEnum.INSPECTAPPLY,
+                        BackLog.ProjectStatusEnum.INSTOCKSUBMENUDELIVER,
                         returnNo,
                         infoContent,
                         hostId,
-                        "采购",
+                        "订舱",
                         userId));
             }
         } catch (Exception e) {
