@@ -59,7 +59,6 @@ public class BackLog {
     private String titleContent;
 
 
-
     public Integer getId() {
         return id;
     }
@@ -188,7 +187,8 @@ public class BackLog {
         INSTOCKSUBMENUDELIVER("办理出库分单", 8), TRANSACTDELIVER("办理出库", 8), DELIVERDETAIL("办理出库质检", 9), NOTARIZEDELIVER("确认出库", 8),
         LOGISTICS("办理物流分单", 10), LOGISTICSDATA("办理物流", 11), ORDER_AUDIT("订单审核", 12), ORDER_REJECT("订单驳回", 13), PROJECT_AUDIT("项目审核", 14),
         PROJECT_REJECT("项目驳回", 15), PURCH_AUDIT("采购订单审核", 16), PURCH_REJECT("采购订单驳回", 17), ORDER_AUDIT2("订单审核", 18), ORDER_REJECT2("订单驳回", 19),
-        PROJECT_REJECT2("项目驳回", 20), ORDER_REJECT3("项目驳回", 18);
+        PROJECT_REJECT2("项目驳回", 20), ORDER_REJECT3("项目驳回", 18),
+        DELIVERCONSIGN("办理出口通知", 21), DELIVERCONSIGN_REJECT("出口通知驳回", 22), DELIVERCONSIGN_AUDIT("出口通知审核", 23);
         /**
          * 12: 正常订单审核地址
          * 13：订单驳回，正常审核地址
@@ -199,7 +199,6 @@ public class BackLog {
          * 20：项目被驳回到商务技术，项目能编辑完后提交
          * 16：采购订单正常审核地址
          * 17：采购订单被驳回后，需要编辑内容，然后提交审核
-         *
          */
         private String msg;
 
