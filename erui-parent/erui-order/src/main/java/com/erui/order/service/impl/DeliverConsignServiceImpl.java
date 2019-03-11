@@ -275,7 +275,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             if (deliverConsign1.getBusinessLeaderId() != null) {
                 sendDingtalk(deliverConsign, deliverConsign.getCountryLeaderId().toString(), false);
             }
-            checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign1.getId(), 30, deliverConsign1.getCreateUserId(), deliverConsign1.getCreateUserName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getCountryLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 4);
+            checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign1.getId(), 30, order.getAgentId(), order.getAgentName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getCountryLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 4);
             checkLogService.insert(checkLog_i);
             // 待办
             auditBackLogHandle(deliverConsign1, false, deliverConsign1.getCountryLeaderId());
@@ -437,7 +437,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             if (deliverConsign1.getBusinessLeaderId() != null) {
                 sendDingtalk(deliverConsign, deliverConsign.getCountryLeaderId().toString(), false);
             }
-            checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign1.getId(), 30, deliverConsign1.getCreateUserId(), deliverConsign1.getCreateUserName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getCountryLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 4);
+            checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign1.getId(), 30, order.getAgentId(), order.getAgentName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getCountryLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 4);
             checkLogService.insert(checkLog_i);
             // 待办
             auditBackLogHandle(deliverConsign1, false, deliverConsign1.getCountryLeaderId());
@@ -1226,10 +1226,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("toUser=").append(userNo);
                     if (!rejectFlag) {
-                        stringBuffer.append("&message=您好！" + deliverConsign.getCreateUserId() + "的采购合同，已申请合同审批。采购合同号:" + deliverConsign.getContractNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                        stringBuffer.append("&message=您好！" + deliverConsign.getOrder().getAgentName() + "的出口通知单已申请审批。出口通知单号:" + deliverConsign.getDeliverConsignNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
                                 "" + sendTime02 + "");
                     } else {
-                        stringBuffer.append("&message=您好！" + deliverConsign.getCreateUserId() + "的采购合同，已申请的合同审核未通过。采购合同号:" + deliverConsign.getContractNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                        stringBuffer.append("&message=您好！" + deliverConsign.getOrder().getAgentName() + "的出口通知单审批未通过。出口通知单号:" + deliverConsign.getDeliverConsignNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
                                 "" + sendTime02 + "");
                     }
                     stringBuffer.append("&type=userNo");

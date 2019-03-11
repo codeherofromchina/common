@@ -182,6 +182,14 @@ public interface OrderService {
 
     void addOrderContract(XSSFWorkbook workbook, Map<String, Object> results);
 
+    /**
+     * 订单添加审核处理
+     *
+     * @param
+     * @param
+     * @param
+     */
     CheckLog fullCheckLogInfo(Integer orderId, String category, Integer joinId, Integer auditingProcess, Integer auditorId, String auditorName, String nextAuditingProcess, String nextAuditingUserId,
                               String auditingMsg, String operation, int type);
+
 }
