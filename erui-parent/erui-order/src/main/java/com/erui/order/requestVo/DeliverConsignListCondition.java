@@ -26,9 +26,6 @@ public class DeliverConsignListCondition {
     //流程进度 1未执行 2执行中 3已采购 4已报检 5已入库质检 6已入库 7已出库质检 8已出库 9已发运 10已完成
     private Integer processProgress;
 
-    //国家
-    private String country;
-
     // 分页信息参数
     private int page = 1; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
@@ -91,14 +88,6 @@ public class DeliverConsignListCondition {
         this.processProgress = processProgress;
     }
 
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
     public int getPage() {
         return page;
     }
@@ -123,20 +112,4 @@ public class DeliverConsignListCondition {
         this.lang = lang;
     }
 
-    @Override
-    public String toString() {
-        return "DeliverConsignListCondition{" +
-                "deliverConsignNo='" + deliverConsignNo + '\'' +
-                ", crmCodeOrName='" + crmCodeOrName + '\'' +
-                ", contractNo='" + contractNo + '\'' +
-                ", auditingProcess=" + auditingProcess +
-                ", auditingStatus=" + auditingStatus +
-                ", payStatus=" + payStatus +
-                ", processProgress=" + processProgress +
-                ", country='" + country + '\'' +
-                ", page=" + page +
-                ", rows=" + rows +
-                ", lang='" + lang + '\'' +
-                '}';
-    }
 }

@@ -562,14 +562,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 if (condition.getAuditingProcess() != null) {
                     searchList.add(cb.equal(root.get("auditingProcess").as(String.class), condition.getAuditingProcess()));
                 }
-                String[] country = null;
-                if (StringUtils.isNotBlank(condition.getCountry())) {
-                    country = condition.getCountry().split(",");
-                }
-                if (country != null) {
-                    Join<Project, Order> orderRoot = root.join("order");
-                    backList.add(orderRoot.get("country").in(country));
-                }
 
                 // 审核人查询,和其他关系是or，所有写在最后
                 Predicate[] backPredicates = new Predicate[backList.size()];
