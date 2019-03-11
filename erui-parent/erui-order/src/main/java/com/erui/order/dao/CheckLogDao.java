@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -20,5 +21,5 @@ public interface CheckLogDao extends JpaRepository<CheckLog, Serializable>, JpaS
 
     List<CheckLog> findByOrderIdAndType(Integer orderId, Integer type);
 
-    List<CheckLog> findByJoinIdAndCategoryOrderByCreateTime(Integer joinId);
+    List<CheckLog> findByJoinIdAndCategoryOrderByCreateTime(Integer joinId, String category);
 }

@@ -100,7 +100,7 @@ public class CheckLogServiceImpl implements CheckLogService {
     }
 
     @Override
-    public List<CheckLog> findListByPurchId(String category, Integer purchId, Integer type) {
+    public List<CheckLog> findListByJoinId(String category, Integer purchId, Integer type) {
         List<CheckLog> checkLogList = null;
         if (purchId != null) {
             checkLogList = checkLogDao.findAll(new Specification<CheckLog>() {
@@ -295,6 +295,6 @@ public class CheckLogServiceImpl implements CheckLogService {
 
     @Override
     public List<CheckLog> findCheckLogsByPurchId(int purchId) {
-        return checkLogDao.findByJoinIdOrderByCreateTime(purchId);
+        return checkLogDao.findByJoinIdAndCategoryOrderByCreateTime(purchId, "PURCH");
     }
 }

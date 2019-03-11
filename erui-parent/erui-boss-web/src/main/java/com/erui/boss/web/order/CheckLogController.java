@@ -70,7 +70,7 @@ public class CheckLogController {
 
         if (joinId != null && type != null && joinId > 0) {
             try {
-                data = checkLogService.findListByPurchId(category, joinId, type);
+                data = checkLogService.findListByJoinId(category, joinId, type);
             } catch (Exception e) {
                 LOGGER.error("错误", e);
                 return new Result<>(ResultStatusEnum.FAIL);
