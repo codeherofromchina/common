@@ -70,7 +70,7 @@ public class DeliverConsign {
     private Date bookingDate;
 
     /**
-     * 状态 1:未编辑 2：保存/草稿 3:已提交
+     * 状态 1:未编辑 2：保存/草稿 3:已提交 4:完成
      */
     private Integer status;
 
@@ -855,9 +855,10 @@ public class DeliverConsign {
 
     /**
      * 出口发货通知单状态枚举
+     * 状态 1:未编辑 2：保存/草稿 3:已提交 4:完成
      */
     public static enum StatusEnum {
-        READY(1, "未进行/保存"), BEING(2, "进行中/提交"), DONE(3, "已完成");
+        READY(1, "未编辑"), BEING(2, "保存/草稿"), SUBMIT(3, "已提交"), DONE(4, "已完成");
 
         private int code;
         private String msg;

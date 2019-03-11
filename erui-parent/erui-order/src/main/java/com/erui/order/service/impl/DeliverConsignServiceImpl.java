@@ -260,12 +260,12 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         //goodsDao.save(goodsList.values());
         // 出口通知单审批添加部分
-        if (deliverConsignUpdate.getStatus() == DeliverConsign.StatusEnum.READY.getCode()) {
+        if (deliverConsignUpdate.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
             deliverConsignUpdate.setAuditingStatus(1);
-        } else if (deliverConsignUpdate.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
+        } else if (deliverConsignUpdate.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             deliverConsignUpdate.setAuditingProcess("31");
             deliverConsignUpdate.setAuditingStatus(2);
-            if(deliverConsignUpdate.getCountryLeaderId() != null)
+            if (deliverConsignUpdate.getCountryLeaderId() != null)
                 deliverConsignUpdate.setAuditingUserId(deliverConsignUpdate.getCountryLeaderId().toString());
             else
                 deliverConsignUpdate.setAuditingUserId(null);
@@ -273,7 +273,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         CheckLog checkLog_i = null; //审批流日志
         DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignUpdate);
-        if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
+        if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             if (deliverConsign1.getBusinessLeaderId() != null && deliverConsign.getCountryLeaderId() != null) {
                 sendDingtalk(deliverConsign, deliverConsign.getCountryLeaderId().toString(), false);
             }
@@ -296,7 +296,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsignBookingSpaceDao.saveAndFlush(deliverConsignBookingSpace);
         }
 
-        if (deliverConsign.getStatus() == 3) {
+        if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             Project project = order.getProject();
             order.setDeliverConsignHas(2);
             //project.setDeliverConsignHas(2);
@@ -360,7 +360,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignAdd.setStatus(deliverConsign.getStatus());
         deliverConsignAdd.setDeliverConsignGoodsSet(deliverConsign.getDeliverConsignGoodsSet());
         // 授信信息  and
-        if (deliverConsign.getStatus() == 3) {    //如果是提交操作保存 可用授信额度
+        if (deliverConsignAdd.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {    //如果是提交操作保存 可用授信额度
             deliverConsignAdd.setCreditAvailable(deliverConsign.getCreditAvailable());  //可用授信额度
             deliverConsignAdd.setAdvanceMoney(deliverConsign.getAdvanceMoney());    //预收金额      /应收账款余额
         }
@@ -423,21 +423,19 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignAdd.setCrmCodeOrName(order.getCrmCode());
 
         // 出口通知单审批添加部分
-        if (deliverConsignAdd.getStatus() == DeliverConsign.StatusEnum.READY.getCode()) {
+        if (deliverConsignAdd.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
             deliverConsignAdd.setAuditingStatus(1);
-        } else if (deliverConsignAdd.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
+        } else if (deliverConsignAdd.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             deliverConsignAdd.setAuditingProcess("31");
             deliverConsignAdd.setAuditingStatus(2);
-            if(deliverConsignAdd.getCountryLeaderId() != null)
+            if (deliverConsignAdd.getCountryLeaderId() != null)
                 deliverConsignAdd.setAuditingUserId(deliverConsignAdd.getCountryLeaderId().toString());
             else
                 deliverConsignAdd.setAuditingUserId(null);
         }
         CheckLog checkLog_i = null; //审批流日志
-
-
         DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignAdd);
-        if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
+        if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             if (deliverConsign1.getBusinessLeaderId() != null && deliverConsign.getCountryLeaderId() != null) {
                 sendDingtalk(deliverConsign, deliverConsign.getCountryLeaderId().toString(), false);
             }
@@ -458,7 +456,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsignBookingSpaceDao.saveAndFlush(deliverConsignBookingSpace);
         }
 
-        if (deliverConsign.getStatus() == 3) {
+        if (deliverConsign.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             Project project = order.getProject();
             order.setDeliverConsignHas(2);
             //project.setDeliverConsignHas(2);
