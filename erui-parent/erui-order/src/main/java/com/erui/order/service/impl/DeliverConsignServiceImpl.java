@@ -265,13 +265,14 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         } else if (deliverConsignUpdate.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
             deliverConsignUpdate.setAuditingProcess("31");
             deliverConsignUpdate.setAuditingStatus(2);
-            deliverConsignUpdate.setAuditingUserId(deliverConsignUpdate.getCountryLeaderId().toString());
+            if(deliverConsignUpdate.getCountryLeaderId() != null)
+                deliverConsignUpdate.setAuditingUserId(deliverConsignUpdate.getCountryLeaderId().toString());
 
         }
         CheckLog checkLog_i = null; //审批流日志
         DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignUpdate);
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
-            if (deliverConsign1.getBusinessLeaderId() != null) {
+            if (deliverConsign1.getBusinessLeaderId() != null && deliverConsign.getCountryLeaderId() != null) {
                 sendDingtalk(deliverConsign, deliverConsign.getCountryLeaderId().toString(), false);
             }
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign1.getId(), 30, deliverConsign1.getCreateUserId(), deliverConsign1.getCreateUserName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getCountryLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 4);
@@ -425,7 +426,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         } else if (deliverConsignAdd.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
             deliverConsignAdd.setAuditingProcess("31");
             deliverConsignAdd.setAuditingStatus(2);
-            deliverConsignAdd.setAuditingUserId(deliverConsignAdd.getCountryLeaderId().toString());
+            if(deliverConsignAdd.getCountryLeaderId() != null)
+                deliverConsignAdd.setAuditingUserId(deliverConsignAdd.getCountryLeaderId().toString());
 
         }
         CheckLog checkLog_i = null; //审批流日志
@@ -433,7 +435,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
         DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignAdd);
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
-            if (deliverConsign1.getBusinessLeaderId() != null) {
+            if (deliverConsign1.getBusinessLeaderId() != null && deliverConsign.getCountryLeaderId() != null) {
                 sendDingtalk(deliverConsign, deliverConsign.getCountryLeaderId().toString(), false);
             }
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign1.getId(), 30, deliverConsign1.getCreateUserId(), deliverConsign1.getCreateUserName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getCountryLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 4);
