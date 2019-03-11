@@ -291,6 +291,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if (deliverConsign.getDeliverConsignBookingSpace() != null) {
             DeliverConsignBookingSpace deliverConsignBookingSpace = deliverConsign.getDeliverConsignBookingSpace();
             deliverConsignBookingSpace.setDeliverConsign(deliverConsign1);
+            deliverConsignBookingSpace.setId(deliverConsign1.getDeliverConsignBookingSpace().getId());
             deliverConsignBookingSpaceDao.saveAndFlush(deliverConsignBookingSpace);
         }
 
