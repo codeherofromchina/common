@@ -181,6 +181,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignUpdate.setRemarks(deliverConsign.getRemarks());
         deliverConsignUpdate.setStatus(deliverConsign.getStatus());
 
+        deliverConsignUpdate.setInvoiceRise(deliverConsign.getInvoiceRise());
         deliverConsignUpdate.setBusinessNature(deliverConsign.getBusinessNature());
         deliverConsignUpdate.setBusinessSketch(deliverConsign.getBusinessSketch());
         deliverConsignUpdate.setDeclareCustomsMoney(deliverConsign.getDeclareCustomsMoney());
