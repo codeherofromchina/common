@@ -48,7 +48,7 @@ public class DeliverConsign {
     /**
      * 发货申请部门
      */
-    @Column(name = "dept_id")
+    @Transient
     private Integer deptId;
 
     /**

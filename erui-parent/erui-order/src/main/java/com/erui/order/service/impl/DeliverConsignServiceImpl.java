@@ -506,6 +506,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsign.getDeptId();
             deliverConsign.getCreateUserId();
             deliverConsign.setDeptName(deliverConsign.getDept().getName());
+            deliverConsign.setDeptId(deliverConsign.getDept().getId());
             deliverConsign.setDeliverConsignGoodsSet(null);
             deliverConsign.setAttachmentSet(null);
             List<Goods> goodsList = deliverConsign.getOrder().getGoodsList();
