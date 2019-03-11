@@ -1128,7 +1128,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if (!rDeliverConsign.getAuditingType().equals("-1")) {
             deliverConsign.setAuditingStatus(auditingStatus_i);
         }
-        deliverConsign.setAuditingStatus(auditingStatus_i);
         deliverConsign.setAuditingProcess(auditingProcess_i);
         deliverConsign.setAuditingUserId(auditingUserId_i);
         if (auditingUserId_i != null) {
