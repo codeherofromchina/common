@@ -29,7 +29,7 @@ public class DeliverConsign {
     /**
      * 订单ID
      */
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "order_id")
     @JsonIgnore
     private Order order;
