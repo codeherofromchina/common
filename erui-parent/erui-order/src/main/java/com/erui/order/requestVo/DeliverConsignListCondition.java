@@ -20,11 +20,8 @@ public class DeliverConsignListCondition {
     //审核状态 1未审核 2审核中 3已完成
     private Integer auditingStatus;
 
-    //款项状态 1未收款 2部分收款 3收款完成
-    private Integer payStatus;
-
-    //流程进度 1未执行 2执行中 3已采购 4已报检 5已入库质检 6已入库 7已出库质检 8已出库 9已发运 10已完成
-    private Integer processProgress;
+    //发货申请部门
+    private String execCoName;
 
     // 分页信息参数
     private int page = 1; // 默认从0开始
@@ -72,22 +69,6 @@ public class DeliverConsignListCondition {
         this.auditingStatus = auditingStatus;
     }
 
-    public Integer getPayStatus() {
-        return payStatus;
-    }
-
-    public void setPayStatus(Integer payStatus) {
-        this.payStatus = payStatus;
-    }
-
-    public Integer getProcessProgress() {
-        return processProgress;
-    }
-
-    public void setProcessProgress(Integer processProgress) {
-        this.processProgress = processProgress;
-    }
-
     public int getPage() {
         return page;
     }
@@ -112,4 +93,11 @@ public class DeliverConsignListCondition {
         this.lang = lang;
     }
 
+    public String getExecCoName() {
+        return execCoName;
+    }
+
+    public void setExecCoName(String execCoName) {
+        this.execCoName = execCoName;
+    }
 }

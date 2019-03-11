@@ -546,21 +546,18 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     searchList.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
-//                // 款项状态查询
-//                if (null != condition.getPayStatus()) {
-//                    backList.add(cb.equal(root.get("payStatus").as(Integer.class), condition.getPayStatus()));
-//                }
-//                // 流程进度查询
-//                if (null != condition.getProcessProgress()) {
-//                    backList.add(cb.equal(root.get("processProgress").as(Integer.class), condition.getProcessProgress()));
-//                }
+
+                //根据执行分公司查询
+                if (StringUtil.isNotBlank(condition.getExecCoName())) {
+                    backList.add(cb.like(root.get("execCoName").as(String.class), "%" + condition.getExecCoName() + "%"));
+                }
                 // 审核状态查询
                 if (null != condition.getAuditingStatus()) {
                     searchList.add(cb.equal(root.get("auditingStatus").as(Integer.class), condition.getAuditingStatus()));
                 }
                 // 根据审核进度
                 if (condition.getAuditingProcess() != null) {
-                    searchList.add(cb.equal(root.get("auditingProcess").as(String.class), condition.getAuditingProcess()));
+                    searchList.add(cb.equal(root.get("auditingProcess").as(String.class), condition.getAuditingProcess()+29));
                 }
 
                 // 审核人查询,和其他关系是or，所有写在最后
