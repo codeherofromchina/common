@@ -55,14 +55,22 @@ public class CheckLogController {
      * @return
      */
     @RequestMapping(value = "byPurchId", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> byPurchId(@RequestBody Map<String, Integer> params) {
+    public Result<Object> byPurchId(@RequestBody Map<String, String> params) {
 
         List<CheckLog> data = null;
-        Integer purchId = params.get("purchId");
-        Integer type = params.get("type");
-        if (purchId != null && type != null && purchId > 0) {
+        String category = params.get("category");
+        Integer joinId = null;
+        Integer type = null;
+        if (params.containsKey("joinId") && params.get("joinId") != null) {
+            joinId = Integer.parseInt(params.get("joinId"));
+        }
+        if (params.containsKey("type") && params.get("type") != null) {
+            type = Integer.parseInt(params.get("type"));
+        }
+
+        if (joinId != null && type != null && joinId > 0) {
             try {
-                data = checkLogService.findListByPurchId(purchId, type);
+                data = checkLogService.findListByPurchId(category, joinId, type);
             } catch (Exception e) {
                 LOGGER.error("错误", e);
                 return new Result<>(ResultStatusEnum.FAIL);
@@ -74,6 +82,7 @@ public class CheckLogController {
 
         return new Result<>(data);
     }
+
     /**
      * @Author:SHIGS
      * @Description 获取审批流通过日志

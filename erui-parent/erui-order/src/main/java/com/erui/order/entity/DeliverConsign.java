@@ -58,20 +58,20 @@ public class DeliverConsign {
     /**
      * 填表日期
      */
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "write_date")
     private Date writeDate;
     /**
      * 要求物流到货时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "arrival_date")
     private Date arrivalDate;
 
     /**
      * 市场订舱要求时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "booking_date")
     private Date bookingDate;
 
@@ -84,7 +84,7 @@ public class DeliverConsign {
      * //是否已发货   1:未选中   2：已选中
      */
     @Column(name = "deliver_yn")
-    private Integer deliverYn =1;  //是否已发货      1:未发货  2：已发货
+    private Integer deliverYn = 1;  //是否已发货      1:未发货  2：已发货
 
     /**
      * 提报人
@@ -95,7 +95,7 @@ public class DeliverConsign {
     /**
      * 创建日期
      */
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "create_time")
     private Date createTime;
 
@@ -118,7 +118,7 @@ public class DeliverConsign {
     @JoinTable(name = "deliver_consign_attach",
             joinColumns = @JoinColumn(name = "deliver_consign_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))*/
-   @Transient
+    @Transient
     private List<Attachment> attachmentSet = new ArrayList<>();
     //收款信息
     @JoinColumn(name = "deliver_consign_id")
@@ -132,10 +132,10 @@ public class DeliverConsign {
     private List<DeliverConsignGoods> deliverConsignGoodsSet = new ArrayList<>();
 
     @Column(name = "advance_money")
-    private  BigDecimal advanceMoney;   //预收金额      /应收账款余额
+    private BigDecimal advanceMoney;   //预收金额      /应收账款余额
 
     @Column(name = "this_shipments_money")
-    private  BigDecimal thisShipmentsMoney;   //本批次发货金额
+    private BigDecimal thisShipmentsMoney;   //本批次发货金额
 
     @Column(name = "line_of_credit")
     private BigDecimal lineOfCredit;    //授信额度
@@ -318,13 +318,13 @@ public class DeliverConsign {
      * 审核进度
      */
     @Column(name = "auditing_process")
-    private Integer auditingProcess;
+    private String auditingProcess;
 
     /**
      * 当前审核人ID
      */
     @Column(name = "auditing_user_id")
-    private Integer auditingUserId;
+    private String auditingUserId;
 
     /**
      * 当前审核人名字
@@ -367,7 +367,6 @@ public class DeliverConsign {
      */
     @Transient
     private Integer checkLogId;
-
 
 
     public List<DeliverConsignPayment> getDeliverConsignPayments() {
@@ -772,19 +771,19 @@ public class DeliverConsign {
         this.auditingStatus = auditingStatus;
     }
 
-    public Integer getAuditingProcess() {
+    public String getAuditingProcess() {
         return auditingProcess;
     }
 
-    public void setAuditingProcess(Integer auditingProcess) {
+    public void setAuditingProcess(String auditingProcess) {
         this.auditingProcess = auditingProcess;
     }
 
-    public Integer getAuditingUserId() {
+    public String getAuditingUserId() {
         return auditingUserId;
     }
 
-    public void setAuditingUserId(Integer auditingUserId) {
+    public void setAuditingUserId(String auditingUserId) {
         this.auditingUserId = auditingUserId;
     }
 

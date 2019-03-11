@@ -79,7 +79,7 @@ public class DeliverConsignController {
                 data.put("goodsList", order.getGoodsList());
 
                 return new Result<>(data);
-            }catch (Exception e){
+            } catch (Exception e) {
                 return new Result<>(ResultStatusEnum.DATA_NULL).setMsg(e.getMessage());
             }
         }
@@ -132,7 +132,7 @@ public class DeliverConsignController {
             try {
                 DeliverConsign deliverConsign = deliverConsignService.findById(map.get("id"));
                 return new Result<>(deliverConsign);
-            }catch (Exception e){
+            } catch (Exception e) {
                 return new Result<>(ResultStatusEnum.DATA_NULL).setMsg(e.getMessage());
             }
         }
@@ -190,12 +190,11 @@ public class DeliverConsignController {
     }
 
 
-
     /**
      * 审核出口发货通知单
      * param  params type 审核类型：-1：驳回（驳回必须存在驳回原因参数） 其他或空：正常审核
      * param  params auditingReason 审核或驳回原因参数
-     * param  params id 要审核或驳回的项目ID
+     * param  params id 要审核或驳回的订舱ID
      * param  params checkLogId 驳回到的流程ID
      *
      * @return
@@ -217,8 +216,8 @@ public class DeliverConsignController {
         // 获取当前登录用户ID并比较是否是当前用户审核
         Object userId = request.getSession().getAttribute("userid");
         Object realname = request.getSession().getAttribute("realname");
-        Integer auditingUserId = deliverConsign.getAuditingUserId();
-        if (auditingUserId == null || !StringUtils.equals(String.valueOf(userId), auditingUserId.toString())) {
+        String auditingUserIds = deliverConsign.getAuditingUserId();
+        if (auditingUserIds == null || !equalsAny(String.valueOf(userId), auditingUserIds)) {
             return new Result<>(ResultStatusEnum.NOT_NOW_AUDITOR);
         }
 

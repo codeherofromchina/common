@@ -60,13 +60,14 @@ public interface OrderService {
      * @return
      */
     void deleteOrder(Integer ids[]);
+
     /**
      * 取消订单
      *
      * @param id
      * @return
      */
-    boolean cancelorder(Integer id,String reason) throws Exception;
+    boolean cancelorder(Integer id, String reason) throws Exception;
 
     /**
      * 修改订单
@@ -172,6 +173,7 @@ public interface OrderService {
 
     /**
      * 订单审核待办事项处理
+     *
      * @param order
      * @param rejectFlag
      * @param auditingUserId
@@ -180,6 +182,6 @@ public interface OrderService {
 
     void addOrderContract(XSSFWorkbook workbook, Map<String, Object> results);
 
-    CheckLog fullCheckLogInfo(Integer orderId, Integer purchId, Integer auditingProcess, Integer auditorId, String auditorName, String nextAuditingProcess, String nextAuditingUserId,
+    CheckLog fullCheckLogInfo(Integer orderId, String category, Integer joinId, Integer auditingProcess, Integer auditorId, String auditorName, String nextAuditingProcess, String nextAuditingUserId,
                               String auditingMsg, String operation, int type);
 }
