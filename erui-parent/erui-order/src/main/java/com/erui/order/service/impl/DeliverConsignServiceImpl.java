@@ -175,7 +175,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignUpdate.setDeptId(order.getExecCoId());
         deliverConsignUpdate.setCreateUserId(order.getAgentId());
         deliverConsignUpdate.setWriteDate(deliverConsign.getWriteDate());
-        deliverConsignUpdate.setArrivalDate(deliverConsign.getArrivalDate());
         deliverConsignUpdate.setBookingDate(deliverConsign.getBookingDate());
         deliverConsignUpdate.setCreateUserId(deliverConsign.getCreateUserId());
         deliverConsignUpdate.setCreateUserName(deliverConsign.getCreateUserName());
@@ -266,13 +265,16 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         } else if (deliverConsignUpdate.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
             deliverConsignUpdate.setAuditingProcess("31");
             deliverConsignUpdate.setAuditingStatus(2);
-            deliverConsignUpdate.setAuditingUserId(deliverConsignUpdate.getCountryLeaderId().toString());
+            if(deliverConsignUpdate.getCountryLeaderId() != null)
+                deliverConsignUpdate.setAuditingUserId(deliverConsignUpdate.getCountryLeaderId().toString());
+            else
+                deliverConsignUpdate.setAuditingUserId(null);
 
         }
         CheckLog checkLog_i = null; //审批流日志
         DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignUpdate);
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
-            if (deliverConsign1.getBusinessLeaderId() != null) {
+            if (deliverConsign1.getBusinessLeaderId() != null && deliverConsign.getCountryLeaderId() != null) {
                 sendDingtalk(deliverConsign, deliverConsign.getCountryLeaderId().toString(), false);
             }
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign1.getId(), 30, order.getAgentId(), order.getAgentName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getCountryLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 4);
@@ -347,7 +349,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignAdd.setDeptId(order.getExecCoId());
         deliverConsignAdd.setExecCoName(order.getExecCoName());
         deliverConsignAdd.setWriteDate(deliverConsign.getWriteDate());
-        deliverConsignAdd.setArrivalDate(deliverConsign.getArrivalDate());
         deliverConsignAdd.setBookingDate(deliverConsign.getBookingDate());
         deliverConsignAdd.setCreateUserId(deliverConsign.getCreateUserId());
         deliverConsignAdd.setCreateUserName(deliverConsign.getCreateUserName());
@@ -420,21 +421,24 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignAdd.setAuditingUserId(deliverConsign.getAuditingUserId());
         deliverConsignAdd.setAuditingUser(deliverConsign.getAuditingUser());
         deliverConsignAdd.setCrmCodeOrName(order.getCrmCode());
+
         // 出口通知单审批添加部分
         if (deliverConsignAdd.getStatus() == DeliverConsign.StatusEnum.READY.getCode()) {
             deliverConsignAdd.setAuditingStatus(1);
         } else if (deliverConsignAdd.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
             deliverConsignAdd.setAuditingProcess("31");
             deliverConsignAdd.setAuditingStatus(2);
-            deliverConsignAdd.setAuditingUserId(deliverConsignAdd.getCountryLeaderId().toString());
-
+            if(deliverConsignAdd.getCountryLeaderId() != null)
+                deliverConsignAdd.setAuditingUserId(deliverConsignAdd.getCountryLeaderId().toString());
+            else
+                deliverConsignAdd.setAuditingUserId(null);
         }
         CheckLog checkLog_i = null; //审批流日志
 
 
         DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignAdd);
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
-            if (deliverConsign1.getBusinessLeaderId() != null) {
+            if (deliverConsign1.getBusinessLeaderId() != null && deliverConsign.getCountryLeaderId() != null) {
                 sendDingtalk(deliverConsign, deliverConsign.getCountryLeaderId().toString(), false);
             }
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign1.getId(), 30, order.getAgentId(), order.getAgentName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getCountryLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 4);
@@ -530,62 +534,45 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             @Override
             public Predicate toPredicate(Root<DeliverConsign> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> searchList = new ArrayList<>(); // 前端查询条件的AND关系列表
-                List<Predicate> backList = new ArrayList<>(); // 隐藏的背后过滤条件AND关系列表
 //                // 根据订舱执行状态模糊查询
 //                if (condition.getStatus() != null) {
 //                    searchList.add(cb.equal(root.get("status").as(Integer.class), condition.getStatus()));
 //                }
                 // 根据出口通知单号模糊查询
-                if (condition.getDeliverConsignNo() != null) {
+                if (StringUtil.isNotBlank(condition.getDeliverConsignNo())) {
                     searchList.add(cb.equal(root.get("deliverConsignNo").as(String.class), "%" + condition.getDeliverConsignNo() + "%"));
                 }
                 // 根据客户代码或名称模糊查询
-                if (condition.getCrmCodeOrName() != null) {
+                if (StringUtil.isNotBlank(condition.getCrmCodeOrName())) {
                     searchList.add(cb.equal(root.get("crmCodeOrName").as(String.class), "%" + condition.getCrmCodeOrName() + "%"));
                 }
                 // 根据销售同号模糊查询
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     searchList.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
-//                // 款项状态查询
-//                if (null != condition.getPayStatus()) {
-//                    backList.add(cb.equal(root.get("payStatus").as(Integer.class), condition.getPayStatus()));
-//                }
-//                // 流程进度查询
-//                if (null != condition.getProcessProgress()) {
-//                    backList.add(cb.equal(root.get("processProgress").as(Integer.class), condition.getProcessProgress()));
-//                }
+
+                //根据执行分公司查询
+                if (StringUtil.isNotBlank(condition.getExecCoName())) {
+                    searchList.add(cb.like(root.get("execCoName").as(String.class), "%" + condition.getExecCoName() + "%"));
+                }
                 // 审核状态查询
-                if (null != condition.getAuditingStatus()) {
+                if (null != condition.getAuditingStatus() && condition.getAuditingStatus() != 0) {
                     searchList.add(cb.equal(root.get("auditingStatus").as(Integer.class), condition.getAuditingStatus()));
                 }
                 // 根据审核进度
-                if (condition.getAuditingProcess() != null) {
-                    searchList.add(cb.equal(root.get("auditingProcess").as(String.class), condition.getAuditingProcess()));
-                }
-                String[] country = null;
-                if (StringUtils.isNotBlank(condition.getCountry())) {
-                    country = condition.getCountry().split(",");
-                }
-                if (country != null) {
-                    Join<Project, Order> orderRoot = root.join("order");
-                    backList.add(orderRoot.get("country").in(country));
+                if (condition.getAuditingProcess() != null && condition.getAuditingProcess() != 0) {
+                    searchList.add(cb.equal(root.get("auditingProcess").as(Integer.class), condition.getAuditingProcess()));
                 }
 
-                // 审核人查询,和其他关系是or，所有写在最后
-                Predicate[] backPredicates = new Predicate[backList.size()];
-                backPredicates = backList.toArray(backPredicates);
-                Predicate and = cb.and(backPredicates);
+                // 可以看到列表的人
                 String eruiToken = (String) ThreadLocalUtil.getObject();
                 if (StringUtils.isNotBlank(eruiToken)) {
                     Map<String, String> stringStringMap = getInstockServiceImpl.ssoUser(eruiToken);
                     String submenuId = stringStringMap.get("id");
-                    Predicate auditingUserIdP = cb.like(root.get("auditingUserId").as(String.class), "%" + submenuId + "%");
-                    Predicate or1 = cb.or(and, auditingUserIdP);
-                    Predicate auditingUserId02 = cb.like(root.get("createUserId").as(String.class), "%," + submenuId + ",%");
-                    searchList.add(cb.or(or1, auditingUserId02));
-                } else {
-                    searchList.add(and);
+                    Predicate auditingUserId01 = cb.like(root.get("auditingUserId").as(String.class), "%" + submenuId + "%");
+                    Predicate auditingUserId02 = cb.equal(root.get("createUserId").as(Integer.class), Integer.parseInt(submenuId));
+                    Predicate auditingUserId03 = cb.like(root.get("audiRemark").as(String.class), "%" + submenuId + "%");
+                    searchList.add(cb.or(auditingUserId01, auditingUserId02, auditingUserId03));
                 }
 
                 Predicate[] predicates = new Predicate[searchList.size()];

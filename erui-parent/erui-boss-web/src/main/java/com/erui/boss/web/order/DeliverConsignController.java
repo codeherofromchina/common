@@ -92,8 +92,8 @@ public class DeliverConsignController {
      * @param deliverConsign
      * @return
      */
-    @RequestMapping(value = "addDeliverConsign", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> addDeliverConsign(@RequestBody DeliverConsign deliverConsign, HttpServletRequest request) {
+    @RequestMapping(value = "addOrUpdateDeliverConsign", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> addOrUpdateDeliverConsign(@RequestBody DeliverConsign deliverConsign, HttpServletRequest request) {
         // TODO 参数检查略过
         String errMsg = null;
 

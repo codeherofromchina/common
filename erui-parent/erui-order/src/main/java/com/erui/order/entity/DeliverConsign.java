@@ -61,12 +61,6 @@ public class DeliverConsign {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "write_date")
     private Date writeDate;
-    /**
-     * 要求物流到货时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    @Column(name = "arrival_date")
-    private Date arrivalDate;
 
     /**
      * 市场订舱要求时间
@@ -456,14 +450,6 @@ public class DeliverConsign {
 
     public void setWriteDate(Date writeDate) {
         this.writeDate = writeDate;
-    }
-
-    public Date getArrivalDate() {
-        return arrivalDate;
-    }
-
-    public void setArrivalDate(Date arrivalDate) {
-        this.arrivalDate = arrivalDate;
     }
 
     public Date getBookingDate() {
