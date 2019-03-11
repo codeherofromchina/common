@@ -505,6 +505,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsign.getStatus();
             deliverConsign.getDeptId();
             deliverConsign.getCreateUserId();
+            deliverConsign.setDeptName(deliverConsign.getDept().getName());
             deliverConsign.setDeliverConsignGoodsSet(null);
             deliverConsign.setAttachmentSet(null);
             List<Goods> goodsList = deliverConsign.getOrder().getGoodsList();
@@ -550,8 +551,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 }
 
                 //根据执行分公司查询
-                if (StringUtil.isNotBlank(condition.getExecCoName())) {
-                    searchList.add(cb.like(root.get("execCoName").as(String.class), "%" + condition.getExecCoName() + "%"));
+                if (null != condition.getDeptId() && condition.getDeptId() != 0) {
+                    searchList.add(cb.equal(root.get("deptId").as(Integer.class), condition.getDeptId()));
                 }
                 // 审核状态查询
                 if (null != condition.getAuditingStatus() && condition.getAuditingStatus() != 0) {
