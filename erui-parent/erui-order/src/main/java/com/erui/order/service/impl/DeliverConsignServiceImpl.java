@@ -1072,8 +1072,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         auditingUserId_i = null;
                     } else {
                         String replaceProcess = auditingProcess.replace("33", "");
-                        auditingProcess_i = replaceProcess.replace(",,", ",");
-                        auditingUserId_i = replace2.replace(",,", ",");
+                        String processRemove = replaceProcess.replace(",,", ",");
+                        auditingProcess_i = StringUtils.strip(processRemove, ",");
+                        String auditingUserRemove = replace2.replace(",,", ",");
+                        auditingUserId_i = StringUtils.strip(auditingUserRemove, ",");
                     }
                     break;
                 case 34://物流负责人审核
