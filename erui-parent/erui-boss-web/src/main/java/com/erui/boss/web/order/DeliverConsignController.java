@@ -67,8 +67,8 @@ public class DeliverConsignController {
                 Order order = orderService.detail(map.get("orderId"));
                 Map<String, Object> data = new HashMap<>();
                 data.put("orderId", order.getId());
-                data.put("deptId", order.getExecCoId());
-                data.put("deptName", order.getExecCoName());
+                data.put("deptId", order.getBusinessUnitId());
+                data.put("deptName", order.getBusinessUnitName());
                 data.put("createUserId", order.getAgentId());
                 data.put("coId", order.getSigningCo());
                 data.put("contractNo", order.getContractNo());

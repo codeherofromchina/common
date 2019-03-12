@@ -44,13 +44,19 @@ public class DeliverConsign {
     private Integer deptId;
 
     /**
+     * 发货申请部门名称
+     */
+    @Column(name = "dept_name")
+    private String deptName;
+
+    /**
      * 报关主体
      */
     @Column(name = "co_id")
     private String coId;
 
     /**
-     * 发货申请部门
+     *
      */
     @Column(name = "exec_co_name")
     private String execCoName;
@@ -902,5 +908,13 @@ public class DeliverConsign {
 
     public void setCreateUserName(String createUserName) {
         this.createUserName = createUserName;
+    }
+
+    public String getDeptName() {
+        return deptName;
+    }
+
+    public void setDeptName(String deptName) {
+        this.deptName = deptName;
     }
 }
