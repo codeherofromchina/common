@@ -54,7 +54,7 @@ public class CheckLogController {
      * @param params {orderId:"订单ID"}
      * @return
      */
-    @RequestMapping(value = "byPurchId", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    @RequestMapping(value = "queryCheckLogs", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> byPurchId(@RequestBody Map<String, String> params) {
 
         List<CheckLog> data = null;

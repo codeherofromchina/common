@@ -27,7 +27,7 @@ public class CheckLog {
      *
      */
     @Column(name = "category")
-    private Integer category;
+    private String category;
 
     @Column(name = "audit_seq")
     private float auditSeq;
@@ -96,11 +96,11 @@ public class CheckLog {
         this.joinId = joinId;
     }
 
-    public Integer getCategory() {
+    public String getCategory() {
         return category;
     }
 
-    public void setCategory(Integer category) {
+    public void setCategory(String category) {
         this.category = category;
     }
 

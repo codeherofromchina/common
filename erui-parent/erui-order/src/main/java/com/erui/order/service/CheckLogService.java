@@ -49,7 +49,7 @@ public interface CheckLogService {
      * @Date:18:38 2018/8/29
      * @modified By
      */
-    List<CheckLog> findListByJoinId(String category, Integer purchId, Integer type);
+    List<CheckLog> findListByJoinId(String category, Integer joinId, Integer type);
 
     /**
      * @Author:SHIGS
