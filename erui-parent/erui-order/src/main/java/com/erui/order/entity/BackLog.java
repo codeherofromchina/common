@@ -188,7 +188,7 @@ public class BackLog {
         LOGISTICS("办理物流分单", 10), LOGISTICSDATA("办理物流", 11), ORDER_AUDIT("订单审核", 12), ORDER_REJECT("订单驳回", 13), PROJECT_AUDIT("项目审核", 14),
         PROJECT_REJECT("项目驳回", 15), PURCH_AUDIT("采购订单审核", 16), PURCH_REJECT("采购订单驳回", 17), ORDER_AUDIT2("订单审核", 18), ORDER_REJECT2("订单驳回", 19),
         PROJECT_REJECT2("项目驳回", 20), ORDER_REJECT3("项目驳回", 18),
-        DELIVERCONSIGN("办理出口通知", 21), DELIVERCONSIGN_REJECT("出口通知驳回", 22), DELIVERCONSIGN_AUDIT("出口通知审核", 23);
+        DELIVERCONSIGN_REJECT("出口通知单驳回", 21), DELIVERCONSIGN_AUDIT("出口通知单审核", 22);
         /**
          * 12: 正常订单审核地址
          * 13：订单驳回，正常审核地址

@@ -1091,7 +1091,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 default:
                     return false;
             }
-            checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, deliverConsign.getAuditingProcess().toString(), deliverConsign.getAuditingUserId().toString(), reason, "2", 4);
+            checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 4);
         }
         checkLogService.insert(checkLog_i);
         if (!rDeliverConsign.getAuditingType().equals("-1")) {
@@ -1104,8 +1104,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         deliverConsign.setAudiRemark(auditorIds.toString());
         deliverConsignDao.save(deliverConsign);
-        //auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(auditingUserId_i));
-
+        if (auditingUserId_i != null && auditorId != null) {
+            auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(auditorId));
+        } else {
+            auditBackLogHandle(deliverConsign, rejectFlag, null);
+        }
         return true;
     }
 
@@ -1140,14 +1143,19 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
             if (auditingUserId != null) {
                 // 推送待办事件
-                String infoContent = String.format("%s", "");
-                String purchNo = deliverConsign.getDeliverConsignNo();
+                // 推送待办事件
+                String region = deliverConsign.getOrder().getRegion();   //所属地区
+                Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+                String country = deliverConsign.getOrder().getCountry();  //国家
+                Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+                String infoContent = String.format("%s | %s", bnMapZhRegion.get(region), bnMapZhCountry.get(country));
+                String deliverConsignNo = deliverConsign.getDeliverConsignNo();
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
-                        rejectFlag ? BackLog.ProjectStatusEnum.DELIVERCONSIGN_AUDIT : BackLog.ProjectStatusEnum.DELIVERCONSIGN_REJECT,
-                        purchNo,
+                        rejectFlag ? BackLog.ProjectStatusEnum.DELIVERCONSIGN_REJECT : BackLog.ProjectStatusEnum.DELIVERCONSIGN_AUDIT,
+                        deliverConsignNo,
                         infoContent,
                         deliverConsign.getId(),
-                        "订舱",
+                        "订单",
                         auditingUserId));
             }
 
@@ -1163,7 +1171,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         returnNo,
                         infoContent,
                         hostId,
-                        "订舱",
+                        "订单",
                         userId));
             }
         } catch (Exception e) {
