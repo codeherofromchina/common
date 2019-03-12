@@ -562,7 +562,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 }
                 // 根据审核进度
                 if (condition.getAuditingProcess() != null && condition.getAuditingProcess() != 0) {
-                    searchList.add(cb.equal(root.get("auditingProcess").as(Integer.class), condition.getAuditingProcess()));
+                    searchList.add(cb.ge(root.get("auditingProcess").as(Integer.class), condition.getAuditingProcess()));
                 }
 
                 // 可以看到列表的人
