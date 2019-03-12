@@ -297,7 +297,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsignBookingSpaceDao.saveAndFlush(deliverConsignBookingSpace);
         }
 
-        if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
+        if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode() && deliverConsign1.getAuditingStatus() == 4) {
             Project project = order.getProject();
             order.setDeliverConsignHas(2);
             //project.setDeliverConsignHas(2);
@@ -457,7 +457,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsignBookingSpaceDao.saveAndFlush(deliverConsignBookingSpace);
         }
 
-        if (deliverConsign.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
+        if (deliverConsign1.getAuditingStatus() == 4 && deliverConsign.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             Project project = order.getProject();
             order.setDeliverConsignHas(2);
             //project.setDeliverConsignHas(2);
@@ -1070,8 +1070,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         auditingUserId_i = null;
                     } else {
                         String replaceProcess = auditingProcess.replace("33", "");
-                        auditingProcess_i = StringUtils.strip(replaceProcess, ",");
-                        auditingUserId_i = StringUtils.strip(replace2, ",");
+                        auditingProcess_i = replaceProcess.replace(",,", ",");
+                        auditingUserId_i = replace2.replace(",,", ",");
                     }
                     break;
                 case 34://物流负责人审核

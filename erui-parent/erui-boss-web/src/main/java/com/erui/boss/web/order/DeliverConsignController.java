@@ -201,13 +201,14 @@ public class DeliverConsignController {
      */
     @RequestMapping(value = "auditDeliverConsign", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> auditDeliverConsign(HttpServletRequest request, @RequestBody DeliverConsign rDeliverConsign) throws Exception {
+        //获取token并写入
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
+
         Integer deliverConsignId = rDeliverConsign.getId(); // 出口发货通知单ID
         String reason = rDeliverConsign.getAuditingReason(); // 驳回原因
         String type = rDeliverConsign.getAuditingType(); // 驳回or审核
         Integer checkLogId = rDeliverConsign.getCheckLogId();
-
         // 判断出口发货通知单是否存在，
         DeliverConsign deliverConsign = deliverConsignService.findById(deliverConsignId);
         if (deliverConsign == null) {
