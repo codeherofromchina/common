@@ -934,6 +934,7 @@ public class OrderServiceImpl implements OrderService {
                                      String auditingMsg, String operation, int type) {
         CheckLog checkLog = new CheckLog();
         checkLog.setOrderId(orderId);
+        checkLog.setCategory(category);
         checkLog.setJoinId(joinId);
         checkLog.setCreateTime(new Date());
         checkLog.setAuditingProcess(auditingProcess);
@@ -1203,7 +1204,7 @@ public class OrderServiceImpl implements OrderService {
             attachmentService.addAttachments(addOrderVo.getAttachDesc(), order1.getId(), Attachment.AttachmentCategory.ORDER.getCode());
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(),0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
+            checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
             checkLogService.insert(checkLog_i);
             auditBackLogHandle(order1, false, addOrderVo.getPerLiableRepayId().toString());
             sendDingtalk(order, order.getPerLiableRepayId().toString(), false, 1);
