@@ -21,7 +21,7 @@ public class DeliverConsignListCondition {
     private Integer auditingStatus;
 
     //发货申请部门
-    private Integer deptId;
+    private String deptId;
 
     // 分页信息参数
     private int page = 1; // 默认从0开始
@@ -93,11 +93,11 @@ public class DeliverConsignListCondition {
         this.lang = lang;
     }
 
-    public Integer getDeptId() {
+    public String getDeptId() {
         return deptId;
     }
 
-    public void setDeptId(Integer deptId) {
+    public void setDeptId(String deptId) {
         this.deptId = deptId;
     }
 }

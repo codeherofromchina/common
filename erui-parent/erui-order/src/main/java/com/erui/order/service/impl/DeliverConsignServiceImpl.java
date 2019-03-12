@@ -172,8 +172,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignUpdate = findById(deliverConsign.getId());
         deliverConsignUpdate.setOrder(order);
-        deliverConsignUpdate.setDeptId(order.getBusinessUnitId());
-        deliverConsignUpdate.setDeptName(order.getBusinessUnitName());
+        deliverConsignUpdate.setCoId(order.getSigningCo());
+        deliverConsignUpdate.setDeptId(order.getExecCoId());
+        deliverConsignUpdate.setDeptName(order.getExecCoName());
         deliverConsignUpdate.setExecCoName(order.getExecCoName());
         deliverConsignUpdate.setCreateUserId(order.getAgentId());
         deliverConsignUpdate.setWriteDate(deliverConsign.getWriteDate());
@@ -348,8 +349,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignAdd.setDeliverConsignNo(StringUtil.genDeliverConsignNo(deliverConsignNo));
         deliverConsignAdd.setOrder(order);
         deliverConsignAdd.setCoId(order.getSigningCo());
-        deliverConsignAdd.setDeptId(order.getBusinessUnitId());
-        deliverConsignAdd.setDeptName(order.getBusinessUnitName());
+        deliverConsignAdd.setDeptId(order.getExecCoId());
+        deliverConsignAdd.setDeptName(order.getExecCoName());
         deliverConsignAdd.setExecCoName(order.getExecCoName());
         deliverConsignAdd.setWriteDate(deliverConsign.getWriteDate());
         deliverConsignAdd.setBookingDate(deliverConsign.getBookingDate());
@@ -549,10 +550,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     searchList.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
-
-                //发货申请部门查询
-                if (null != condition.getDeptId() && condition.getDeptId() != 0) {
-                    searchList.add(cb.equal(root.get("deptId").as(Integer.class), condition.getDeptId()));
+                // 根据发货申请部门查询
+                if (StringUtil.isNotBlank(condition.getDeptId())) {
+                    searchList.add(cb.equal(root.get("deptName").as(String.class), condition.getDeptId()));
                 }
                 // 审核状态查询
                 if (null != condition.getAuditingStatus() && condition.getAuditingStatus() != 0) {
