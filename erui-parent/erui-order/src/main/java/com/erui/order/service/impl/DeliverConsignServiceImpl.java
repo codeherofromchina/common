@@ -173,7 +173,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         DeliverConsign deliverConsignUpdate = findById(deliverConsign.getId());
         deliverConsignUpdate.setOrder(order);
         deliverConsignUpdate.setDeptId(order.getBusinessUnitId());
-        deliverConsignUpdate.setExecCoName(order.getBusinessUnitName());
+        deliverConsignUpdate.setDeptName(order.getBusinessUnitName());
+        deliverConsignUpdate.setExecCoName(order.getExecCoName());
         deliverConsignUpdate.setCreateUserId(order.getAgentId());
         deliverConsignUpdate.setWriteDate(deliverConsign.getWriteDate());
         deliverConsignUpdate.setBookingDate(deliverConsign.getBookingDate());
@@ -348,7 +349,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignAdd.setOrder(order);
         deliverConsignAdd.setCoId(order.getSigningCo());
         deliverConsignAdd.setDeptId(order.getBusinessUnitId());
-        deliverConsignAdd.setExecCoName(order.getBusinessUnitName());
+        deliverConsignAdd.setDeptName(order.getBusinessUnitName());
+        deliverConsignAdd.setExecCoName(order.getExecCoName());
         deliverConsignAdd.setWriteDate(deliverConsign.getWriteDate());
         deliverConsignAdd.setBookingDate(deliverConsign.getBookingDate());
         deliverConsignAdd.setCreateUserId(deliverConsign.getCreateUserId());
