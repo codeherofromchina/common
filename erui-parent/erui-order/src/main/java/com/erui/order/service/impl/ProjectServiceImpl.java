@@ -1196,7 +1196,7 @@ public class ProjectServiceImpl implements ProjectService {
                 project.getOrder().setAuditingUserId(auditingUserId_order);
                 project.getOrder().setAuditingStatus(auditingStatus_i);
                 project.getOrder().setAuditingProcess(auditingProcess_order);
-                project.getOrder().getProject().setAuditingStatus(0);
+                project.setAuditingStatus(0);
 
                 // 推送待办事件
                 String infoContent = String.format("%s | %s", project.getOrder().getRegion(), project.getOrder().getCountry());

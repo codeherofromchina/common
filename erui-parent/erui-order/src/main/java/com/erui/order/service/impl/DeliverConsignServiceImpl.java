@@ -1098,9 +1098,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 4);
         }
         checkLogService.insert(checkLog_i);
-        if (!rDeliverConsign.getAuditingType().equals("-1")) {
-            deliverConsign.setAuditingStatus(auditingStatus_i);
-        }
+        deliverConsign.setAuditingStatus(auditingStatus_i);
         deliverConsign.setAuditingProcess(auditingProcess_i);
         deliverConsign.setAuditingUserId(auditingUserId_i);
         if (auditingUserId_i != null) {

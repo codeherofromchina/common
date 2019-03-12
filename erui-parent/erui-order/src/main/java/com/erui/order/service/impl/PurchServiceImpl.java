@@ -292,9 +292,6 @@ public class PurchServiceImpl implements PurchService {
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "2", 3);
         }
         checkLogService.insert(checkLog_i);
-        if (!paramPurch.getAuditingType().equals("-1")) {
-            purch.setAuditingStatus(auditingStatus_i);
-        }
         purch.setAuditingStatus(auditingStatus_i);
         purch.setAuditingProcess(auditingProcess_i);
         purch.setAuditingUserId(auditingUserId_i);
