@@ -87,7 +87,7 @@ public class DeliverConsign {
     private Integer deliverYn = 1;  //是否已发货      1:未发货  2：已发货
 
     /**
-     * 提报人
+     * 创建人
      */
     @Column(name = "create_user_id")
     private Integer createUserId;
@@ -367,6 +367,12 @@ public class DeliverConsign {
      */
     @Transient
     private Integer checkLogId;
+
+    /**
+     * 提报人
+     */
+    @Transient
+    private String agentName;
 
 
     public List<DeliverConsignPayment> getDeliverConsignPayments() {
@@ -916,5 +922,13 @@ public class DeliverConsign {
 
     public void setDeptName(String deptName) {
         this.deptName = deptName;
+    }
+
+    public String getAgentName() {
+        return agentName;
+    }
+
+    public void setAgentName(String agentName) {
+        this.agentName = agentName;
     }
 }
