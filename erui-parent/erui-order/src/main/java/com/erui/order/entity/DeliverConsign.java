@@ -40,22 +40,8 @@ public class DeliverConsign {
     /**
      * 发货申请部门
      */
-    @OneToOne
-    @JoinColumn(name = "dept_id")
-    @JsonIgnore
-    private Dept dept;
-
-    /**
-     * 发货申请部门
-     */
-    @Transient
+    @Column(name = "dept_id")
     private Integer deptId;
-
-    /**
-     * 发货申请名称
-     */
-    @Transient
-    private String deptName;
 
     /**
      * 报关主体
@@ -916,21 +902,5 @@ public class DeliverConsign {
 
     public void setCreateUserName(String createUserName) {
         this.createUserName = createUserName;
-    }
-
-    public Dept getDept() {
-        return dept;
-    }
-
-    public void setDept(Dept dept) {
-        this.dept = dept;
-    }
-
-    public String getDeptName() {
-        return deptName;
-    }
-
-    public void setDeptName(String deptName) {
-        this.deptName = deptName;
     }
 }
