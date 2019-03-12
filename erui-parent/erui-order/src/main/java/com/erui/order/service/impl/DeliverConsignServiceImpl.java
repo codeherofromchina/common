@@ -504,7 +504,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsign.setoId(orderId);
             deliverConsign.setAgentName(deliverConsign.getOrder().getAgentName());
             deliverConsign.setDeliverConsignGoodsSet(null);
-            deliverConsign.setAttachmentSet(null);
+            deliverConsign.setDeliverConsignPayments(null);
+            deliverConsign.setDeliverConsignBookingSpace(null);
+            deliverConsign.setDeliverConsignBookingSpace(null);
+            deliverConsign.setDeliverDetail(null);
             List<Goods> goodsList = deliverConsign.getOrder().getGoodsList();
             if (goodsList.size() > 0) {
                 for (Goods goods : goodsList) {
