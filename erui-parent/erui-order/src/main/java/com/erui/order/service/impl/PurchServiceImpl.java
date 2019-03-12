@@ -775,11 +775,6 @@ public class PurchServiceImpl implements PurchService {
         // 处理附件信息
         //List<Attachment> attachments = attachmentService.handleParamAttachment(null, purch.getAttachments(), purch.getCreateUserId(), purch.getCreateUserName());
         //purch.setAttachments(attachments);
-        // 添加附件
-        //purchRequisition1.setAttachmentList(purchRequisition.getAttachmentList());
-        if (purch.getAttachments() != null && purch.getAttachments().size() > 0) {
-            attachmentService.addAttachments(purch.getAttachments(), purch.getId(), Attachment.AttachmentCategory.PURCH.getCode());
-        }
         // 处理商品信息
         List<PurchGoods> purchGoodsList = new ArrayList<>();
         Set<Project> projectSet = new HashSet<>();
@@ -850,6 +845,11 @@ public class PurchServiceImpl implements PurchService {
         CheckLog checkLog_i = null; //审批流日志
 
         Purch save = purchDao.save(purch);
+        // 添加附件
+        //purchRequisition1.setAttachmentList(purchRequisition.getAttachmentList());
+        if (purch.getAttachments() != null && purch.getAttachments().size() > 0) {
+            attachmentService.addAttachments(purch.getAttachments(), save.getId(), Attachment.AttachmentCategory.PURCH.getCode());
+        }
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
             if (save.getPurchAuditerId() != null) {
                 sendDingtalk(purch, purch.getPurchAuditerId().toString(), false);

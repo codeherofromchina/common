@@ -133,7 +133,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         DeliverDetail deliverDetail = deliverDetailDao.findOne(id);
         /*deliverDetail.getDeliverNotice().getId();*/
         List<Attachment> attachments = attachmentService.queryAttachs(deliverDetail.getId(), Attachment.AttachmentCategory.DELIVERDETAIL.getCode());
-        if (deliverDetail.getAttachmentList() != null && deliverDetail.getAttachmentList().size() > 0) {
+        if (attachments != null && attachments.size() > 0) {
             deliverDetail.setAttachmentList(attachments);
             deliverDetail.getAttachmentList().size();
         }

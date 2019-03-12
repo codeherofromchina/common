@@ -87,9 +87,9 @@ public class InspectReportServiceImpl implements InspectReportService {
                 List<Attachment> attachments = attachmentService.queryAttachs(inspectReport.getId(), Attachment.AttachmentCategory.INSPECTREPORT.getCode());
                 if (attachments != null && attachments.size() > 0) {
                     inspectReport.setAttachments(attachments);
+                    inspectReport.getAttachments().size();
                 }
             }
-            inspectReport.getAttachments().size();
             inspectReport.getInspectGoodsList().size();
             InspectApply inspectApply = inspectReport.getInspectApply();
             inspectReport.setPurchNo(inspectApply.getPurchNo());
@@ -266,7 +266,7 @@ public class InspectReportServiceImpl implements InspectReportService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean save(InspectReport inspectReport) throws Exception {
-        InspectReport dbInspectReport = inspectReportDao.findOne(inspectReport.getId());
+        InspectReport dbInspectReport = detail(inspectReport.getId());
         if (dbInspectReport == null) {
             throw new Exception(String.format("%s%s%s", "质检单不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The quality check list does not exist"));
         }
@@ -413,12 +413,17 @@ public class InspectReportServiceImpl implements InspectReportService {
         }
         InspectReport save1 = inspectReportDao.save(dbInspectReport);
         //附件处理
-        List<Attachment> attachmentList = inspectReport.getAttachments();
-        if (attachmentList != null && attachmentList.size() > 0) {
-            Map<Integer, Attachment> dbAttahmentsMap = dbInspectReport.getAttachments().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
-            attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbInspectReport.getId(), Attachment.AttachmentCategory.INSPECTREPORT.getCode());
+        List<Attachment> attachmentList = null;
+        if (inspectReport.getAttachments() != null && inspectReport.getAttachments().size() > 0) {
+            attachmentList = inspectReport.getAttachments();
+        } else {
+            attachmentList = new ArrayList<>();
         }
-
+        Map<Integer, Attachment> dbAttahmentsMap = new HashMap<>();
+        if (dbInspectReport.getAttachments() != null && dbInspectReport.getAttachments().size() > 0) {
+            dbAttahmentsMap = dbInspectReport.getAttachments().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        }
+        attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbInspectReport.getId(), Attachment.AttachmentCategory.INSPECTREPORT.getCode());
 
         if (statusEnum == InspectReport.StatusEnum.DONE) { // 提交动作
             //质检以后，删除   “办理入库质检”  待办提示
