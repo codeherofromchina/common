@@ -903,20 +903,4 @@ public class DeliverConsign {
     public void setCreateUserName(String createUserName) {
         this.createUserName = createUserName;
     }
-
-    public Dept getDept() {
-        return dept;
-    }
-
-    public void setDept(Dept dept) {
-        this.dept = dept;
-    }
-
-    public String getDeptName() {
-        return deptName;
-    }
-
-    public void setDeptName(String deptName) {
-        this.deptName = deptName;
-    }
 }
