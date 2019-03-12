@@ -1102,7 +1102,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         deliverConsign.setAudiRemark(auditorIds.toString());
         deliverConsignDao.save(deliverConsign);
-        auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(auditingUserId_i));
+        //auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(auditingUserId_i));
 
         return true;
     }
