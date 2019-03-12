@@ -40,22 +40,8 @@ public class DeliverConsign {
     /**
      * 发货申请部门
      */
-    @OneToOne
-    @JoinColumn(name = "dept_id", referencedColumnName = "id")
-    @JsonIgnore
-    private Dept dept;
-
-    /**
-     * 发货申请部门
-     */
-    @Transient
+    @Column(name = "dept_id")
     private Integer deptId;
-
-    /**
-     * 发货申请名称
-     */
-    @Transient
-    private String deptName;
 
     /**
      * 报关主体

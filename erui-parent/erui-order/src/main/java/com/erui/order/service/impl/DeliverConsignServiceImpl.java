@@ -172,7 +172,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignUpdate = findById(deliverConsign.getId());
         deliverConsignUpdate.setOrder(order);
-        deliverConsignUpdate.setDeptId(order.getExecCoId());
+        deliverConsignUpdate.setDeptId(order.getBusinessUnitId());
+        deliverConsignUpdate.setExecCoName(order.getBusinessUnitName());
         deliverConsignUpdate.setCreateUserId(order.getAgentId());
         deliverConsignUpdate.setWriteDate(deliverConsign.getWriteDate());
         deliverConsignUpdate.setBookingDate(deliverConsign.getBookingDate());
@@ -346,8 +347,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignAdd.setDeliverConsignNo(StringUtil.genDeliverConsignNo(deliverConsignNo));
         deliverConsignAdd.setOrder(order);
         deliverConsignAdd.setCoId(order.getSigningCo());
-        deliverConsignAdd.setDeptId(order.getExecCoId());
-        deliverConsignAdd.setExecCoName(order.getExecCoName());
+        deliverConsignAdd.setDeptId(order.getBusinessUnitId());
+        deliverConsignAdd.setExecCoName(order.getBusinessUnitName());
         deliverConsignAdd.setWriteDate(deliverConsign.getWriteDate());
         deliverConsignAdd.setBookingDate(deliverConsign.getBookingDate());
         deliverConsignAdd.setCreateUserId(deliverConsign.getCreateUserId());
@@ -498,15 +499,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     public List<DeliverConsign> findByOrderId(Integer orderId) {
         List<DeliverConsign> deliverConsignList = deliverConsignDao.findByOrderId(orderId);
         for (DeliverConsign deliverConsign : deliverConsignList) {
-            deliverConsign.getId();
-            deliverConsign.getCoId();
-            deliverConsign.getDeliverConsignNo();
-            deliverConsign.getWriteDate();
-            deliverConsign.getStatus();
-            deliverConsign.getDeptId();
-            deliverConsign.getCreateUserId();
-            deliverConsign.setDeptName(deliverConsign.getDept().getName());
-            deliverConsign.setDeptId(deliverConsign.getDept().getId());
             deliverConsign.setDeliverConsignGoodsSet(null);
             deliverConsign.setAttachmentSet(null);
             List<Goods> goodsList = deliverConsign.getOrder().getGoodsList();
@@ -551,7 +543,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     searchList.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
 
-                //根据执行分公司查询
+                //发货申请部门查询
                 if (null != condition.getDeptId() && condition.getDeptId() != 0) {
                     searchList.add(cb.equal(root.get("deptId").as(Integer.class), condition.getDeptId()));
                 }
