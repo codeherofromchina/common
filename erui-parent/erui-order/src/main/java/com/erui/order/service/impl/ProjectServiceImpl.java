@@ -1615,7 +1615,6 @@ public class ProjectServiceImpl implements ProjectService {
         checkLog.setAuditingMsg(auditingMsg);
         checkLog.setOperation(operation);
         checkLog.setType(type);
-
         CheckLog.AuditProcessingEnum ape = CheckLog.AuditProcessingEnum.findEnum(type, auditingProcess);
         checkLog.setAuditSeq(ape.getAuditSeq());
 
