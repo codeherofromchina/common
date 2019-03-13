@@ -299,7 +299,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsignBookingSpace.setId(deliverConsign1.getDeliverConsignBookingSpace().getId());
             deliverConsignBookingSpaceDao.saveAndFlush(deliverConsignBookingSpace);
         }
-
+        if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
+            disposeAdvanceMoney(order, deliverConsign);
+        }
         /*if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode() && deliverConsign1.getAuditingStatus() == 4) {
             //order.setDeliverConsignHas(2);
             //orderDao.save(order);
@@ -348,8 +350,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             //推送出库信息
             String deliverDetailNo = createDeliverDetailNo();   //产品放行单号
             DeliverDetail deliverDetail = pushOutbound(deliverConsign, deliverDetailNo);
-
-
             // 出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
             Map<String, Object> map = new HashMap<>();
             map.put("deliverConsignNo", deliverConsign.getDeliverConsignNo());  //出口通知单号
@@ -357,7 +357,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             map.put("contractNoOs", order.getContractNo());     //销售合同号
             try {
                 sendSms(map);
-                disposeAdvanceMoney(order, deliverConsign);
             } catch (Exception e) {
                 throw new Exception(e.getMessage());
             }
@@ -1276,7 +1275,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         //获取授信额度信息
         DeliverConsign deliverConsignByCreditData = null;
         try {
-            if (order.getCrmCode() != null && order.getCrmCode() != "") {
+            if (!StringUtils.isNotBlank(order.getCrmCode())) {
                 deliverConsignByCreditData = queryCreditData(order);
             }
 
