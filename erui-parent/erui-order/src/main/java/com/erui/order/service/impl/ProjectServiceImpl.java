@@ -1429,7 +1429,8 @@ public class ProjectServiceImpl implements ProjectService {
         Sheet sheet1 = workbook.getSheetAt(0);
         Row row4 = sheet1.getRow(4);
         if (projectDec.getOrder().getCountry() != null) {
-            row4.getCell(1).setCellValue(projectDec.getOrder().getCountry());
+            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+            row4.getCell(1).setCellValue(bnMapZhCountry.get(projectDec.getOrder().getCountry()));
         }
         if (projectDec.getBusinessUnitName() != null) {
             row4.getCell(4).setCellValue(projectDec.getBusinessUnitName());

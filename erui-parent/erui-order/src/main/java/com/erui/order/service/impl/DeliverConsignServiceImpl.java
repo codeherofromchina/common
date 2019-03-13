@@ -1150,25 +1150,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         return true;
     }
 
-    public static void main(String[] args) {
-        String auditingUserId = "001,002,003";
-        String auditingProcess_i = "32,33,34";
-        String auditingProcess = "32,33,34";
-        String auditingUserId_i = "001,002,003";
-        Integer auditingStatus_i = null;
-        String replace = auditingUserId.replace("001", "");
-        if ("".equals(replace)) { // 跟他并行审核的都已经审核完成
-            auditingStatus_i = 4; // 完成
-            auditingProcess_i = "999"; // 无下一审核进度和审核人
-            auditingUserId_i = null;
-        } else {
-            String replaceProcess = StringUtils.strip(auditingProcess.replace("32", ""));
-            auditingProcess_i = StringUtils.strip(replaceProcess, ",");
-            auditingUserId_i = StringUtils.strip(replace, ",");
-        }
-
-    }
-
     private void auditBackLogHandle(DeliverConsign deliverConsign, boolean rejectFlag, Integer auditingUserId) {
         try {
             // 删除上一个待办
