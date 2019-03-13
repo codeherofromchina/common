@@ -149,7 +149,7 @@ public class DeliverConsign {
     /**
      * 销售合同号
      */
-    @Transient
+    @Column(name = "contract_no")
     private String contractNo;
 
     /**
@@ -931,4 +931,6 @@ public class DeliverConsign {
     public void setAgentName(String agentName) {
         this.agentName = agentName;
     }
+
+
 }

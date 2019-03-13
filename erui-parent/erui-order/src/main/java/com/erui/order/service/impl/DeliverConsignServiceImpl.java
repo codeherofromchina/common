@@ -177,6 +177,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignUpdate.setDeptName(order.getExecCoName());
         deliverConsignUpdate.setExecCoName(order.getExecCoName());
         deliverConsignUpdate.setCreateUserId(order.getAgentId());
+        deliverConsignUpdate.setContractNo(order.getContractNo());
         deliverConsignUpdate.setWriteDate(deliverConsign.getWriteDate());
         deliverConsignUpdate.setBookingDate(deliverConsign.getBookingDate());
         deliverConsignUpdate.setCreateUserId(deliverConsign.getCreateUserId());
@@ -379,6 +380,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignAdd.setDeptId(order.getExecCoId());
         deliverConsignAdd.setDeptName(order.getExecCoName());
         deliverConsignAdd.setExecCoName(order.getExecCoName());
+        deliverConsignAdd.setContractNo(order.getContractNo());
         deliverConsignAdd.setWriteDate(deliverConsign.getWriteDate());
         deliverConsignAdd.setBookingDate(deliverConsign.getBookingDate());
         deliverConsignAdd.setCreateUserId(deliverConsign.getCreateUserId());
@@ -563,11 +565,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 //                }
                 // 根据出口通知单号模糊查询
                 if (StringUtil.isNotBlank(condition.getDeliverConsignNo())) {
-                    searchList.add(cb.equal(root.get("deliverConsignNo").as(String.class), "%" + condition.getDeliverConsignNo() + "%"));
+                    searchList.add(cb.like(root.get("deliverConsignNo").as(String.class), "%" + condition.getDeliverConsignNo() + "%"));
                 }
                 // 根据客户代码或名称模糊查询
                 if (StringUtil.isNotBlank(condition.getCrmCodeOrName())) {
-                    searchList.add(cb.equal(root.get("crmCodeOrName").as(String.class), "%" + condition.getCrmCodeOrName() + "%"));
+                    searchList.add(cb.like(root.get("crmCodeOrName").as(String.class), "%" + condition.getCrmCodeOrName() + "%"));
                 }
                 // 根据销售同号模糊查询
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
@@ -583,7 +585,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 }
                 // 根据审核进度
                 if (condition.getAuditingProcess() != null && condition.getAuditingProcess() != 0) {
-                    searchList.add(cb.equal(root.get("auditingProcess").as(Integer.class), condition.getAuditingProcess()));
+                    searchList.add(cb.like(root.get("auditingProcess").as(String.class), "%" + condition.getAuditingProcess() + "%"));
                 }
 
                 // 可以看到列表的人
