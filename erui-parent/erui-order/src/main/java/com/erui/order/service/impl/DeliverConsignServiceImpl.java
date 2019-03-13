@@ -229,7 +229,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         // 商品信息
         Map<Integer, DeliverConsignGoods> oldDcGoodsMap = deliverConsignUpdate.getDeliverConsignGoodsSet().parallelStream().collect(Collectors.toMap(DeliverConsignGoods::getId, vo -> vo));
         Map<Integer, Goods> goodsList = order.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
-        Set<Integer> orderIds = new HashSet<>();
+        //Set<Integer> orderIds = new HashSet<>();
         for (DeliverConsignGoods dcGoods : deliverConsign.getDeliverConsignGoodsSet()) {
             DeliverConsignGoods deliverConsignGoods = oldDcGoodsMap.remove(dcGoods.getId());
             int oldSendNum = 0;
@@ -247,7 +247,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 dcGoods.setCreateTime(new Date());
                 if (deliverConsign.getStatus() == 3) {
                     goods.setOutstockNum(goods.getOutstockNum() + dcGoods.getSendNum());
-                    orderIds.add(goods.getOrder().getId());
+                    //orderIds.add(goods.getOrder().getId());
                 }
                 goods.setOutstockApplyNum(goods.getOutstockApplyNum() - oldSendNum + dcGoods.getSendNum());
                 goodsDao.save(goods);
@@ -299,13 +299,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsignBookingSpaceDao.saveAndFlush(deliverConsignBookingSpace);
         }
 
-        if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode() && deliverConsign1.getAuditingStatus() == 4) {
-            Project project = order.getProject();
-            order.setDeliverConsignHas(2);
-            //project.setDeliverConsignHas(2);
-            orderDao.save(order);
-            projectDao.save(project);
-            orderService.updateOrderDeliverConsignC(orderIds);
+        /*if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode() && deliverConsign1.getAuditingStatus() == 4) {
+            //order.setDeliverConsignHas(2);
+            //orderDao.save(order);
+            //orderService.updateOrderDeliverConsignC(orderIds);
 
             //推送出库信息
             String deliverDetailNo = createDeliverDetailNo();   //产品放行单号
@@ -334,10 +331,40 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             //出口发货通知单提交的时候，推送给出库分单员  办理分单
             addBackLog(order, deliverDetail);
 
-        }
+        }*/
         return true;
     }
 
+    private void pushOutStock(DeliverConsign deliverConsign) throws Exception {
+        if (deliverConsign.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode() && deliverConsign.getAuditingStatus() == 4) {
+            Order order = deliverConsign.getOrder();
+            order.setDeliverConsignHas(2);
+            boolean flag = order.getGoodsList().parallelStream().allMatch(vo -> vo.getContractGoodsNum() == vo.getOutstockNum());
+            if (flag) {
+                order.setDeliverConsignC(Boolean.FALSE);
+            }
+            orderDao.save(order);
+            //推送出库信息
+            String deliverDetailNo = createDeliverDetailNo();   //产品放行单号
+            DeliverDetail deliverDetail = pushOutbound(deliverConsign, deliverDetailNo);
+
+
+            // 出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
+            Map<String, Object> map = new HashMap<>();
+            map.put("deliverConsignNo", deliverConsign.getDeliverConsignNo());  //出口通知单号
+            map.put("deliverDetailNo", deliverDetailNo);  //产品放行单号
+            map.put("contractNoOs", order.getContractNo());     //销售合同号
+            try {
+                sendSms(map);
+                disposeAdvanceMoney(order, deliverConsign);
+            } catch (Exception e) {
+                throw new Exception(e.getMessage());
+            }
+            //出口发货通知单提交的时候，推送给出库分单员  办理分单
+            addBackLog(order, deliverDetail);
+
+        }
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -380,7 +407,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignAdd.setDeliverConsignPayments(deliverConsign.getDeliverConsignPayments());
         // 处理商品信息
         Map<Integer, Goods> goodsList = order.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
-        Set<Integer> orderIds = new HashSet<>();
+        //Set<Integer> orderIds = new HashSet<>();
         for (DeliverConsignGoods dcGoods : deliverConsign.getDeliverConsignGoodsSet()) {
             Integer gid = dcGoods.getgId();
             Goods goods = goodsList.get(gid);
@@ -389,7 +416,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 dcGoods.setCreateTime(new Date());
                 if (deliverConsign.getStatus() == 3) {
                     goods.setOutstockNum(goods.getOutstockNum() + dcGoods.getSendNum());
-                    orderIds.add(goods.getOrder().getId());
+                    //orderIds.add(goods.getOrder().getId());
                 }
                 goods.setOutstockApplyNum(goods.getOutstockApplyNum() + dcGoods.getSendNum());
                 goodsDao.save(goods);
@@ -460,14 +487,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsignBookingSpaceDao.saveAndFlush(deliverConsignBookingSpace);
         }
 
-        if (deliverConsign1.getAuditingStatus() == 4 && deliverConsign.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
-            Project project = order.getProject();
+       /* if (deliverConsign1.getAuditingStatus() == 4 && deliverConsign.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             order.setDeliverConsignHas(2);
-            //project.setDeliverConsignHas(2);
             orderDao.save(order);
-            projectDao.save(project);
             orderService.updateOrderDeliverConsignC(orderIds);
-
             //发送短信  and
             //推送出库信息
             String deliverDetailNo = createDeliverDetailNo();
@@ -493,7 +516,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             }
             //出口发货通知单提交的时候，推送给出库分单员  办理分单
             addBackLog(order, deliverDetail);
-        }
+        }*/
         return true;
     }
 
@@ -1115,6 +1138,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(auditorId));
         } else {
             auditBackLogHandle(deliverConsign, rejectFlag, null);
+        }
+        if (deliverConsign.getAuditingStatus() == 4 && deliverConsign.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
+            pushOutStock(deliverConsign);
         }
         return true;
     }
