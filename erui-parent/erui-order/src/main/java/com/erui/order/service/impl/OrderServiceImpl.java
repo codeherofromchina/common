@@ -1055,7 +1055,7 @@ public class OrderServiceImpl implements OrderService {
             //projectAdd.setCountry(orderUpdate.getCountry());
             projectAdd.setTotalPriceUsd(orderUpdate.getTotalPriceUsd());
             //projectAdd.setDistributionDeptName(orderUpdate.getDistributionDeptName());
-            //projectAdd.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
+            projectAdd.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             projectAdd.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             projectAdd.setOrderCategory(orderUpdate.getOrderCategory());
             projectAdd.setOverseasSales(orderUpdate.getOverseasSales());

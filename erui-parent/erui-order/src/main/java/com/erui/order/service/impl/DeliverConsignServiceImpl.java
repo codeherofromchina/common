@@ -300,7 +300,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsignBookingSpaceDao.saveAndFlush(deliverConsignBookingSpace);
         }
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
-            disposeAdvanceMoney(order, deliverConsign);
+            try {
+                disposeAdvanceMoney(order, deliverConsign);
+            } catch (Exception e) {
+                throw new Exception(e.getMessage());
+            }
         }
         /*if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode() && deliverConsign1.getAuditingStatus() == 4) {
             //order.setDeliverConsignHas(2);
