@@ -75,6 +75,7 @@ public class DeliverConsignController {
                 data.put("totalPriceUsd", order.getTotalPriceUsd());
                 data.put("receivablePriceUsd", order.getTotalPriceUsd());
                 data.put("perLiableRepay", order.getPerLiableRepay());
+                data.put("currencyBn", order.getCurrencyBn());//order表货币类型
                 //    data.put("coName",order.getId());
                 data.put("goodsList", order.getGoodsList());
 
@@ -179,6 +180,7 @@ public class DeliverConsignController {
                 vo.setTotalPriceUsd(vo.getOrder().getTotalPriceUsd());//合同总价
                 vo.setReceivablePriceUsd(vo.getOrder().getTotalPriceUsd());//应收账款金额
                 vo.setPerLiableRepay(vo.getOrder().getPerLiableRepay());//回款责任人
+                vo.setCurrencyBn(vo.getOrder().getCurrencyBn());//order表货币类型
                 vo.setAttachmentSet(null);
                 vo.setDeliverDetail(null);
                 vo.setDeliverConsignPayments(null);
