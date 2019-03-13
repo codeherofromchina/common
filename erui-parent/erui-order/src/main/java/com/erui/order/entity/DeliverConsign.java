@@ -374,6 +374,12 @@ public class DeliverConsign {
     @Transient
     private String agentName;
 
+    /**
+     * 货币类型
+     */
+    @Transient
+    private String currencyBn;
+
 
     public List<DeliverConsignPayment> getDeliverConsignPayments() {
         return deliverConsignPayments;
@@ -932,5 +938,11 @@ public class DeliverConsign {
         this.agentName = agentName;
     }
 
+    public String getCurrencyBn() {
+        return currencyBn;
+    }
 
+    public void setCurrencyBn(String currencyBn) {
+        this.currencyBn = currencyBn;
+    }
 }
