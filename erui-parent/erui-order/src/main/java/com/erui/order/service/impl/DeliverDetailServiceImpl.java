@@ -132,15 +132,22 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     public DeliverDetail findDetailById(Integer id) {
         DeliverDetail deliverDetail = deliverDetailDao.findOne(id);
         /*deliverDetail.getDeliverNotice().getId();*/
-        List<Attachment> attachments = attachmentService.queryAttachs(deliverDetail.getId(), Attachment.AttachmentCategory.DELIVERDETAIL.getCode());
-        if (attachments != null && attachments.size() > 0) {
-            deliverDetail.setAttachmentList(attachments);
-            deliverDetail.getAttachmentList().size();
-        }
-        List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
-        if (deliverConsignGoodsList.size() > 0) {
-            for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList) {
-                deliverConsignGoods.getGoods().setPurchGoods(null);
+        List<Attachment> attachments = null;
+        if (deliverDetail != null && deliverDetail.getId() > 0) {
+            attachments = attachmentService.queryAttachs(deliverDetail.getId(), Attachment.AttachmentCategory.DELIVERDETAIL.getCode());
+
+            if (attachments != null && attachments.size() > 0) {
+                deliverDetail.setAttachmentList(attachments);
+                deliverDetail.getAttachmentList().size();
+            }
+            List<DeliverConsignGoods> deliverConsignGoodsList = null;
+            if (deliverDetail.getDeliverConsignGoodsList() != null && deliverDetail.getDeliverConsignGoodsList().size() > 0) {
+                deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
+            }
+            if (deliverConsignGoodsList.size() > 0) {
+                for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList) {
+                    deliverConsignGoods.getGoods().setPurchGoods(null);
+                }
             }
         }
         return deliverDetail;

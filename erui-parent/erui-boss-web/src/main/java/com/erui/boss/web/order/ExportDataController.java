@@ -253,7 +253,7 @@ public class ExportDataController {
                 project.setOrder(null);
                 project.setPurchs(null);
                 project.setProjectProfit(null);
-                project.setRegion(bnMapZhRegion.get(project.getRegion()));
+                project.setRegion(bnMapZhRegion.get(project.getOrder().getRegion()));
             }
 
         }

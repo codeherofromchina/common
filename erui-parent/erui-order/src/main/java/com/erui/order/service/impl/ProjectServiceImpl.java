@@ -280,9 +280,9 @@ public class ProjectServiceImpl implements ProjectService {
                         newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getMsg());  //功能名称
                         newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum());    //功能访问路径标识
                         newBackLog.setReturnNo(projectUpdate.getContractNo());  //返回单号    销售合同号
-                        String region = projectUpdate.getRegion();   //所属地区
+                        String region = projectUpdate.getOrder().getRegion();   //所属地区
                         Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
-                        String country = projectUpdate.getCountry();  //国家
+                        String country = projectUpdate.getOrder().getCountry();  //国家
                         Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
                         newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
                         newBackLog.setHostId(order.getId());    //父ID，列表页id
@@ -417,9 +417,9 @@ public class ProjectServiceImpl implements ProjectService {
                     newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHREQUISITION.getMsg());  //功能名称
                     newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHREQUISITION.getNum());    //功能访问路径标识
                     newBackLog.setReturnNo(projectUpdate.getContractNo());  //返回单号    销售合同号
-                    String region = projectUpdate.getRegion();   //所属地区
+                    String region = projectUpdate.getOrder().getRegion();   //所属地区
                     Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
-                    String country = projectUpdate.getCountry();  //国家
+                    String country = projectUpdate.getOrder().getCountry();  //国家
                     Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
                     newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
                     newBackLog.setHostId(order.getId());    //父ID，列表页id
@@ -1207,7 +1207,7 @@ public class ProjectServiceImpl implements ProjectService {
                 project.getOrder().setAuditingUserId(auditingUserId_order);
                 project.getOrder().setAuditingStatus(auditingStatus_i);
                 project.getOrder().setAuditingProcess(auditingProcess_order);
-                project.getOrder().getProject().setAuditingStatus(0);
+                project.setAuditingStatus(0);
 
                 // 推送待办事件
                 String infoContent = String.format("%s | %s", project.getOrder().getRegion(), project.getOrder().getCountry());
@@ -1404,9 +1404,9 @@ public class ProjectServiceImpl implements ProjectService {
             } else if ("999".equals(project.getAuditingProcess())) {
                 // 所有审核完成，推送消息到项目商务技术经办人
 
-                String region = project.getRegion();   //所属地区
+                String region = project.getOrder().getRegion();   //所属地区
                 Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
-                String country = project.getCountry();  //国家
+                String country = project.getOrder().getCountry();  //国家
                 Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
                 String infoContent = bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country);  //提示内容
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
@@ -1428,8 +1428,9 @@ public class ProjectServiceImpl implements ProjectService {
         // 获取第二个sheet页
         Sheet sheet1 = workbook.getSheetAt(0);
         Row row4 = sheet1.getRow(4);
-        if (projectDec.getCountry() != null) {
-            row4.getCell(1).setCellValue(projectDec.getCountry());
+        if (projectDec.getOrder().getCountry() != null) {
+            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+            row4.getCell(1).setCellValue(bnMapZhCountry.get(projectDec.getOrder().getCountry()));
         }
         if (projectDec.getBusinessUnitName() != null) {
             row4.getCell(4).setCellValue(projectDec.getBusinessUnitName());
