@@ -1604,9 +1604,6 @@ public class OrderServiceImpl implements OrderService {
             } else {
                 order.setDeliverConsignC(Boolean.FALSE);
             }
-           /* order.getGoodsList().size();
-            order.getAttachmentSet().size();
-            order.getOrderPayments().size();*/
             outOrderDetail = new OutOrderDetail();
             outOrderDetail.copyInfo(order);
             for (Goods goods : order.getGoodsList()) {
