@@ -285,8 +285,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             }
             //auditBackLogHandle(deliverConsign1, false, deliverConsign1.getCountryLeaderId());
         }
-        // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
-        //deliverConsign1.setAttachmentList(deliverConsign1.getAttachmentList());
         List<Attachment> attachmentList = deliverConsign.getAttachmentSet();
         Map<Integer, Attachment> dbAttahmentsMap = deliverConsignUpdate.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
         if (attachmentList != null && attachmentList.size() > 0) {
