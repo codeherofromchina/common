@@ -326,11 +326,13 @@ public class PurchServiceImpl implements PurchService {
                 // 推送待办事件
                 String infoContent = String.format("%s", purch.getSupplierName());
                 String purchNo = purch.getPurchNo();
+                Integer followId = 0;
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
                         rejectFlag ? BackLog.ProjectStatusEnum.PURCH_REJECT : BackLog.ProjectStatusEnum.PURCH_AUDIT,
                         purchNo,
                         infoContent,
                         purch.getId(),
+                        followId,
                         "采购",
                         auditingUserId));
             }
@@ -338,8 +340,9 @@ public class PurchServiceImpl implements PurchService {
             if (purch.getAuditingStatus() == 4 && purch.getAuditingProcess() == 999) {
                 // 推动
                 String returnNo = purch.getPurchNo(); // 返回单号
-                String infoContent = purch.getSupplierName();  //提示内容
+                String infoContent = purch.getSupplierName();//提示内容
                 Integer hostId = purch.getId();
+                Integer followId = 0;
                 Integer userId = purch.getAgentId(); //经办人id
                 // 推送增加待办事件，通知采购经办人办理报检单
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
@@ -347,6 +350,7 @@ public class PurchServiceImpl implements PurchService {
                         returnNo,
                         infoContent,
                         hostId,
+                        followId,
                         "采购",
                         userId));
             }

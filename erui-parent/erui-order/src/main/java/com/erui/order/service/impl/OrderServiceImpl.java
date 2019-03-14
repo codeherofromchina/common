@@ -913,6 +913,7 @@ public class OrderServiceImpl implements OrderService {
                         crmCode,
                         infoContent,
                         order.getId(),
+                        0,
                         userIdArr));
             }
 

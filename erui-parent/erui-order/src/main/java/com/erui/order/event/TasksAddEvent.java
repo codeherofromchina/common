@@ -15,25 +15,27 @@ public class TasksAddEvent extends AsyncBaseEvent {
     private final BackLog.ProjectStatusEnum backEnum;
     private final String returnNo;
     private final String infoContent;
+    private Integer followId;
     private final Integer hostId;
     private final String placeSystem;
     private final Integer[] userIds;
 
     public TasksAddEvent(Object source, BackLogService backLogService, BackLog.ProjectStatusEnum backEnum,
-                         String returnNo, String infoContent, Integer hostId, Integer... userId) {
+                         String returnNo, String infoContent, Integer hostId, Integer followId, Integer... userId) {
         super(source);
         this.backLogService = backLogService;
         this.backEnum = backEnum;
         this.returnNo = returnNo;
         this.infoContent = infoContent;
         this.hostId = hostId;
+        this.followId = followId;
         this.userIds = userId;
         this.placeSystem = "订单";
     }
 
 
     public TasksAddEvent(Object source, BackLogService backLogService, BackLog.ProjectStatusEnum backEnum,
-                         String returnNo, String infoContent, Integer hostId, String placeSystem, Integer... userId) {
+                         String returnNo, String infoContent, Integer hostId, Integer followId, String placeSystem, Integer... userId) {
         super(source);
         this.backLogService = backLogService;
         this.backEnum = backEnum;
@@ -41,6 +43,7 @@ public class TasksAddEvent extends AsyncBaseEvent {
         this.infoContent = infoContent;
         this.hostId = hostId;
         this.userIds = userId;
+        this.followId = followId;
         this.placeSystem = placeSystem;
     }
 
@@ -57,6 +60,7 @@ public class TasksAddEvent extends AsyncBaseEvent {
             backLog.setReturnNo(returnNo);  //返回单号
             backLog.setInformTheContent(infoContent);  //提示内容
             backLog.setHostId(hostId);    //父ID，列表页id
+            backLog.setFollowId(followId);
             backLog.setUid(userId);   //经办人id
             try {
                 backLogService.addBackLogByDelYn(backLog);

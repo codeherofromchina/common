@@ -545,6 +545,7 @@ public class InspectReportServiceImpl implements InspectReportService {
                             inspectApplyNo,
                             infoContent,
                             hostId,
+                            0,
                             hostIdArr));
                 }
             }
