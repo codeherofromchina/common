@@ -1113,12 +1113,15 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 String country = deliverConsign.getOrder().getCountry();  //国家
                 Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
                 String infoContent = String.format("%s | %s", bnMapZhRegion.get(region), bnMapZhCountry.get(country));
+                Integer followId = deliverConsign.getId();
+                Integer hostId = deliverConsign.getOrder().getId();
                 String deliverConsignNo = deliverConsign.getDeliverConsignNo();
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
                         rejectFlag ? BackLog.ProjectStatusEnum.DELIVERCONSIGN_REJECT : BackLog.ProjectStatusEnum.DELIVERCONSIGN_AUDIT,
                         deliverConsignNo,
                         infoContent,
-                        deliverConsign.getId(),
+                        followId,
+                        hostId,
                         "订单",
                         auditingUserId));
             }
@@ -1135,6 +1138,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         returnNo,
                         infoContent,
                         hostId,
+                        deliverConsign.getoId(),
                         "订单",
                         userId));
             }

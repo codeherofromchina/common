@@ -1406,6 +1406,7 @@ public class ProjectServiceImpl implements ProjectService {
                         pse, projectNo,
                         infoContent,
                         project.getOrder().getId(),
+                        0,
                         "项目",
                         userIdArr));
             } else if ("999".equals(project.getAuditingProcess())) {
@@ -1420,6 +1421,7 @@ public class ProjectServiceImpl implements ProjectService {
                         BackLog.ProjectStatusEnum.EXECUTEPROJECT, project.getProjectNo(),
                         infoContent,
                         project.getOrder().getId(),
+                        0,
                         "项目",
                         project.getBusinessUid()));
             }
