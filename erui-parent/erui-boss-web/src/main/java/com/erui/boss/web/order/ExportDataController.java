@@ -281,7 +281,6 @@ public class ExportDataController {
     @RequestMapping(value = "/exportCheckProfit")
     public ModelAndView exportCheckProfit(HttpServletResponse response, HttpServletRequest request) {
         Map<String, String> params = getParameters(request);
-
         Integer id = null;
         if (params.containsKey("id") && params.get("id") != null) {
             id = Integer.parseInt(params.get("id"));
