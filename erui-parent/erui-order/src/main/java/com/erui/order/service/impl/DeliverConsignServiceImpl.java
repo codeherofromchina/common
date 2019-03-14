@@ -981,7 +981,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         boolean rejectFlag = "-1".equals(rDeliverConsign.getAuditingType());
         String reason = rDeliverConsign.getAuditingReason();
-
         // 获取当前审核进度
         String auditingProcess = deliverConsign.getAuditingProcess();
         String auditingUserId = deliverConsign.getAuditingUserId();
