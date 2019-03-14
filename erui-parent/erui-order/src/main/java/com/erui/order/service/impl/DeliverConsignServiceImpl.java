@@ -1002,7 +1002,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             return false;
         }
         auditorIds.append("," + auditorId + ",");
-
         // 定义最后处理结果变量，最后统一操作
         Integer auditingStatus_i = 2; // 默认状态为审核中
         String auditingProcess_i = null; // 审核当前进度
