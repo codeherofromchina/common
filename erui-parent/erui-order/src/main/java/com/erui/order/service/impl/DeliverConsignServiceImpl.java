@@ -1135,7 +1135,16 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsign.setAuditingProcess(auditingProcess_i);
         deliverConsign.setAuditingUserId(auditingUserId_i);
         if (auditingUserId_i != null) {
-            sendDingtalk(deliverConsign, auditingUserId_i.toString(), rejectFlag);
+            if ("32,33,34".equals(auditingProcess_i)) {
+                String[] split = auditingUserId_i.split(",");
+                for (int n = 0; n < split.length; n++) {
+                    if (auditorId.equals(split[n])) {
+                        sendDingtalk(deliverConsign, split[n], rejectFlag);
+                    }
+                }
+            } else {
+                sendDingtalk(deliverConsign, auditingUserId_i.toString(), rejectFlag);
+            }
         }
         deliverConsign.setAudiRemark(auditorIds.toString());
         deliverConsignDao.save(deliverConsign);
