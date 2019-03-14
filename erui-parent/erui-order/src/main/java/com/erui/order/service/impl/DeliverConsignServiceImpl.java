@@ -1071,6 +1071,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsign.setAuditingProcess(auditingProcess_i);
         deliverConsign.setAuditingUserId(auditingUserId_i);
         deliverConsign.setAudiRemark(auditorIds.toString());
+        //当时并行审核时分别推送待办和钉钉
         if (auditingUserId_i != null) {
             if ("32,33,34".equals(auditingProcess_i)) {
                 String[] split = auditingUserId_i.split(",");
