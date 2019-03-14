@@ -1075,15 +1075,15 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 String[] split = auditingUserId_i.split(",");
                 for (int n = 0; n < split.length; n++) {
                     sendDingtalk(deliverConsign, split[n], rejectFlag);
-                    auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(split[n]));
+                   // auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(split[n]));
                 }
             } else {
                 sendDingtalk(deliverConsign, auditingUserId_i.toString(), rejectFlag);
-                if (!StringUtils.isBlank(auditingUserId_i) && StringUtils.equals("31", auditingProcess_i)) {
+                /*if (!StringUtils.isBlank(auditingUserId_i) && StringUtils.equals("31", auditingProcess_i)) {
                     auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(auditingUserId_i));
                 } else {
                     auditBackLogHandle(deliverConsign, rejectFlag, null);
-                }
+                }*/
             }
         }
         deliverConsignDao.save(deliverConsign);
