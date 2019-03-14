@@ -1081,7 +1081,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 }
             } else {
                 sendDingtalk(deliverConsign, auditingUserId_i.toString(), rejectFlag);
-                if (auditingUserId_i != null && auditingUserId_i != null) {
+                if (!StringUtils.isBlank(auditingUserId_i)) {
                     auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(auditingUserId_i));
                 } else {
                     auditBackLogHandle(deliverConsign, rejectFlag, null);
