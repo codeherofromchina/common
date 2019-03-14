@@ -1075,10 +1075,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             if ("32,33,34".equals(auditingProcess_i)) {
                 String[] split = auditingUserId_i.split(",");
                 for (int n = 0; n < split.length; n++) {
-                    if (auditorId.equals(split[n])) {
-                        sendDingtalk(deliverConsign, split[n], rejectFlag);
-                        auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(auditingUserId_i));
-                    }
+                    sendDingtalk(deliverConsign, split[n], rejectFlag);
+                    auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(split[n]));
                 }
             } else {
                 sendDingtalk(deliverConsign, auditingUserId_i.toString(), rejectFlag);
