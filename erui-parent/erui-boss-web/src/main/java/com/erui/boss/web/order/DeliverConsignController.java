@@ -125,7 +125,6 @@ public class DeliverConsignController {
      */
     @RequestMapping(value = "queryDeliverConsignDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> queryOrderDesc(@RequestBody Map<String, Integer> map, HttpServletRequest request) {
-
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
 

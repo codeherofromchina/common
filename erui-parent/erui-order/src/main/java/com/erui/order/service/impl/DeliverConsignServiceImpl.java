@@ -281,7 +281,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             checkLogService.insert(checkLog_i);
             // 待办
             if (deliverConsign.getCountryLeaderId() != null) {
-                sendDingtalk(deliverConsign, deliverConsign.getCountryLeaderId().toString(), false);
+                sendDingtalk(deliverConsign1, deliverConsign.getCountryLeaderId().toString(), false);
             }
             auditBackLogHandle(deliverConsign1, false, deliverConsign1.getCountryLeaderId());
         }
@@ -440,7 +440,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignAdd);
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             if (deliverConsign.getCountryLeaderId() != null) {
-                sendDingtalk(deliverConsign, deliverConsign.getCountryLeaderId().toString(), false);
+                sendDingtalk(deliverConsign1, deliverConsign.getCountryLeaderId().toString(), false);
             }
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign1.getId(), 30, order.getAgentId(), order.getAgentName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getCountryLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 4);
             checkLogService.insert(checkLog_i);
@@ -1071,6 +1071,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsign.setAuditingProcess(auditingProcess_i);
         deliverConsign.setAuditingUserId(auditingUserId_i);
         deliverConsign.setAudiRemark(auditorIds.toString());
+        //当时并行审核时分别推送待办和钉钉
         if (auditingUserId_i != null) {
             if ("32,33,34".equals(auditingProcess_i)) {
                 String[] split = auditingUserId_i.split(",");
@@ -1080,7 +1081,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 }
             } else {
                 sendDingtalk(deliverConsign, auditingUserId_i.toString(), rejectFlag);
-                if (auditingUserId_i != null && auditingUserId_i != null) {
+                if (!StringUtils.isBlank(auditingUserId_i)) {
                     auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(auditingUserId_i));
                 } else {
                     auditBackLogHandle(deliverConsign, rejectFlag, null);
@@ -1119,8 +1120,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         rejectFlag ? BackLog.ProjectStatusEnum.DELIVERCONSIGN_REJECT : BackLog.ProjectStatusEnum.DELIVERCONSIGN_AUDIT,
                         deliverConsignNo,
                         infoContent,
-                        followId,
                         hostId,
+                        followId,
                         "订单",
                         auditingUserId));
             }
@@ -1129,7 +1130,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 // 推动
                 String returnNo = deliverConsign.getDeliverConsignNo(); // 返回单号
                 String infoContent = deliverConsign.getCreateUserName();  //提示内容
-                Integer hostId = deliverConsign.getId();
+                Integer followId = deliverConsign.getId();
+                Integer hostId = deliverConsign.getOrder().getId();
                 Integer userId = deliverConsign.getCreateUserId(); //经办人id
                 // 推送增加待办事件，通知采购经办人办理报检单
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
@@ -1137,7 +1139,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         returnNo,
                         infoContent,
                         hostId,
-                        deliverConsign.getoId(),
+                        followId,
                         "订单",
                         userId));
             }
