@@ -295,7 +295,7 @@ public class ExportDataController {
             // 获取数据
             Project project = null;
             if (id != null || orderId != null) {
-                project = this.projectService.findByIdOrOrderId(id, orderId);
+                project = projectService.findDesc(id);
             }
             Map<String, Object> results = new HashMap<>();
             if (project != null) {

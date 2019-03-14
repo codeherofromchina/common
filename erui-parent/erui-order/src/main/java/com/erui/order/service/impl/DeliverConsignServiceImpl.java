@@ -283,7 +283,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             if (deliverConsign.getCountryLeaderId() != null) {
                 sendDingtalk(deliverConsign1, deliverConsign.getCountryLeaderId().toString(), false);
             }
-            auditBackLogHandle(deliverConsign1, false, deliverConsign1.getCountryLeaderId());
+            //auditBackLogHandle(deliverConsign1, false, deliverConsign1.getCountryLeaderId());
         }
         // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
         //deliverConsign1.setAttachmentList(deliverConsign1.getAttachmentList());
@@ -445,7 +445,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign1.getId(), 30, order.getAgentId(), order.getAgentName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getCountryLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 4);
             checkLogService.insert(checkLog_i);
             // 待办
-            auditBackLogHandle(deliverConsign1, false, deliverConsign1.getCountryLeaderId());
+            //auditBackLogHandle(deliverConsign1, false, deliverConsign1.getCountryLeaderId());
         }
         //出口通知单附件添加
         if (deliverConsign.getAttachmentSet() != null && deliverConsign.getAttachmentSet().size() > 0) {
