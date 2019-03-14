@@ -38,7 +38,17 @@ public class DefaultExceptionHandler implements HandlerExceptionResolver, Ordere
         FastJsonJsonView view = new FastJsonJsonView();
         Map<String, Object> attributes = null;
         if (ex instanceof MissingServletRequestParameterException || ex instanceof HttpMessageNotReadableException) {
-            attributes = resultStatus2Map(ResultStatusEnum.MISS_PARAM_ERROR);
+            if(ex.getCause() != null && ex.getCause().getMessage() != null){
+                try {
+                    Map<String, Object> data = new HashMap<String, Object>();
+                    data.put("errorMsg", ex.getCause().getMessage());
+                    attributes = resultStatus2Map(ResultStatusEnum.MISS_PARAM_ERROR, data);
+                } catch (Exception e){
+                    attributes = resultStatus2Map(ResultStatusEnum.MISS_PARAM_ERROR);
+                }
+            }else{
+                attributes = resultStatus2Map(ResultStatusEnum.MISS_PARAM_ERROR);
+            }
         } else if (ex instanceof MethodArgumentTypeMismatchException) {
             attributes = resultStatus2Map(ResultStatusEnum.PARAM_TYPE_ERROR);
         } else if (ex instanceof HttpMediaTypeNotSupportedException) {
@@ -96,6 +106,15 @@ public class DefaultExceptionHandler implements HandlerExceptionResolver, Ordere
         resultMap.put("code", resultStatus.getCode());
         resultMap.put("msg", resultStatus.getMsg());
         resultMap.put("enMsg", resultStatus.getEnMsg());
+        return resultMap;
+    }
+
+    private Map<String, Object> resultStatus2Map(ResultStatusEnum resultStatus, Map<String, Object> data) {
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        resultMap.put("code", resultStatus.getCode());
+        resultMap.put("msg", resultStatus.getMsg());
+        resultMap.put("enMsg", resultStatus.getEnMsg());
+        resultMap.put("data", data);
         return resultMap;
     }
 }
