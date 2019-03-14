@@ -38,15 +38,17 @@ public class DefaultExceptionHandler implements HandlerExceptionResolver, Ordere
         FastJsonJsonView view = new FastJsonJsonView();
         Map<String, Object> attributes = null;
         if (ex instanceof MissingServletRequestParameterException || ex instanceof HttpMessageNotReadableException) {
-            if(ex.getCause() != null && ex.getCause().getMessage() != null){
-                try {
+            try {
+                if(ex.getCause() != null && ex.getCause().getMessage() != null){
+
                     Map<String, Object> data = new HashMap<String, Object>();
                     data.put("errorMsg", ex.getCause().getMessage());
                     attributes = resultStatus2Map(ResultStatusEnum.MISS_PARAM_ERROR, data);
-                } catch (Exception e){
+
+                }else{
                     attributes = resultStatus2Map(ResultStatusEnum.MISS_PARAM_ERROR);
                 }
-            }else{
+            } catch (Exception e){
                 attributes = resultStatus2Map(ResultStatusEnum.MISS_PARAM_ERROR);
             }
         } else if (ex instanceof MethodArgumentTypeMismatchException) {
