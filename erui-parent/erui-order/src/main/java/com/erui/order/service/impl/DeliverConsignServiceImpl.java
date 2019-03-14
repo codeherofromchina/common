@@ -306,39 +306,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 throw new Exception(e.getMessage());
             }
         }
-        /*if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode() && deliverConsign1.getAuditingStatus() == 4) {
-            //order.setDeliverConsignHas(2);
-            //orderDao.save(order);
-            //orderService.updateOrderDeliverConsignC(orderIds);
-
-            //推送出库信息
-            String deliverDetailNo = createDeliverDetailNo();   //产品放行单号
-            DeliverDetail deliverDetail = pushOutbound(deliverConsignUpdate, deliverDetailNo);
-
-
-            // 出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
-            Map<String, Object> map = new HashMap<>();
-            map.put("deliverConsignNo", deliverConsignUpdate.getDeliverConsignNo());  //出口通知单号
-            map.put("deliverDetailNo", deliverDetailNo);  //产品放行单号
-            map.put("contractNoOs", order.getContractNo());     //销售合同号
-            try {
-                sendSms(map);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
-            try {
-                JSONObject jsonObject = disposeAdvanceMoney(order, deliverConsign1);
-            } catch (Exception e) {
-                throw new Exception(e.getMessage());
-            }
-
-
-            //出口发货通知单提交的时候，推送给出库分单员  办理分单
-            addBackLog(order, deliverDetail);
-
-        }*/
         return true;
     }
 
@@ -491,37 +458,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsignBookingSpace.setDeliverConsign(deliverConsign1);
             deliverConsignBookingSpaceDao.saveAndFlush(deliverConsignBookingSpace);
         }
-
-       /* if (deliverConsign1.getAuditingStatus() == 4 && deliverConsign.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
-            order.setDeliverConsignHas(2);
-            orderDao.save(order);
-            orderService.updateOrderDeliverConsignC(orderIds);
-            //发送短信  and
-            //推送出库信息
-            String deliverDetailNo = createDeliverDetailNo();
-            DeliverDetail deliverDetail = pushOutbound(deliverConsign1, deliverDetailNo);
-
-
-            // 出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
-            Map<String, Object> map = new HashMap<>();
-            map.put("deliverConsignNo", deliverConsign1.getDeliverConsignNo());  //出口通知单号
-            map.put("deliverDetailNo", deliverDetailNo);  //产品放行单号
-            map.put("contractNoOs", order.getContractNo());     //销售合同号
-            try {
-                sendSms(map);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            //发送短信  end
-
-            try {
-                JSONObject jsonObject = disposeAdvanceMoney(order, deliverConsign1);
-            } catch (Exception e) {
-                throw new Exception(e.getMessage());
-            }
-            //出口发货通知单提交的时候，推送给出库分单员  办理分单
-            addBackLog(order, deliverDetail);
-        }*/
         return true;
     }
 
@@ -1134,19 +1070,30 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsign.setAuditingStatus(auditingStatus_i);
         deliverConsign.setAuditingProcess(auditingProcess_i);
         deliverConsign.setAuditingUserId(auditingUserId_i);
-        if (auditingUserId_i != null) {
-            sendDingtalk(deliverConsign, auditingUserId_i.toString(), rejectFlag);
-        }
         deliverConsign.setAudiRemark(auditorIds.toString());
-        deliverConsignDao.save(deliverConsign);
-        if (auditingUserId_i != null && auditorId != null) {
-            auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(auditorId));
-        } else {
-            auditBackLogHandle(deliverConsign, rejectFlag, null);
+        if (auditingUserId_i != null) {
+            if ("32,33,34".equals(auditingProcess_i)) {
+                String[] split = auditingUserId_i.split(",");
+                for (int n = 0; n < split.length; n++) {
+                    if (auditorId.equals(split[n])) {
+                        sendDingtalk(deliverConsign, split[n], rejectFlag);
+                        auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(auditingUserId_i));
+                    }
+                }
+            } else {
+                sendDingtalk(deliverConsign, auditingUserId_i.toString(), rejectFlag);
+                if (auditingUserId_i != null && auditingUserId_i != null) {
+                    auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(auditingUserId_i));
+                } else {
+                    auditBackLogHandle(deliverConsign, rejectFlag, null);
+                }
+            }
         }
+        deliverConsignDao.save(deliverConsign);
         if (deliverConsign.getAuditingStatus() == 4 && deliverConsign.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             pushOutStock(deliverConsign);
         }
+
         return true;
     }
 
@@ -1234,10 +1181,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("toUser=").append(userNo);
                     if (!rejectFlag) {
-                        stringBuffer.append("&message=您好！" + deliverConsign.getOrder().getAgentName() + "的出口通知单已申请审批。出口通知单号:" + deliverConsign.getDeliverConsignNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                        stringBuffer.append("&message=您好！" + deliverConsign.getOrder().getAgentName() + "的出口通知单已申请审批。出口通知单号：" + deliverConsign.getDeliverConsignNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
                                 "" + sendTime02 + "");
                     } else {
-                        stringBuffer.append("&message=您好！" + deliverConsign.getOrder().getAgentName() + "的出口通知单审批未通过。出口通知单号:" + deliverConsign.getDeliverConsignNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                        stringBuffer.append("&message=您好！" + deliverConsign.getOrder().getAgentName() + "的出口通知单审批未通过。出口通知单号：" + deliverConsign.getDeliverConsignNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
                                 "" + sendTime02 + "");
                     }
                     stringBuffer.append("&type=userNo");
