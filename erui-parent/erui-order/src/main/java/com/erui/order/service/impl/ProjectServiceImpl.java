@@ -1043,11 +1043,18 @@ public class ProjectServiceImpl implements ProjectService {
                 return cb.and(predicates);
             }
         }, sort);
+        List<Project> proListRemove = new ArrayList<Project>();
         for (Project project : proList) {
             if (project.getOrder() != null) {
-                project.setoId(project.getOrder().getId());
+                try {
+                    project.setoId(project.getOrder().getId());
+                }catch (Exception e){
+                    proListRemove.add(project);
+                }
             }
         }
+        if(proListRemove != null && proListRemove.size() > 0)
+            proList.removeAll(proListRemove);
         return proList;
     }
 

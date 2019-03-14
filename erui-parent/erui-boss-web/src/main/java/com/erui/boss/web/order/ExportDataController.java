@@ -250,10 +250,10 @@ public class ExportDataController {
             for (Project project : projectList) {
                 project.setGoodsList(null);
                 project.setPurchRequisition(null);
-                project.setOrder(null);
                 project.setPurchs(null);
                 project.setProjectProfit(null);
-                project.setRegion(bnMapZhRegion.get(project.getOrder().getRegion()));
+                project.setRegion(project.getOrder()==null || project.getOrder().getRegion()==null || project.getOrder().getRegion().length() == 0 ? "" :bnMapZhRegion.get(project.getOrder().getRegion()));
+                project.setOrder(null);
             }
 
         }
