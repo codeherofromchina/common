@@ -281,7 +281,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             checkLogService.insert(checkLog_i);
             // 待办
             if (deliverConsign.getCountryLeaderId() != null) {
-                sendDingtalk(deliverConsign, deliverConsign.getCountryLeaderId().toString(), false);
+                sendDingtalk(deliverConsign1, deliverConsign.getCountryLeaderId().toString(), false);
             }
             auditBackLogHandle(deliverConsign1, false, deliverConsign1.getCountryLeaderId());
         }
@@ -440,7 +440,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignAdd);
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             if (deliverConsign.getCountryLeaderId() != null) {
-                sendDingtalk(deliverConsign, deliverConsign.getCountryLeaderId().toString(), false);
+                sendDingtalk(deliverConsign1, deliverConsign.getCountryLeaderId().toString(), false);
             }
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign1.getId(), 30, order.getAgentId(), order.getAgentName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getCountryLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 4);
             checkLogService.insert(checkLog_i);
