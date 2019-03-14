@@ -1091,7 +1091,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if (deliverConsign.getAuditingStatus() == 4 && deliverConsign.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             pushOutStock(deliverConsign);
         }
-
         return true;
     }
 
