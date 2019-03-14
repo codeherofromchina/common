@@ -1080,7 +1080,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 }
             } else {
                 sendDingtalk(deliverConsign, auditingUserId_i.toString(), rejectFlag);
-                if (!StringUtils.isBlank(auditingUserId_i)) {
+                if (!StringUtils.isBlank(auditingUserId_i) && StringUtils.equals("31", auditingProcess_i)) {
                     auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(auditingUserId_i));
                 } else {
                     auditBackLogHandle(deliverConsign, rejectFlag, null);
