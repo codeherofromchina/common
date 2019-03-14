@@ -959,7 +959,7 @@ public class OrderServiceImpl implements OrderService {
     public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
         Order order = findByIdLang(addOrderVo.getId(), "zh");
-        if ((order.getOverseasSales() != 2 && order.getOverseasSales() != 4) && (addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4)) {
+        if ((order.getOverseasSales() != null && order.getOverseasSales() != 2 && order.getOverseasSales() != 4) && (addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4)) {
             order.setContractNo("");
         } else if ((addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4) && !order.getSigningCo().equals(addOrderVo.getSigningCo())) {
             order.setContractNo("");
