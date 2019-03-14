@@ -1134,28 +1134,30 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsign.setAuditingStatus(auditingStatus_i);
         deliverConsign.setAuditingProcess(auditingProcess_i);
         deliverConsign.setAuditingUserId(auditingUserId_i);
+        deliverConsign.setAudiRemark(auditorIds.toString());
         if (auditingUserId_i != null) {
             if ("32,33,34".equals(auditingProcess_i)) {
                 String[] split = auditingUserId_i.split(",");
                 for (int n = 0; n < split.length; n++) {
                     if (auditorId.equals(split[n])) {
                         sendDingtalk(deliverConsign, split[n], rejectFlag);
+                        auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(auditingUserId_i));
                     }
                 }
             } else {
                 sendDingtalk(deliverConsign, auditingUserId_i.toString(), rejectFlag);
+                if (auditingUserId_i != null && auditingUserId_i != null) {
+                    auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(auditingUserId_i));
+                } else {
+                    auditBackLogHandle(deliverConsign, rejectFlag, null);
+                }
             }
         }
-        deliverConsign.setAudiRemark(auditorIds.toString());
         deliverConsignDao.save(deliverConsign);
-        if (auditingUserId_i != null && auditorId != null) {
-            auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(auditorId));
-        } else {
-            auditBackLogHandle(deliverConsign, rejectFlag, null);
-        }
         if (deliverConsign.getAuditingStatus() == 4 && deliverConsign.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             pushOutStock(deliverConsign);
         }
+
         return true;
     }
 
@@ -1243,10 +1245,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("toUser=").append(userNo);
                     if (!rejectFlag) {
-                        stringBuffer.append("&message=您好！" + deliverConsign.getOrder().getAgentName() + "的出口通知单已申请审批。出口通知单号:" + deliverConsign.getDeliverConsignNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                        stringBuffer.append("&message=您好！" + deliverConsign.getOrder().getAgentName() + "的出口通知单已申请审批。出口通知单号：" + deliverConsign.getDeliverConsignNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
                                 "" + sendTime02 + "");
                     } else {
-                        stringBuffer.append("&message=您好！" + deliverConsign.getOrder().getAgentName() + "的出口通知单审批未通过。出口通知单号:" + deliverConsign.getDeliverConsignNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                        stringBuffer.append("&message=您好！" + deliverConsign.getOrder().getAgentName() + "的出口通知单审批未通过。出口通知单号：" + deliverConsign.getDeliverConsignNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
                                 "" + sendTime02 + "");
                     }
                     stringBuffer.append("&type=userNo");
