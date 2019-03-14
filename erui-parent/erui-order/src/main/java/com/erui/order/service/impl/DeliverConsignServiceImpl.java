@@ -1120,8 +1120,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         rejectFlag ? BackLog.ProjectStatusEnum.DELIVERCONSIGN_REJECT : BackLog.ProjectStatusEnum.DELIVERCONSIGN_AUDIT,
                         deliverConsignNo,
                         infoContent,
-                        followId,
                         hostId,
+                        followId,
                         "订单",
                         auditingUserId));
             }
