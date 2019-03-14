@@ -1130,7 +1130,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 // 推动
                 String returnNo = deliverConsign.getDeliverConsignNo(); // 返回单号
                 String infoContent = deliverConsign.getCreateUserName();  //提示内容
-                Integer hostId = deliverConsign.getId();
+                Integer followId = deliverConsign.getId();
+                Integer hostId = deliverConsign.getOrder().getId();
                 Integer userId = deliverConsign.getCreateUserId(); //经办人id
                 // 推送增加待办事件，通知采购经办人办理报检单
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
@@ -1138,7 +1139,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         returnNo,
                         infoContent,
                         hostId,
-                        deliverConsign.getoId(),
+                        followId,
                         "订单",
                         userId));
             }
