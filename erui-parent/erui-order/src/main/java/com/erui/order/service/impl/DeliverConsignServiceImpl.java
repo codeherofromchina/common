@@ -306,39 +306,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 throw new Exception(e.getMessage());
             }
         }
-        /*if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode() && deliverConsign1.getAuditingStatus() == 4) {
-            //order.setDeliverConsignHas(2);
-            //orderDao.save(order);
-            //orderService.updateOrderDeliverConsignC(orderIds);
-
-            //推送出库信息
-            String deliverDetailNo = createDeliverDetailNo();   //产品放行单号
-            DeliverDetail deliverDetail = pushOutbound(deliverConsignUpdate, deliverDetailNo);
-
-
-            // 出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
-            Map<String, Object> map = new HashMap<>();
-            map.put("deliverConsignNo", deliverConsignUpdate.getDeliverConsignNo());  //出口通知单号
-            map.put("deliverDetailNo", deliverDetailNo);  //产品放行单号
-            map.put("contractNoOs", order.getContractNo());     //销售合同号
-            try {
-                sendSms(map);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
-            try {
-                JSONObject jsonObject = disposeAdvanceMoney(order, deliverConsign1);
-            } catch (Exception e) {
-                throw new Exception(e.getMessage());
-            }
-
-
-            //出口发货通知单提交的时候，推送给出库分单员  办理分单
-            addBackLog(order, deliverDetail);
-
-        }*/
         return true;
     }
 
@@ -491,37 +458,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsignBookingSpace.setDeliverConsign(deliverConsign1);
             deliverConsignBookingSpaceDao.saveAndFlush(deliverConsignBookingSpace);
         }
-
-       /* if (deliverConsign1.getAuditingStatus() == 4 && deliverConsign.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
-            order.setDeliverConsignHas(2);
-            orderDao.save(order);
-            orderService.updateOrderDeliverConsignC(orderIds);
-            //发送短信  and
-            //推送出库信息
-            String deliverDetailNo = createDeliverDetailNo();
-            DeliverDetail deliverDetail = pushOutbound(deliverConsign1, deliverDetailNo);
-
-
-            // 出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
-            Map<String, Object> map = new HashMap<>();
-            map.put("deliverConsignNo", deliverConsign1.getDeliverConsignNo());  //出口通知单号
-            map.put("deliverDetailNo", deliverDetailNo);  //产品放行单号
-            map.put("contractNoOs", order.getContractNo());     //销售合同号
-            try {
-                sendSms(map);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            //发送短信  end
-
-            try {
-                JSONObject jsonObject = disposeAdvanceMoney(order, deliverConsign1);
-            } catch (Exception e) {
-                throw new Exception(e.getMessage());
-            }
-            //出口发货通知单提交的时候，推送给出库分单员  办理分单
-            addBackLog(order, deliverDetail);
-        }*/
         return true;
     }
 
