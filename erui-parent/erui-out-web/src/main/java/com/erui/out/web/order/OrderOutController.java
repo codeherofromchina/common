@@ -73,7 +73,11 @@ public class OrderOutController {
                     responseOutOrder.setId(vo.getId());
                     responseOutOrder.setOrder_no(vo.getContractNo());
                     responseOutOrder.setStatus(vo.getStatus());
-                    responseOutOrder.setAmount(BigDecimal.valueOf(Double.parseDouble(vo.getTotalPrice())));
+                    if (vo.getTotalPrice() != null) {
+                        responseOutOrder.setAmount(BigDecimal.valueOf(Double.parseDouble(vo.getTotalPrice())));
+                    } else {
+                        responseOutOrder.setAmount(new BigDecimal(0));
+                    }
                     responseOutOrder.setDelivery_at(vo.getDeliveryDate());
                     responseOutOrder.setPay_status(vo.getPayStatus());
                     responseOutOrder.setPo_no(vo.getPoNo());
@@ -87,15 +91,15 @@ public class OrderOutController {
                     responseOutOrder.setPay_status_text(ComplexOrder.fromPayCode(vo.getPayStatus()));
                     outList.add(responseOutOrder);
                 });
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             map = new HashMap<>();
-            map.put("count",orderPage.getTotalElements());
-            map.put("data",outList);
-            map.put("message",result.getMsg());
-            map.put("code",result.getCode());
-        }else {
+            map.put("count", orderPage.getTotalElements());
+            map.put("data", outList);
+            map.put("message", result.getMsg());
+            map.put("code", result.getCode());
+        } else {
             result.setCode(ResultStatusEnum.DATA_NULL.getCode());
             result.setMsg(ResultStatusEnum.DATA_NULL.getMsg());
             return result;
@@ -103,6 +107,7 @@ public class OrderOutController {
         }
         return map;
     }
+
     /**
      * 删除订单
      *
@@ -123,20 +128,18 @@ public class OrderOutController {
     @RequestMapping(value = "queryOrderDesc", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> queryOrderDesc(@RequestBody JSONObject json) {
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
-        Map<String,Object> resultMap = orderService.findByIdOut(json.getInteger("id"));
+        Map<String, Object> resultMap = orderService.findByIdOut(json.getInteger("id"));
         if (resultMap != null) {
-           result.setData(resultMap);
-           result.setCode(ResultStatusEnum.SUCCESS.getCode());
-           result.setMsg(ResultStatusEnum.SUCCESS.getMsg());
-           return result;
+            result.setData(resultMap);
+            result.setCode(ResultStatusEnum.SUCCESS.getCode());
+            result.setMsg(ResultStatusEnum.SUCCESS.getMsg());
+            return result;
         }
         return result;
     }
 
     /**
      * 获取订单跟踪
-     *
-     *
      *
      * @return
      */
