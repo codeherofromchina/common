@@ -1011,7 +1011,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             auditingStatus_i = 3;
             // 驳回到采购订单办理
             auditingProcess_i = "30"; //驳回到订舱 处理
-            auditingUserId_i = deliverConsign.getCreateUserId().toString(); // 要驳回给谁
+            auditingUserId_i = deliverConsign.getOrder().getAgentId() != null ? deliverConsign.getOrder().getAgentId().toString() : ""; // 要驳回给谁
             //驳回后状态设置为保存状态
             deliverConsign.setStatus(2);
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
