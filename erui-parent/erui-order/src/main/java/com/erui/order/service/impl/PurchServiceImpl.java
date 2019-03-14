@@ -99,8 +99,8 @@ public class PurchServiceImpl implements PurchService {
             List<Attachment> attachments = attachmentDao.findByRelObjIdAndCategory(puch.getId(), Attachment.AttachmentCategory.PURCH.getCode());
             if (attachments != null && attachments.size() > 0) {
                 puch.setAttachments(attachments);
+                puch.getAttachments().size(); // 获取采购的附件信息
             }
-            puch.getAttachments().size(); // 获取采购的附件信息
             List<PurchGoods> purchGoodsList = puch.getPurchGoodsList();
             if (purchGoodsList.size() > 0) {
                 for (PurchGoods purchGoods : purchGoodsList) {
@@ -240,7 +240,7 @@ public class PurchServiceImpl implements PurchService {
             auditingProcess_i = 20; //驳回到采购订单 处理
             auditingUserId_i = purch.getCreateUserId(); // 要驳回给谁
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
-            checkLog_i = orderService.fullCheckLogInfo(null, purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "-1", 3);
+            checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "-1", 3);
         } else {
             switch (curAuditProcess) {
                 case 21: // 采购负责人-变更为-采购经理
@@ -289,12 +289,9 @@ public class PurchServiceImpl implements PurchService {
                 default:
                     return false;
             }
-            checkLog_i = orderService.fullCheckLogInfo(null, purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "2", 3);
+            checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "2", 3);
         }
         checkLogService.insert(checkLog_i);
-        if (!paramPurch.getAuditingType().equals("-1")) {
-            purch.setAuditingStatus(auditingStatus_i);
-        }
         purch.setAuditingStatus(auditingStatus_i);
         purch.setAuditingProcess(auditingProcess_i);
         purch.setAuditingUserId(auditingUserId_i);
@@ -329,11 +326,13 @@ public class PurchServiceImpl implements PurchService {
                 // 推送待办事件
                 String infoContent = String.format("%s", purch.getSupplierName());
                 String purchNo = purch.getPurchNo();
+                Integer followId = 0;
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
                         rejectFlag ? BackLog.ProjectStatusEnum.PURCH_REJECT : BackLog.ProjectStatusEnum.PURCH_AUDIT,
                         purchNo,
                         infoContent,
                         purch.getId(),
+                        followId,
                         "采购",
                         auditingUserId));
             }
@@ -341,8 +340,9 @@ public class PurchServiceImpl implements PurchService {
             if (purch.getAuditingStatus() == 4 && purch.getAuditingProcess() == 999) {
                 // 推动
                 String returnNo = purch.getPurchNo(); // 返回单号
-                String infoContent = purch.getSupplierName();  //提示内容
+                String infoContent = purch.getSupplierName();//提示内容
                 Integer hostId = purch.getId();
+                Integer followId = 0;
                 Integer userId = purch.getAgentId(); //经办人id
                 // 推送增加待办事件，通知采购经办人办理报检单
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
@@ -350,6 +350,7 @@ public class PurchServiceImpl implements PurchService {
                         returnNo,
                         infoContent,
                         hostId,
+                        followId,
                         "采购",
                         userId));
             }
@@ -857,7 +858,7 @@ public class PurchServiceImpl implements PurchService {
             if (save.getPurchAuditerId() != null) {
                 sendDingtalk(purch, purch.getPurchAuditerId().toString(), false);
             }
-            checkLog_i = orderService.fullCheckLogInfo(null, save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
+            checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
             checkLogService.insert(checkLog_i);
             // 待办
             auditBackLogHandle(save, false, save.getPurchAuditerId());
@@ -1167,12 +1168,15 @@ public class PurchServiceImpl implements PurchService {
         Purch save = purchDao.save(dbPurch);
         // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
         //save.setAttachmentList(save.getAttachmentList());
-        List<Attachment> attachmentList = purch.getAttachments();
+        List<Attachment> attachmentList = new ArrayList<>();
+        if (purch.getAttachments() != null) {
+            attachmentList = purch.getAttachments();
+        }
         Map<Integer, Attachment> dbAttahmentsMap = dbPurch.getAttachments().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
-        attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, save.getId(), Attachment.AttachmentCategory.PURCH.getCode());
+        attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbPurch.getId(), Attachment.AttachmentCategory.PURCH.getCode());
 
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-            checkLog_i = orderService.fullCheckLogInfo(null, save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
+            checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
             checkLogService.insert(checkLog_i);
             if (save.getPurchAuditerId() != null) {
                 sendDingtalk(purch, purch.getPurchAuditerId().toString(), false);

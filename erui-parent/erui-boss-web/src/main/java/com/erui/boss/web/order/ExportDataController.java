@@ -250,10 +250,10 @@ public class ExportDataController {
             for (Project project : projectList) {
                 project.setGoodsList(null);
                 project.setPurchRequisition(null);
-                project.setOrder(null);
                 project.setPurchs(null);
                 project.setProjectProfit(null);
-                project.setRegion(bnMapZhRegion.get(project.getRegion()));
+                project.setRegion(project.getOrder()==null || project.getOrder().getRegion()==null || project.getOrder().getRegion().length() == 0 ? "" :bnMapZhRegion.get(project.getOrder().getRegion()));
+                project.setOrder(null);
             }
 
         }
@@ -281,7 +281,6 @@ public class ExportDataController {
     @RequestMapping(value = "/exportCheckProfit")
     public ModelAndView exportCheckProfit(HttpServletResponse response, HttpServletRequest request) {
         Map<String, String> params = getParameters(request);
-
         Integer id = null;
         if (params.containsKey("id") && params.get("id") != null) {
             id = Integer.parseInt(params.get("id"));
@@ -295,7 +294,7 @@ public class ExportDataController {
             // 获取数据
             Project project = null;
             if (id != null || orderId != null) {
-                project = this.projectService.findByIdOrOrderId(id, orderId);
+                project = projectService.findDesc(id);
             }
             Map<String, Object> results = new HashMap<>();
             if (project != null) {

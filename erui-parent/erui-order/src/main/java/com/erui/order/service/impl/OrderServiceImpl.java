@@ -682,7 +682,7 @@ public class OrderServiceImpl implements OrderService {
             auditingUserId_i = String.valueOf(checkLog.getAuditingUserId()); //要驳回给谁
             auditorIds.append("," + auditingUserId_i + ",");
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
-            checkLog_i = fullCheckLogInfo(order.getId(), null, curAuditProcess, Integer.parseInt(auditorId), auditorName, order.getAuditingProcess().toString(), order.getAuditingUserId(), reason, "-1", 1);
+            checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, order.getAuditingProcess().toString(), order.getAuditingUserId(), reason, "-1", 1);
             if (auditingProcess_i.equals("0")) {
                 order.setStatus(1);
             }
@@ -863,7 +863,7 @@ public class OrderServiceImpl implements OrderService {
                 default:
                     return false;
             }
-            checkLog_i = fullCheckLogInfo(order.getId(), null, curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 1);
+            checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 1);
         }
         checkLogService.insert(checkLog_i);
         if (auditingProcess_i != null) {
@@ -913,6 +913,7 @@ public class OrderServiceImpl implements OrderService {
                         crmCode,
                         infoContent,
                         order.getId(),
+                        0,
                         userIdArr));
             }
 
@@ -930,11 +931,12 @@ public class OrderServiceImpl implements OrderService {
 
     // 处理日志
     @Override
-    public CheckLog fullCheckLogInfo(Integer orderId, Integer purchId, Integer auditingProcess, Integer auditorId, String auditorName, String nextAuditingProcess, String nextAuditingUserId,
+    public CheckLog fullCheckLogInfo(Integer orderId, String category, Integer joinId, Integer auditingProcess, Integer auditorId, String auditorName, String nextAuditingProcess, String nextAuditingUserId,
                                      String auditingMsg, String operation, int type) {
         CheckLog checkLog = new CheckLog();
         checkLog.setOrderId(orderId);
-        checkLog.setPurchId(purchId);
+        checkLog.setCategory(category);
+        checkLog.setJoinId(joinId);
         checkLog.setCreateTime(new Date());
         checkLog.setAuditingProcess(auditingProcess);
         checkLog.setAuditingUserId(auditorId);
@@ -1023,7 +1025,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            checkLog_i = fullCheckLogInfo(order.getId(), null, 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
+            checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
            /* if (orderUpdate.getPerLiableRepayId() != null) {
             } else {
                 checkLog_i = fullCheckLogInfo(order.getId(), 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getCountryLeaderId().toString(), null, "1", 1);
@@ -1054,15 +1056,15 @@ public class OrderServiceImpl implements OrderService {
                 projectAdd = order.getProject();
             }
             projectAdd.setOrder(orderUpdate);
-            projectAdd.setExecCoName(orderUpdate.getExecCoName());
+            //projectAdd.setExecCoName(orderUpdate.getExecCoName());
             projectAdd.setBusinessUid(orderUpdate.getTechnicalId());
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
             projectAdd.setBusinessUnitName(orderUpdate.getBusinessUnitName());
             projectAdd.setSendDeptId(orderUpdate.getBusinessUnitId());
-            projectAdd.setRegion(orderUpdate.getRegion());
-            projectAdd.setCountry(orderUpdate.getCountry());
+            //projectAdd.setRegion(orderUpdate.getRegion());
+            //projectAdd.setCountry(orderUpdate.getCountry());
             projectAdd.setTotalPriceUsd(orderUpdate.getTotalPriceUsd());
-            projectAdd.setDistributionDeptName(orderUpdate.getDistributionDeptName());
+            //projectAdd.setDistributionDeptName(orderUpdate.getDistributionDeptName());
             projectAdd.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             projectAdd.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             projectAdd.setOrderCategory(orderUpdate.getOrderCategory());
@@ -1212,7 +1214,7 @@ public class OrderServiceImpl implements OrderService {
             attachmentService.addAttachments(addOrderVo.getAttachDesc(), order1.getId(), Attachment.AttachmentCategory.ORDER.getCode());
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            checkLog_i = fullCheckLogInfo(order.getId(), null, 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
+            checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
             checkLogService.insert(checkLog_i);
             auditBackLogHandle(order1, false, addOrderVo.getPerLiableRepayId().toString());
             sendDingtalk(order, order.getPerLiableRepayId().toString(), false, 1);
@@ -1240,9 +1242,9 @@ public class OrderServiceImpl implements OrderService {
             project.setExecCoName(order1.getExecCoName());
             project.setBusinessUnitName(order1.getBusinessUnitName());
             project.setSendDeptId(order1.getBusinessUnitId());
-            project.setDistributionDeptName(order1.getDistributionDeptName());
-            project.setRegion(order1.getRegion());
-            project.setCountry(order1.getCountry());
+            //project.setDistributionDeptName(order1.getDistributionDeptName());
+            //project.setRegion(order1.getRegion());
+            //project.setCountry(order1.getCountry());
             project.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             project.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             project.setTotalPriceUsd(order1.getTotalPriceUsd());
@@ -2102,13 +2104,13 @@ public class OrderServiceImpl implements OrderService {
             project.setContractNo(strArr[2]);
             //项目创建日期和开始日期
             if (strArr[41] != null) {
-                Date createDate = DateUtil.parseString2DateNoException(strArr[41], "yyyy-MM-dd");
+                Date createDate = DateUtil.parseString2DateNoException(strArr[41], "yyyy-MM-dd hh:mm:ss");
                 project.setCreateTime(createDate);
                 project.setStartDate(createDate);
             }
             project.setProjectName(strArr[42]);
             // 国家
-            project.setCountry(strArr[16]);
+            //project.setCountry(strArr[16]);
             //执行约定交付日期
             project.setDeliveryDate(strArr[43]);
             //合同总价
@@ -2143,15 +2145,15 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
             //执行分公司
-            if (strArr[14] != null) {
+            /*if (strArr[14] != null) {
                 project.setExecCoName(order.getExecCoName());
-            }
+            }*/
 
-            if (strArr[15] != null) {
+            /*if (strArr[15] != null) {
                 project.setRegion(strArr[15]);
             } else {
                 project.setRegion("");
-            }
+            }*/
 
             //执行变更日期
             if (strArr[47] != null) {
@@ -2655,7 +2657,7 @@ public class OrderServiceImpl implements OrderService {
             }
             //项目开始日期
             if (StringUtils.isNotBlank(strArr[2])) {
-                project.setStartDate(DateUtil.parseString2DateNoException(strArr[2], "yyyy-MM-dd"));
+                project.setStartDate(DateUtil.parseString2DateNoException(strArr[2], "yyyy-MM-dd hh:mm:ss"));
             }
             //项目名称
             if (StringUtils.isNotBlank(strArr[3])) {
