@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -147,16 +148,13 @@ public class BackLogServiceImpl implements BackLogService {
 
     }
 
-
-
-
     /**
      * 待办事项逻辑删除
      *
      * @param backLog
      * @return
      */
-    @Transactional(readOnly = true)
+    @Transactional(propagation= Propagation.SUPPORTS)
     public List<BackLog> findByFunctionExplainIdAndHostIdAndDelYn(BackLog backLog) throws Exception {
         try {
             return backLogDao.findByFunctionExplainIdAndHostIdAndDelYn(backLog.getFunctionExplainId(), backLog.getHostId(), 1);
