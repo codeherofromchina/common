@@ -126,7 +126,7 @@ public class BackLogServiceImpl implements BackLogService {
             if (backLog.getFunctionExplainId() == 999) {
                 backLogList = backLogDao.findByHostIdAndDelYn(backLog.getHostId(), 1);
             } else {
-                backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndDelYn(backLog.getFunctionExplainId(), backLog.getHostId(), 1);
+                backLogList = findByFunctionExplainIdAndHostIdAndDelYn(backLog);
             }
         } catch (Exception e) {
             logger.error("逻辑删除 - 查询待办事项失败：" + e);
@@ -145,6 +145,25 @@ public class BackLogServiceImpl implements BackLogService {
             }
         }
 
+    }
+
+
+
+
+    /**
+     * 待办事项逻辑删除
+     *
+     * @param backLog
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public List<BackLog> findByFunctionExplainIdAndHostIdAndDelYn(BackLog backLog) throws Exception {
+        try {
+            return backLogDao.findByFunctionExplainIdAndHostIdAndDelYn(backLog.getFunctionExplainId(), backLog.getHostId(), 1);
+        } catch (Exception e) {
+            logger.error("逻辑删除 - 查询待办事项失败：" + e);
+            throw new Exception(e);
+        }
     }
 
 
