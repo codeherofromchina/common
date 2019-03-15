@@ -1020,7 +1020,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     auditingUserId_i = deliverConsign.getSettlementLeaderId() + "," + deliverConsign.getBusinessLeaderId() + "," + deliverConsign.getLogisticsLeaderId();
                     break;
                 case 32: //结算专员审核
-                    String replace = StringUtils.strip(auditingUserId.replace(deliverConsign.getSettlementLeaderId().toString(), ""));
+                    String replace = StringUtils.strip(auditingUserId.replaceFirst(deliverConsign.getSettlementLeaderId().toString(), ""));
                     if ("".equals(replace)) { // 跟他并行审核的都已经审核完成
                         auditingStatus_i = 4; // 完成
                         auditingProcess_i = "999"; // 无下一审核进度和审核人
@@ -1032,7 +1032,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     }
                     break;
                 case 33://事业部项目负责人审核
-                    String replace2 = StringUtils.strip(auditingUserId.replace(deliverConsign.getBusinessLeaderId().toString(), ""));
+                    String replace2 = StringUtils.strip(auditingUserId.replaceFirst(deliverConsign.getBusinessLeaderId().toString(), ""));
                     if ("".equals(replace2)) { // 跟他并行审核的都已经审核完成
                         auditingStatus_i = 4; // 完成
                         auditingProcess_i = "999"; // 无下一审核进度和审核人
@@ -1046,7 +1046,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     }
                     break;
                 case 34://物流负责人审核
-                    String replace3 = StringUtils.strip(auditingUserId.replace(deliverConsign.getLogisticsLeaderId().toString(), ""));
+                    String replace3 = StringUtils.strip(auditingUserId.replaceFirst(deliverConsign.getLogisticsLeaderId().toString(), ""));
                     if ("".equals(replace3)) { // 跟他并行审核的都已经审核完成
                         auditingStatus_i = 4; // 完成
                         auditingProcess_i = "999"; // 无下一审核进度和审核人
