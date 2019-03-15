@@ -2,8 +2,11 @@ package com.erui.boss.web.report.v2;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.report.model.PerformanceIndicators;
 import com.erui.report.service.OrderStatisticsService;
+import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -77,7 +80,11 @@ public class OrderStatisticsController {
     @RequestMapping(value = "projectList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> projectList(@RequestBody(required = true) Map<String, String> req) {
         Result<Object> result = new Result<>();
-        // TODO 稍后实现
+        int pageNum = NumberUtils.toInt(req.get("pageNum"), 1);
+        int pageSize = NumberUtils.toInt(req.get("pageSize"), 20);
+
+        PageInfo<Map<String, Object>> pageInfo = orderStatisticsService.projectList(pageNum, pageSize, req);
+        result.setData(pageInfo);
         return result;
     }
 }

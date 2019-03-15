@@ -1,5 +1,8 @@
 package com.erui.report.service;
 
+import com.erui.report.model.PerformanceIndicators;
+import com.github.pagehelper.PageInfo;
+
 import java.util.Map;
 
 /**
@@ -22,4 +25,12 @@ public interface OrderStatisticsService {
      * @return
      */
     Map<String, Object> yearAreaPerformance(Integer year);
+
+    /**
+     * 业务业绩统计 - 项目列表
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    PageInfo<Map<String, Object>> projectList(int pageNum, int pageSize, Map<String, String> params);
 }

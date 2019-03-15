@@ -2,6 +2,9 @@ package com.erui.report.service.impl;
 
 import com.erui.report.dao.OrderStatisticsMapper;
 import com.erui.report.service.OrderStatisticsService;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.github.pagehelper.util.PageObjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -81,5 +84,21 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
             result.put("countData", countData);
         }
         return result;
+    }
+
+    /**
+     * 业务业绩统计 - 项目列表
+     *
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    @Override
+    public PageInfo<Map<String, Object>> projectList(int pageNum, int pageSize, Map<String, String> params) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<Map<String, Object>> projectList = readMapper.projectList(params);
+
+        PageInfo pageInfo = new PageInfo(projectList);
+        return pageInfo;
     }
 }

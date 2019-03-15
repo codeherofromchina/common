@@ -24,4 +24,11 @@ public interface OrderStatisticsMapper {
      * @return
      */
     List<Map<String, Object>> yearAreaPerformance(@Param("year") Integer year);
+
+    /**
+     * 查询订单中项目列表
+     * @param params
+     * @return
+     */
+    List<Map<String, Object>> projectList(Map<String, String> params);
 }
