@@ -143,13 +143,13 @@ public class ProjectServiceImpl implements ProjectService {
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
             backLog.setHostId(order.getId());
-            backLogService.updateBackLogByDelYn(backLog);
+//            backLogService.updateBackLogByDelYn(backLog);
 
             //项目驳回，删除    如果有项目经理驳回信息删除
             BackLog backLog2 = new BackLog();
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTPROJRCT.getNum());    //功能访问路径标识
             backLog2.setHostId(projectUpdate.getId());
-            backLogService.updateBackLogByDelYn(backLog2);
+            backLogService.updateBackLogByDelYns(backLog, backLog2);
 
 
             //订单中推送“项目驳回”待办信息
@@ -266,13 +266,13 @@ public class ProjectServiceImpl implements ProjectService {
                         BackLog backLog = new BackLog();
                         backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
                         backLog.setHostId(order.getId());
-                        backLogService.updateBackLogByDelYn(backLog);
+//                        backLogService.updateBackLogByDelYn(backLog);
 
                         //项目驳回 商务技术经办人办理项目指定项目经理以后    如果有项目经理驳回信息删除
                         BackLog backLog2 = new BackLog();
                         backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTPROJRCT.getNum());    //功能访问路径标识
                         backLog2.setHostId(projectUpdate.getId());
-                        backLogService.updateBackLogByDelYn(backLog2);
+                        backLogService.updateBackLogByDelYns(backLog, backLog2);
 
 
                         //商务技术经办人办理项目指定项目经理以后  需要添加待办事项   执行项目  。提示项目经理办理
@@ -306,13 +306,13 @@ public class ProjectServiceImpl implements ProjectService {
                         BackLog backLog2 = new BackLog();
                         backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
                         backLog2.setHostId(projectUpdate.getId());
-                        backLogService.updateBackLogByDelYn(backLog2);
+//                        backLogService.updateBackLogByDelYn(backLog2);
 
                         //项目经理办理的时候 如果是驳回状态  删除 项目经理的  执行项目  待办信息
                         BackLog backLog = new BackLog();
                         backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum());    //功能访问路径标识
                         backLog.setHostId(projectUpdate.getId());
-                        backLogService.updateBackLogByDelYn(backLog);
+                        backLogService.updateBackLogByDelYns(backLog, backLog2);
 
 
                         //项目经理办理的时候 如果是驳回状态  添加 驳回项目 待办事项
@@ -404,13 +404,13 @@ public class ProjectServiceImpl implements ProjectService {
                     BackLog backLog = new BackLog();
                     backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum());    //功能访问路径标识
                     backLog.setHostId(projectUpdate.getOrder().getId());
-                    backLogService.updateBackLogByDelYn(backLog);
+//                    backLogService.updateBackLogByDelYn(backLog);
 
                     //如果项目是提交状态    如果有项目经理驳回信息删除
                     BackLog backLog2 = new BackLog();
                     backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTPROJRCT.getNum());    //功能访问路径标识
                     backLog2.setHostId(projectUpdate.getOrder().getId());
-                    backLogService.updateBackLogByDelYn(backLog2);
+                    backLogService.updateBackLogByDelYns(backLog, backLog2);
 
                     //项目状态是提交状态  通知商务技术经办人办理采购申请
                     BackLog newBackLog = new BackLog();

@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -139,6 +140,56 @@ public class BackLogServiceImpl implements BackLogService {
             }
             try {
                 backLogDao.save(backLogList);
+            } catch (Exception e) {
+                logger.error("逻辑删除 - 修改待办事项失败：" + e);
+                throw new Exception(e);
+            }
+        }
+
+    }
+
+    /**
+     * 待办事项逻辑删除
+     *
+     * @param backLog1
+     * @param backLog2
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateBackLogByDelYns(BackLog backLog1, BackLog backLog2) throws Exception {
+        List<BackLog> backLogList1 = null;
+        List<BackLog> backLogList2 = null;
+        try {
+            if (backLog1.getFunctionExplainId() == 999) {
+                backLogList1 = backLogDao.findByHostIdAndDelYn(backLog1.getHostId(), 1);
+            } else {
+                backLogList1 = backLogDao.findByFunctionExplainIdAndHostIdAndDelYn(backLog1.getFunctionExplainId(), backLog1.getHostId(), 1);
+            }
+            if (backLog2.getFunctionExplainId() == 999) {
+                backLogList2 = backLogDao.findByHostIdAndDelYn(backLog2.getHostId(), 1);
+            } else {
+                backLogList2 = backLogDao.findByFunctionExplainIdAndHostIdAndDelYn(backLog2.getFunctionExplainId(), backLog2.getHostId(), 1);
+            }
+
+            if(backLogList1 == null){
+                backLogList1 = new ArrayList<BackLog>();
+            }
+
+            if(backLogList2 != null && backLogList2.size() > 0){
+                backLogList1.addAll(backLogList2);
+            }
+        } catch (Exception e) {
+            logger.error("逻辑删除 - 查询待办事项失败：" + e);
+            throw new Exception(e);
+        }
+        if (backLogList1.size() > 0) {
+            for (BackLog backLog : backLogList1) {
+                backLog.setDelYn(0);
+                backLog.setDeleteTime(new Date());
+            }
+            try {
+                backLogDao.save(backLogList1);
             } catch (Exception e) {
                 logger.error("逻辑删除 - 修改待办事项失败：" + e);
                 throw new Exception(e);
