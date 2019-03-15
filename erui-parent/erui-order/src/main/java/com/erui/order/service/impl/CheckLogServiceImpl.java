@@ -106,9 +106,13 @@ public class CheckLogServiceImpl implements CheckLogService {
             checkLogList = checkLogDao.findAll(new Specification<CheckLog>() {
                 @Override
                 public Predicate toPredicate(Root<CheckLog> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                    cb.equal(root.get("category").as(String.class), category);
-                    cb.equal(root.get("type").as(Integer.class), type);
-                    return cb.equal(root.get("joinId").as(Integer.class), joinId);
+                    List<Predicate> list = new ArrayList<>();
+                    list.add(cb.equal(root.get("category").as(String.class), category));
+                    list.add(cb.equal(root.get("type").as(Integer.class), type));
+                    list.add(cb.equal(root.get("joinId").as(Integer.class), joinId));
+                    Predicate[] predicates = new Predicate[list.size()];
+                    predicates = list.toArray(predicates);
+                    return cb.and(predicates);
                 }
             }, new Sort(Sort.Direction.DESC, "createTime"));
         }
