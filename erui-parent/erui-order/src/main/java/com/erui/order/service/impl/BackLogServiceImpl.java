@@ -161,13 +161,11 @@ public class BackLogServiceImpl implements BackLogService {
         List<BackLog> backLogList1 = null;
         List<BackLog> backLogList2 = null;
         try {
-            //backLog.getFunctionExplainId() == 999 时查找未删除待办订单
             if (backLog1.getFunctionExplainId() == 999) {
                 backLogList1 = backLogDao.findByHostIdAndDelYn(backLog1.getHostId(), 1);
             } else {
                 backLogList1 = backLogDao.findByFunctionExplainIdAndHostIdAndDelYn(backLog1.getFunctionExplainId(), backLog1.getHostId(), 1);
             }
-            //backLog.getFunctionExplainId() == 999 时查找未删除待办订单
             if (backLog2.getFunctionExplainId() == 999) {
                 backLogList2 = backLogDao.findByHostIdAndDelYn(backLog2.getHostId(), 1);
             } else {
