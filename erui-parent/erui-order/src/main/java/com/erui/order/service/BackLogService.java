@@ -13,5 +13,7 @@ public interface BackLogService {
 
     void updateBackLogByDelYn(BackLog backLog) throws Exception;
 
+    void updateBackLogByDelYns(BackLog backLog1, BackLog backLog2) throws Exception;
+
 
 }

@@ -143,13 +143,13 @@ public class ProjectServiceImpl implements ProjectService {
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
             backLog.setHostId(order.getId());
-            backLogService.updateBackLogByDelYn(backLog);
+//            backLogService.updateBackLogByDelYn(backLog);
 
             //项目驳回，删除    如果有项目经理驳回信息删除
             BackLog backLog2 = new BackLog();
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTPROJRCT.getNum());    //功能访问路径标识
             backLog2.setHostId(projectUpdate.getId());
-            backLogService.updateBackLogByDelYn(backLog2);
+            backLogService.updateBackLogByDelYns(backLog, backLog2);
 
 
             //订单中推送“项目驳回”待办信息
