@@ -69,7 +69,7 @@
 
     <select id="getOrderMinTimeAndTotalNum" resultType="java.util.Map">
         SELECT
-        t1.acquire_id,
+        t1.acquire_id as acquire_user_id,
         MIN(t2.start_date) AS min_time,
         COUNT(t2.id) AS total_num
         FROM

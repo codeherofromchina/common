@@ -1,7 +1,10 @@
 package com.erui.boss.web.report.v2;
 
 import com.erui.boss.web.util.Result;
+import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.service.BuyerStatisticsService;
+import com.erui.report.util.ParamsUtils;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,4 +70,24 @@ public class BuyerStatisticsController {
         return result;
     }
 
+
+
+    /**
+     * 开发会员统计  （订单会员统计）
+     * @param req
+     * @return
+     */
+    @RequestMapping(value = "orderBuyerStatistics", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> orderBuyerStatistics(@RequestBody(required = true) Map<String, Object> req) {
+        Map<String, Object> params = ParamsUtils.verifyParam(req, DateUtil.SHORT_FORMAT_STR, null);
+
+        Result<Object> result = new Result<>();
+        Map<String, Object> data = buyerStatisticsService.orderBuyerStatistics(params);
+        if (data == null || data.size() == 0) {
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+        } else {
+            result.setData(data);
+        }
+        return result;
+    }
 }

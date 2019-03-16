@@ -10,9 +10,16 @@ import java.util.Map;
  */
 public interface QuoteStatisticsService {
     /**
+     * 查询所有报价成单统计
+     * @param params
+     * @return
+     */
+    PageInfo<Map<String, Object>> quotePerformance(Map<String, Object> params);
+
+    /**
      * 报价成单统计分页查询
      * @param params
      * @return
      */
-    PageInfo<Map<String, Object>> quotePerformance(int pageNum, int pageSize, Map<String, Object> params);
+    PageInfo<Map<String, Object>> quotePerformanceByPage(int pageNum, int pageSize, Map<String, Object> params);
 }

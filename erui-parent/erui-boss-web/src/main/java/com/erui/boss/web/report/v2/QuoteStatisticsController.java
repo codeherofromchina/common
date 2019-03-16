@@ -34,7 +34,7 @@ public class QuoteStatisticsController {
         int pageNum = NumberUtils.toInt((String) req.get("pageNum"), 1);
         int pageSize = NumberUtils.toInt((String) req.get("pageSize"), 1);
         Map<String, Object> params = ParamsUtils.verifyParam(req, DateUtil.SHORT_FORMAT_STR, null);
-        PageInfo<Map<String, Object>> pageInfo = quoteStatisticsService.quotePerformance(pageNum, pageSize, params);
+        PageInfo<Map<String, Object>> pageInfo = quoteStatisticsService.quotePerformanceByPage(pageNum, pageSize, params);
         Result<Object> result = new Result<>(pageInfo);
         return result;
     }
