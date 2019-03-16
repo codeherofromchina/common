@@ -1333,9 +1333,9 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         result.put("lastWeekAVG", 0);
         List<Map<String, Object>> currentWeekList = readMapper.selectWebStatisticsInfo(params);
         if (currentWeekList != null && currentWeekList.size() > 0) {
-            Map<String, Object> map = currentWeekList.get(1);
-            Integer pv = (Integer) map.get("pv");
-            Integer uv = (Integer) map.get("uv");
+            Map<String, Object> map = currentWeekList.get(0);
+            Long pv = (Long) map.get("pv");
+            Long uv = (Long) map.get("uv");
             BigDecimal avgDur = (BigDecimal) map.get("avgDur");
             BigDecimal jump = (BigDecimal) map.get("jump");
 
@@ -1352,9 +1352,9 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             lastWeekList = readMapper.selectWebStatisticsInfo(params);
         }
         if (lastWeekList != null && lastWeekList.size() > 0) {
-            Map<String, Object> map = lastWeekList.get(1);
-            Integer pv = (Integer) map.get("pv");
-            Integer uv = (Integer) map.get("uv");
+            Map<String, Object> map = lastWeekList.get(0);
+            Long pv = (Long) map.get("pv");
+            Long uv = (Long) map.get("uv");
             BigDecimal avgDur = (BigDecimal) map.get("avgDur");
             BigDecimal jump = (BigDecimal) map.get("jump");
 
