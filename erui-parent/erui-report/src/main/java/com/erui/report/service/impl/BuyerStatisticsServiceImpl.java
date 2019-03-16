@@ -19,10 +19,31 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
     private BuyerStatisticsMapper buyerStatisticsMapper;
 
     @Override
-    public PageInfo<Map<String, Object>> buyerList(int pageNum, int pageSize, Map<String, String> params) {
+    public PageInfo<Map<String, Object>> registerBuyerList(int pageNum, int pageSize, Map<String, String> params) {
         PageHelper.startPage(pageNum, pageSize);
 
-        List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryBuyerList(params);
+        List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryRegisterBuyerList(params);
+
+        PageInfo pageInfo = new PageInfo(buyerList);
+        return pageInfo;
+    }
+
+    @Override
+    public PageInfo<Map<String, Object>> membershipBuyerList(int pageNum, int pageSize, Map<String, String> params) {
+        PageHelper.startPage(pageNum, pageSize);
+
+        List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryMembershipBuyerList(params);
+
+        PageInfo pageInfo = new PageInfo(buyerList);
+        return pageInfo;
+    }
+
+
+    @Override
+    public PageInfo<Map<String, Object>> applyBuyerList(int pageNum, int pageSize, Map<String, String> params) {
+        PageHelper.startPage(pageNum, pageSize);
+
+        List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryApplyBuyerList(params);
 
         PageInfo pageInfo = new PageInfo(buyerList);
         return pageInfo;

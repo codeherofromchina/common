@@ -21,17 +21,50 @@ public class BuyerStatisticsController {
     @Autowired
     private BuyerStatisticsService buyerStatisticsService;
 
-    @RequestMapping(value = "buyerList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> buyerList(@RequestBody(required = true) Map<String, String> req) {
-        Result<Object> result = new Result<>();
+    /**
+     * 注册用户查询
+     * @param req
+     * @return
+     */
+    @RequestMapping(value = "registerBuyerList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> registerBuyerList(@RequestBody(required = true) Map<String, String> req) {
+
         int pageNum = NumberUtils.toInt(req.get("pageNum"), 1);
         int pageSize = NumberUtils.toInt(req.get("pageSize"), 20);
 
-        PageInfo<Map<String, Object>> pageInfo = buyerStatisticsService.buyerList(pageNum, pageSize, req);
-        result.setData(pageInfo);
+        PageInfo<Map<String, Object>> pageInfo = buyerStatisticsService.registerBuyerList(pageNum, pageSize, req);
+        Result<Object> result = new Result<>(pageInfo);
         return result;
     }
 
+    /**
+     * 会员用户查询
+     * @param req
+     * @return
+     */
+    @RequestMapping(value = "membershipBuyerList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> membershipBuyerList(@RequestBody(required = true) Map<String, String> req) {
+        int pageNum = NumberUtils.toInt(req.get("pageNum"), 1);
+        int pageSize = NumberUtils.toInt(req.get("pageSize"), 20);
 
+        PageInfo<Map<String, Object>> pageInfo = buyerStatisticsService.membershipBuyerList(pageNum, pageSize, req);
+        Result<Object> result = new Result<>(pageInfo);
+        return result;
+    }
+
+    /**
+     * 入网用户查询
+     * @param req
+     * @return
+     */
+    @RequestMapping(value = "applyBuyerList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> applyBuyerList(@RequestBody(required = true) Map<String, String> req) {
+        int pageNum = NumberUtils.toInt(req.get("pageNum"), 1);
+        int pageSize = NumberUtils.toInt(req.get("pageSize"), 20);
+
+        PageInfo<Map<String, Object>> pageInfo = buyerStatisticsService.applyBuyerList(pageNum, pageSize, req);
+        Result<Object> result = new Result<>(pageInfo);
+        return result;
+    }
 
 }

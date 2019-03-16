@@ -26,14 +26,13 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
     /**
      * 查询年度整体业绩
      *
-     * @param year 所统计的年份，如果为null，则统计所有年份（2016、2017、2018、2019）
      * @return
      */
     @Override
-    public Map<String, Object> yearPerformance(Integer year) {
-        LOGGER.info("params -> {}", year);
+    public Map<String, Object> yearPerformance(Integer startYear, Integer endYear) {
+        LOGGER.info("params -> {} - {}", startYear, endYear);
         Map<String, Object> result = new HashMap<String, Object>();
-        List<Map<String, Object>> yearsDataList = readMapper.yearPerformance(year);
+        List<Map<String, Object>> yearsDataList = readMapper.yearPerformance(startYear, endYear);
         if (yearsDataList.size() > 0) {
             LOGGER.info("数据：{}", yearsDataList);
             List<String> xAxisData = new ArrayList<>(); // 年份
@@ -58,14 +57,15 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
     /**
      * 查询年度整体业绩
      *
-     * @param year 所统计的年份，如果为null，则统计所有年份（2016、2017、2018、2019）
+     * @param startYear 所统计的年份
+     * @param endYear 所统计的年份
      * @return
      */
     @Override
-    public Map<String, Object> yearAreaPerformance(Integer year) {
-        LOGGER.info("params -> {}", year);
+    public Map<String, Object> yearAreaPerformance(Integer startYear, Integer endYear) {
+        LOGGER.info("params -> {} - {}", startYear, endYear);
         Map<String, Object> result = new HashMap<String, Object>();
-        List<Map<String, Object>> yearsDataList = readMapper.yearAreaPerformance(year);
+        List<Map<String, Object>> yearsDataList = readMapper.yearAreaPerformance(startYear, endYear);
         if (yearsDataList.size() > 0) {
             LOGGER.info("数据：{}", yearsDataList);
             List<String> xAxisData = new ArrayList<>(); // 区域

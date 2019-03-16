@@ -9,9 +9,26 @@ import java.util.Map;
 public interface BuyerStatisticsMapper {
 
     /**
-     * 查询国家用户列表
+     * 查询国家注册用户列表
      * @param params
      * @return
      */
-    List<Map<String, Object>> findCountryBuyerList(Map<String, String> params);
+    List<Map<String, Object>> findCountryRegisterBuyerList(Map<String, String> params);
+
+
+    /**
+     * 查询国家会员用户列表
+     * @param params
+     * @return
+     */
+    List<Map<String, Object>> findCountryMembershipBuyerList(Map<String, String> params);
+
+
+
+    /**
+     * 查询国家入网用户列表
+     * @param params
+     * @return
+     */
+    List<Map<String, Object>> findCountryApplyBuyerList(Map<String, String> params);
 }

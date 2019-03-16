@@ -10,11 +10,29 @@ import java.util.Map;
 public interface BuyerStatisticsService {
 
     /**
-     * 查询区域用户列表
+     * 查询注册用户列表
      * @param pageNum
      * @param pageSize
      * @param params
      * @return
      */
-    PageInfo<Map<String, Object>> buyerList(int pageNum, int pageSize, Map<String, String> params);
+    PageInfo<Map<String, Object>> registerBuyerList(int pageNum, int pageSize, Map<String, String> params);
+
+    /**
+     * 查询会员用户列表
+     * @param pageNum
+     * @param pageSize
+     * @param params
+     * @return
+     */
+    PageInfo<Map<String, Object>> membershipBuyerList(int pageNum, int pageSize, Map<String, String> params);
+
+    /**
+     * 查询入网用户列表
+     * @param pageNum
+     * @param pageSize
+     * @param params
+     * @return
+     */
+    PageInfo<Map<String, Object>> applyBuyerList(int pageNum, int pageSize, Map<String, String> params);
 }
