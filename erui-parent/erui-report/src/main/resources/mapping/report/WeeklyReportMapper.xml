@@ -445,4 +445,19 @@
                 AND t1.delete_flag=0
            AND t3.start_date BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
     </select>
+
+
+
+
+    <select id="selectWebStatisticsInfo">
+        SELECT
+            COUNT(pv) AS pv,
+            COUNT(uv) AS uv,
+            SUM(avg_session_duration * sessions) / SUM(sessions) AS avgDur,
+            AVG(bounce_rate) AS jump
+        FROM
+          rep_daily_country_web_info
+        WHERE day_date <![CDATA[>=]]> DATE_FORMAT(#{startTime},'%Y/%m/%d %H:%i:%s') AND day_date <![CDATA[<=]]> DATE_FORMAT(#{endTime},'%Y/%m/%d %H:%i:%s')
+    </select>
+
 </mapper>

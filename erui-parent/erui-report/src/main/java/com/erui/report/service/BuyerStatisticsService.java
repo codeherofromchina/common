@@ -35,4 +35,11 @@ public interface BuyerStatisticsService {
      * @return
      */
     PageInfo<Map<String, Object>> applyBuyerList(int pageNum, int pageSize, Map<String, String> params);
+
+    /**
+     * 订单用户统计
+     * @param params
+     * @return
+     */
+    Map<String, Object> orderBuyerStatistics(Map<String, Object> params);
 }

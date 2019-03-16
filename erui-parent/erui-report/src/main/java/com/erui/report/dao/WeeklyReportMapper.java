@@ -143,4 +143,8 @@ public interface WeeklyReportMapper {
      * @return
      */
     Integer selectOrderInfoWhereTimeGroupByCountryTotal(Map<String, Object> params);
+
+
+
+    List<Map<String, Object>> selectWebStatisticsInfo(Map<String, Object> params);
 }

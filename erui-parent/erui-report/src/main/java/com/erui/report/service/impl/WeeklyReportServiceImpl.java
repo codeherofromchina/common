@@ -1316,7 +1316,6 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
 
     /**
      * 谷歌统计信息
-     * TODO 待实现
      *
      * @param params
      * @return
@@ -1332,6 +1331,38 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         result.put("lastWeekJUMP", 0);
         result.put("currentWeekAVG", 0);
         result.put("lastWeekAVG", 0);
+        List<Map<String, Object>> currentWeekList = readMapper.selectWebStatisticsInfo(params);
+        if (currentWeekList != null && currentWeekList.size() > 0) {
+            Map<String, Object> map = currentWeekList.get(1);
+            Integer pv = (Integer) map.get("pv");
+            Integer uv = (Integer) map.get("uv");
+            BigDecimal avgDur = (BigDecimal) map.get("avgDur");
+            BigDecimal jump = (BigDecimal) map.get("jump");
+
+            result.put("currentWeekPV", pv);
+            result.put("currentWeekUV", uv);
+            result.put("currentWeekAVG", avgDur == null? BigDecimal.ZERO : avgDur.setScale(2, BigDecimal.ROUND_HALF_UP));
+            result.put("currentWeekJUMP", jump == null? BigDecimal.ZERO : jump.setScale(2, BigDecimal.ROUND_HALF_UP));
+        }
+        List<Map<String, Object>> lastWeekList = null;
+        if (params.get("chainStartTime") != null) {
+            Map<String, Object> params02 = new HashMap<>();
+            params02.put("startTime", params.get("chainStartTime"));
+            params02.put("endTime", params.get("chainEndTime"));
+            lastWeekList = readMapper.selectWebStatisticsInfo(params);
+        }
+        if (lastWeekList != null && lastWeekList.size() > 0) {
+            Map<String, Object> map = lastWeekList.get(1);
+            Integer pv = (Integer) map.get("pv");
+            Integer uv = (Integer) map.get("uv");
+            BigDecimal avgDur = (BigDecimal) map.get("avgDur");
+            BigDecimal jump = (BigDecimal) map.get("jump");
+
+            result.put("lastWeekPV", pv);
+            result.put("lastWeekUV", uv);
+            result.put("lastWeekAVG", avgDur == null? BigDecimal.ZERO : avgDur.setScale(2, BigDecimal.ROUND_HALF_UP));
+            result.put("lastWeekJUMP", jump == null? BigDecimal.ZERO : jump.setScale(2, BigDecimal.ROUND_HALF_UP));
+        }
         return result;
     }
 

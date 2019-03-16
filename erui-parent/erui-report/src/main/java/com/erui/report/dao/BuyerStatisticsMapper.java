@@ -31,4 +31,11 @@ public interface BuyerStatisticsMapper {
      * @return
      */
     List<Map<String, Object>> findCountryApplyBuyerList(Map<String, String> params);
+
+    /**
+     * 会员统计数量
+     * @param params
+     * @return
+     */
+    List<Map<String, Object>> orderBuyerStatistics(Map<String, Object> params);
 }

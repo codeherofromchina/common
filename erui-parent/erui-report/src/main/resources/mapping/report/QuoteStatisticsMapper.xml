@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.report.dao.QuoteStatisticsMapper">
+
+    <select id="findAllAcquiringUserList" resultType="java.util.Map">
+        SELECT
+            acquiring_user_id,
+            acquiring_user_no,
+            acquiring_user_name,
+            area_bn,
+            area_name,
+            country_bn,
+            country_name
+        FROM
+            erui_report.req_acquiring_user_base_info
+        ORDER BY ID DESC
+    </select>
+
+
+    <select id="findAcquiringUserByUserIdSet" resultType="java.util.Map">
+        SELECT
+        acquiring_user_id,
+        acquiring_user_no,
+        acquiring_user_name,
+        area_bn,
+        area_name,
+        country_bn,
+        country_name
+        FROM
+        erui_report.req_acquiring_user_base_info
+        WHERE acquiring_user_id IN
+        <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        ORDER BY ID DESC
+    </select>
+
+
+    <select id="getQuoteMinTimeAndTotalNum" resultType="java.util.Map">
+        SELECT
+            t1.obtain_id AS acquiring_user_id,
+            MIN(t3.dt) AS min_time,
+            SUM(CASE
+                WHEN t2.id IS NOT NULL THEN 1
+                ELSE 0
+            END) AS total_num
+        FROM
+            erui_rfq.inquiry t1
+                LEFT JOIN
+            erui_rfq.quote t2 ON t1.id = t2.inquiry_id
+                AND t2.`status` IN ('MARKET_CONFIRMING' , 'QUOTE_SENT', 'INQUIRY_CLOSED'),
+            (SELECT
+                inquiry_id, MAX(out_at) AS dt
+            FROM
+                erui_rfq.inquiry_check_log
+            WHERE
+                out_node = 'MARKET_CONFIRMING'
+            GROUP BY inquiry_id
+            <if test="startTime!=null and endTime!=null">
+                HAVING MAX(out_at) <![CDATA[>=]]> #{startTime} AND MAX(out_at) <![CDATA[<=]]> #{endTime}
+            </if>
+            ) t3
+        WHERE
+            t1.id = t3.inquiry_id
+                AND t1.deleted_flag = 'N'
+        GROUP BY t1.obtain_id
+    </select>
+
+
+    <select id="getOrderMinTimeAndTotalNum" resultType="java.util.Map">
+        SELECT
+        t1.acquire_id as acquire_user_id,
+        MIN(t2.start_date) AS min_time,
+        COUNT(t2.id) AS total_num
+        FROM
+        erui_order.`order` t1,
+        erui_order.`project` t2
+        WHERE
+        t1.id = t2.order_id AND t1.`status` >= 3
+        AND t2.start_date IS NOT NULL
+        <if test="startTime!=null and endTime!=null">
+            AND t2.start_date <![CDATA[>=]]> #{startTime} AND t2.start_date <![CDATA[<=]]> #{endTime}
+        </if>
+        GROUP BY t1.acquire_id
+    </select>
+</mapper>
