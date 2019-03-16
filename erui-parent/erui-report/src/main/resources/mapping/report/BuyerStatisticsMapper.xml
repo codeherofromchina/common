@@ -76,11 +76,11 @@
         erui_report.rep_buyer_country_info
         WHERE
             membership_time IS NOT NULL
-            <if test="membershipStartTime != null and membershipStartTime != ''">
-                AND membership_time <![CDATA[>=]]> #{membershipStartTime}
+            <if test="startTime != null and startTime != ''">
+                AND membership_time <![CDATA[>=]]> #{startTime}
             </if>
-            <if test="membershipEndTime != null and membershipEndTime != ''">
-                AND membership_time <![CDATA[<=]]> #{membershipEndTime}
+            <if test="endTime != null and endTime != ''">
+                AND membership_time <![CDATA[<=]]> #{endTime}
             </if>
         GROUP BY area_bn , area_name , country_bn , country_name
         ORDER BY 5 DESC

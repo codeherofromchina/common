@@ -58,8 +58,14 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
     public Map<String, Object> orderBuyerStatistics(Map<String, Object> params) {
         Map<String, Object> result = new HashMap<>();
         String date2019 = "2019-01-01 00:00:00";
-        String startTime = (String) params.get("startTime");
-        String endTime = (String) params.get("endTime");
+        String startTime = null;
+        String endTime = null;
+        if (params != null) {
+            startTime = (String) params.get("startTime");
+            endTime = (String) params.get("endTime");
+        } else {
+            params = new HashMap<>();
+        }
         List<Map<String, Object>> curStatisticsList = null;
         List<Map<String, Object>> befStatisticsList = null;
         List<Map<String, Object>> aftStatisticsList = null;
