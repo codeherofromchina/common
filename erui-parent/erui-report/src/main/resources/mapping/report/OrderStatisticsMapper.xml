@@ -7,8 +7,11 @@
         FROM
             erui_report.rep_area_performance
         <where>
-            <if test="year != null">
-                `year`=#{year}
+            <if test="startYear != null">
+                `year` <![CDATA[>=]]> #{startYear}
+            </if>
+            <if test="endYear != null">
+                AND `year` <![CDATA[<=]]> #{endYear}
             </if>
         </where>
         GROUP BY `year`
@@ -22,8 +25,11 @@
         FROM
           erui_report.rep_area_performance
         <where>
-            <if test="year != null">
-                `year`=#{year}
+            <if test="startYear != null">
+                `year` <![CDATA[>=]]> #{startYear}
+            </if>
+            <if test="endYear != null">
+                AND `year` <![CDATA[<=]]> #{endYear}
             </if>
         </where>
         GROUP BY area_bn , area_name

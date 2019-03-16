@@ -13,18 +13,20 @@ public interface OrderStatisticsService {
 
     /**
      * 按照年统计整体业绩
-     * @param year   所统计的年份，如果为null，则统计所有年份（2016、2017、2018、2019）
+     * @param startYear   所统计的开始年份
+     * @param endYear   所统计的结束年份
      * @return
      */
-    Map<String, Object> yearPerformance(Integer year);
+    Map<String, Object> yearPerformance(Integer startYear, Integer endYear);
 
 
     /**
      * 按照年统计整体区域业绩
-     * @param year   所统计的年份，如果为null，则统计所有年份（2016、2017、2018、2019）
+     * @param startYear   所统计的开始年份
+     * @param endYear   所统计的结束年份
      * @return
      */
-    Map<String, Object> yearAreaPerformance(Integer year);
+    Map<String, Object> yearAreaPerformance(Integer startYear, Integer endYear);
 
     /**
      * 业务业绩统计 - 项目列表

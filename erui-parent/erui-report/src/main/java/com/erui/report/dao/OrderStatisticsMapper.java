@@ -12,18 +12,20 @@ public interface OrderStatisticsMapper {
 
     /**
      * 查询年度订单业绩列表
-     * @param year
+     * @param startYear
+     * @param endYear
      * @return
      */
-    List<Map<String, Object>> yearPerformance(@Param("year") Integer year);
+    List<Map<String, Object>> yearPerformance(@Param("startYear") Integer startYear, @Param("endYear") Integer endYear);
 
 
     /**
      * 查询年度区域订单业绩列表
-     * @param year
+     * @param startYear
+     * @param endYear
      * @return
      */
-    List<Map<String, Object>> yearAreaPerformance(@Param("year") Integer year);
+    List<Map<String, Object>> yearAreaPerformance(@Param("startYear") Integer startYear, @Param("endYear") Integer endYear);
 
     /**
      * 查询订单中项目列表

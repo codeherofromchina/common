@@ -2,10 +2,8 @@ package com.erui.boss.web.report.v2;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
-import com.erui.report.model.PerformanceIndicators;
 import com.erui.report.service.OrderStatisticsService;
 import com.github.pagehelper.PageInfo;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,18 +26,17 @@ public class OrderStatisticsController {
 
     /**
      * 订单统计-整体业绩
+     *
      * @return
      */
     @RequestMapping(value = "yearPerformance", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> yearPerformance(@RequestBody(required = true) Map<String, String> req) {
         Result<Object> result = new Result<>();
-        String yearStr = req.get("year");
-        Integer year = null;
-        if (StringUtils.isNumeric(yearStr)) {
-            year = Integer.parseInt(yearStr);
-        }
+        Integer startYear = NumberUtils.isNumber(req.get("startYear")) ? NumberUtils.createInteger(req.get("startYear")) : null;
+        Integer endYear = NumberUtils.isNumber(req.get("endYear")) ? NumberUtils.createInteger(req.get("endYear")) : null;
+
         // 查找数据
-        Map<String, Object> data = orderStatisticsService.yearPerformance(year);
+        Map<String, Object> data = orderStatisticsService.yearPerformance(startYear, endYear);
         if (data.size() > 0) {
             result.setData(data);
         } else {
@@ -51,18 +48,16 @@ public class OrderStatisticsController {
 
     /**
      * 订单统计-整体业绩
+     *
      * @return
      */
     @RequestMapping(value = "yearAreaPerformance", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> yearAreaPerformance(@RequestBody(required = true) Map<String, String> req) {
         Result<Object> result = new Result<>();
-        String yearStr = req.get("year");
-        Integer year = null;
-        if (StringUtils.isNumeric(yearStr)) {
-            year = Integer.parseInt(yearStr);
-        }
+        Integer startYear = NumberUtils.isNumber(req.get("startYear")) ? NumberUtils.createInteger(req.get("startYear")) : null;
+        Integer endYear = NumberUtils.isNumber(req.get("endYear")) ? NumberUtils.createInteger(req.get("endYear")) : null;
         // 查找数据
-        Map<String, Object> data = orderStatisticsService.yearAreaPerformance(year);
+        Map<String, Object> data = orderStatisticsService.yearAreaPerformance(startYear, endYear);
         if (data.size() > 0) {
             result.setData(data);
         } else {
@@ -72,9 +67,9 @@ public class OrderStatisticsController {
     }
 
 
-
     /**
      * 订单统计-业务业绩统计-项目列表
+     *
      * @return
      */
     @RequestMapping(value = "projectList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
