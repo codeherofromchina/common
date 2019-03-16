@@ -449,7 +449,7 @@
 
 
 
-    <select id="selectWebStatisticsInfo">
+    <select id="selectWebStatisticsInfo" resultType="java.util.Map">
         SELECT
             COUNT(pv) AS pv,
             COUNT(uv) AS uv,
