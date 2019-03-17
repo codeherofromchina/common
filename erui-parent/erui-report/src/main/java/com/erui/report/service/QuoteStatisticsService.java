@@ -1,7 +1,9 @@
 package com.erui.report.service;
 
 import com.github.pagehelper.PageInfo;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,7 +16,7 @@ public interface QuoteStatisticsService {
      * @param params
      * @return
      */
-    PageInfo<Map<String, Object>> quotePerformance(Map<String, Object> params);
+    List<Map<String, Object>> quotePerformance(Map<String, Object> params);
 
     /**
      * 报价成单统计分页查询
@@ -22,4 +24,11 @@ public interface QuoteStatisticsService {
      * @return
      */
     PageInfo<Map<String, Object>> quotePerformanceByPage(int pageNum, int pageSize, Map<String, Object> params);
+
+    /**
+     *
+     * @param params
+     * @return
+     */
+    HSSFWorkbook genQuotePerformanceExcel(Map<String, Object> params);
 }

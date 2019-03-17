@@ -460,4 +460,13 @@
         WHERE day_date <![CDATA[>=]]> DATE_FORMAT(#{startTime},'%Y/%m/%d %H:%i:%s') AND day_date <![CDATA[<=]]> DATE_FORMAT(#{endTime},'%Y/%m/%d %H:%i:%s')
     </select>
 
+    <select id="selectUvCountGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            SUM(uv) AS uvCount, area_name AS area
+        FROM
+            rep_daily_country_web_info
+        WHERE day_date BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                AND DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+        GROUP BY area_bn , area_name
+    </select>
 </mapper>

@@ -1,6 +1,8 @@
 package com.erui.report.service;
 
 import com.github.pagehelper.PageInfo;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.util.Map;
 
@@ -42,4 +44,12 @@ public interface BuyerStatisticsService {
      * @return
      */
     Map<String, Object> orderBuyerStatistics(Map<String, Object> params);
+
+    /**
+     * 获取订单用户统计的excel
+     * @param params
+     * @return
+     */
+    HSSFWorkbook getOrderBuyerStatisticsExcel(Map<String, Object> params);
+
 }

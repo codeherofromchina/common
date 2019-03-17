@@ -18,10 +18,10 @@ import java.util.stream.Collectors;
 @Service
 public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> implements WeeklyReportService {
 
-    private static final String[] AREAS = new String[]{"北美", "泛俄", "非洲", "南美", "欧洲", "亚太", "中东", "中国"};
-//    private static final String[] ORGS = new String[]{"易瑞-钻完井设备", "易瑞-工业工具", "易瑞-电力电工", "易瑞-工业品设备", "易瑞-安防和劳保设备", "油田设备", "康博瑞"};
+    private static final String[] AREAS = new String[]{"北美", "泛俄", "非洲", "南美", "欧洲", "亚太", "中东", "中国" };
+    //    private static final String[] ORGS = new String[]{"易瑞-钻完井设备", "易瑞-工业工具", "易瑞-电力电工", "易瑞-工业品设备", "易瑞-安防和劳保设备", "油田设备", "康博瑞"};
 //    private static final String[] ORGS = new String[]{"易瑞-钻完井设备", "易瑞-采油工程事业部", "易瑞-工业品事业部", "油田设备", "康博瑞"};
-    private static final String[] ORGS = new String[]{"易瑞-钻完井设备事业部", "易瑞-采油工程事业部", "易瑞-工业品事业部"};
+    private static final String[] ORGS = new String[]{"易瑞-钻完井设备事业部", "易瑞-采油工程事业部", "易瑞-工业品事业部" };
     private static final BigDecimal WAN_DOLLOR = new BigDecimal("10000");
 
     @Override
@@ -152,33 +152,61 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
     public Map<String, Object> selectBuyerCountDetail(Map<String, Object> params) {
         List<String> areaList = new ArrayList<>(Arrays.asList(AREAS));
         //查询各地区的时间段内普通会员Erui注册数、普通会员ERUI&KERUI注册数、高级会员Erui注册数、高级会员ERUI&KERUI注册数
-        List<Map<String, Object>> dataList = readMapper.selectBuyerCountDetail(params);
+        List<Map<String, Object>> curDataList = readMapper.selectBuyerCountDetail(params);
+        List<Map<String, Object>> lastWeekDataList = null; // 上周数据内容
         //获取历史数据
         Map<String, Object> params02 = new HashMap<>();
-        params02.put("startTime", "2019-01-01 00:00:00");
+        params02.put("startTime", "2018-01-01 00:00:00");
         params02.put("endTime", params.get("endTime"));
         List<Map<String, Object>> allAddUpList = readMapper.selectBuyerCountDetail(params02);
+        if (params.get("chainStartTime") != null) { // 存在上周数据
+            Map<String, Object> params03 = new HashMap<>();
+            params03.put("startTime", params.get("chainStartTime"));
+            params03.put("endTime", params.get("chainEndTime"));
+            lastWeekDataList = readMapper.selectBuyerCountDetail(params02);
+        } else {
+            lastWeekDataList = new ArrayList<>();
+        }
+
+
+
         List<Integer> buyerCounts = new ArrayList<>(); //存放各地区 会员数
         List<Integer> allAddUpCounts = new ArrayList<>(); //存放从18.1.1开始的各地区会员数量
         List<Integer> normalEruiCounts = new ArrayList<>(); //存放各地区 普通会员Erui类型的会员数
         List<Integer> normalEruiAndKeruiCounts = new ArrayList<>(); //存放各地区 普通会员EruiAndKerui类型的会员数
         List<Integer> seniorEruiCounts = new ArrayList<>(); //存放各地区 高级会员Erui类型的会员数
         List<Integer> seniorEruiAndKeruiCounts = new ArrayList<>(); //存放各地区 高级会员EruiAndKerui类型的会员数
+        List<Integer> lastWeekBuyerCounts = new ArrayList<>(); //存放各地区 上周会员数
+        List<Integer> lastWeekNormalEruiCounts = new ArrayList<>(); //存放各地区 上周普通会员Erui类型的会员数
+        List<Integer> lastWeekNormalEruiAndKeruiCounts = new ArrayList<>(); //存放各地区 上周普通会员EruiAndKerui类型的会员数
+        List<Integer> lastWeekSeniorEruiCounts = new ArrayList<>(); //存放各地区 上周高级会员Erui类型的会员数
+        List<Integer> lastWeekSeniorEruiAndKeruiCounts = new ArrayList<>(); //存放各地区 上周高级会员EruiAndKerui类型的会员数
+
         int buyerCountsCount = 0;
         int normalEruiCountsCount = 0;
         int normalEruiAndKeruiCountsCount = 0;
         int seniorEruiCountsCount = 0;
         int seniorEruiAndKeruiCountsCount = 0;
+        int lastWeekBuyerCountsCount = 0;
+        int lastWeekNormalEruiCountsCount = 0;
+        int lastWeekNormalEruiAndKeruiCountsCount = 0;
+        int lastWeekSeniorEruiCountsCount = 0;
+        int lastWeekSeniorEruiAndKeruiCountsCount = 0;
         int allAddUpCountsCount = 0;
 
         for (String area : areaList) {
             int totalCount = 0; //各地区总会员数
+            int lastWeekTotalCount = 0; //上周各地区总会员数
 
             int normalEruiCode = 0;
             int normalEruiAndKeruiCode = 0;
             int seniorEruiCode = 0;
             int seniorEruiAndKeruiCode = 0;
-            for (Map<String, Object> m : dataList) {
+            int lastWeekNormalEruiCode = 0;
+            int lastWeekNormalEruiAndKeruiCode = 0;
+            int lastWeekSeniorEruiCode = 0;
+            int lastWeekSeniorEruiAndKeruiCode = 0;
+            for (Map<String, Object> m : curDataList) {
                 String area1 = String.valueOf(m.get("area"));
                 String level = String.valueOf(m.get("level"));
                 String buyerType = String.valueOf(m.get("buyerType"));
@@ -210,7 +238,41 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                     }
                 }
             }
-            //判断该地区的四个数据是否已添加
+
+            for (Map<String, Object> m : lastWeekDataList) {
+                String area1 = String.valueOf(m.get("area"));
+                String level = String.valueOf(m.get("level"));
+                String buyerType = String.valueOf(m.get("buyerType"));
+                if (area.equals(area1)) {
+                    int registerCount = Integer.parseInt(m.get("registerCount").toString());
+                    if ("普通会员".equals(level) && "ERUI".equals(buyerType)) {
+                        lastWeekNormalEruiCounts.add(registerCount);
+                        lastWeekNormalEruiCountsCount += registerCount;
+                        lastWeekTotalCount += registerCount;
+                        lastWeekNormalEruiCode++;
+                    }
+                    if ("普通会员".equals(level) && "ERUIANDKERUI".equals(buyerType)) {
+                        lastWeekNormalEruiAndKeruiCounts.add(registerCount);
+                        lastWeekNormalEruiAndKeruiCountsCount += registerCount;
+                        lastWeekTotalCount += registerCount;
+                        lastWeekNormalEruiAndKeruiCode++;
+                    }
+                    if ("高级会员".equals(level) && "ERUI".equals(buyerType)) {
+                        lastWeekSeniorEruiCounts.add(registerCount);
+                        lastWeekSeniorEruiCountsCount += registerCount;
+                        lastWeekTotalCount += registerCount;
+                        lastWeekSeniorEruiCode++;
+                    }
+                    if ("高级会员".equals(level) && "ERUIANDKERUI".equals(buyerType)) {
+                        lastWeekSeniorEruiAndKeruiCounts.add(registerCount);
+                        lastWeekSeniorEruiAndKeruiCountsCount += registerCount;
+                        lastWeekTotalCount += registerCount;
+                        lastWeekSeniorEruiAndKeruiCode++;
+                    }
+                }
+            }
+
+            //判断该地区的本周四个数据是否已添加
             if (normalEruiCode != 1) {
                 normalEruiCounts.add(0);
             }
@@ -223,9 +285,25 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             if (seniorEruiAndKeruiCode != 1) {
                 seniorEruiAndKeruiCounts.add(0);
             }
+            //判断该地区的上周四个数据是否已添加
+            if (lastWeekNormalEruiCode != 1) {
+                lastWeekNormalEruiCounts.add(0);
+            }
+            if (lastWeekNormalEruiAndKeruiCode != 1) {
+                lastWeekNormalEruiAndKeruiCounts.add(0);
+            }
+            if (lastWeekSeniorEruiCode != 1) {
+                lastWeekSeniorEruiCounts.add(0);
+            }
+            if (lastWeekSeniorEruiAndKeruiCode != 1) {
+                lastWeekSeniorEruiAndKeruiCounts.add(0);
+            }
             //添加总会员数
             buyerCounts.add(totalCount);
             buyerCountsCount += totalCount;
+            //添加上周总会员数
+            lastWeekBuyerCounts.add(lastWeekTotalCount);
+            lastWeekBuyerCountsCount += lastWeekTotalCount;
 
             //处理累计数据
             int allAddUpCount = 0; //各地区历史会员数
@@ -246,6 +324,11 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         normalEruiAndKeruiCounts.add(normalEruiAndKeruiCountsCount);
         seniorEruiCounts.add(seniorEruiCountsCount);
         seniorEruiAndKeruiCounts.add(seniorEruiAndKeruiCountsCount);
+        lastWeekBuyerCounts.add(buyerCountsCount);
+        lastWeekNormalEruiCounts.add(normalEruiCountsCount);
+        lastWeekNormalEruiAndKeruiCounts.add(normalEruiAndKeruiCountsCount);
+        lastWeekSeniorEruiCounts.add(seniorEruiCountsCount);
+        lastWeekSeniorEruiAndKeruiCounts.add(seniorEruiAndKeruiCountsCount);
         allAddUpCounts.add(allAddUpCountsCount);
 
         //返回结果
@@ -256,6 +339,11 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         result.put("normalEruiAndKeruiCounts", normalEruiAndKeruiCounts);
         result.put("seniorEruiCounts", seniorEruiCounts);
         result.put("seniorEruiAndKeruiCounts", seniorEruiAndKeruiCounts);
+        result.put("lastWeekCounts", lastWeekBuyerCounts);
+        result.put("lastWeekNormalEruiCounts", lastWeekNormalEruiCounts);
+        result.put("lastWeekNormalEruiAndKeruiCounts", lastWeekNormalEruiAndKeruiCounts);
+        result.put("lastWeekSeniorEruiCounts", lastWeekSeniorEruiCounts);
+        result.put("lastWeekSeniorEruiAndKeruiCounts", lastWeekSeniorEruiAndKeruiCounts);
         result.put("historyCounts", allAddUpCounts);
         return result;
     }
@@ -414,7 +502,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             lastWeekData = new ArrayList<>();
         }
         Map<String, Object> params03 = new HashMap<>();
-        params03.put("startTime", "2019/01/01 00:00:00");
+        params03.put("startTime", "2018/01/01 00:00:00");
         params03.put("endTime", params.get("endTime"));
         List<Map<String, Object>> historyData = readMapper.selectOrderInfoWhereTimeGroupByCountry(params03); // 历史订单数据
         // 将数据转换为map数据，方便遍历地区时查找数据
@@ -568,12 +656,28 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
     @Override
     public Map<String, Object> selectQuoteInfoGroupByOrg(Map<String, Object> params) {
         List<Map<String, Object>> currentWeekData = readMapper.selectQuoteInfoWhereTimeGroupByOrg(params);
+        // 查询上周数据
+        List<Map<String, Object>> lastWeekData = null;
+        if (params.get("chainStartTime") != null) {
+            Map<String, Object> params02 = new HashMap<>();
+            params02.put("startTime", params.get("chainStartTime"));
+            params02.put("endTime", params.get("chainEndTime"));
+            lastWeekData = readMapper.selectInquiryCountWhereTimeGroupByOrg(params02); // 上周询单数据
+        } else {
+            lastWeekData = new ArrayList<>();
+        }
+
         Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream()
                 .collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
+        Map<String, Map<String, Object>> lastWeekDataMap = lastWeekData.stream()
+                .collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
+
 
         List<String> orgList = new ArrayList<>(); //存放事业部列表
         List<Integer> currentWeekCounts = new ArrayList<>(); //存放本周各事业部报价数量
+        List<Integer> lastWeekCounts = new ArrayList<>(); //存放上周各事业部报价数量
         List<BigDecimal> currentWeekAmounts = new ArrayList<>(); //存放本周事业部报价金额
+        List<BigDecimal> lastWeekAmounts = new ArrayList<>(); //存放上周事业部报价金额
         for (String org : ORGS) {
             orgList.add(org);
             // 本周指定事业部报价数量处理
@@ -588,6 +692,19 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 currentWeekCounts.add(0);
                 currentWeekAmounts.add(BigDecimal.ZERO);
             }
+
+            // 上周指定事业部报价数量处理
+            Map<String, Object> lastMap = lastWeekDataMap.remove(org);
+            if (lastMap != null) {
+                Long totalNum = (Long) lastMap.get("total_num");
+                BigDecimal totalPrice = (BigDecimal) lastMap.get("total_price");
+                totalPrice = totalPrice.divide(WAN_DOLLOR, 2, BigDecimal.ROUND_HALF_UP);
+                lastWeekCounts.add(totalNum.intValue());
+                lastWeekAmounts.add(totalPrice);
+            } else {
+                lastWeekCounts.add(0);
+                lastWeekAmounts.add(BigDecimal.ZERO);
+            }
         }
 
         //处理其它事业部数据
@@ -597,18 +714,29 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         BigDecimal curWeekOtherOrgAmount = currentWeekDataMap.values()
                 .parallelStream().map(vo -> (BigDecimal) vo.get("total_price"))
                 .reduce(BigDecimal.ZERO, (a, b) -> a.add(b.divide(WAN_DOLLOR, 2, BigDecimal.ROUND_DOWN)));
+        Integer lastWeekOtherOrgCount = lastWeekDataMap.values()
+                .parallelStream().map(vo -> ((Long) vo.get("total_num")).intValue())
+                .reduce(0, (a, b) -> a + b);
+        BigDecimal lastWeekOtherOrgAmount = lastWeekDataMap.values()
+                .parallelStream().map(vo -> (BigDecimal) vo.get("total_price"))
+                .reduce(BigDecimal.ZERO, (a, b) -> a.add(b.divide(WAN_DOLLOR, 2, BigDecimal.ROUND_DOWN)));
         orgList.add("其他");
         currentWeekCounts.add(curWeekOtherOrgCount);
         currentWeekAmounts.add(curWeekOtherOrgAmount);
+        lastWeekCounts.add(lastWeekOtherOrgCount);
+        lastWeekAmounts.add(lastWeekOtherOrgAmount);
 
 
         Map<String, Object> result = new HashMap<>();
         result.put("orgList", orgList);
         result.put("currentWeekCounts", currentWeekCounts);
         result.put("currentWeekAmounts", currentWeekAmounts);
+        result.put("lastWeekCounts", lastWeekCounts);
+        result.put("lastWeekAmounts", lastWeekAmounts);
         // 查询用时
         Map<String, Object> orgTimesMapInfo = selectQuoteTimeInfoGroupByOrg(params);
-        result.putAll(orgTimesMapInfo);
+        result.put("currentWeekTimes", orgTimesMapInfo.get("currentWeekTimes"));
+        result.put("lastWeekTimes", orgTimesMapInfo.get("lastWeekTimes"));
         return result;
     }
 
@@ -777,13 +905,12 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
     }
 
 
-
     @Override
     public Map<String, Object> selectSupplierNumInfoGroupByOrg(Map<String, Object> params) {
         // 准备数据
         List<Map<String, Object>> currentWeekData = readMapper.selectSupplierNumWhereTimeGroupByOrg(params);
         Map<String, Object> params02 = new HashMap<>();
-        params02.put("startTime", "2019-01-01 00:00:00");
+        params02.put("startTime", "2018-01-01 00:00:00");
         params02.put("endTime", params.get("endTime"));
         List<Map<String, Object>> historyData = readMapper.selectSupplierNumWhereTimeGroupByOrg(params02); // 上周报价用时数据
         Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream()
@@ -1117,6 +1244,8 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
     @Override
     public HSSFWorkbook genAreaDetailExcel(Map<String, Object> params) {
         // 准备数据
+        // UV数据
+        Map<String, Object> uvData = selectBuyerUVCountGroupByArea(params);
         //查询各地区的时间段内新用户注册数，中国算一个地区
         Map<String, Object> registerData = selectBuyerRegistCountGroupByArea(params);
         //查询各地区的时间段内会员数 中国算一个地区
@@ -1128,73 +1257,111 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         // 查询各个地区时间段内的订单数量和金额信息
         Map<String, Object> orderInfoData = selectOrderInfoGroupByArea(params);
         // 标题
-        String[] header = new String[]{"", "北美", "泛俄", "非洲", "南美", "欧洲", "亚太", "中东", "中国", "合计"};
+        String[] header = new String[]{"", "北美", "泛俄", "非洲", "南美", "欧洲", "亚太", "中东", "中国", "合计" };
         // 处理数据
+        // UV数据
+        List<Object> row00 = new ArrayList<>();
+        row00.add("UV（上周）");
+        row00.addAll((List<Object>) uvData.get("lastWeekCounts"));
+        List<Object> row001 = new ArrayList<>();
+        row001.add("UV（本周）");
+        row001.addAll((List<Object>) uvData.get("currentWeekCounts"));
+
         // 第一行数据
-        List<Object> row01 = new ArrayList<>();
-        row01.add("新用户注册");
-        row01.addAll((List<Object>) registerData.get("currentWeekCounts"));
+        List<Object> row011 = new ArrayList<>();
+        row011.add("新用户注册（上周）");
+        row011.addAll((List<Object>) registerData.get("lastWeekCounts"));
+        List<Object> row012 = new ArrayList<>();
+        row012.add("新用户注册（本周）");
+        row012.addAll((List<Object>) registerData.get("currentWeekCounts"));
         // 第二行数据
-        List<Object> row02 = new ArrayList<>();
-        row02.add("会员数");
-        row02.addAll((List<Object>) buyerData.get("currentWeekCounts"));
+        List<Object> row021 = new ArrayList<>();
+        row021.add("会员数（上周）");
+        row021.addAll((List<Object>) buyerData.get("currentWeekCounts"));
+        List<Object> row022 = new ArrayList<>();
+        row022.add("会员数（本周）");
+        row022.addAll((List<Object>) buyerData.get("lastWeekCounts"));
         // 第三行数据
         List<Object> row03 = new ArrayList<>();
-        row03.add("2019.1.1-" + params.get("endTime") + "累计会员数量");
+        row03.add("2018.1.1-" + params.get("endTime") + "累计会员数量");
         row03.addAll((List<Object>) buyerData.get("historyCounts"));
         // 第四行数据
-        List<Object> row04 = new ArrayList<>();
-        row04.add("普通用户ERUI");
-        row04.addAll((List<Object>) buyerData.get("normalEruiCounts"));
+//        List<Object> row04 = new ArrayList<>();
+//        row04.add("普通用户ERUI");
+//        row04.addAll((List<Object>) buyerData.get("normalEruiCounts"));
         // 第五行数据
-        List<Object> row05 = new ArrayList<>();
-        row05.add("普通用户 ERUI&KERUI");
-        row05.addAll((List<Object>) buyerData.get("normalEruiAndKeruiCounts"));
+//        List<Object> row05 = new ArrayList<>();
+//        row05.add("普通用户 ERUI&KERUI");
+//        row05.addAll((List<Object>) buyerData.get("normalEruiAndKeruiCounts"));
         // 第六行数据
-        List<Object> row06 = new ArrayList<>();
-        row06.add("高级用户ERUI");
-        row06.addAll((List<Object>) buyerData.get("seniorEruiCounts"));
+//        List<Object> row06 = new ArrayList<>();
+//        row06.add("高级用户ERUI");
+//        row06.addAll((List<Object>) buyerData.get("seniorEruiCounts"));
         // 第7行数据
-        List<Object> row07 = new ArrayList<>();
-        row07.add("高级用户ERUI&KERUI");
-        row07.addAll((List<Object>) buyerData.get("seniorEruiAndKeruiCounts"));
+//        List<Object> row07 = new ArrayList<>();
+//        row07.add("高级用户ERUI&KERUI");
+//        row07.addAll((List<Object>) buyerData.get("seniorEruiAndKeruiCounts"));
         // 第7行数据
-        List<Object> row08 = new ArrayList<>();
-        row08.add("询单数量(个)");
-        row08.addAll((List<Object>) inqNumInfoData.get("currentWeekCounts"));
+        List<Object> row081 = new ArrayList<>();
+        row081.add("询单数量(个)（上周）");
+        row081.addAll((List<Object>) inqNumInfoData.get("lastWeekCounts"));
+        List<Object> row082 = new ArrayList<>();
+        row082.add("询单数量(个)（本周）");
+        row082.addAll((List<Object>) inqNumInfoData.get("currentWeekCounts"));
         // 第9行数据
-        List<Object> row09 = new ArrayList<>();
-        row09.add("报价数量(个)");
-        row09.addAll((List<Object>) quoteInfoData.get("currentWeekCounts"));
+        List<Object> row091 = new ArrayList<>();
+        row091.add("报价数量(个)（上周）");
+        row091.addAll((List<Object>) quoteInfoData.get("lastWeekCounts"));
+        List<Object> row092 = new ArrayList<>();
+        row092.add("报价数量(个)（本周）");
+        row092.addAll((List<Object>) quoteInfoData.get("currentWeekCounts"));
         // 第十行数据
-        List<Object> row10 = new ArrayList<>();
-        row10.add("报价金额（万美元）");
-        row10.addAll((List<Object>) quoteInfoData.get("currentWeekAmounts"));
+        List<Object> row101 = new ArrayList<>();
+        row101.add("报价金额（万美元）（上周）");
+        row101.addAll((List<Object>) quoteInfoData.get("lastWeekAmounts"));
+        List<Object> row102 = new ArrayList<>();
+        row102.add("报价金额（万美元）（本周）");
+        row102.addAll((List<Object>) quoteInfoData.get("currentWeekAmounts"));
         // 第十一行数据
-        List<Object> row11 = new ArrayList<>();
-        row11.add("订单数量(个)");
-        row11.addAll((List<Object>) orderInfoData.get("currentWeekCounts"));
+        List<Object> row111 = new ArrayList<>();
+        row111.add("订单数量(个)（上周）");
+        row111.addAll((List<Object>) orderInfoData.get("lastWeekCounts"));
+        List<Object> row112 = new ArrayList<>();
+        row112.add("订单数量(个)（本周）");
+        row112.addAll((List<Object>) orderInfoData.get("currentWeekCounts"));
         // 第12行数据
-        List<Object> row12 = new ArrayList<>();
-        row12.add("订单金额（万美元）");
-        row12.addAll((List<Object>) orderInfoData.get("currentWeekAmounts"));
+        List<Object> row121 = new ArrayList<>();
+        row121.add("订单金额（万美元）（上周）");
+        row121.addAll((List<Object>) orderInfoData.get("lastWeekAmounts"));
+        List<Object> row122 = new ArrayList<>();
+        row122.add("订单金额（万美元）（本周）");
+        row122.addAll((List<Object>) orderInfoData.get("currentWeekAmounts"));
         // 第十三行数据
         List<Object> row13 = new ArrayList<>();
-        row13.add("2019.1.1-" + params.get("endTime") + "累计订单金额");
+        row13.add("2018.1.1-" + params.get("endTime") + "累计订单金额");
         row13.addAll((List<Object>) orderInfoData.get("historyAmounts"));
         List<Object[]> datas = new ArrayList<>();
-        datas.add(row01.toArray());
-        datas.add(row02.toArray());
+        datas.add(row00.toArray());
+        datas.add(row001.toArray());
+        datas.add(row011.toArray());
+        datas.add(row012.toArray());
+        datas.add(row021.toArray());
+        datas.add(row022.toArray());
         datas.add(row03.toArray());
-        datas.add(row04.toArray());
-        datas.add(row05.toArray());
-        datas.add(row06.toArray());
-        datas.add(row07.toArray());
-        datas.add(row08.toArray());
-        datas.add(row09.toArray());
-        datas.add(row10.toArray());
-        datas.add(row11.toArray());
-        datas.add(row12.toArray());
+//        datas.add(row04.toArray());
+//        datas.add(row05.toArray());
+//        datas.add(row06.toArray());
+//        datas.add(row07.toArray());
+        datas.add(row081.toArray());
+        datas.add(row082.toArray());
+        datas.add(row091.toArray());
+        datas.add(row092.toArray());
+        datas.add(row101.toArray());
+        datas.add(row102.toArray());
+        datas.add(row111.toArray());
+        datas.add(row112.toArray());
+        datas.add(row121.toArray());
+        datas.add(row122.toArray());
         datas.add(row13.toArray());
 
         // 生成excel并返回
@@ -1239,59 +1406,74 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         Map<String, Object> supplierNumInfoData = selectSupplierNumInfoGroupByOrg(params);
 
         // 标题
-        String[] header = new String[]{"", "易瑞-钻完井设备", "易瑞-工业工具", "易瑞-电力电工",
-                "易瑞-工业品设备", "易瑞-安防和劳保设备", "油田设备", "康博瑞", "其他"};
+        String[] header = new String[ORGS.length + 2];
+        System.arraycopy(ORGS, 0, header, 1, ORGS.length);
+        header[ORGS.length + 1] = "其他";
+
         // 处理数据
-        List<Object> row01 = new ArrayList<>();
-        row01.add("询单数量");
-        row01.addAll((List<Object>) inqNumInfoData.get("currentWeekCounts"));
-        List<Object> row03 = new ArrayList<>();
-        row03.add("报价数量");
-        row03.addAll((List<Object>) quoteInfoData.get("currentWeekCounts"));
+//        List<Object> row01 = new ArrayList<>();
+//        row01.add("询单数量");
+//        row01.addAll((List<Object>) inqNumInfoData.get("currentWeekCounts"));
+//        List<Object> row03 = new ArrayList<>();
+//        row03.add("报价数量");
+//        row03.addAll((List<Object>) quoteInfoData.get("currentWeekCounts"));
+        List<Object> row042 = new ArrayList<>();
+        row042.add("报价金额（万美元）（上周）");
+        row042.addAll((List<Object>) quoteInfoData.get("lastWeekAmounts"));
         List<Object> row04 = new ArrayList<>();
-        row04.add("报价金额（万美元）");
+        row04.add("报价金额（万美元）(本周)");
         row04.addAll((List<Object>) quoteInfoData.get("currentWeekAmounts"));
-        List<Object> row05 = new ArrayList<>();
-        row05.add("报价用时");
-        row05.addAll((List<Object>) quoteInfoData.get("currentWeekTimes"));
+//        List<Object> row05 = new ArrayList<>();
+//        row05.add("报价用时");
+//        row05.addAll((List<Object>) quoteInfoData.get("currentWeekTimes"));
+        List<Object> row072 = new ArrayList<>();
+        row072.add("订单数量（上周）");
+        row072.addAll((List<Object>) orderInfoData.get("lastWeekCounts"));
         List<Object> row07 = new ArrayList<>();
-        row07.add("订单数量");
+
+        row07.add("订单数量（本周）");
         row07.addAll((List<Object>) orderInfoData.get("currentWeekCounts"));
+        List<Object> row092 = new ArrayList<>();
+        row092.add("订单金额(万美元)（上周）");
+        row092.addAll((List<Object>) orderInfoData.get("lastWeekAmount"));
         List<Object> row09 = new ArrayList<>();
-        row09.add("订单金额(万美元)");
+        row09.add("订单金额(万美元)（本周）");
         row09.addAll((List<Object>) orderInfoData.get("currentWeekAmount"));
         List<Object> row10 = new ArrayList<>();
-        row10.add("2019.1.1-" + endTime +
+        row10.add("2018.1.1-" + endTime +
                 "累计订单金额");
         row10.addAll((List<Object>) orderInfoData.get("historyAmount"));
         List<Object> row12 = new ArrayList<>();
         row12.add("合格供应商数量");
         row12.addAll((List<Object>) supplierNumInfoData.get("currentWeekCounts"));
         List<Object> row13 = new ArrayList<>();
-        row13.add("2019.1.1-" + endTime +
+        row13.add("2018.1.1-" + endTime +
                 "总数");
         row13.addAll((List<Object>) supplierNumInfoData.get("historyCounts"));
         List<Object> row14 = new ArrayList<>();
         row14.add("上架SKU数量");
         row14.addAll((List<Object>) spuSkuNumInfoData.get("currentWeekSkuCounts"));
         List<Object> row15 = new ArrayList<>();
-        row15.add("2019.1.1-" + endTime +
+        row15.add("2018.1.1-" + endTime +
                 "总数");
         row15.addAll((List<Object>) spuSkuNumInfoData.get("historySkuCounts"));
         List<Object> row16 = new ArrayList<>();
         row16.add("上架SPU数量");
         row16.addAll((List<Object>) spuSkuNumInfoData.get("currentWeekSpuCounts"));
         List<Object> row17 = new ArrayList<>();
-        row17.add("2019.1.1-" + endTime +
+        row17.add("2018.1.1-" + endTime +
                 "总数");
         row17.addAll((List<Object>) spuSkuNumInfoData.get("historySpuCounts"));
         // 填充数据
         List<Object[]> datas = new ArrayList<>();
-        datas.add(row01.toArray());
-        datas.add(row03.toArray());
+//        datas.add(row01.toArray());
+//        datas.add(row03.toArray());
+        datas.add(row042.toArray());
         datas.add(row04.toArray());
-        datas.add(row05.toArray());
+//        datas.add(row05.toArray());
+        datas.add(row072.toArray());
         datas.add(row07.toArray());
+        datas.add(row092.toArray());
         datas.add(row09.toArray());
         datas.add(row10.toArray());
         datas.add(row12.toArray());
@@ -1341,8 +1523,8 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
 
             result.put("currentWeekPV", pv);
             result.put("currentWeekUV", uv);
-            result.put("currentWeekAVG", avgDur == null? BigDecimal.ZERO : avgDur.setScale(2, BigDecimal.ROUND_HALF_UP));
-            result.put("currentWeekJUMP", jump == null? BigDecimal.ZERO : jump.setScale(2, BigDecimal.ROUND_HALF_UP));
+            result.put("currentWeekAVG", avgDur == null ? BigDecimal.ZERO : avgDur.setScale(2, BigDecimal.ROUND_HALF_UP));
+            result.put("currentWeekJUMP", jump == null ? BigDecimal.ZERO : jump.setScale(2, BigDecimal.ROUND_HALF_UP));
         }
         List<Map<String, Object>> lastWeekList = null;
         if (params.get("chainStartTime") != null) {
@@ -1360,8 +1542,8 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
 
             result.put("lastWeekPV", pv);
             result.put("lastWeekUV", uv);
-            result.put("lastWeekAVG", avgDur == null? BigDecimal.ZERO : avgDur.setScale(2, BigDecimal.ROUND_HALF_UP));
-            result.put("lastWeekJUMP", jump == null? BigDecimal.ZERO : jump.setScale(2, BigDecimal.ROUND_HALF_UP));
+            result.put("lastWeekAVG", avgDur == null ? BigDecimal.ZERO : avgDur.setScale(2, BigDecimal.ROUND_HALF_UP));
+            result.put("lastWeekJUMP", jump == null ? BigDecimal.ZERO : jump.setScale(2, BigDecimal.ROUND_HALF_UP));
         }
         return result;
     }
@@ -1379,7 +1561,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         // 谷歌统计信息
         Map<String, Object> googleStatistics = googleStatisticsInfo(params);
         // 标题
-        String[] header = new String[]{"PV", "UV", "询单", "报价", "订单", "跳出率（%）", "平均会话时长"};
+        String[] header = new String[]{"PV", "UV", "询单", "报价", "订单", "跳出率（%）", "平均会话时长" };
         // 处理数据
         Object[] row02 = new Object[]{
                 googleStatistics.get("currentWeekPV"),
@@ -1405,5 +1587,58 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         ExcelCustomStyle.insertTitle(workbook, 0, 0, 0,
                 "平台数据分析周报（" + params.get("startTime") + "-" + params.get("endTime") + "）");
         return workbook;
+    }
+
+
+    @Override
+    public Map<String, Object> selectBuyerUVCountGroupByArea(Map<String, Object> params) {
+        List<String> areaList = new ArrayList<>(Arrays.asList(AREAS));
+        //获取本周各地区的UV
+        List<Map<String, Object>> thisWeekList = readMapper.selectUvCountGroupByArea(params);
+        //获取上周各地区的UV
+        List<Map<String, Object>> lastWeekList = null;
+        if (params.get("chainStartTime") != null) { // 存在上周数据
+            Map<String, Object> params02 = new HashMap<>();
+            params02.put("startTime", params.get("chainStartTime"));
+            params02.put("endTime", params.get("chainEndTime"));
+            lastWeekList = readMapper.selectUvCountGroupByArea(params02);
+        } else {
+            lastWeekList = new ArrayList<>();
+        }
+        Map<String, Map<String, Object>> thisWeekMap = thisWeekList.stream().collect(Collectors.toMap(vo -> vo.get("area").toString().trim(), vo -> vo));
+        Map<String, Map<String, Object>> lastWeekMap = lastWeekList.stream().collect(Collectors.toMap(vo -> vo.get("area").toString().trim(), vo -> vo));
+
+        List<Integer> currentWeekCounts = new ArrayList<>(); //存放本周各地区UV
+        List<Integer> lastWeekCounts = new ArrayList<>(); //存放上周各地区UV
+        int currentWeekTotal = 0;
+        int lastWeekTotal = 0;
+        for (String area : areaList) {
+            if (thisWeekMap.containsKey(area)) {
+                Map<String, Object> map = thisWeekMap.get(area);
+                int registerCount = ((BigDecimal) map.get("uvCount")).intValue();
+                currentWeekTotal += registerCount;
+                currentWeekCounts.add(registerCount);
+            } else {
+                currentWeekCounts.add(0);
+            }
+            if (lastWeekMap.containsKey(area)) {
+                Map<String, Object> map = lastWeekMap.get(area);
+                int registerCount = ((BigDecimal) map.get("uvCount")).intValue();
+                lastWeekTotal += registerCount;
+                lastWeekCounts.add(registerCount);
+            } else {
+                lastWeekCounts.add(0);
+            }
+        }
+        //添加上合计数据
+        areaList.add("合计");
+        currentWeekCounts.add(currentWeekTotal);
+        lastWeekCounts.add(lastWeekTotal);
+        //返回结果
+        Map<String, Object> result = new HashMap<>();
+        result.put("areaList", areaList);
+        result.put("currentWeekCounts", currentWeekCounts);
+        result.put("lastWeekCounts", lastWeekCounts);
+        return result;
     }
 }

@@ -38,14 +38,14 @@ public interface PerformanceCountMapper {
      * @param params
      * @return
      */
-    List<Map<String,Object>> selectIncrBuyerByCondition(Map<String,String> params);
+    List<Map<String, Object>> selectIncrBuyerByCondition(Map<String,String> params);
 
     /**
      * 查询人员 销售业绩明细
      * @param params
      * @return
      */
-    List<Map<String,Object>> selectObtainerPerformance(Map<String,String> params);
+    List<Map<String, Object>> selectObtainerPerformance(Map<String,String> params);
 
     /**
      * 查询用户负责的国家
@@ -94,4 +94,12 @@ public interface PerformanceCountMapper {
      * @return
      */
     List<Map<String, Object>> findCountryByArea(@Param("area") String area);
+
+    List<Map<String, Object>> findAreaByCountry(Map<String, String> params);
+
+    List<Map<String, Object>> getIsExistPvUvDate(Map<String, String> params);
+
+    void updateWebInfoPvUv(Map<String, String> params);
+
+    void insertWebInfoPvUv(Map<String, String> params);
 }

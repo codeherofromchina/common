@@ -149,7 +149,7 @@ public class ExcelController {
         // 经过上面初步判断后，保存文件到本地 和fastDFS
         String realPath = request.getSession().getServletContext().getRealPath(EXCEL_DATA_PATH);
 //        File saveFile = null;
-        String[] groups=null;
+        String[] groups= null;
         try {
 //            saveFile = FileUtil.saveFile(file.getInputStream(), realPath, originalFilename);
             byte[] bytes = file.getBytes();
@@ -175,7 +175,7 @@ public class ExcelController {
             }
 
             ImportDataResponse importDataResponse = importData(typeEnum, excelContent.subList(1, dataRowSize), true);
-            if(!importDataResponse.getDone()){
+            if (!importDataResponse.getDone()) {
                 return new Result<Object>(ResultStatusEnum.EXCEL_DATA_REPEAT).setData(importDataResponse);
             }
             // 整理结果集并返回
@@ -330,6 +330,10 @@ public class ExcelController {
             case SALES_PERFORMANCE:
                 logger.info("销售业绩");
                 response = performanceService.importData(datas, testOnly);
+                break;
+            case WEBINFO_PV_UV_TEMP:
+                logger.info("平台流量统计");
+                response = performanceService.importDataPvUv(datas, true); // 平台流量直接导入
                 break;
             default:
                 response = new ImportDataResponse();

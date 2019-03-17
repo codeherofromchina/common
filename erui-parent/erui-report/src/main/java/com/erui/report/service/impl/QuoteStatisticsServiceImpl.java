@@ -1,10 +1,14 @@
 package com.erui.report.service.impl;
 
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.comm.util.excel.BuildExcel;
+import com.erui.comm.util.excel.BuildExcelImpl;
+import com.erui.comm.util.excel.ExcelCustomStyle;
 import com.erui.report.dao.QuoteStatisticsMapper;
 import com.erui.report.service.QuoteStatisticsService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +23,10 @@ import java.util.stream.Collectors;
 public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMapper> implements QuoteStatisticsService {
     @Autowired
     private QuoteStatisticsMapper quoteStatisticsMapper;
+
     /**
      * 报价成单统计
+     *
      * @param params
      * @return
      */
@@ -32,20 +38,20 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
         List<Map<String, Object>> orderMinTimeAndTotalNumList = quoteStatisticsMapper.getOrderMinTimeAndTotalNum(params);
 
         // 将list转换为userId为key的map信息
-        Map<Long, Map<String, Object>> quoteMinTimeAndTotalNumMap = null;
-        Map<Long, Map<String, Object>> orderMinTimeAndTotalNumMap  = new HashMap<>();
+        Map<Integer, Map<String, Object>> quoteMinTimeAndTotalNumMap = null;
+        Map<Integer, Map<String, Object>> orderMinTimeAndTotalNumMap = null;
         if (quoteMinTimeAndTotalNumList != null && quoteMinTimeAndTotalNumList.size() > 0) {
-            quoteMinTimeAndTotalNumMap = quoteMinTimeAndTotalNumList.stream().collect(Collectors.toMap(vo -> (Long) vo.get("acquiring_user_id"), vo -> vo));
+            quoteMinTimeAndTotalNumMap = quoteMinTimeAndTotalNumList.stream().collect(Collectors.toMap(vo -> ((Long) vo.get("acquiring_user_id")).intValue(), vo -> vo));
         } else {
             quoteMinTimeAndTotalNumMap = new HashMap<>();
         }
         if (orderMinTimeAndTotalNumList != null && orderMinTimeAndTotalNumList.size() > 0) {
-            orderMinTimeAndTotalNumMap = orderMinTimeAndTotalNumList.stream().collect(Collectors.toMap(vo -> (Long) vo.get("acquiring_user_id"), vo -> vo));
+            orderMinTimeAndTotalNumMap = orderMinTimeAndTotalNumList.stream().collect(Collectors.toMap(vo -> (Integer) vo.get("acquiring_user_id"), vo -> vo));
         } else {
             orderMinTimeAndTotalNumMap = new HashMap<>();
         }
 
-        Set<Long> acquireUserIdSet = new HashSet<>();
+        Set<Integer> acquireUserIdSet = new HashSet<>();
         acquireUserIdSet.addAll(quoteMinTimeAndTotalNumMap.keySet());
         acquireUserIdSet.addAll(orderMinTimeAndTotalNumMap.keySet());
 
@@ -99,14 +105,14 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
     }
 
 
-
     /**
      * 报价成单统计
+     *
      * @param params
      * @return
      */
     @Override
-    public PageInfo<Map<String, Object>> quotePerformance(Map<String, Object> params) {
+    public List<Map<String, Object>> quotePerformance(Map<String, Object> params) {
         // 分页查询获取人
         List<Map<String, Object>> acquiringUserList = quoteStatisticsMapper.findAllAcquiringUserList();
         // 获取时间段各个用户的询单报出最早时间和报价单个数
@@ -116,7 +122,7 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
 
         // 将list转换为userId为key的map信息
         Map<Long, Map<String, Object>> quoteMinTimeAndTotalNumMap = null;
-        Map<Long, Map<String, Object>> orderMinTimeAndTotalNumMap  = new HashMap<>();
+        Map<Long, Map<String, Object>> orderMinTimeAndTotalNumMap = new HashMap<>();
         if (quoteMinTimeAndTotalNumList != null && quoteMinTimeAndTotalNumList.size() > 0) {
             quoteMinTimeAndTotalNumMap = quoteMinTimeAndTotalNumList.stream().collect(Collectors.toMap(vo -> (Long) vo.get("acquiring_user_id"), vo -> vo));
         } else {
@@ -127,7 +133,6 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
         } else {
             orderMinTimeAndTotalNumMap = new HashMap<>();
         }
-
         // 数据汇总
         for (Map<String, Object> acquiringUser : acquiringUserList) {
             Long userId = (Long) acquiringUser.get("acquiring_user_id");
@@ -157,7 +162,6 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
                     orderNum = t.intValue();
                 }
             }
-
             acquiringUser.put("quoteTime", quoteTime);
             acquiringUser.put("orderTime", orderTime);
             acquiringUser.put("quoteNum", quoteNum);
@@ -168,7 +172,46 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
                 acquiringUser.put("succRate", BigDecimal.ZERO);
             }
         }
-        PageInfo<Map<String, Object>> pageInfo = new PageInfo<>(acquiringUserList);
-        return pageInfo;
+        return acquiringUserList;
+    }
+
+
+    @Override
+    public HSSFWorkbook genQuotePerformanceExcel(Map<String, Object> params) {
+        List<Map<String, Object>> datas = quotePerformance(params);
+        String[] header = {"序号", "获取人", "询单报出时间", "项目开始日期", "所属地区", "国家", "执行分公司", "报价个数", "订单个数", "成单率" };
+        List<Object> excelData = new ArrayList<>();
+        if (datas.size() > 0) {
+            int seq = 1;
+            for (Map<String, Object> map : datas) {
+                Object[] rowData = new Object[header.length];
+                rowData[0] = seq;
+                rowData[1] = map.get("acquiring_user_name");
+                rowData[2] = map.get("quoteTime");
+                rowData[3] = map.get("orderTime");
+                rowData[4] = map.get("area_name");
+                rowData[5] = map.get("country_name");
+                rowData[7] = map.get("quoteNum");
+                rowData[8] = map.get("orderNum");
+                rowData[9] = map.get("succRate");
+                excelData.add(rowData);
+                seq++;
+            }
+        }
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(excelData, header, null,
+                "报价成单统计");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, excelData.size());
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        if (params.size() == 0) {
+            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "报价成单统计");
+        } else {
+            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "报价成单统计（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        }
+        return workbook;
     }
 }

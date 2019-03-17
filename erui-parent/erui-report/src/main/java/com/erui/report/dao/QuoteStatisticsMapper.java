@@ -17,10 +17,10 @@ public interface QuoteStatisticsMapper {
 
     /**
      * 根据给定id列表查询获取人
-     * @param userIdList
+     * @param list
      * @return
      */
-    List<Map<String, Object>> findAcquiringUserByUserIdSet(List userIdList);
+    List<Map<String, Object>> findAcquiringUserByUserIdSet(List<Integer> list);
 
     /**
      * 查询时间段内

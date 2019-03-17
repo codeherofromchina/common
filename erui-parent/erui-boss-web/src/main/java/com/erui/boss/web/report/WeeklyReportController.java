@@ -67,10 +67,12 @@ public class WeeklyReportController {
             params.put("chainStartTime", DateUtil.formatDateToString(chainStartTime, DateUtil.FULL_FORMAT_STR));
         }
 
+        // 查询用户uv数据
+        Map<String, Object> uvData = weeklyReportService.selectBuyerUVCountGroupByArea(params);
         //查询各地区的时间段内新用户注册数，中国算一个地区
         Map<String, Object> registerData = weeklyReportService.selectBuyerRegistCountGroupByArea(params);
         //查询各地区的时间段内会员数 中国算一个地区
-        // Map<String, Object> buyerData = weeklyReportService.selectBuyerCountGroupByArea(params);
+        //Map<String, Object> buyerData = weeklyReportService.selectBuyerCountGroupByArea(params);
 
         //查询各地区的时间段内普通会员Erui数、普通会员ERUI&KERUI数、高级会员Erui数、高级会员ERUI&KERUI数，中国算一个地区
         Map<String, Object> buyerData = weeklyReportService.selectBuyerCountDetail(params);
@@ -83,6 +85,7 @@ public class WeeklyReportController {
 
 
         Map<String, Map> data = new HashMap<>();
+        data.put("uvInfo", uvData); // 新用户注册数据信息
         data.put("registerInfo", registerData); // 新用户注册数据信息
         data.put("memberNumInfo", buyerData); // //普通会员Erui数、普通会员ERUI&KERUI数、高级会员Erui数、高级会员ERUI&KERUI数
         data.put("inqNumInfo", inqNumInfoData); // 询单数量数据信息
@@ -347,13 +350,8 @@ public class WeeklyReportController {
             return null;
         }
         //获取历史数据
-        params.put("onshelf_at_start", "2019-01-01 00:00:00");
+        params.put("onshelf_at_start", "2018-01-01 00:00:00");
         params.put("onshelf_at_end", params.get("endTime").toString());
-//        Date start = DateUtil.parseString2DateNoException("2018-01-01 00:00:00", DateUtil.FULL_FORMAT_STR);
-//        Date endDate = DateUtil.parseString2DateNoException(String.valueOf(params.get("onshelf_at_end")), DateUtil.FULL_FORMAT_STR);
-//        if (start.after(endDate)) {
-//           params.put("onshelf_at_end","2018-01-01 00:00:01");
-//        }
         List<Map<String, Object>> spuHistoryList = sendPutToES(params, eruiToken, esproductUrl);
         if (spuHistoryList == null) {
             return null;

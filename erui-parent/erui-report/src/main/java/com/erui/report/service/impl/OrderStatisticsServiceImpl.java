@@ -4,7 +4,6 @@ import com.erui.report.dao.OrderStatisticsMapper;
 import com.erui.report.service.OrderStatisticsService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.github.pagehelper.util.PageObjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -38,6 +37,8 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
             List<String> xAxisData = new ArrayList<>(); // 年份
             List<BigDecimal> amountData = new ArrayList<>(); // 金额，美元
             List<Long> countData = new ArrayList<>(); // 订单数量
+            BigDecimal totalAmount = new BigDecimal("0");
+            long totalCount = 0L;
             for (Map<String, Object> yearData : yearsDataList) {
                 Integer year02 = (Integer) yearData.get("year");
                 BigDecimal money = (BigDecimal) yearData.get("money");
@@ -45,10 +46,14 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
                 xAxisData.add(String.valueOf(year02));
                 amountData.add(money);
                 countData.add(count);
+                totalAmount = totalAmount.add(money);
+                totalCount += count;
             }
             result.put("xAxisData", xAxisData);
             result.put("amountData", amountData);
             result.put("countData", countData);
+            result.put("totalAmount", totalAmount);
+            result.put("totalCount", totalCount);
         }
         return result;
     }

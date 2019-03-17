@@ -12,22 +12,22 @@
             country_bn,
             country_name
         FROM
-            erui_report.req_acquiring_user_base_info
+            erui_report.rep_acquiring_user_base_info
         ORDER BY ID DESC
     </select>
 
 
     <select id="findAcquiringUserByUserIdSet" resultType="java.util.Map">
         SELECT
-        acquiring_user_id,
-        acquiring_user_no,
-        acquiring_user_name,
-        area_bn,
-        area_name,
-        country_bn,
-        country_name
+            acquiring_user_id,
+            acquiring_user_no,
+            acquiring_user_name,
+            area_bn,
+            area_name,
+            country_bn,
+            country_name
         FROM
-        erui_report.req_acquiring_user_base_info
+            rep_acquiring_user_base_info
         WHERE acquiring_user_id IN
         <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
             #{id}
@@ -69,7 +69,7 @@
 
     <select id="getOrderMinTimeAndTotalNum" resultType="java.util.Map">
         SELECT
-        t1.acquire_id as acquire_user_id,
+        t1.acquire_id as acquiring_user_id,
         MIN(t2.start_date) AS min_time,
         COUNT(t2.id) AS total_num
         FROM

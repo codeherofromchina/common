@@ -147,4 +147,7 @@ public interface WeeklyReportMapper {
 
 
     List<Map<String, Object>> selectWebStatisticsInfo(Map<String, Object> params);
+
+    List<Map<String, Object>> selectUvCountGroupByArea(Map<String, Object> params);
+
 }
