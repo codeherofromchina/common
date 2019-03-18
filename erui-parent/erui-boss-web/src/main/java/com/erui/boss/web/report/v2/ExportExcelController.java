@@ -1,24 +1,18 @@
 package com.erui.boss.web.report.v2;
 
-import com.erui.boss.web.report.RequestCreditController;
 import com.erui.boss.web.util.HttpUtils;
-import com.erui.boss.web.util.Result;
-import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.service.BuyerStatisticsService;
 import com.erui.report.service.OrderStatisticsService;
 import com.erui.report.service.QuoteStatisticsService;
 import com.erui.report.util.ParamsUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
