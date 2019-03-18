@@ -6,7 +6,7 @@
         SELECT
             id,
             buyer_code AS buyerCode,
-            country_name AS country_name,
+            country_name AS countryName,
             area_name AS areaName,
             acquiring_user_name as acquiringUserName,
             IFNULL(DATE_FORMAT(register_time, '%Y/%m/%d'),'') AS registerTime
@@ -27,7 +27,7 @@
         SELECT
             id,
             buyer_code AS buyerCode,
-            country_name AS country_name,
+            country_name AS countryName,
             area_name AS areaName,
             acquiring_user_name as acquiringUserName,
             IFNULL(DATE_FORMAT(membership_time, '%Y/%m/%d'),'') AS membershipTime
@@ -48,7 +48,7 @@
         SELECT
             id,
             buyer_code AS buyerCode,
-            country_name AS country_name,
+            country_name AS countryName,
             area_name AS areaName,
             acquiring_user_name as acquiringUserName,
             IFNULL(DATE_FORMAT(apply_time, '%Y/%m/%d'),'') AS applyTime

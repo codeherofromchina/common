@@ -6,6 +6,7 @@ import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.service.BuyerStatisticsService;
+import com.erui.report.service.OrderStatisticsService;
 import com.erui.report.service.QuoteStatisticsService;
 import com.erui.report.util.ParamsUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -32,6 +33,8 @@ public class ExportExcelController {
     private BuyerStatisticsService buyerStatisticsService;
     @Autowired
     private QuoteStatisticsService quoteStatisticsService;
+    @Autowired
+    private OrderStatisticsService orderStatisticsService;
 
     /**
      * 开发会员统计
@@ -71,6 +74,28 @@ public class ExportExcelController {
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         HSSFWorkbook wb = quoteStatisticsService.genQuotePerformanceExcel(params);
         String fileName = "报检单成单统计" + System.currentTimeMillis() + ".xlsx";
+        HttpUtils.setExcelResponseHeader(response, fileName.toString());
+        wb.write(response.getOutputStream());
+    }
+
+
+
+
+    /**
+     * 业绩统计-业务业绩统计 导出excep
+     * @param request
+     * @param response
+     * @throws Exception
+     */
+    @RequestMapping(value = "/projectList")
+    public void projectList(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String startTime = request.getParameter("startTime");
+        String endTime = request.getParameter("endTime");
+        Map<String, String> params = new HashMap<>();
+        params.put("startTime", startTime);
+        params.put("endTime", endTime);
+        HSSFWorkbook wb = orderStatisticsService.genProjectListExcel(params);
+        String fileName = "业绩统计-业务业绩统计" + System.currentTimeMillis() + ".xlsx";
         HttpUtils.setExcelResponseHeader(response, fileName.toString());
         wb.write(response.getOutputStream());
     }

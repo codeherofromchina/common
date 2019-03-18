@@ -52,8 +52,8 @@
             money AS money,
             profit_percent AS profitPercent,
             profit AS profit,
-            acquiring_user AS acquiringUser,
-            business_name AS businessName
+            ifnull(acquiring_user,"") AS acquiringUser,
+            ifnull(business_name,"") AS businessName
         FROM
           erui_report.rep_order_list
         <where>

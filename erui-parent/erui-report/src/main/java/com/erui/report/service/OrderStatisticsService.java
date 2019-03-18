@@ -2,6 +2,7 @@ package com.erui.report.service;
 
 import com.erui.report.model.PerformanceIndicators;
 import com.github.pagehelper.PageInfo;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
 import java.util.Map;
 
@@ -35,4 +36,11 @@ public interface OrderStatisticsService {
      * @return
      */
     PageInfo<Map<String, Object>> projectList(int pageNum, int pageSize, Map<String, String> params);
+
+    /**
+     *  业绩统计-业务业绩统计 Excel生成
+     * @param params
+     * @return
+     */
+    HSSFWorkbook genProjectListExcel(Map<String, String> params);
 }
