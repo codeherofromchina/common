@@ -66,7 +66,6 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
             String orderTime = "";
             int orderNum = 0;
             if (quoteMinTimeAndTotalNumMap.containsKey(userId)) {
-                System.out.println("询单存在获取人" + userId);
                 Map<String, Object> tmpMap01 = quoteMinTimeAndTotalNumMap.get(userId);
                 Date d = (Date) tmpMap01.get("min_time");
                 BigDecimal t = (BigDecimal) tmpMap01.get("total_num");
@@ -78,7 +77,6 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
                 }
             }
             if (orderMinTimeAndTotalNumMap.containsKey(userId)) {
-                System.out.println("订单存在获取人" + userId);
                 Map<String, Object> tmpMap02 = orderMinTimeAndTotalNumMap.get(userId);
                 Date d = (Date) tmpMap02.get("min_time");
                 Long t = (Long) tmpMap02.get("total_num");
