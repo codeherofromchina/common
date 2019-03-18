@@ -235,10 +235,15 @@
                 <package.environment>dev</package.environment>
             </properties>
             <dependencies>
+                <dependency>
+                    <groupId>com.erui</groupId>
+                    <artifactId>erui-sso-client-dev</artifactId>
+                    <version>1.0</version>
+                </dependency>
             </dependencies>
         </profile>
         <profile>
-            <id>dev</id>
+            <id>test</id>
             <properties>
                 <package.environment>test</package.environment>
             </properties>
@@ -246,6 +251,19 @@
                 <dependency>
                     <groupId>com.erui</groupId>
                     <artifactId>erui-sso-client-test</artifactId>
+                    <version>1.0</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <package.environment>dev</package.environment>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>com.erui</groupId>
+                    <artifactId>erui-sso-client-dev</artifactId>
                     <version>1.0</version>
                 </dependency>
             </dependencies>

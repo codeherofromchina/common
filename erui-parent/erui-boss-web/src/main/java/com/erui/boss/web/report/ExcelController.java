@@ -149,7 +149,7 @@ public class ExcelController {
         // 经过上面初步判断后，保存文件到本地 和fastDFS
         String realPath = request.getSession().getServletContext().getRealPath(EXCEL_DATA_PATH);
 //        File saveFile = null;
-        String[] groups= null;
+        String[] groups = null;
         try {
 //            saveFile = FileUtil.saveFile(file.getInputStream(), realPath, originalFilename);
             byte[] bytes = file.getBytes();
