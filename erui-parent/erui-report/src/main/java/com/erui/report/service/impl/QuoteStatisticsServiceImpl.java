@@ -60,15 +60,16 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
         List<Map<String, Object>> acquiringUserList = quoteStatisticsMapper.findAcquiringUserByUserIdSet(new ArrayList(acquireUserIdSet));
         // 数据汇总
         for (Map<String, Object> acquiringUser : acquiringUserList) {
-            Long userId = (Long) acquiringUser.get("acquiring_user_id");
+            Integer userId = (Integer) acquiringUser.get("acquiring_user_id");
             String quoteTime = "";
             int quoteNum = 0;
             String orderTime = "";
             int orderNum = 0;
             if (quoteMinTimeAndTotalNumMap.containsKey(userId)) {
+                System.out.println("询单存在获取人" + userId);
                 Map<String, Object> tmpMap01 = quoteMinTimeAndTotalNumMap.get(userId);
                 Date d = (Date) tmpMap01.get("min_time");
-                Long t = (Long) tmpMap01.get("total_num");
+                BigDecimal t = (BigDecimal) tmpMap01.get("total_num");
                 if (d != null) {
                     quoteTime = DateUtil.format(DateUtil.FULL_FORMAT_STR, d);
                 }
@@ -77,6 +78,7 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
                 }
             }
             if (orderMinTimeAndTotalNumMap.containsKey(userId)) {
+                System.out.println("订单存在获取人" + userId);
                 Map<String, Object> tmpMap02 = orderMinTimeAndTotalNumMap.get(userId);
                 Date d = (Date) tmpMap02.get("min_time");
                 Long t = (Long) tmpMap02.get("total_num");
@@ -121,21 +123,22 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
         List<Map<String, Object>> orderMinTimeAndTotalNumList = quoteStatisticsMapper.getOrderMinTimeAndTotalNum(params);
 
         // 将list转换为userId为key的map信息
-        Map<Long, Map<String, Object>> quoteMinTimeAndTotalNumMap = null;
-        Map<Long, Map<String, Object>> orderMinTimeAndTotalNumMap = new HashMap<>();
+        Map<Integer, Map<String, Object>> quoteMinTimeAndTotalNumMap = null;
+        Map<Integer, Map<String, Object>> orderMinTimeAndTotalNumMap = null;
         if (quoteMinTimeAndTotalNumList != null && quoteMinTimeAndTotalNumList.size() > 0) {
-            quoteMinTimeAndTotalNumMap = quoteMinTimeAndTotalNumList.stream().collect(Collectors.toMap(vo -> (Long) vo.get("acquiring_user_id"), vo -> vo));
+            quoteMinTimeAndTotalNumMap = quoteMinTimeAndTotalNumList.stream().collect(Collectors.toMap(vo -> ((Long) vo.get("acquiring_user_id")).intValue(), vo -> vo));
         } else {
             quoteMinTimeAndTotalNumMap = new HashMap<>();
         }
         if (orderMinTimeAndTotalNumList != null && orderMinTimeAndTotalNumList.size() > 0) {
-            orderMinTimeAndTotalNumMap = orderMinTimeAndTotalNumList.stream().collect(Collectors.toMap(vo -> (Long) vo.get("acquiring_user_id"), vo -> vo));
+            orderMinTimeAndTotalNumMap = orderMinTimeAndTotalNumList.stream().collect(Collectors.toMap(vo -> (Integer) vo.get("acquiring_user_id"), vo -> vo));
         } else {
             orderMinTimeAndTotalNumMap = new HashMap<>();
         }
+
         // 数据汇总
         for (Map<String, Object> acquiringUser : acquiringUserList) {
-            Long userId = (Long) acquiringUser.get("acquiring_user_id");
+            Integer userId = (Integer) acquiringUser.get("acquiring_user_id");
             String quoteTime = "";
             int quoteNum = 0;
             String orderTime = "";
@@ -143,7 +146,7 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
             if (quoteMinTimeAndTotalNumMap.containsKey(userId)) {
                 Map<String, Object> tmpMap01 = quoteMinTimeAndTotalNumMap.get(userId);
                 Date d = (Date) tmpMap01.get("min_time");
-                Long t = (Long) tmpMap01.get("total_num");
+                BigDecimal t = (BigDecimal) tmpMap01.get("total_num");
                 if (d != null) {
                     quoteTime = DateUtil.format(DateUtil.FULL_FORMAT_STR, d);
                 }

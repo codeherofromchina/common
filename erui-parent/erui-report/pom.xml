@@ -160,7 +160,7 @@
 		<profile>
 			<id>default</id>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+				<activeByDefault>false</activeByDefault>
 			</activation>
 			<properties>
 				<package.environment>test</package.environment>
@@ -180,6 +180,9 @@
 		</profile>
 		<profile>
 			<id>dev</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
 			<properties>
 				<package.environment>dev</package.environment>
 			</properties>
