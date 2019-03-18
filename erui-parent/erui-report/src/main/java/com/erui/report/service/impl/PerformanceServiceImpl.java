@@ -28,11 +28,11 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
 
     @Override
     public ImportDataResponse importDataPvUv(List<String[]> datas, boolean testOnly) {
-            ImportDataResponse response = new ImportDataResponse();
+        ImportDataResponse response = new ImportDataResponse();
         for (int index = 0; index < datas.size(); index++) {
             int cellIndex = index + 2; // 数据从第二行开始,用于提示多少行出问题
             String[] strArr = datas.get(index);
-            if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.SALES_PERFORMANCE, response, cellIndex)) {
+            if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.WEBINFO_PV_UV_TEMP, response, cellIndex)) {
                 continue;
             }
             try {
@@ -61,7 +61,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
                 }
             } catch (Exception e) {
                 response.incrFail();
-                response.pushFailItem(ExcelUploadTypeEnum.SALES_PERFORMANCE.getTable(), cellIndex, e.getMessage());
+                response.pushFailItem(ExcelUploadTypeEnum.WEBINFO_PV_UV_TEMP.getTable(), cellIndex, e.getMessage());
                 continue;
             }
             response.incrSuccess();

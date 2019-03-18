@@ -333,7 +333,7 @@ public class ExcelController {
                 break;
             case WEBINFO_PV_UV_TEMP:
                 logger.info("平台流量统计");
-                response = performanceService.importDataPvUv(datas, true); // 平台流量直接导入
+                response = performanceService.importDataPvUv(datas, false); // 平台流量直接导入
                 break;
             default:
                 response = new ImportDataResponse();
