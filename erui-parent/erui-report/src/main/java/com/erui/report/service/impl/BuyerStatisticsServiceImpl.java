@@ -105,11 +105,15 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
                 Long befNum = befMap.remove(key);
                 befCount += befNum.longValue();
                 map.put("befNum", befNum);
+            } else {
+                map.put("befNum", 0L);
             }
             if (aftMap.containsKey(key)) {
                 Long aftNum = aftMap.remove(key);
                 aftCount += aftNum.longValue();
                 map.put("aftNum", aftNum);
+            } else {
+                map.put("aftNum", 0L);
             }
             curCount += ((Long) map.get("num")).longValue();
         }
@@ -129,7 +133,10 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
                 Long aftNum = aftMap.remove(key);
                 aftCount += aftNum.longValue();
                 map02.put("aftNum", aftNum);
+            } else {
+                map02.put("aftNum", 0L);
             }
+            map02.put("num", 0L);
             curStatisticsList.add(map02);
         }
         for (Map.Entry<String, Long> map : aftMap.entrySet()) {
@@ -143,6 +150,8 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
             map02.put("country_bn", split[2]);
             map02.put("country_name", split[3]);
             map02.put("aftNum", value);
+            map02.put("num", 0L);
+            map02.put("befNum", 0L);
             aftCount += value.longValue();
             curStatisticsList.add(map02);
         }
