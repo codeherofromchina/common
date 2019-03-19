@@ -662,7 +662,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             Map<String, Object> params02 = new HashMap<>();
             params02.put("startTime", params.get("chainStartTime"));
             params02.put("endTime", params.get("chainEndTime"));
-            lastWeekData = readMapper.selectInquiryCountWhereTimeGroupByOrg(params02); // 上周询单数据
+            lastWeekData = readMapper.selectQuoteInfoWhereTimeGroupByOrg(params02); // 上周数据
         } else {
             lastWeekData = new ArrayList<>();
         }
