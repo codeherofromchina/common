@@ -235,11 +235,13 @@
                 <package.environment>dev</package.environment>
             </properties>
             <dependencies>
+                <!--
                 <dependency>
                     <groupId>com.erui</groupId>
                     <artifactId>erui-sso-client-dev</artifactId>
                     <version>1.0</version>
                 </dependency>
+                -->
             </dependencies>
         </profile>
         <profile>
@@ -261,11 +263,13 @@
                 <package.environment>dev</package.environment>
             </properties>
             <dependencies>
+                <!--
                 <dependency>
                     <groupId>com.erui</groupId>
                     <artifactId>erui-sso-client-dev</artifactId>
                     <version>1.0</version>
                 </dependency>
+                -->
             </dependencies>
         </profile>
         <profile>
