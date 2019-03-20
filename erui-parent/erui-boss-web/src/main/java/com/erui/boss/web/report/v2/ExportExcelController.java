@@ -6,6 +6,7 @@ import com.erui.report.service.BuyerStatisticsService;
 import com.erui.report.service.OrderStatisticsService;
 import com.erui.report.service.QuoteStatisticsService;
 import com.erui.report.util.ParamsUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -41,10 +42,10 @@ public class ExportExcelController {
         String startTime = request.getParameter("startTime");
         String endTime = request.getParameter("endTime");
         Map<String, Object> params = new HashMap<>();
-        if (startTime != null) {
+        if (StringUtils.isNotBlank(startTime)) {
             params.put("startTime", startTime);
         }
-        if (endTime != null) {
+        if (StringUtils.isNotBlank(endTime)) {
             params.put("endTime", endTime);
         }
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
@@ -67,10 +68,10 @@ public class ExportExcelController {
         String startTime = request.getParameter("startTime");
         String endTime = request.getParameter("endTime");
         Map<String, Object> params = new HashMap<>();
-        if (startTime != null) {
+        if (StringUtils.isNotBlank(startTime)) {
             params.put("startTime", startTime);
         }
-        if (endTime != null) {
+        if (StringUtils.isNotBlank(endTime)) {
             params.put("endTime", endTime);
         }
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
@@ -152,10 +153,10 @@ public class ExportExcelController {
         String startTime = request.getParameter("startTime");
         String endTime = request.getParameter("endTime");
         Map<String, String> params = new HashMap<>();
-        if (startTime != null) {
+        if (StringUtils.isNotBlank(startTime)) {
             params.put("startTime", startTime);
         }
-        if (startTime != null) {
+        if (StringUtils.isNotBlank(endTime)) {
             params.put("endTime", endTime);
         }
         return params;
