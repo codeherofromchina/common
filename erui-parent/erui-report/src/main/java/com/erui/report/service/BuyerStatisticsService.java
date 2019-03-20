@@ -50,6 +50,26 @@ public interface BuyerStatisticsService {
      * @param params
      * @return
      */
-    HSSFWorkbook getOrderBuyerStatisticsExcel(Map<String, Object> params);
+    HSSFWorkbook genOrderBuyerStatisticsExcel(Map<String, Object> params);
 
+    /**
+     * 业绩统计 - 会员统计
+     * @param params
+     * @return
+     */
+    HSSFWorkbook genRegisterBuyerListExcel(Map<String, String> params);
+
+    /**
+     * 业绩统计 - 交易会员统计
+     * @param params
+     * @return
+     */
+    HSSFWorkbook genMembershipBuyerListExcel(Map<String, String> params);
+
+    /**
+     * 业绩统计 - 入网会员统计
+     * @param params
+     * @return
+     */
+    HSSFWorkbook genApplyBuyerListExcel(Map<String, String> params);
 }

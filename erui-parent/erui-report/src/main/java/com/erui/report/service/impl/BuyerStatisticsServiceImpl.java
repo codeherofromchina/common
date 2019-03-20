@@ -168,7 +168,7 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
 
 
     @Override
-    public HSSFWorkbook getOrderBuyerStatisticsExcel(Map<String, Object> params) {
+    public HSSFWorkbook genOrderBuyerStatisticsExcel(Map<String, Object> params) {
         Map<String, Object> data = orderBuyerStatistics(params);
         if (params == null) {
             params = new HashMap<>();
@@ -182,7 +182,7 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
                 "累计截止到本周末2019.1.1-" + (params.get("endTime") == null ? "今" : params.get("endTime")),
                 "备注",
         };
-        List<Object> excelData = new ArrayList<>();
+        List<Object[]> excelData = new ArrayList<Object[]>();
         if (data.size() > 0) {
             List<Map<String, Object>> list = (List<Map<String, Object>>) data.get("list");
             int seq = 1;
@@ -222,5 +222,114 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
         }
         return workbook;
 
+    }
+
+
+    @Override
+    public HSSFWorkbook genRegisterBuyerListExcel(Map<String, String> params) {
+        String[] header = { "序号", "注册客户代码",  "注册时间", "获取人", "国家", "地区"};
+        List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryRegisterBuyerList(params);
+        List<Object[]> excelData = new ArrayList<Object[]>();
+        if (buyerList != null && buyerList.size() >0) {
+            int seq = 1;
+            for (Map<String,Object> map : buyerList) {
+                Object[] obj = new Object[header.length];
+                obj[0] = seq;
+                obj[1] = map.get("buyerCode");
+                obj[2] = map.get("registerTime");
+                obj[3] = map.get("acquiringUserName");
+                obj[4] = map.get("countryName");
+                obj[5] = map.get("areaName");
+                excelData.add(obj);
+                seq++;
+            }
+        }
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(excelData, header, null,
+                "业绩统计-会员统计");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, excelData.size());
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        if (params.containsKey("startTime")) {
+            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "业绩统计-会员统计");
+        } else {
+            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "业绩统计-会员统计（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        }
+        return workbook;
+    }
+
+
+    @Override
+    public HSSFWorkbook genApplyBuyerListExcel(Map<String, String> params) {
+        String[] header = { "序号", "客户代码", "国家", "地区", "入网时间"};
+        List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryApplyBuyerList(params);
+        List<Object[]> excelData = new ArrayList<Object[]>();
+        if (buyerList != null && buyerList.size() >0) {
+            int seq = 1;
+            for (Map<String,Object> map : buyerList) {
+                Object[] obj = new Object[header.length];
+                obj[0] = seq;
+                obj[1] = map.get("buyerCode");
+                obj[2] = map.get("countryName");
+                obj[3] = map.get("areaName");
+                obj[4] = map.get("applyTime");
+                excelData.add(obj);
+                seq++;
+            }
+        }
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(excelData, header, null,
+                "业绩统计-入网会员统计");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, excelData.size());
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        if (params.size() == 0) {
+            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "业绩统计-入网会员统计");
+        } else {
+            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "业绩统计-入网会员统计（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        }
+        return workbook;
+    }
+
+    @Override
+    public HSSFWorkbook genMembershipBuyerListExcel(Map<String, String> params) {
+        String[] header = { "序号", "注册客户代码",  "注册时间", "获取人", "国家", "地区"};
+        List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryMembershipBuyerList(params);
+        List<Object[]> excelData = new ArrayList<Object[]>();
+        if (buyerList != null && buyerList.size() >0) {
+            int seq = 1;
+            for (Map<String,Object> map : buyerList) {
+                Object[] obj = new Object[header.length];
+                obj[0] = seq;
+                obj[1] = map.get("buyerCode");
+                obj[2] = map.get("membershipTime");
+                obj[3] = map.get("acquiringUserName");
+                obj[4] = map.get("countryName");
+                obj[5] = map.get("areaName");
+                excelData.add(obj);
+                seq++;
+            }
+        }
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(excelData, header, null,
+                "业绩统计-交易会员统计");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, excelData.size());
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        if (params.size() == 0) {
+            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "业绩统计-交易会员统计");
+        } else {
+            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "业绩统计-交易会员统计（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        }
+        return workbook;
     }
 }
