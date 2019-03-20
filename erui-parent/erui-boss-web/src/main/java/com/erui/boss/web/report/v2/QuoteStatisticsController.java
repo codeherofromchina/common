@@ -1,6 +1,7 @@
 package com.erui.boss.web.report.v2;
 
 import com.erui.boss.web.util.Result;
+import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.report.service.QuoteStatisticsService;
 import com.erui.report.util.ParamsUtils;
@@ -35,7 +36,9 @@ public class QuoteStatisticsController {
         int pageSize = NumberUtils.toInt((String) req.get("pageSize"), 1);
         Map<String, Object> params = ParamsUtils.verifyParam(req, DateUtil.SHORT_FORMAT_STR, null);
         PageInfo<Map<String, Object>> pageInfo = quoteStatisticsService.quotePerformanceByPage(pageNum, pageSize, params);
-        Result<Object> result = new Result<>(pageInfo);
-        return result;
+        if (pageInfo == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        return new Result<>(pageInfo);
     }
 }

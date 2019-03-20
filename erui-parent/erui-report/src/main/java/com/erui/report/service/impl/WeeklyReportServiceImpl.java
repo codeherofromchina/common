@@ -1531,7 +1531,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             Map<String, Object> params02 = new HashMap<>();
             params02.put("startTime", params.get("chainStartTime"));
             params02.put("endTime", params.get("chainEndTime"));
-            lastWeekList = readMapper.selectWebStatisticsInfo(params);
+            lastWeekList = readMapper.selectWebStatisticsInfo(params02);
         }
         if (lastWeekList != null && lastWeekList.size() > 0) {
             Map<String, Object> map = lastWeekList.get(0);

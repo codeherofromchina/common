@@ -55,9 +55,14 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
         acquireUserIdSet.addAll(quoteMinTimeAndTotalNumMap.keySet());
         acquireUserIdSet.addAll(orderMinTimeAndTotalNumMap.keySet());
 
-        // 分页查询获取人
-        PageHelper.startPage(pageNum, pageSize);
-        List<Map<String, Object>> acquiringUserList = quoteStatisticsMapper.findAcquiringUserByUserIdSet(new ArrayList(acquireUserIdSet));
+        List<Map<String, Object>> acquiringUserList = null;
+        if (acquireUserIdSet.size() > 0) {
+            // 分页查询获取人
+            PageHelper.startPage(pageNum, pageSize);
+            acquiringUserList = quoteStatisticsMapper.findAcquiringUserByUserIdSet(new ArrayList(acquireUserIdSet));
+        } else {
+            return null;
+        }
         // 数据汇总
         for (Map<String, Object> acquiringUser : acquiringUserList) {
             Integer userId = (Integer) acquiringUser.get("acquiring_user_id");
