@@ -1548,39 +1548,47 @@ public class ProjectServiceImpl implements ProjectService {
                 sheet1.getRow(30).getCell(2).setCellFormula(null);
                 sheet1.getRow(30).getCell(2).setCellValue(projectProfit.getProjectCost().toString());
             }
-            if (projectProfit.getGrossProfit() != null) {
-                sheet1.getRow(31).getCell(2).setCellFormula(null);
-                sheet1.getRow(31).getCell(2).setCellValue(projectProfit.getGrossProfit().toString());
-            }
-            if (projectProfit.getGrossProfitMargin() != null) {
-                sheet1.getRow(32).getCell(2).setCellFormula(null);
-                sheet1.getRow(32).getCell(2).setCellValue(projectProfit.getGrossProfitMargin().toString());
-            }
+//            if (projectProfit.getGrossProfit() != null) {
+//                sheet1.getRow(31).getCell(2).setCellFormula(null);
+//                sheet1.getRow(31).getCell(2).setCellValue(projectProfit.getGrossProfit().toString());
+//            }
+//            if (projectProfit.getGrossProfitMargin() != null) {
+//                sheet1.getRow(32).getCell(2).setCellFormula(null);
+//                sheet1.getRow(32).getCell(2).setCellValue(projectProfit.getGrossProfitMargin().toString());
+//            }
             if (projectProfit.getAgentFee() != null) {
-                sheet1.getRow(33).getCell(2).setCellValue(projectProfit.getAgentFee().toString());
+                sheet1.getRow(31).getCell(2).setCellValue(projectProfit.getAgentFee().toString());
             }
             if (projectProfit.getGuaranceFee() != null) {
-                sheet1.getRow(34).getCell(2).setCellValue(projectProfit.getGuaranceFee().toString());
+                sheet1.getRow(32).getCell(2).setCellValue(projectProfit.getGuaranceFee().toString());
             }
             if (projectProfit.getFinancingInterest() != null) {
-                sheet1.getRow(35).getCell(2).setCellFormula(null);
-                sheet1.getRow(35).getCell(2).setCellValue(projectProfit.getFinancingInterest().toString());
+                sheet1.getRow(33).getCell(2).setCellFormula(null);
+                sheet1.getRow(33).getCell(2).setCellValue(projectProfit.getFinancingInterest().toString());
             }
             if (projectProfit.getBankFees() != null) {
-                sheet1.getRow(36).getCell(2).setCellFormula(null);
-                sheet1.getRow(36).getCell(2).setCellValue(projectProfit.getBankFees().toString());
+                sheet1.getRow(34).getCell(2).setCellFormula(null);
+                sheet1.getRow(34).getCell(2).setCellValue(projectProfit.getBankFees().toString());
             }
             if (projectProfit.getDomesticTaxs() != null) {
-                sheet1.getRow(37).getCell(2).setCellFormula(null);
-                sheet1.getRow(37).getCell(2).setCellValue(projectProfit.getDomesticTaxs().toString());
+                sheet1.getRow(35).getCell(2).setCellFormula(null);
+                sheet1.getRow(35).getCell(2).setCellValue(projectProfit.getDomesticTaxs().toString());
             }
             if (projectProfit.getForeignTaxes() != null) {
-                sheet1.getRow(38).getCell(2).setCellFormula(null);
-                sheet1.getRow(38).getCell(2).setCellValue(projectProfit.getForeignTaxes().toString());
+                sheet1.getRow(36).getCell(2).setCellFormula(null);
+                sheet1.getRow(36).getCell(2).setCellValue(projectProfit.getForeignTaxes().toString());
             }
             if (projectProfit.getManageFee() != null) {
+                sheet1.getRow(37).getCell(2).setCellFormula(null);
+                sheet1.getRow(37).getCell(2).setCellValue(projectProfit.getManageFee().toString());
+            }
+            if (projectProfit.getRearFee() != null) {
+                sheet1.getRow(38).getCell(2).setCellFormula(null);
+                sheet1.getRow(38).getCell(2).setCellValue(projectProfit.getRearFee().toString());
+            }
+            if (projectProfit.getTotalProjectCost() != null) {
                 sheet1.getRow(39).getCell(2).setCellFormula(null);
-                sheet1.getRow(39).getCell(2).setCellValue(projectProfit.getManageFee().toString());
+                sheet1.getRow(39).getCell(2).setCellValue(projectProfit.getTotalProjectCost().toString());
             }
             if (projectProfit.getBeforeProfit() != null) {
                 sheet1.getRow(40).getCell(2).setCellFormula(null);
