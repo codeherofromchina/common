@@ -1096,8 +1096,6 @@ public class OrderServiceImpl implements OrderService {
             projectProfit.setCountry(orderUpdate.getCountry());
             projectProfit.setTradeTerm(orderUpdate.getTradeTerms());
             projectProfit.setContractAmountUsd(orderUpdate.getTotalPriceUsd());
-            //projectProfit.setExchangeRate(orderUpdate.getExchangeRate());
-            //projectAdd.setProjectProfit(projectProfit);
             projectProfitDao.save(projectProfit);
             // 调用CRM系统，触发CRM用户升级任务
             if (StringUtils.isNotBlank(eruiToken)) {
