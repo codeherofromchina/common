@@ -17,7 +17,6 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.xssf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -25,8 +24,52 @@ import java.util.*;
 
 @Service
 public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> implements PerformanceService {
-
     private final static Logger logger = LoggerFactory.getLogger(PerformanceServiceImpl.class);
+
+    @Override
+    public ImportDataResponse importDataPvUv(List<String[]> datas, boolean testOnly) {
+        ImportDataResponse response = new ImportDataResponse();
+        for (int index = 0; index < datas.size(); index++) {
+            int cellIndex = index + 2; // 数据从第二行开始,用于提示多少行出问题
+            String[] strArr = datas.get(index);
+            if (ExcelUploadTypeEnum.verifyData(strArr, ExcelUploadTypeEnum.WEBINFO_PV_UV_TEMP, response, cellIndex)) {
+                continue;
+            }
+            try {
+                if (!testOnly) {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("dayDate", strArr[0]);
+                    params.put("countryBn", strArr[1]);
+                    params.put("uv", strArr[2]);
+                    params.put("pv", strArr[3]);
+                    params.put("sessions", strArr[4]);
+                    params.put("avgSessionDuration", strArr[5]);
+                    params.put("bounceRate", strArr[6]);
+                    List<Map<String, Object>> areaList = writeMapper.findAreaByCountry(params);
+                    if (areaList != null && areaList.size() > 0) {
+                        Map<String, Object> map = areaList.get(0);
+                        params.put("areaName", (String) map.get("area_name"));
+                        params.put("areaBn", (String) map.get("area_bn"));
+                        params.put("countryName", (String) map.get("country_name"));
+                    }
+                    List<Map<String, Object>> existPvUvDate = writeMapper.getIsExistPvUvDate(params);
+                    if (existPvUvDate != null && existPvUvDate.size() > 0) {
+                        writeMapper.updateWebInfoPvUv(params);
+                    } else {
+                        writeMapper.insertWebInfoPvUv(params);
+                    }
+                }
+            } catch (Exception e) {
+                response.incrFail();
+                response.pushFailItem(ExcelUploadTypeEnum.WEBINFO_PV_UV_TEMP.getTable(), cellIndex, e.getMessage());
+                continue;
+            }
+            response.incrSuccess();
+        }
+        response.setDone(true);
+        return response;
+    }
+
     @Override
     public ImportDataResponse importData(List<String[]> datas, boolean testOnly) {
 
@@ -157,6 +200,9 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
         response.setDone(true);
         return response;
     }
+
+
+
 
     @Override
     public List<String> selectDateList() {

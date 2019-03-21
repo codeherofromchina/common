@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.report.dao.OrderStatisticsMapper">
+    <select id="yearPerformance" resultType="java.util.Map">
+        SELECT
+            `year`, SUM(money) AS money, SUM(count) AS count
+        FROM
+            erui_report.rep_area_performance
+        <where>
+            <if test="startYear != null">
+                `year` <![CDATA[>=]]> #{startYear}
+            </if>
+            <if test="endYear != null">
+                AND `year` <![CDATA[<=]]> #{endYear}
+            </if>
+        </where>
+        GROUP BY `year`
+        ORDER BY `year` ASC
+    </select>
+
+
+    <select id="yearAreaPerformance" resultType="java.util.Map">
+        SELECT
+          area_bn, area_name, SUM(money) AS money, SUM(count) AS count
+        FROM
+          erui_report.rep_area_performance
+        <where>
+            <if test="startYear != null">
+                `year` <![CDATA[>=]]> #{startYear}
+            </if>
+            <if test="endYear != null">
+                AND `year` <![CDATA[<=]]> #{endYear}
+            </if>
+        </where>
+        GROUP BY area_bn , area_name
+    </select>
+
+
+    <select id="projectList" resultType="java.util.Map">
+        SELECT
+            id,
+            DATE_FORMAT(project_start_date, '%Y/%m/%d') AS projectStartDate,
+            contract_no AS contractNo,
+            order_type AS orderType,
+            project_name AS projectName,
+            exec_co_name AS execCoName,
+            org_id AS orgId,
+            org_name AS orgName,
+            area_name AS areaName,
+            area_bn AS areaBn,
+            crm_code AS crmCode,
+            money AS money,
+            profit_percent AS profitPercent,
+            profit AS profit,
+            ifnull(acquiring_user,"") AS acquiringUser,
+            ifnull(business_name,"") AS businessName
+        FROM
+          erui_report.rep_order_list
+        <where>
+            <if test="startTime != null and startTime != ''">
+                project_start_date <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND project_start_date <![CDATA[<=]]> #{endTime}
+            </if>
+        </where>
+    </select>
+</mapper>

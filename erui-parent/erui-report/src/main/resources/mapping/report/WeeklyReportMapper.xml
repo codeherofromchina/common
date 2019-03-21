@@ -302,7 +302,7 @@
                 erui_order.project t3 ON t1.id=t3.order_id
                  WHERE t1.status>2 AND t1.delete_flag=0
                  and  t3.start_date BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
-            ) AS t4  GROUP BY t4.name;
+            ) AS t4  GROUP BY t4.name
     </select>
 
     <select id="selectSupplierNumWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
@@ -374,7 +374,7 @@
         where p.deleted_flag='N' and p.lang='en'
           and scp.created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
         ) AS t4
-        GROUP BY t4.name;
+        GROUP BY t4.name
 
     </select>
     <!--获取产品线列表-->
@@ -406,7 +406,7 @@
     where   g.deleted_flag='N'  and p.deleted_flag='N'  and g.lang='en'
             and scg.created_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s") and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
     ) AS t4
-     GROUP BY t4.name;
+     GROUP BY t4.name
 
     </select>
 
@@ -444,5 +444,28 @@
           where t3.order_id=t1.id  AND  t1.status>2
                 AND t1.delete_flag=0
            AND t3.start_date BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
+    </select>
+
+
+    <select id="selectWebStatisticsInfo" resultType="java.util.Map">
+        SELECT
+            COUNT(pv) AS pv,
+            COUNT(uv) AS uv,
+            SUM(avg_session_duration * sessions) / SUM(sessions) AS avgDur,
+            AVG(bounce_rate) AS jump
+        FROM
+            erui_report.rep_daily_country_web_info
+        WHERE day_date <![CDATA[>=]]> DATE_FORMAT(#{startTime},'%Y/%m/%d %H:%i:%s') AND day_date <![CDATA[<=]]> DATE_FORMAT(#{endTime},'%Y/%m/%d %H:%i:%s')
+    </select>
+
+    <select id="selectUvCountGroupByArea" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            SUM(uv) AS uvCount, area_name AS area
+        FROM
+            erui_report.rep_daily_country_web_info
+        WHERE day_date BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
+                AND DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
+                AND area_bn is not null
+        GROUP BY area_bn , area_name
     </select>
 </mapper>
