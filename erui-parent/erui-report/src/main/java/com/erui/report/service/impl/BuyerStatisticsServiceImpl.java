@@ -1,6 +1,7 @@
 package com.erui.report.service.impl;
 
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.excel.BuildExcel;
 import com.erui.comm.util.excel.BuildExcelImpl;
 import com.erui.comm.util.excel.ExcelCustomStyle;
@@ -88,8 +89,10 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
             befStatisticsList = new ArrayList<>(aftStatisticsList);
         } else {
             Date oneBefDay = DateUtil.getDateAfter(DateUtil.parseString2DateNoException(startTime, DateUtil.FULL_FORMAT_STR), -1);
-            params.put("endTime", DateUtil.format(DateUtil.FULL_FORMAT_STR, oneBefDay));
-            befStatisticsList = buyerStatisticsMapper.orderBuyerStatistics(params);
+            Map<String, Object> params3 = new HashMap<>();
+            params3.put("startTime", date2019);
+            params3.put("endTime", DateUtil.format(DateUtil.FULL_FORMAT_STR, oneBefDay));
+            befStatisticsList = buyerStatisticsMapper.orderBuyerStatistics(params3);
         }
         // 合并结果集
         Map<String, Long> befMap = befStatisticsList.stream().collect(Collectors.toMap(vo -> vo.get("area_bn") + "_" + vo.get("area_name") + "_" + vo.get("country_bn") + "_" + vo.get("country_name"), vo -> (Long) vo.get("num")));
@@ -173,13 +176,24 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
         if (params == null) {
             params = new HashMap<>();
         }
+        String startTime = (String) params.get("startTime");
+        String endTime = (String) params.get("endTime");
+        Date oneBefDay = null;
+        Date endDay = null;
+        if (StringUtils.isNotBlank(startTime)) {
+            oneBefDay = DateUtil.getDateAfter(DateUtil.parseString2DateNoException(startTime, DateUtil.FULL_FORMAT_STR), -1);
+        }
+        if (StringUtil.isNotBlank(endTime)) {
+            endDay = DateUtil.parseString2DateNoException(startTime, DateUtil.FULL_FORMAT_STR);
+        }
+
         String[] header = {
                 "序号",
                 "地区",
                 "国家",
-                "累计截止到上周末2019.1.1-" + (params.get("startTime") == null ? "今" : params.get("startTime")),
+                "累计截止到上周末2019.1.1-" + (oneBefDay == null ? "今" : DateUtil.format(DateUtil.SHORT_FORMAT_STR,oneBefDay)),
                 "本周新增",
-                "累计截止到本周末2019.1.1-" + (params.get("endTime") == null ? "今" : params.get("endTime")),
+                "累计截止到本周末2019.1.1-" + (endDay == null ? "今" : DateUtil.format(DateUtil.SHORT_FORMAT_STR,endDay)),
                 "备注",
         };
         List<Object[]> excelData = new ArrayList<Object[]>();
@@ -229,6 +243,8 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
     public HSSFWorkbook genRegisterBuyerListExcel(Map<String, String> params) {
         String[] header = { "序号", "注册客户代码",  "注册时间", "获取人", "国家", "地区"};
         List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryRegisterBuyerList(params);
+        System.out.println(">>>>>>>" + params);
+        System.out.println(">>>>>>>" + buyerList);
         List<Object[]> excelData = new ArrayList<Object[]>();
         if (buyerList != null && buyerList.size() >0) {
             int seq = 1;
