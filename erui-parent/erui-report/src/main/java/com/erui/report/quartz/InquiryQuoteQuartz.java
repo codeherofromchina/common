@@ -25,10 +25,6 @@ public class InquiryQuoteQuartz {
         ReportBaseQuartz reportBaseQuartz = new ReportBaseQuartz();
         reportBaseQuartz.start();
 
-
-
-
-
     }
 
 
