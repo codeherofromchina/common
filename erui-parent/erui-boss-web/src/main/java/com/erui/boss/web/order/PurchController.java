@@ -77,7 +77,7 @@ public class PurchController {
             String ui = String.valueOf(userId);
             if (StringUtils.isNotBlank(ui) && StringUtils.isNumeric(ui)) {
                 // 填充条件的当前审核人，查询列表条件使用
-                condition.setAuditingUserId(Integer.parseInt(ui));
+                condition.setAuditingUserId(ui);
             }
         }
 
@@ -177,8 +177,8 @@ public class PurchController {
         // 获取当前登录用户ID并比较是否是当前用户审核
         Object userId = request.getSession().getAttribute("userid");
         Object userName = request.getSession().getAttribute("realname");
-        Integer auditingUserId = purch.getAuditingUserId();
-        if (auditingUserId == null || !StringUtils.equals(String.valueOf(userId), auditingUserId.toString())) {
+        String auditingUserId = purch.getAuditingUserId();
+        if (auditingUserId == null || auditingUserId.indexOf(String.valueOf(userId)) ==-1) {
             return new Result<>(ResultStatusEnum.NOT_NOW_AUDITOR);
         }
         // 判断是否是驳回并判断原因参数
