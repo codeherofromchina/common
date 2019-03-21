@@ -231,8 +231,39 @@ public class ProjectProfit {
     @Column(name = "manufacturing_costs")
     private BigDecimal manufacturingCosts;
 
+    /**
+     * 项目核算利润提点比例
+     */
     @Column(name = "raise_rate")
     private BigDecimal raiseRate;
+
+    /**
+     * 项目成本总计
+     */
+    @Column(name = "total_project_cost")
+    private BigDecimal totalProjectCost;
+
+    /**
+     * 后方提点费用
+     */
+    @Column(name = "rear_fee")
+    private BigDecimal rearFee;
+
+    public BigDecimal getRearFee() {
+        return rearFee;
+    }
+
+    public void setRearFee(BigDecimal rearFee) {
+        this.rearFee = rearFee;
+    }
+
+    public BigDecimal getTotalProjectCost() {
+        return totalProjectCost;
+    }
+
+    public void setTotalProjectCost(BigDecimal totalProjectCost) {
+        this.totalProjectCost = totalProjectCost;
+    }
 
     public BigDecimal getRaiseRate() {
         return raiseRate;
