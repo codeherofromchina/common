@@ -179,21 +179,23 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
         String startTime = (String) params.get("startTime");
         String endTime = (String) params.get("endTime");
         Date oneBefDay = null;
+        Date startDay = null;
         Date endDay = null;
         if (StringUtils.isNotBlank(startTime)) {
-            oneBefDay = DateUtil.getDateAfter(DateUtil.parseString2DateNoException(startTime, DateUtil.FULL_FORMAT_STR), -1);
+            startDay = DateUtil.parseString2DateNoException(startTime, DateUtil.FULL_FORMAT_STR);
+            oneBefDay = DateUtil.getDateAfter(startDay, -1);
         }
         if (StringUtil.isNotBlank(endTime)) {
-            endDay = DateUtil.parseString2DateNoException(startTime, DateUtil.FULL_FORMAT_STR);
+            endDay = DateUtil.parseString2DateNoException(endTime, DateUtil.FULL_FORMAT_STR);
         }
 
         String[] header = {
                 "序号",
                 "地区",
                 "国家",
-                "累计截止到上周末2019.1.1-" + (oneBefDay == null ? "今" : DateUtil.format(DateUtil.SHORT_FORMAT_STR,oneBefDay)),
+                "累计截止到上周末2019.1.1-" + (oneBefDay == null ? "今" : DateUtil.format(DateUtil.SHORT_FORMAT_DOT_STR,oneBefDay)),
                 "本周新增",
-                "累计截止到本周末2019.1.1-" + (endDay == null ? "今" : DateUtil.format(DateUtil.SHORT_FORMAT_STR,endDay)),
+                "累计截止到本周末2019.1.1-" + (endDay == null ? "今" : DateUtil.format(DateUtil.SHORT_FORMAT_DOT_STR,endDay)),
                 "备注",
         };
         List<Object[]> excelData = new ArrayList<Object[]>();
@@ -232,10 +234,9 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
         if (params.size() == 0) {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "开发会员统计");
         } else {
-            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "开发会员统计（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "开发会员统计（" + DateUtil.format(DateUtil.SHORT_FORMAT_DOT_STR,startDay) + "-" + DateUtil.format(DateUtil.SHORT_FORMAT_DOT_STR,endDay) + "）");
         }
         return workbook;
-
     }
 
 
@@ -243,8 +244,6 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
     public HSSFWorkbook genRegisterBuyerListExcel(Map<String, String> params) {
         String[] header = { "序号", "注册客户代码",  "注册时间", "获取人", "国家", "地区"};
         List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryRegisterBuyerList(params);
-        System.out.println(">>>>>>>" + params);
-        System.out.println(">>>>>>>" + buyerList);
         List<Object[]> excelData = new ArrayList<Object[]>();
         if (buyerList != null && buyerList.size() >0) {
             int seq = 1;
@@ -272,7 +271,7 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
         if (params.containsKey("startTime")) {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "业绩统计-会员统计");
         } else {
-            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "业绩统计-会员统计（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "业绩统计-会员统计（" + params.get("registerStartTime") + "-" + params.get("registerEndTime") + "）");
         }
         return workbook;
     }
@@ -281,9 +280,10 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
     @Override
     public HSSFWorkbook genApplyBuyerListExcel(Map<String, String> params) {
         String[] header = { "序号", "客户代码", "国家", "地区", "入网时间"};
+
         List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryApplyBuyerList(params);
         List<Object[]> excelData = new ArrayList<Object[]>();
-        if (buyerList != null && buyerList.size() >0) {
+        if (buyerList != null && buyerList.size() > 0) {
             int seq = 1;
             for (Map<String,Object> map : buyerList) {
                 Object[] obj = new Object[header.length];
@@ -308,7 +308,7 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
         if (params.size() == 0) {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "业绩统计-入网会员统计");
         } else {
-            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "业绩统计-入网会员统计（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "业绩统计-入网会员统计（" + params.get("applyStartTime") + "--" + params.get("applyEndTime") + "）");
         }
         return workbook;
     }
@@ -344,7 +344,7 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
         if (params.size() == 0) {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "业绩统计-交易会员统计");
         } else {
-            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "业绩统计-交易会员统计（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "业绩统计-交易会员统计（" + params.get("membershipStartTime") + "--" + params.get("membershipEndTime") + "）");
         }
         return workbook;
     }
