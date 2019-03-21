@@ -37,7 +37,6 @@ public class BuyerStatisticsController {
         int pageSize = NumberUtils.toInt(req.get("pageSize"), 20);
 
 
-
         PageInfo<Map<String, Object>> pageInfo = buyerStatisticsService.registerBuyerList(pageNum, pageSize, req);
         Result<Object> result = new Result<>(pageInfo);
         return result;
