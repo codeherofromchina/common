@@ -50,10 +50,11 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
                 Long count = ((BigDecimal) yearData.get("count")).longValue();
                 xAxisData.add(String.valueOf(year02));
                 if (money == null) {
-                    money = money.divide(wanDollar).setScale(2,BigDecimal.ROUND_DOWN)
+                    money = money.divide(wanDollar).setScale(2,BigDecimal.ROUND_DOWN);
                 } else {
                     money = BigDecimal.ZERO;
                 }
+
                 amountData.add(money);
                 countData.add(count);
                 totalAmount = totalAmount.add(money);
