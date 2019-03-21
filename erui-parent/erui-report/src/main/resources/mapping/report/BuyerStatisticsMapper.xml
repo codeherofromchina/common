@@ -20,6 +20,7 @@
             <if test="registerEndTime != null and registerEndTime != ''">
                 AND register_time <![CDATA[<=]]> #{registerEndTime}
             </if>
+        ORDER BY register_time ASC
     </select>
 
 
@@ -41,6 +42,7 @@
             <if test="membershipEndTime != null and membershipEndTime != ''">
                 AND membership_time <![CDATA[<=]]> #{membershipEndTime}
             </if>
+        ORDER BY membership_time ASC
     </select>
 
 
@@ -62,6 +64,7 @@
             <if test="applyEndTime != null and applyEndTime != ''">
                 AND apply_time <![CDATA[<=]]> #{applyEndTime}
             </if>
+        ORDER BY apply_time asc
     </select>
 
 
