@@ -200,6 +200,11 @@ public class AddOrderVo {
     private String areaVp;          //区域VP
 
     private Integer perLiableRepayId; //回款责任人
+    private Integer financingCommissionerId;//融资专员Id
+    private Integer settlementLeaderId;   //结算专员
+    private Integer settlementLeader;
+    private Integer legalAuditerId;//法务审核人id
+    private Integer legalAuditer;//法务审核人
     // 项目审核接口中使用，审核的原因字段
     @Transient
     private String auditingReason;
@@ -223,6 +228,46 @@ public class AddOrderVo {
     private List<PGoods> goodDesc = new ArrayList<>();
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
+
+    public Integer getFinancingCommissionerId() {
+        return financingCommissionerId;
+    }
+
+    public void setFinancingCommissionerId(Integer financingCommissionerId) {
+        this.financingCommissionerId = financingCommissionerId;
+    }
+
+    public Integer getSettlementLeaderId() {
+        return settlementLeaderId;
+    }
+
+    public void setSettlementLeaderId(Integer settlementLeaderId) {
+        this.settlementLeaderId = settlementLeaderId;
+    }
+
+    public Integer getSettlementLeader() {
+        return settlementLeader;
+    }
+
+    public void setSettlementLeader(Integer settlementLeader) {
+        this.settlementLeader = settlementLeader;
+    }
+
+    public Integer getLegalAuditerId() {
+        return legalAuditerId;
+    }
+
+    public void setLegalAuditerId(Integer legalAuditerId) {
+        this.legalAuditerId = legalAuditerId;
+    }
+
+    public Integer getLegalAuditer() {
+        return legalAuditer;
+    }
+
+    public void setLegalAuditer(Integer legalAuditer) {
+        this.legalAuditer = legalAuditer;
+    }
 
     public Integer getCheckLogId() {
         return checkLogId;
@@ -843,7 +888,7 @@ public class AddOrderVo {
         order.setPoNo(this.poNo);
         order.setContractNoOs(this.contractNoOs);
         order.setInquiryNo(this.inquiryNo);
-        //order.setLogiQuoteNo(this.logiQuoteNo);
+        order.setLogiQuoteNo(this.logiQuoteNo);
         order.setOrderType(this.orderType);
         order.setOrderSource(this.orderSource);
         order.setSigningDate(this.signingDate);
