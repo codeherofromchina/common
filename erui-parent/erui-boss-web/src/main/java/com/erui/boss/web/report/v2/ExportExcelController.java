@@ -58,7 +58,7 @@ public class ExportExcelController {
 
 
     /**
-     * 报检单成单统计
+     * 报价单成单统计
      * @param request
      * @param response
      * @throws Exception
@@ -76,7 +76,7 @@ public class ExportExcelController {
         }
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         HSSFWorkbook wb = quoteStatisticsService.genQuotePerformanceExcel(params);
-        String fileName = "报检单成单统计" + System.currentTimeMillis() + ".xls";
+        String fileName = "报价单成单统计" + System.currentTimeMillis() + ".xls";
         HttpUtils.setExcelResponseHeader(response, fileName.toString());
         wb.write(response.getOutputStream());
     }
@@ -92,7 +92,15 @@ public class ExportExcelController {
      */
     @RequestMapping(value = "/projectList")
     public void projectList(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        Map<String, String> params = coverRequestTimeParam(request);
+        String startTime = request.getParameter("startTime");
+        String endTime = request.getParameter("endTime");
+        Map<String, String> params = new HashMap<>();
+        if (StringUtils.isNotBlank(startTime)) {
+            params.put("startTime", startTime);
+        }
+        if (StringUtils.isNotBlank(endTime)) {
+            params.put("endTime", endTime);
+        }
         HSSFWorkbook wb = orderStatisticsService.genProjectListExcel(params);
         String fileName = "业绩统计-业务业绩统计" + System.currentTimeMillis() + ".xls";
         HttpUtils.setExcelResponseHeader(response, fileName.toString());
@@ -108,7 +116,15 @@ public class ExportExcelController {
      */
     @RequestMapping(value = "/buyerStatistics/registerBuyerList")
     public void registerBuyerList(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        Map<String, String> params = coverRequestTimeParam(request);
+        String registerStartTime = request.getParameter("registerStartTime");
+        String registerEndTime = request.getParameter("registerEndTime");
+        Map<String, String> params = new HashMap<>();
+        if (StringUtils.isNotBlank(registerStartTime)) {
+            params.put("registerStartTime", registerStartTime);
+        }
+        if (StringUtils.isNotBlank(registerEndTime)) {
+            params.put("registerEndTime", registerEndTime);
+        }
         HSSFWorkbook wb = buyerStatisticsService.genRegisterBuyerListExcel(params);
         String fileName = "业绩统计-会员统计" + System.currentTimeMillis() + ".xls";
         HttpUtils.setExcelResponseHeader(response, fileName);
@@ -124,7 +140,15 @@ public class ExportExcelController {
      */
     @RequestMapping(value = "/buyerStatistics/membershipBuyerList")
     public void membershipBuyerList(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        Map<String, String> params = coverRequestTimeParam(request);
+        String membershipStartTime = request.getParameter("membershipStartTime");
+        String membershipEndTime = request.getParameter("membershipEndTime");
+        Map<String, String> params = new HashMap<>();
+        if (StringUtils.isNotBlank(membershipStartTime)) {
+            params.put("membershipStartTime", membershipStartTime);
+        }
+        if (StringUtils.isNotBlank(membershipEndTime)) {
+            params.put("membershipEndTime", membershipEndTime);
+        }
         HSSFWorkbook wb = buyerStatisticsService.genMembershipBuyerListExcel(params);
         String fileName = "业绩统计-交易会员统计" + System.currentTimeMillis() + ".xls";
         HttpUtils.setExcelResponseHeader(response, fileName);
@@ -140,25 +164,19 @@ public class ExportExcelController {
      */
     @RequestMapping(value = "/buyerStatistics/applyBuyerList")
     public void applyBuyerList(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        Map<String, String> params = coverRequestTimeParam(request);
+        String applyStartTime = request.getParameter("applyStartTime");
+        String applyEndTime = request.getParameter("applyEndTime");
+        Map<String, String> params = new HashMap<>();
+        if (StringUtils.isNotBlank(applyStartTime)) {
+            params.put("applyStartTime", applyStartTime);
+        }
+        if (StringUtils.isNotBlank(applyEndTime)) {
+            params.put("applyEndTime", applyEndTime);
+        }
         HSSFWorkbook wb = buyerStatisticsService.genApplyBuyerListExcel(params);
         String fileName = "业绩统计-入网会员统计" + System.currentTimeMillis() + ".xls";
         HttpUtils.setExcelResponseHeader(response, fileName);
         wb.write(response.getOutputStream());
     }
 
-
-
-    private Map<String, String> coverRequestTimeParam(HttpServletRequest request) {
-        String startTime = request.getParameter("startTime");
-        String endTime = request.getParameter("endTime");
-        Map<String, String> params = new HashMap<>();
-        if (StringUtils.isNotBlank(startTime)) {
-            params.put("startTime", startTime);
-        }
-        if (StringUtils.isNotBlank(endTime)) {
-            params.put("endTime", endTime);
-        }
-        return params;
-    }
 }
