@@ -37,7 +37,9 @@ public class BuyerStatisticsController {
 
 
 
-gi
+
+
+
         PageInfo<Map<String, Object>> pageInfo = buyerStatisticsService.registerBuyerList(pageNum, pageSize, req);
         Result<Object> result = new Result<>(pageInfo);
         return result;
