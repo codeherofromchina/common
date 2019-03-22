@@ -1292,6 +1292,12 @@ public class OrderServiceImpl implements OrderService {
             project.setAuditingStatus(0);
             //projectAdd.setProjectProfit(projectProfit);
             Project project1 = projectDao.save(project);
+            // 设置商品的项目信息
+            List<Goods> goodsList1 = order1.getGoodsList();
+            goodsList1.parallelStream().forEach(goods1 -> {
+                goods1.setProject(project1);
+            });
+            goodsDao.save(goodsList1);
             //添加项目利润核算单信息
             ProjectProfit projectProfit = new ProjectProfit();
             projectProfit.setProject(project1);
@@ -1324,10 +1330,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private List<Goods> addOrderGoods(AddOrderVo addOrderVo) throws Exception {
-        Order order = orderDao.findOne(addOrderVo.getId());
-        if (order == null) {
-            return null;
-        }
+
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
         Goods goods = null;
         List<Goods> goodsList = new ArrayList<>();
@@ -1340,6 +1343,7 @@ public class OrderServiceImpl implements OrderService {
                 // 已经存在的sku，返回错误
                 throw new MyException("同一sku不可以重复添加&&The same sku can not be added repeatedly");
             }
+            goods.setContractNo(addOrderVo.getContractNo());
             goods.setSku(sku);
             goods.setOutstockNum(0);
             goods.setMeteType(pGoods.getMeteType());
@@ -1360,16 +1364,9 @@ public class OrderServiceImpl implements OrderService {
             goods.setExchanged(false);
             goods.setDepartment(pGoods.getDepartment());
             goods.setPrice(pGoods.getPrice());
-            goods.setOrder(order);
             goodsList.add(goods);
-            goods.setOrder(order);
+
         }
-        order.setGoodsList(goodsList);
-        // 设置商品的项目信息
-        List<Goods> goodsList1 = order.getGoodsList();
-        goodsList1.parallelStream().forEach(goods1 -> {
-            goods1.setProject(order.getProject());
-        });
         return goodsList;
     }
 
