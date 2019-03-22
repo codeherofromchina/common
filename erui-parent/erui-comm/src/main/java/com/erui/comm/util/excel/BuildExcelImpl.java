@@ -55,20 +55,19 @@ public class BuildExcelImpl implements BuildExcel {
 	public void createBody(List datas,String[] keys,HSSFSheet sheet,HSSFWorkbook hssfWorkBook,int start) {
 		start = sheet.getLastRowNum()+1;
 		if(keys == null || keys.length<=0){     // 数组格式
+			HSSFCellStyle cellStyle = hssfWorkBook.createCellStyle();
 			for(int i=0;i<datas.size();i++){
 				Object[] objs = (Object[])datas.get(i);
 				HSSFRow row = sheet.createRow(i+start);  
 				for(int j=0;j<objs.length;j++){
 					HSSFCell cell = row.createCell(j);
 					if(objs[j] instanceof BigDecimal){
-						HSSFCellStyle cellStyle = hssfWorkBook.createCellStyle();
 						HSSFDataFormat format= hssfWorkBook.createDataFormat();
 						//cellStyle.setDataFormat(format.getFormat("#,##0.00"));
 						cell.setCellStyle(cellStyle);
 						cell.setCellValue(((BigDecimal)objs[j]).doubleValue());
 					} else if (objs[j] instanceof Double){
-						HSSFCellStyle cellStyle = hssfWorkBook.createCellStyle();  
-			            HSSFDataFormat format= hssfWorkBook.createDataFormat();  
+			            HSSFDataFormat format= hssfWorkBook.createDataFormat();
 			            //cellStyle.setDataFormat(format.getFormat("#,##0.00"));
 						cell.setCellStyle(cellStyle);
 						cell.setCellValue(((Double)objs[j]));

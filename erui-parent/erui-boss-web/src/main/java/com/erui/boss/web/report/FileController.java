@@ -19,7 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 @RequestMapping("/report/file")
 public class FileController {
-    private final static Logger logger = LoggerFactory.getLogger(FileController.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileController.class);
 
     /**
      * 上传文件操作页面

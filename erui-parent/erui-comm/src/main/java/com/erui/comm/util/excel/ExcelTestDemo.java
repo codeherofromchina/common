@@ -42,7 +42,7 @@ public class ExcelTestDemo {
 			HSSFSheet sheet = workbook.getSheetAt(0);
 			int lastRowNum = sheet.getLastRowNum();
 			System.out.println(lastRowNum);
-			out = new FileOutputStream("/Users/wangxiaodan/tmp/abc.xls");
+			out = new FileOutputStream("/Users/wangxiaodan/tmp/abc222.xls");
 			workbook.write(out);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

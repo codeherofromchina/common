@@ -22,13 +22,8 @@ public class InquiryQuoteQuartz {
      */
     public void execute() throws Exception {
 
-        System.out.println("111111");
-
-
-
-
-
-
+        ReportBaseQuartz reportBaseQuartz = new ReportBaseQuartz();
+        reportBaseQuartz.start();
 
     }
 

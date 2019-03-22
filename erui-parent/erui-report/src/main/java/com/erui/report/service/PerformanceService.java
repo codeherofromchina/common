@@ -20,6 +20,15 @@ public interface PerformanceService {
     ImportDataResponse importData(List<String[]> datas, boolean testOnly);
 
     /**
+     * 导入pvuv信息表中
+     * @param datas
+     * @param testOnly
+     * @return
+     */
+    ImportDataResponse importDataPvUv(List<String[]> datas, boolean testOnly);
+
+
+    /**
      * 查询日期列表
      *
      * @return
@@ -124,4 +133,6 @@ public interface PerformanceService {
      * @return
      */
     List<String> findCountryByArea(String area);
+
+
 }

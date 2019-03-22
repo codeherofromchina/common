@@ -340,4 +340,23 @@
           AND t2.`status` = 'VALID'
   </select>
 
+
+  <!--查询销售区域-->
+  <select id="findAreaByCountry" resultType="java.util.Map" >
+      SELECT t1.name AS area_name, t1.bn AS area_bn, t3.name AS country_name, t3.bn AS country_bn FROM erui_operation.market_area t1, erui_operation.market_area_country t2, erui_dict.country t3 WHERE (t1.bn = t2.market_area_bn AND t1.lang = 'zh' AND t2.country_bn = t3.bn AND t3.lang = 'zh' AND t3.bn = #{countryBn})
+  </select>
+
+  <select id="getIsExistPvUvDate" resultType="java.util.Map">
+      select id from erui_report.rep_daily_country_web_info where day_date = #{dayDate} and country_bn = #{countryBn}
+  </select>
+
+  <update id="updateWebInfoPvUv" >
+      update erui_report.rep_daily_country_web_info set uv = #{uv},pv=#{pv},avg_session_duration=#{avgSessionDuration},bounce_rate=#{bounceRate},sessions=#{sessions} where day_date=#{dayDate} and country_bn = #{countryBn}
+  </update>
+
+  <insert id="insertWebInfoPvUv">
+      INSERT INTO erui_report.rep_daily_country_web_info (day_date, area_bn, area_name, country_bn, country_name , uv, pv, avg_session_duration, bounce_rate, sessions) VALUES (#{dayDate}, #{areaBn}, #{areaName}, #{countryBn}, #{countryName}, #{uv}, #{pv}, #{avgSessionDuration}, #{bounceRate}, #{sessions})
+  </insert>
+
+
 </mapper>

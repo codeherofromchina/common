@@ -20,14 +20,14 @@ import java.util.Map;
  * @CreateDate: 2018/3/5 9:12
  */
 @Controller
-@RequestMapping(value = "/report/quality" ,method = RequestMethod.POST,produces = "application/json;charset-utf-8")
+@RequestMapping(value = "/report/quality", method = RequestMethod.POST, produces = "application/json;charset-utf-8")
 public class CategoryQualityController {
     @Autowired
     private CategoryQualityService qualityService;
 
     @ResponseBody
     @RequestMapping("/qualityPandect")
-    public Result qualityPandect(@RequestBody(required = true) Map<String,String> params){
+    public Result qualityPandect(@RequestBody(required = true) Map<String, String> params) {
         Result<Object> result = new Result<>();
         Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
         Date end = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
@@ -36,29 +36,29 @@ public class CategoryQualityController {
         }
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
 
-        String fullStartTime=DateUtil.formatDateToString(startTime, DateUtil.FULL_FORMAT_STR2);
-        String fullEndTime=DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
-        params.put("startTime",fullStartTime);
-        params.put("endTime",fullEndTime);
-       Map<String,Object> data=this.qualityService.selectQualitySummaryData(params);
+        String fullStartTime = DateUtil.formatDateToString(startTime, DateUtil.FULL_FORMAT_STR2);
+        String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
+        params.put("startTime", fullStartTime);
+        params.put("endTime", fullEndTime);
+        Map<String, Object> data = this.qualityService.selectQualitySummaryData(params);
         return result.setData(data);
     }
 
     @ResponseBody
     @RequestMapping("/qualityTrend")
-    public Result qualityTrend(@RequestBody(required = true) Map<String,String> params){
+    public Result qualityTrend(@RequestBody(required = true) Map<String, String> params) {
         Result<Object> result = new Result<>();
         Date startTime = DateUtil.parseString2DateNoException(params.get("startTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
         Date end = DateUtil.parseString2DateNoException(params.get("endTime"), DateUtil.SHORT_SLASH_FORMAT_STR);
-        if (params.get("type")==null||startTime == null || end == null || startTime.after(end)) {
+        if (params.get("type") == null || startTime == null || end == null || startTime.after(end)) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         Date endTime = DateUtil.getOperationTime(end, 23, 59, 59);
-        String fullStartTime=DateUtil.formatDateToString(startTime, DateUtil.FULL_FORMAT_STR2);
-        String fullEndTime=DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
-        params.put("startTime",fullStartTime);
-        params.put("endTime",fullEndTime);
-       Map<String,Object> data= qualityService.selectQualityTrendData(startTime,endTime,params.get("type"));
+        String fullStartTime = DateUtil.formatDateToString(startTime, DateUtil.FULL_FORMAT_STR2);
+        String fullEndTime = DateUtil.formatDateToString(endTime, DateUtil.FULL_FORMAT_STR2);
+        params.put("startTime", fullStartTime);
+        params.put("endTime", fullEndTime);
+        Map<String, Object> data = qualityService.selectQualityTrendData(startTime, endTime, params.get("type"));
         return result.setData(data);
     }
 }
