@@ -304,7 +304,6 @@ public class CheckLog {
         this.processName = processName;
     }
 
-
     public enum AuditProcessingEnum {
         // 0.订单提交立项 1.回款责任人审核、2.国家负责人审核、3.区域负责人审核、4.区域VP审核、5.融资专员审核
         //  1.事业部利润核算、2.法务审核、3.财务审核、4.结算审核、5.物流审核、6.事业部审核、7.事业部VP审核、8.总裁审核、9.董事长审核
