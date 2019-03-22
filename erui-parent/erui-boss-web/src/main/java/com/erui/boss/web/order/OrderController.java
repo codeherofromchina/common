@@ -336,7 +336,7 @@ public class OrderController {
         Object userId = request.getSession().getAttribute("userid");
         Object userName = request.getSession().getAttribute("realname");
         String auditingUserIds = order.getAuditingUserId();
-        if (auditingUserIds == null || !StringUtils.equals(String.valueOf(userId), auditingUserIds)) {
+        if (auditingUserIds == null || !equalsAny(String.valueOf(userId), auditingUserIds)) {
             return new Result<>(ResultStatusEnum.NOT_NOW_AUDITOR);
         }
         // 判断是否是驳回并判断原因参数
@@ -437,5 +437,15 @@ public class OrderController {
             result.setData(i);
         }
         return result;
+    }
+
+    private boolean equalsAny(String src, String searchStr) {
+        String[] strings = searchStr.split(",");
+        for (String search : strings) {
+            if (StringUtils.equals(src, search)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
