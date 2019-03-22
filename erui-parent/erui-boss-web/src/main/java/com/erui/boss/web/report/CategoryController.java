@@ -21,7 +21,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/report/category")
 public class CategoryController {
-
     @Autowired
     private CategoryService categoryService;
 
