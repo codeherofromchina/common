@@ -62,6 +62,7 @@
             ) t3
         WHERE
             t1.id = t3.inquiry_id
+            AND t1.obtain_id IS NOT NULL
                 AND t1.deleted_flag = 'N'
         GROUP BY t1.obtain_id
     </select>
@@ -78,6 +79,7 @@
         WHERE
         t1.id = t2.order_id AND t1.`status` >= 3
         AND t2.start_date IS NOT NULL
+        AND t1.acquire_id IS NOT NULL
         <if test="startTime!=null and endTime!=null">
             AND t2.start_date <![CDATA[>=]]> #{startTime} AND t2.start_date <![CDATA[<=]]> #{endTime}
         </if>
