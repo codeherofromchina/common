@@ -3,6 +3,7 @@ package com.erui.boss.web.report.v2;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.report.quartz.ReportBaseQuartz;
 import com.erui.report.service.BuyerStatisticsService;
 import com.erui.report.util.ParamsUtils;
 import com.github.pagehelper.PageInfo;
@@ -34,6 +35,7 @@ public class BuyerStatisticsController {
 
         int pageNum = NumberUtils.toInt(req.get("pageNum"), 1);
         int pageSize = NumberUtils.toInt(req.get("pageSize"), 20);
+
 
         PageInfo<Map<String, Object>> pageInfo = buyerStatisticsService.registerBuyerList(pageNum, pageSize, req);
         Result<Object> result = new Result<>(pageInfo);
@@ -89,5 +91,20 @@ public class BuyerStatisticsController {
             result.setData(data);
         }
         return result;
+    }
+
+
+
+
+    @RequestMapping(value = "/timer/2019-03-21", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public String timer() {
+        try {
+            ReportBaseQuartz reportBaseQuartz = new ReportBaseQuartz();
+            reportBaseQuartz.start();
+        }catch (Exception ex) {
+            ex.printStackTrace();
+            return ex.getMessage();
+        }
+        return "OK";
     }
 }

@@ -43,11 +43,19 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
             List<Long> countData = new ArrayList<>(); // 订单数量
             BigDecimal totalAmount = new BigDecimal("0");
             long totalCount = 0L;
+            BigDecimal wanDollar = new BigDecimal("10000");
             for (Map<String, Object> yearData : yearsDataList) {
                 Integer year02 = (Integer) yearData.get("year");
                 BigDecimal money = (BigDecimal) yearData.get("money");
                 Long count = ((BigDecimal) yearData.get("count")).longValue();
                 xAxisData.add(String.valueOf(year02));
+
+                if (money != null) {
+                    money = money.divide(wanDollar).setScale(2,BigDecimal.ROUND_DOWN);
+                } else {
+                    money = BigDecimal.ZERO;
+                }
+
                 amountData.add(money);
                 countData.add(count);
                 totalAmount = totalAmount.add(money);
@@ -56,7 +64,7 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
             result.put("xAxisData", xAxisData);
             result.put("amountData", amountData);
             result.put("countData", countData);
-            result.put("totalAmount", totalAmount);
+            result.put("totalAmount", totalAmount.divide(wanDollar).setScale(2,BigDecimal.ROUND_DOWN));
             result.put("totalCount", totalCount);
         }
         return result;
@@ -80,12 +88,18 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
             List<String> xAxisData = new ArrayList<>(); // 区域
             List<BigDecimal> amountData = new ArrayList<>(); // 金额，美元
             List<Long> countData = new ArrayList<>(); // 订单数量
+            BigDecimal wanDollar = new BigDecimal("10000");
+
             for (Map<String, Object> yearData : yearsDataList) {
                 String areaName = (String) yearData.get("area_name");
                 BigDecimal money = (BigDecimal) yearData.get("money");
                 Long count = ((BigDecimal) yearData.get("count")).longValue();
                 xAxisData.add(areaName);
-                amountData.add(money);
+                if (money != null) {
+                    amountData.add(money.divide(wanDollar).setScale(2, BigDecimal.ROUND_DOWN));
+                }else {
+                    amountData.add(BigDecimal.ZERO);
+                }
                 countData.add(count);
             }
             result.put("xAxisData", xAxisData);
