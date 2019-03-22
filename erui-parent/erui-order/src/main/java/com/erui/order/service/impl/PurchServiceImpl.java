@@ -504,7 +504,7 @@ public class PurchServiceImpl implements PurchService {
                     list.add(cb.equal(root.get("arrivalDate").as(Date.class), NewDateUtil.getDate(condition.getArrivalDate())));
                 }
                 // 根据当前审核进度
-                if (condition.getAuditingProcess() != null) {
+                if (condition.getAuditingProcess() != null && condition.getAuditingProcess().length() > 0) {
                     list.add(cb.like(root.get("auditingProcess").as(String.class), "%" + condition.getAuditingProcess() + "%"));
                 }
                 // 根据项目号和销售合同号查询
