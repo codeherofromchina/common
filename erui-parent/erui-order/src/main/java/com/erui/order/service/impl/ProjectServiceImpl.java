@@ -1048,12 +1048,12 @@ public class ProjectServiceImpl implements ProjectService {
             if (project.getOrder() != null) {
                 try {
                     project.setoId(project.getOrder().getId());
-                }catch (Exception e){
+                } catch (Exception e) {
                     proListRemove.add(project);
                 }
             }
         }
-        if(proListRemove != null && proListRemove.size() > 0)
+        if (proListRemove != null && proListRemove.size() > 0)
             proList.removeAll(proListRemove);
         return proList;
     }
@@ -1166,7 +1166,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public boolean audit(Integer projectId, String auditorId, String auditorName, Project paramProject) {
         Project project = findById(projectId);
-        Integer lockInt = Integer.valueOf(projectId%255 - 128);
+        Integer lockInt = Integer.valueOf(projectId % 255 - 128);
         synchronized (lockInt) {
             StringBuilder auditorIds = new StringBuilder(); // 存放当前项目的所有审核人列表信息
             if (StringUtils.isNotBlank(project.getAudiRemark())) {
@@ -1212,13 +1212,13 @@ public class ProjectServiceImpl implements ProjectService {
                     auditingStatus_i = 0; // 项目驳回到订单，项目的状态为0
                     Integer auditingProcess_order = checkLog.getAuditingProcess(); //驳回给订单哪一步骤
                     String auditingUserId_order = String.valueOf(checkLog.getAuditingUserId()); //要驳回给谁
-                    if (auditingProcess_order != null && auditingProcess_order == 0) { // TODO 这里需要确认新订单审核状态的初始审核状态
+                    if (auditingProcess_order != null && auditingProcess_order == 100) {
                         // 如果驳回到订单的最初状态（订单可编辑状态）,则订单状态
                         project.getOrder().setStatus(1);
                     }
                     project.getOrder().setAuditingUserId(auditingUserId_order);
                     project.getOrder().setAuditingStatus(auditingStatus_i);
-                    project.getOrder().setAuditingProcess(auditingProcess_order);
+                    project.getOrder().setAuditingProcess(auditingProcess_order.toString());
 
                     // 推送待办事件
                     String infoContent = String.format("%s | %s", project.getOrder().getRegion(), project.getOrder().getCountry());
@@ -1238,7 +1238,7 @@ public class ProjectServiceImpl implements ProjectService {
                 } else { // 驳回到项目
                     auditingProcess_i = checkLog.getAuditingProcess().toString(); // 驳回到项目的哪一步
                     auditingUserId_i = String.valueOf(checkLog.getAuditingUserId()); // 要驳回给谁
-                    project.getOrder().setAuditingProcess(Integer.parseInt(auditingProcess_i));
+                    project.getOrder().setAuditingProcess(auditingProcess_i);
                     project.getOrder().setAuditingUserId(auditingUserId_i);
                     if (CheckLog.AuditProcessingEnum.findEnum(2, checkLog.getAuditingProcess()) == CheckLog.AuditProcessingEnum.NEW_PRO_BUSINESS_SUBMIT) {
                         // 设置项目为SUBMIT:未执行
@@ -1315,7 +1315,7 @@ public class ProjectServiceImpl implements ProjectService {
             checkLogService.insert(checkLog_i);
             if (!rejectFlag) {
                 if (StringUtils.isNotBlank(auditingProcess_i)) {
-                    project.getOrder().setAuditingProcess(Integer.parseInt(auditingProcess_i));
+                    project.getOrder().setAuditingProcess(auditingProcess_i);
                 } else {
                     project.getOrder().setAuditingProcess(null);
                 }
