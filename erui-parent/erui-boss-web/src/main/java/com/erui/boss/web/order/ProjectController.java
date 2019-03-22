@@ -142,10 +142,11 @@ public class ProjectController {
         if (rejectFlag && (StringUtils.isBlank(reason) || checkLogId == null)) {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR).setMsg("驳回原因和驳回步骤为必填信息");
         }
-        project.setCheckLogId(checkLogId);
+//        project.setCheckLogId(checkLogId);
 
         // 判断通过，审核项目并返回是否审核成功
-        boolean flag = projectService.audit(project, String.valueOf(userId), String.valueOf(realname), pProject);
+//        boolean flag = projectService.audit(project, String.valueOf(userId), String.valueOf(realname), pProject);
+        boolean flag = projectService.audit(projectId, String.valueOf(userId), String.valueOf(realname), pProject);
         if (flag) {
             return new Result<>();
         }

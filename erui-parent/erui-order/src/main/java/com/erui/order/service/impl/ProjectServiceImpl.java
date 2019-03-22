@@ -1153,8 +1153,194 @@ public class ProjectServiceImpl implements ProjectService {
 
     }
 
+
     /**
      * 审核项目操作
+     *
+     * @param projectId
+     * @param auditorId
+     * @param paramProject 参数项目
+     * @return
+     */
+    @Transactional
+    @Override
+    public boolean audit(Integer projectId, String auditorId, String auditorName, Project paramProject) {
+        Project project = findById(projectId);
+        Integer lockInt = Integer.valueOf(projectId%255 - 128);
+        synchronized (lockInt) {
+            StringBuilder auditorIds = new StringBuilder(); // 存放当前项目的所有审核人列表信息
+            if (StringUtils.isNotBlank(project.getAudiRemark())) {
+                auditorIds.append(project.getAudiRemark());
+            }
+            boolean rejectFlag = "-1".equals(paramProject.getAuditingType()); // 判断是否为驳回操作
+            String reason = paramProject.getAuditingReason(); // 获取审核批注
+
+            Order order = project.getOrder();
+            // 获取当前审核进度
+            String auditingProcess = project.getAuditingProcess();
+            String auditingUserId = project.getAuditingUserId();
+            Integer curAuditProcess = null;
+            if (auditorId.equals(auditingUserId)) {
+                curAuditProcess = Integer.parseInt(auditingProcess);
+            } else {
+                String[] split = auditingUserId.split(",");
+                String[] split1 = auditingProcess.split(",");
+                for (int n = 0; n < split.length; n++) {
+                    if (auditorId.equals(split[n])) {
+                        curAuditProcess = Integer.parseInt(split1[n]);
+                        break;
+                    }
+                }
+            }
+            if (curAuditProcess == null) {
+                return false;
+            }
+            if (auditorIds.indexOf("," + auditorId + ",") == -1) {
+                // 添加项目到审核人的记录
+                auditorIds.append("," + auditorId + ",");
+            }
+
+            // 定义最后处理结果变量，最后统一操作
+            Integer auditingStatus_i = 2; // 操作完后的项目审核状态
+            String auditingProcess_i = null; // 操作完后的项目审核进度
+            String auditingUserId_i = null; // 操作完后的项目审核人
+            CheckLog checkLog_i = null; // 审核日志
+            if (rejectFlag) { // 如果是驳回，则直接记录日志，修改审核进度
+                CheckLog checkLog = checkLogDao.findOne(paramProject.getCheckLogId());
+                auditingStatus_i = 3; // 项目驳回到项目，驳回状态为3
+                if (checkLog.getType() == 1) { // 驳回到订单
+                    auditingStatus_i = 0; // 项目驳回到订单，项目的状态为0
+                    Integer auditingProcess_order = checkLog.getAuditingProcess(); //驳回给订单哪一步骤
+                    String auditingUserId_order = String.valueOf(checkLog.getAuditingUserId()); //要驳回给谁
+                    if (auditingProcess_order != null && auditingProcess_order == 0) { // TODO 这里需要确认新订单审核状态的初始审核状态
+                        // 如果驳回到订单的最初状态（订单可编辑状态）,则订单状态
+                        project.getOrder().setStatus(1);
+                    }
+                    project.getOrder().setAuditingUserId(auditingUserId_order);
+                    project.getOrder().setAuditingStatus(auditingStatus_i);
+                    project.getOrder().setAuditingProcess(auditingProcess_order);
+
+                    // 推送待办事件
+                    String infoContent = String.format("%s | %s", project.getOrder().getRegion(), project.getOrder().getCountry());
+                    String crmCode = project.getOrder().getCrmCode();
+                    BackLog.ProjectStatusEnum pse = null;
+                    if (auditingProcess_order != null && auditingProcess_order == 0) {
+                        pse = BackLog.ProjectStatusEnum.ORDER_REJECT2;
+                    } else if (auditingProcess_order != null && auditingProcess_order == 6) {
+                        pse = BackLog.ProjectStatusEnum.ORDER_REJECT3;
+                    } else {
+                        pse = BackLog.ProjectStatusEnum.ORDER_REJECT;
+                    }
+                    applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                            pse, crmCode, infoContent,
+                            project.getOrder().getId(),
+                            Integer.parseInt(auditingUserId_order)));
+                } else { // 驳回到项目
+                    auditingProcess_i = checkLog.getAuditingProcess().toString(); // 驳回到项目的哪一步
+                    auditingUserId_i = String.valueOf(checkLog.getAuditingUserId()); // 要驳回给谁
+                    project.getOrder().setAuditingProcess(Integer.parseInt(auditingProcess_i));
+                    project.getOrder().setAuditingUserId(auditingUserId_i);
+                    if (CheckLog.AuditProcessingEnum.findEnum(2, checkLog.getAuditingProcess()) == CheckLog.AuditProcessingEnum.NEW_PRO_BUSINESS_SUBMIT) {
+                        // 设置项目为SUBMIT:未执行
+                        project.setProjectStatus("SUBMIT");  // 如果驳回到项目的初始节点，则设置状态为未执行
+                    }
+                }
+                // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
+                checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, project.getAuditingProcess(), project.getAuditingUserId(), reason, "-1", 2);
+            } else {
+                // 处理进度
+                switch (curAuditProcess) {
+                    case 202: // 物流经办人审核
+                        auditingProcess_i = "203,204,205";
+                        auditingUserId_i = String.format("%d,%d,%d", project.getBuAuditerId(), project.getPurchaseUid(), project.getQualityUid());
+                        break;
+                    case 203: // 事业部项目负责人并行审批
+                    case 204: // 采购经办人并行审批
+                    case 205: // 品控经办人并行审批
+                        auditingProcess_i = auditingProcess.replaceFirst(String.valueOf(curAuditProcess), "");
+                        auditingUserId_i = auditingUserId.replaceFirst(auditorId, "");
+                        while (auditingProcess_i.indexOf(",,") != -1 || auditingUserId_i.indexOf(",,") != -1) {
+                            auditingProcess_i = auditingProcess_i.replace(",,", "");
+                            auditingUserId_i = auditingUserId_i.replace(",,", "");
+                        }
+                        auditingProcess_i = StringUtils.strip(auditingProcess_i, ",");
+                        auditingUserId_i = StringUtils.strip(auditingUserId_i, ",");
+                        if (StringUtils.isBlank(auditingUserId_i)) { // 并行审核人员审核完毕
+                            BigDecimal compareDecimal = new BigDecimal("30000");
+                            // 判断金额是否小于等于3万美元，小于3万美元则审核结束，大于3万美元则事业部总经理审批
+                            if (order.getTotalPriceUsd().compareTo(compareDecimal) > 0) {
+                                // 到下一步事业部总经理审批
+                                auditingProcess_i = "206"; // 总经理审核
+                                auditingUserId_i = project.getBuVpAuditerId().toString();
+                            } else {
+                                // 结束
+                                auditingProcess_i = null;
+                                auditingUserId_i = null;
+                                auditingStatus_i = 4;
+                            }
+                        }
+                        break;
+                    case 206: // 事业部总经理审批
+                        BigDecimal compareDecimal = new BigDecimal("200000");
+                        // 判断金额是否小于等于20万美元，小于20万美元则审核结束，大于20万美元则总裁审批
+                        if (order.getTotalPriceUsd().compareTo(compareDecimal) > 0) {
+                            // 到下一步事业部总经理审批
+                            auditingProcess_i = "207"; // 总经理审核
+                            auditingUserId_i = project.getCeoId().toString();
+                        } else {
+                            // 结束
+                            auditingStatus_i = 4;
+                        }
+                        break;
+                    case 207: // 总裁审批
+                        compareDecimal = new BigDecimal("500000");
+                        // 判断金额是否小于50万美元，小于50万美元则审核结束，大于50万美元则董事长审批
+                        if (order.getTotalPriceUsd().compareTo(compareDecimal) >= 0) {
+                            // 到下一步事业部总经理审批
+                            auditingProcess_i = "208"; // 总经理审核
+                            auditingUserId_i = project.getChairmanId().toString();
+                        } else {
+                            // 结束
+                            auditingStatus_i = 4;
+                        }
+                        break;
+                    case 208: // 董事长审批
+                        auditingStatus_i = 4; // 完成
+                        break;
+                    default:
+                        return false;
+                }
+                checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 2);
+            }
+            checkLogService.insert(checkLog_i);
+            if (!rejectFlag) {
+                if (StringUtils.isNotBlank(auditingProcess_i)) {
+                    project.getOrder().setAuditingProcess(Integer.parseInt(auditingProcess_i));
+                } else {
+                    project.getOrder().setAuditingProcess(null);
+                }
+                if (StringUtils.isNotBlank(auditingUserId_i)) {
+                    project.getOrder().setAuditingUserId(auditingUserId_i);
+                } else {
+                    project.getOrder().setAuditingUserId(null);
+                }
+            }
+            project.setAuditingProcess(auditingProcess_i);
+            project.setAuditingUserId(auditingUserId_i);
+            project.setAuditingStatus(auditingStatus_i);
+            sendDingtalk(project.getOrder(), auditingUserId_i, rejectFlag);
+            project.setAudiRemark(auditorIds.toString());
+            projectDao.save(project);
+
+            auditBackLogHandle(project, rejectFlag, auditingUserId_i);
+
+            return true;
+        }
+    }
+
+    /**
+     * 审核项目操作
+     * 2019年03月22日 成为历史
      *
      * @param project
      * @param auditorId
@@ -1162,7 +1348,6 @@ public class ProjectServiceImpl implements ProjectService {
      * @return
      */
     @Transactional
-    @Override
     public boolean audit(Project project, String auditorId, String auditorName, Project paramProject) {
         //@param rejectFlag true:驳回项目   false:审核项目
         //@param reason
@@ -1637,5 +1822,6 @@ public class ProjectServiceImpl implements ProjectService {
 
         return checkLog;
     }
+
 
 }
