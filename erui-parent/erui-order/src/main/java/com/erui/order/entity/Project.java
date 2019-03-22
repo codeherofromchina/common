@@ -206,15 +206,15 @@ public class Project {
     private String buAuditer;         //'事业部审核人',
 
     @Column(name = "bu_vp_auditer")
-    private String buVpAuditer;      //'事业部vp审核人',
+    private String buVpAuditer;      //'事业部vp审核人/ 总经理经办人',
 
     @Column(name = "bu_vp_auditer_id")
-    private Integer buVpAuditerId;   //'事业部vp审核人',
+    private Integer buVpAuditerId;   //'事业部vp审核人/总经理经办人',
 
     @Column(name = "ceo_id")
-    private Integer ceoId;             //'eo审核人id',
+    private Integer ceoId;             //'ceo审核人id',
 
-    private String ceo;                 //  'eo审核人',
+    private String ceo;                 //  'ceo审核人',
 
     @Column(name = "chairman_id")
     private Integer chairmanId;        //董事长审核人id

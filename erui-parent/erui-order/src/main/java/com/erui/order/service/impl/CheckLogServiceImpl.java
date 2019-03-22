@@ -80,7 +80,14 @@ public class CheckLogServiceImpl implements CheckLogService {
         if (orderId != null) {
             List<CheckLog> checkLogList = checkLogDao.findByOrderIdOrderByCreateTimeDesc(orderId);
             if (checkLogList != null && checkLogList.size() > 0) {
-                List<CheckLog> collect = checkLogList.stream().filter(vo -> vo.getType() == 1 || vo.getType() == 2).collect(Collectors.toList());
+                List<CheckLog> collect = checkLogList.stream().filter(vo -> vo.getType() == 1 || vo.getType() == 2).map(vo -> {
+                    Integer auditingProcess = vo.getAuditingProcess();
+                    CheckLog.AuditProcessingEnum anEnum = CheckLog.AuditProcessingEnum.findEnum(vo.getType(), auditingProcess);
+                    if (anEnum != null) {
+                        vo.setProcessName(anEnum.getName());
+                    }
+                    return vo;
+                }).collect(Collectors.toList());
                 return collect;
             }
         }
