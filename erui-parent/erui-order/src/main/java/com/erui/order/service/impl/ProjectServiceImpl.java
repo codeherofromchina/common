@@ -293,7 +293,7 @@ public class ProjectServiceImpl implements ProjectService {
                     } else if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
                         // 无项目经理提交项目时检查审核信息参数 2018-08-28
                         submitProjectProcessCheckAuditParams(project, projectUpdate, order);
-                        projectUpdate.getOrder().setAuditingProcess(13);
+                        projectUpdate.getOrder().setAuditingProcess("13");
                         projectUpdate.getOrder().setAuditingUserId("39552");
 
                     }
@@ -1213,7 +1213,7 @@ public class ProjectServiceImpl implements ProjectService {
                 }
                 project.getOrder().setAuditingUserId(auditingUserId_order);
                 project.getOrder().setAuditingStatus(auditingStatus_i);
-                project.getOrder().setAuditingProcess(auditingProcess_order);
+                project.getOrder().setAuditingProcess(auditingProcess_order.toString());
                 project.setAuditingStatus(0);
 
                 // 推送待办事件
@@ -1235,7 +1235,7 @@ public class ProjectServiceImpl implements ProjectService {
             } else { // 驳回到项目
                 auditingProcess_i = checkLog.getAuditingProcess().toString(); // 事业部利润核算 处理
                 auditingUserId_i = String.valueOf(checkLog.getAuditingUserId()); // 要驳回给谁
-                project.getOrder().setAuditingProcess(Integer.parseInt(auditingProcess_i));
+                project.getOrder().setAuditingProcess(auditingProcess_i);
                 project.getOrder().setAuditingUserId(auditingUserId_i);
                 // 设置项目为SUBMIT:未执行
                 project.setProjectStatus("SUBMIT");
@@ -1353,7 +1353,7 @@ public class ProjectServiceImpl implements ProjectService {
         checkLogService.insert(checkLog_i);
         if (!paramProject.getAuditingType().equals("-1")) {
             if (StringUtils.isNotBlank(auditingProcess_i)) {
-                project.getOrder().setAuditingProcess(Integer.parseInt(auditingProcess_i));
+                project.getOrder().setAuditingProcess(auditingProcess_i);
             } else {
                 project.getOrder().setAuditingProcess(null);
             }

@@ -210,7 +210,7 @@ public class CheckLogServiceImpl implements CheckLogService {
 
             Project project = order.getProject();
             // 订单当前的审核进度
-            CheckLog.AuditProcessingEnum orderCurAuditProcess = CheckLog.AuditProcessingEnum.findEnum(1, order.getAuditingProcess());
+            CheckLog.AuditProcessingEnum orderCurAuditProcess = CheckLog.AuditProcessingEnum.findEnum(1, Integer.parseInt(order.getAuditingProcess()));
             // 项目当前的审核进度
             CheckLog.AuditProcessingEnum projectCurAuditProcess = null;
             if (project != null && !StringUtils.isBlank(project.getAuditingProcess())) {
