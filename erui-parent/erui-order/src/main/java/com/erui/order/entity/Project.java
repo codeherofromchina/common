@@ -180,6 +180,7 @@ public class Project {
     @Column(name = "auditing_level")
     private Integer auditingLevel;  //'审批分级    2、3、4级'
 
+    // 0：为驳回到订单  2：审核中 3：驳回到项目
     @Column(name = "auditing_status")
     private Integer auditingStatus; //'审核状态 --   添加一个驳回到订单中的状态（驳回1、驳回2）',
 
@@ -914,11 +915,9 @@ public class Project {
         DELAYED_UNSHIPPED("DELAYED_UNSHIPPED", "延期待发运", 8), PAUSE("PAUSE", "项目暂停", 9), CANCEL("CANCEL", "项目取消", 10), ORDERCANCEL("ORDERCANCEL", "订单取消", 11), TURNDOWN("TURNDOWN", "驳回", 12);
         private String code;
         private String msg;
-
         private Integer num;
 
         ProjectStatusEnum(String code, String msg, Integer num) {
-
             this.code = code;
             this.msg = msg;
             this.num = num;
