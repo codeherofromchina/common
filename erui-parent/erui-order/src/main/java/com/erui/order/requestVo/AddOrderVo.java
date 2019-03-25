@@ -201,6 +201,7 @@ public class AddOrderVo {
 
     private Integer perLiableRepayId; //回款责任人
     private Integer financingCommissionerId;//融资专员Id
+    private String financingCommissioner;//融资专员
     private Integer settlementLeaderId;   //结算专员
     private Integer settlementLeader;
     private Integer legalAuditerId;//法务审核人id
@@ -235,6 +236,14 @@ public class AddOrderVo {
 
     public void setFinancingCommissionerId(Integer financingCommissionerId) {
         this.financingCommissionerId = financingCommissionerId;
+    }
+
+    public String getFinancingCommissioner() {
+        return financingCommissioner;
+    }
+
+    public void setFinancingCommissioner(String financingCommissioner) {
+        this.financingCommissioner = financingCommissioner;
     }
 
     public Integer getSettlementLeaderId() {

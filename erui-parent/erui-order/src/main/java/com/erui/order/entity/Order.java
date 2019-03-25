@@ -332,6 +332,8 @@ public class Order {
     private String audiRemark;//所经过审核人
     @Column(name = "financing_commissioner_id")
     private Integer financingCommissionerId;//融资专员Id
+    @Column(name = "financing_commissioner")
+    private String financingCommissioner;//融资专员
     @Column(name = "settlement_leader_id")//结算专员
     private Integer settlementLeaderId;
     @Column(name = "settlement_leader")
@@ -370,6 +372,14 @@ public class Order {
 
     public void setFinancingCommissionerId(Integer financingCommissionerId) {
         this.financingCommissionerId = financingCommissionerId;
+    }
+
+    public String getFinancingCommissioner() {
+        return financingCommissioner;
+    }
+
+    public void setFinancingCommissioner(String financingCommissioner) {
+        this.financingCommissioner = financingCommissioner;
     }
 
     public Integer getSettlementLeaderId() {

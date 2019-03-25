@@ -1004,6 +1004,8 @@ public class OrderServiceImpl implements OrderService {
                     order.setAuditingProcess("104");
                     order.setAuditingStatus(2);
                     order.setAuditingUserId(addOrderVo.getFinancingCommissionerId().toString());
+                    order.setFinancingCommissionerId(addOrderVo.getFinancingCommissionerId());
+                    order.setFinancingCommissioner(addOrderVo.getFinancingCommissioner());
                 }
 
             } else {
@@ -1231,6 +1233,8 @@ public class OrderServiceImpl implements OrderService {
                     order.setAuditingProcess("104");
                     order.setAuditingStatus(2);
                     order.setAuditingUserId(addOrderVo.getFinancingCommissionerId().toString());
+                    order.setFinancingCommissionerId(addOrderVo.getFinancingCommissionerId());
+                    order.setFinancingCommissioner(addOrderVo.getFinancingCommissioner());
                 }
 
             } else {
