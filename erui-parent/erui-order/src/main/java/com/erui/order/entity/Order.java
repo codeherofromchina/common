@@ -337,11 +337,11 @@ public class Order {
     @Column(name = "settlement_leader_id")//结算专员
     private Integer settlementLeaderId;
     @Column(name = "settlement_leader")
-    private Integer settlementLeader;
+    private String settlementLeader;
     @Column(name = "legal_auditer_id")//结算专员
     private Integer legalAuditerId;//法务审核人id
     @Column(name = "legal_auditer")
-    private Integer legalAuditer;//法务审核人
+    private String legalAuditer;//法务审核人
 
 
     //如果项目审核完成返回前端 值为 1
@@ -390,12 +390,20 @@ public class Order {
         this.settlementLeaderId = settlementLeaderId;
     }
 
-    public Integer getSettlementLeader() {
+    public String getSettlementLeader() {
         return settlementLeader;
     }
 
-    public void setSettlementLeader(Integer settlementLeader) {
+    public void setSettlementLeader(String settlementLeader) {
         this.settlementLeader = settlementLeader;
+    }
+
+    public String getLegalAuditer() {
+        return legalAuditer;
+    }
+
+    public void setLegalAuditer(String legalAuditer) {
+        this.legalAuditer = legalAuditer;
     }
 
     public Integer getLegalAuditerId() {
@@ -406,13 +414,6 @@ public class Order {
         this.legalAuditerId = legalAuditerId;
     }
 
-    public Integer getLegalAuditer() {
-        return legalAuditer;
-    }
-
-    public void setLegalAuditer(Integer legalAuditer) {
-        this.legalAuditer = legalAuditer;
-    }
 
     public String getAudiRemark() {
         return audiRemark;

@@ -56,7 +56,7 @@ public class OrderServiceImpl implements OrderService {
     static final String CRM_URL_METHOD = "/buyer/autoUpgrade";
     static final BigDecimal STEP_ONE_PRICE = new BigDecimal("30000");
     static final BigDecimal STEP_TWO_PRICE = new BigDecimal("200000");
-    static final BigDecimal STEP_THREE_PRICE = new BigDecimal("10000000");
+    //static final BigDecimal STEP_THREE_PRICE = new BigDecimal("10000000");
     private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
     @Autowired
     private ApplicationContext applicationContext;
@@ -978,7 +978,7 @@ public class OrderServiceImpl implements OrderService {
                 order.setCountryLeader(addOrderVo.getCountryLeader());
                 order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
                 order.setAreaLeader(addOrderVo.getAreaLeader());
-            } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_THREE_PRICE.doubleValue()) {
+            } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_TWO_PRICE.doubleValue()) {
                 order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
                 order.setCountryLeader(addOrderVo.getCountryLeader());
                 order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
@@ -1033,7 +1033,20 @@ public class OrderServiceImpl implements OrderService {
         }
 
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 100, addOrderVo.getCreateUserId(), addOrderVo.getCreateUserName(), order.getAuditingProcess(), addOrderVo.getCountryLeaderId().toString(), addOrderVo.getAuditingReason(), "1", 1);
+            if (addOrderVo.getOrderCategory() == 6) {
+                if (addOrderVo.getFinancing() == null || addOrderVo.getFinancing() == 0) {
+                    //若不是融资项目  提交至法务和结算
+                    order.setAuditingProcess("105,106");
+                    order.setAuditingStatus(2);
+                    order.setAuditingUserId(addOrderVo.getLegalAuditerId() + "," + addOrderVo.getSettlementLeaderId());
+                    checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 100, addOrderVo.getCreateUserId(), addOrderVo.getCreateUserName(), order.getAuditingProcess(), addOrderVo.getLegalAuditerId() + "," + addOrderVo.getSettlementLeaderId(), addOrderVo.getAuditingReason(), "1", 1);
+                } else if (addOrderVo.getFinancing() == 1 && addOrderVo.getFinancingCommissionerId() != null) {
+                    checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 100, addOrderVo.getCreateUserId(), addOrderVo.getCreateUserName(), order.getAuditingProcess(), addOrderVo.getFinancingCommissionerId().toString(), addOrderVo.getAuditingReason(), "1", 1);
+                }
+            } else {
+                checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 100, addOrderVo.getCreateUserId(), addOrderVo.getCreateUserName(), order.getAuditingProcess(), addOrderVo.getCountryLeaderId().toString(), addOrderVo.getAuditingReason(), "1", 1);
+            }
+            //添加日志审核
             checkLogService.insert(checkLog_i);
             // 国内订单时非融资项目直接到法务和结算并行审核
             if (order.getAuditingUserId() != null) {
@@ -1052,9 +1065,6 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }
             }
-            auditBackLogHandle(orderUpdate, false, orderUpdate.getAuditingUserId());
-            //发送钉钉通知
-           // sendDingtalk(order, addOrderVo.getCountryLeaderId().toString(), false, 1);
         }
         Date signingDate = null;
         if (orderUpdate.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
@@ -1209,7 +1219,7 @@ public class OrderServiceImpl implements OrderService {
                 order.setCountryLeader(addOrderVo.getCountryLeader());
                 order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
                 order.setAreaLeader(addOrderVo.getAreaLeader());
-            } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_THREE_PRICE.doubleValue()) {
+            } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_TWO_PRICE.doubleValue()) {
                 order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
                 order.setCountryLeader(addOrderVo.getCountryLeader());
                 order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
@@ -1218,7 +1228,6 @@ public class OrderServiceImpl implements OrderService {
                 order.setAreaVp(addOrderVo.getAreaVp());
             }
         }
-        //order.setFinancingCommissionerId(39535);
         if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
             order.setAuditingStatus(1);
         } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
@@ -1252,11 +1261,38 @@ public class OrderServiceImpl implements OrderService {
             attachmentService.addAttachments(addOrderVo.getAttachDesc(), order1.getId(), Attachment.AttachmentCategory.ORDER.getCode());
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 100, addOrderVo.getCreateUserId(), addOrderVo.getCreateUserName(), order.getAuditingProcess(), addOrderVo.getCountryLeaderId().toString(), addOrderVo.getAuditingReason(), "1", 1);
+            if (addOrderVo.getOrderCategory() == 6) {
+                if (addOrderVo.getFinancing() == null || addOrderVo.getFinancing() == 0) {
+                    //若不是融资项目  提交至法务和结算
+                    order.setAuditingProcess("105,106");
+                    order.setAuditingStatus(2);
+                    order.setAuditingUserId(addOrderVo.getLegalAuditerId() + "," + addOrderVo.getSettlementLeaderId());
+                    checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 100, addOrderVo.getCreateUserId(), addOrderVo.getCreateUserName(), order.getAuditingProcess(), addOrderVo.getLegalAuditerId() + "," + addOrderVo.getSettlementLeaderId(), addOrderVo.getAuditingReason(), "1", 1);
+                } else if (addOrderVo.getFinancing() == 1 && addOrderVo.getFinancingCommissionerId() != null) {
+                    checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 100, addOrderVo.getCreateUserId(), addOrderVo.getCreateUserName(), order.getAuditingProcess(), addOrderVo.getFinancingCommissionerId().toString(), addOrderVo.getAuditingReason(), "1", 1);
+                }
+            } else {
+                checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 100, addOrderVo.getCreateUserId(), addOrderVo.getCreateUserName(), order.getAuditingProcess(), addOrderVo.getCountryLeaderId().toString(), addOrderVo.getAuditingReason(), "1", 1);
+            }
+            //添加日志审核
             checkLogService.insert(checkLog_i);
-            auditBackLogHandle(order1, false, addOrderVo.getPerLiableRepayId().toString());
-            //发送钉钉通知
-            //sendDingtalk(order, order.getCountryLeaderId().toString(), false, 1);
+            // 国内订单时非融资项目直接到法务和结算并行审核
+            if (order.getAuditingUserId() != null) {
+                if ("105,106".equals(order.getAuditingProcess())) {
+                    String[] split = order.getAuditingUserId().split(",");
+                    for (int n = 0; n < split.length; n++) {
+                        sendDingtalk(order, split[n], false, 1);
+                        auditBackLogHandle(order, false, split[n]);
+                    }
+                } else {
+                    sendDingtalk(order, order.getAuditingUserId(), false, 1);
+                    if (!StringUtils.isBlank(order.getAuditingUserId())) {
+                        auditBackLogHandle(order, false, order.getAuditingUserId());
+                    } else {
+                        auditBackLogHandle(order, false, null);
+                    }
+                }
+            }
         }
         Date signingDate = null;
         if (order1.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
@@ -3005,8 +3041,8 @@ public class OrderServiceImpl implements OrderService {
                     String stringR15C10 = sheet1.getRow(15).getCell(4).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                     sheet1.getRow(15).getCell(4).setCellValue(stringR15C10);
                 }
-                //区域审核取走时间 如果大于1000万美元则是 区域vp审核时间 否则 若为融资则是融资生成时间 否则为提交商品时间
-                if (orderDec.getTotalPriceUsd().doubleValue() >= STEP_THREE_PRICE.doubleValue()) {
+                //区域审核取走时间 如果大于20万美元则是 区域vp审核时间 否则 若为融资则是融资生成时间 否则为提交商品时间
+                if (orderDec.getTotalPriceUsd().doubleValue() >= STEP_TWO_PRICE.doubleValue()) {
                     if (cl.getAuditingProcess() == 4) {
                         String stringR16C4 = sheet1.getRow(16).getCell(4).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                         sheet1.getRow(16).getCell(4).setCellValue(stringR16C4);
@@ -3044,7 +3080,7 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }
             }
-            //法务审核取走时间 如果大于10万美元则是 区域vp审核时间 否则 若为融资则是融资生成时间 否则为提交商品时间
+            //法务审核取走时间 如果大于3万美元则是 区域vp审核时间 否则 若为融资则是融资生成时间 否则为提交商品时间
             if (orderDec.getOrderCategory() != 6 && STEP_ONE_PRICE.doubleValue() <= orderDec.getTotalPriceUsd().doubleValue()) {
                 if (cl.getAuditingProcess() == 3) {
                     String stringR26C10 = sheet1.getRow(26).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
