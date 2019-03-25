@@ -1053,7 +1053,8 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
             auditBackLogHandle(orderUpdate, false, orderUpdate.getAuditingUserId());
-            sendDingtalk(order, order.getCountryLeaderId().toString(), false, 1);
+            //发送钉钉通知
+           // sendDingtalk(order, addOrderVo.getCountryLeaderId().toString(), false, 1);
         }
         Date signingDate = null;
         if (orderUpdate.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
@@ -1254,7 +1255,8 @@ public class OrderServiceImpl implements OrderService {
             checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 100, addOrderVo.getCreateUserId(), addOrderVo.getCreateUserName(), order.getAuditingProcess(), addOrderVo.getCountryLeaderId().toString(), addOrderVo.getAuditingReason(), "1", 1);
             checkLogService.insert(checkLog_i);
             auditBackLogHandle(order1, false, addOrderVo.getPerLiableRepayId().toString());
-            sendDingtalk(order, order.getCountryLeaderId().toString(), false, 1);
+            //发送钉钉通知
+            //sendDingtalk(order, order.getCountryLeaderId().toString(), false, 1);
         }
         Date signingDate = null;
         if (order1.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
