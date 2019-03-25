@@ -712,7 +712,7 @@ public class OrderServiceImpl implements OrderService {
                             auditingProcess_i = "105,106";
                             auditingUserId_i = order.getLegalAuditerId() + "," + order.getSettlementLeaderId();//提交到法务和结算审核
                             auditorIds.append("," + auditingUserId_i + ",");
-                        } else if (order.getFinancing() == 1&& order.getFinancingCommissionerId() != null) {
+                        } else if (order.getFinancing() == 1 && order.getFinancingCommissionerId() != null) {
                             //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
                             auditingProcess_i = "104"; // 融资审核
                             auditingUserId_i = order.getFinancingCommissionerId().toString();
@@ -736,7 +736,7 @@ public class OrderServiceImpl implements OrderService {
                             auditingProcess_i = "105,106";
                             auditingUserId_i = order.getLegalAuditerId() + "," + order.getSettlementLeaderId();//提交法务和结算审核
                             auditorIds.append("," + auditingUserId_i + ",");
-                        } else if (order.getFinancing() == 1&& order.getFinancingCommissionerId() != null) {
+                        } else if (order.getFinancing() == 1 && order.getFinancingCommissionerId() != null) {
                             //若是融资项目 且订单金额小于20万美元 提交由融资专员审核
                             auditingProcess_i = "104"; // 融资审核
                             auditingUserId_i = order.getFinancingCommissionerId().toString();
@@ -828,6 +828,8 @@ public class OrderServiceImpl implements OrderService {
                     }
                     String replace = StringUtils.strip(auditingUserId.replaceFirst(order.getLegalAuditerId().toString(), ""));
                     if ("".equals(replace)) { // 跟他并行审核的都已经审核完成
+                        //订单审核完成后项目才能办理项目
+                        order.getProject().setAuditingStatus(1);
                         auditingStatus_i = 4; // 完成
                         auditingProcess_i = ""; // 无下一审核进度和审核人
                         auditingUserId_i = null;
@@ -841,6 +843,8 @@ public class OrderServiceImpl implements OrderService {
                 case 106://结算专员
                     String replace2 = StringUtils.strip(auditingUserId.replaceFirst(order.getSettlementLeaderId().toString(), ""));
                     if ("".equals(replace2)) { // 跟他并行审核的都已经审核完成
+                        //订单审核完成后项目才能办理项目
+                        order.getProject().setAuditingStatus(1);
                         auditingStatus_i = 4; // 完成
                         auditingProcess_i = ""; // 无下一审核进度和审核人
                         auditingUserId_i = null;
