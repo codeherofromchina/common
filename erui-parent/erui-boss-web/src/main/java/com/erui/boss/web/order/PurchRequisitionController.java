@@ -23,10 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by wangxiaodan on 2017/12/12.
@@ -162,22 +159,42 @@ public class PurchRequisitionController {
      * @return
      */
     @RequestMapping(value = "updatePurchaseUid", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> updatePurchaseUid(@RequestBody PurchRequisition purchRequisition, HttpServletRequest request) throws Exception {
+    public Result<Object> updatePurchaseUid(@RequestBody Map<String, String> proMap, HttpServletRequest request) throws Exception {
         Result<Object> result = new Result<>();
-        if (purchRequisition.getId() == null || purchRequisition.getPurchaseUid() == 0) {
+        List<PurchRequisition> list = new ArrayList<PurchRequisition>();
+        PurchRequisition purchRequisition = null;
+        String ids = proMap.get("id");//采购单ID
+        String purchaseName = proMap.get("purchaseName");//采购经办人姓名
+        String purchaseUid = proMap.get("purchaseUid");//采购单ID
+        if (StringUtils.isBlank(ids) || StringUtils.equals(ids, "")) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("采购单ID不能为空");
-        } else if (StringUtils.isBlank(purchRequisition.getPurchaseName()) || StringUtils.equals(purchRequisition.getPurchaseName(), "")) {
+        } else if (StringUtils.isBlank(purchaseName) || StringUtils.equals(purchaseName, "")) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("采购经办人姓名不能为空");
-        } else if (purchRequisition.getPurchaseUid() == null || purchRequisition.getPurchaseUid() == 0) {
+        } else if (StringUtils.isBlank(purchaseUid) || StringUtils.equals(purchaseUid, "")) {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("采购经办人ID不能为空");
         } else {
+            if(ids.split(",").length > 1){
+                for(String id : ids.split(",")){
+                    purchRequisition = new PurchRequisition();
+                    purchRequisition.setId(Integer.parseInt(id));
+                    purchRequisition.setPurchaseUid(Integer.parseInt(purchaseUid));
+                    purchRequisition.setPurchaseName(purchaseName);
+                    list.add(purchRequisition);
+                }
+            }else{
+                purchRequisition = new PurchRequisition();
+                purchRequisition.setId(Integer.parseInt(ids));
+                purchRequisition.setPurchaseUid(Integer.parseInt(purchaseUid));
+                purchRequisition.setPurchaseName(purchaseName);
+                list.add(purchRequisition);
+            }
             boolean flag;
             String eruiToken = CookiesUtil.getEruiToken(request);
             ThreadLocalUtil.setObject(eruiToken);
-            flag = purchRequisitionService.updatePurchaseUid(purchRequisition);
+            flag = purchRequisitionService.updatePurchaseUid(list);
             if (flag) {
                 return result;
             }

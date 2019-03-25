@@ -834,9 +834,6 @@ public class ProjectServiceImpl implements ProjectService {
 
                     list.add(cb.equal(root.get("purchReqCreate").as(Integer.class), Project.PurchReqCreateEnum.SUBMITED.getCode()));
                     list.add(cb.equal(root.get("purchDone").as(Boolean.class), Boolean.FALSE));
-                    if (StringUtils.isNotBlank(purchaseUid)) {
-                        list.add(cb.equal(root.get("purchaseUid").as(Integer.class), Integer.parseInt(purchaseUid)));
-                    }
 
                     if (projectNoList != null && projectNoList.size() > 0) {
                         Predicate[] orPredicate = new Predicate[projectNoList.size()];

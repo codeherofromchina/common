@@ -104,15 +104,14 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         return flag;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean updatePurchaseUid(PurchRequisition purchRequisition) throws Exception {
-        PurchRequisition purchRequisition1 = purchRequisitionDao.findOne(purchRequisition.getId());
-        if(purchRequisition1 != null){
+    public boolean updatePurchaseUid(List<PurchRequisition> list) throws Exception {
+        for (PurchRequisition purchRequisition: list){
+            PurchRequisition purchRequisition1 = purchRequisitionDao.findOne(purchRequisition.getId());
             purchRequisition1.setPurchaseUid(purchRequisition.getPurchaseUid());
             purchRequisition1.setPurchaseName(purchRequisition.getPurchaseName());
             purchRequisitionDao.save(purchRequisition1);
-        }else{
-            return false;
         }
         return true;
     }
