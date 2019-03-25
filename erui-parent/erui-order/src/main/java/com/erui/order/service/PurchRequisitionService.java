@@ -37,9 +37,9 @@ public interface PurchRequisitionService {
       */
     int checkProjectNo(String projectNo, Integer id);
     /**
-     * 获取可采购的项目列表
+     * 采购单分单采购经办人
      *
-     * @param purchRequisition
+     * @param list
      * @return
      * @throws Exception
      */

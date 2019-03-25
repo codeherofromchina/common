@@ -155,13 +155,13 @@ public class PurchRequisitionController {
     /**
      * 采购单分单采购经办人
      *
-     * @param purchRequisition
+     * @param proMap
      * @return
      */
     @RequestMapping(value = "updatePurchaseUid", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> updatePurchaseUid(@RequestBody Map<String, String> proMap, HttpServletRequest request) throws Exception {
         Result<Object> result = new Result<>();
-        List<PurchRequisition> list = new ArrayList<PurchRequisition>();
+        List<PurchRequisition> list = null;
         PurchRequisition purchRequisition = null;
         String ids = proMap.get("id");//采购单ID
         String purchaseName = proMap.get("purchaseName");//采购经办人姓名
@@ -176,6 +176,7 @@ public class PurchRequisitionController {
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setMsg("采购经办人ID不能为空");
         } else {
+            list = new ArrayList<PurchRequisition>();
             if(ids.split(",").length > 1){
                 for(String id : ids.split(",")){
                     purchRequisition = new PurchRequisition();
