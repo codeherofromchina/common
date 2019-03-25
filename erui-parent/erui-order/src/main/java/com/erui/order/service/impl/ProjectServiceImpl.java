@@ -890,7 +890,8 @@ public class ProjectServiceImpl implements ProjectService {
                 list.add(cb.equal(root.get("purchReqCreate").as(Integer.class), Project.PurchReqCreateEnum.SUBMITED.getCode()));
                 list.add(cb.equal(root.get("purchDone").as(Boolean.class), Boolean.FALSE));
                 if (purchaseUid != null) {
-                    list.add(cb.equal(root.get("purchaseUid").as(Integer.class), purchaseUid));
+                    Join<Project, PurchRequisition> purchRequisitionJoin = root.join("purchRequisition");
+                    list.add(cb.equal(purchRequisitionJoin.get("purchaseUid").as(Integer.class), purchaseUid));
                 }
 
                 if (projectNoList != null && projectNoList.size() > 0) {

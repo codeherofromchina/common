@@ -104,6 +104,19 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         return flag;
     }
 
+    @Override
+    public boolean updatePurchaseUid(PurchRequisition purchRequisition) throws Exception {
+        PurchRequisition purchRequisition1 = purchRequisitionDao.findOne(purchRequisition.getId());
+        if(purchRequisition1 != null){
+            purchRequisition1.setPurchaseUid(purchRequisition.getPurchaseUid());
+            purchRequisition1.setPurchaseName(purchRequisition.getPurchaseName());
+            purchRequisitionDao.save(purchRequisition1);
+        }else{
+            return false;
+        }
+        return true;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updatePurchRequisition(PurchRequisition purchRequisition) throws Exception {
@@ -130,6 +143,19 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         prt.setFactorySend(purchRequisition.isFactorySend());
         prt.setRequirements(purchRequisition.getRequirements());
         prt.setRemarks(purchRequisition.getRemarks());
+        //采购经办人ID
+        if(purchRequisition.getPurchaseUid() != null){
+            prt.setPurchaseUid(purchRequisition.getPurchaseUid());
+        }else{
+            prt.setPurchaseUid(project.getPurchaseUid());
+        }
+        //采购经办人姓名
+        if(purchRequisition.getPurchaseName() != null){
+            prt.setPurchaseName(purchRequisition.getPurchaseName());
+        }else{
+            prt.setPurchaseName(project.getPurchaseName());
+        }
+
         //purchRequisitionUpdate.setAttachmentSet(purchRequisition.getAttachmentSet());
         ArrayList<Goods> list = new ArrayList<>();
         Map<Integer, Goods> goodsMap = project.getOrder().getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
@@ -238,6 +264,19 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionAdd.setFactorySend(purchRequisition.isFactorySend());
         purchRequisitionAdd.setRequirements(purchRequisition.getRequirements());
         purchRequisitionAdd.setRemarks(purchRequisition.getRemarks());
+
+        //采购经办人ID
+        if(purchRequisition.getPurchaseUid() != null){
+            purchRequisitionAdd.setPurchaseUid(purchRequisition.getPurchaseUid());
+        }else{
+            purchRequisitionAdd.setPurchaseUid(project.getPurchaseUid());
+        }
+        //采购经办人姓名
+        if(purchRequisition.getPurchaseName() != null){
+            purchRequisitionAdd.setPurchaseName(purchRequisition.getPurchaseName());
+        }else{
+            purchRequisitionAdd.setPurchaseName(project.getPurchaseName());
+        }
         // 处理附件信息
         //Set<Attachment> attachments = attachmentService.handleParamAttachment(null, purchRequisition.getAttachmentSet(), null, null);
         //purchRequisitionAdd.setAttachmentSet(purchRequisition.getAttachmentSet());
