@@ -462,6 +462,9 @@ public class ProjectServiceImpl implements ProjectService {
      * 2019-03-22 修正为新流程检查
      */
     private void submitProjectProcessCheckAuditParams(Project project, Project projectUpdate, Order order) throws MyException {
+        // 商务技术负责人/项目负责人
+        Integer businessUid = projectUpdate.getBusinessUid();
+        String businessName = projectUpdate.getBusinessName();
         // // 物流经办人/物流审核人  不能为空
         Integer logisticsAuditerId = project.getLogisticsAuditerId();
         String logisticsAuditerName = project.getLogisticsAuditer();
@@ -483,15 +486,19 @@ public class ProjectServiceImpl implements ProjectService {
         // 董事长审核人
         Integer chairmanId = project.getChairmanId();
         String chairmanName = project.getChairman();
-
-        if (StringUtils.isBlank(logisticsAuditerName) || logisticsAuditerId == null) {
-            throw new MyException(String.format("%s%s%s", "参数错误，物流审核人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
-        }
-        if (StringUtils.isBlank(purchaseName) || purchaseUid == null) {
-            throw new MyException(String.format("%s%s%s", "参数错误，采购经办人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
-        }
-        if (StringUtils.isBlank(qualityName) || qualityUid == null) {
-            throw new MyException(String.format("%s%s%s", "参数错误，品控经办人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
+        // 是否是预投项目orderCategory=1为预投订单类型
+        Integer orderCategory = project.getOrderCategory();
+        // 预投项目则不需要物流、采购、品控审核，非预投则需要这三人审核
+        if(orderCategory == null || orderCategory != 1) {
+            if (StringUtils.isBlank(logisticsAuditerName) || logisticsAuditerId == null) {
+                throw new MyException(String.format("%s%s%s", "参数错误，物流审核人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
+            }
+            if (StringUtils.isBlank(purchaseName) || purchaseUid == null) {
+                throw new MyException(String.format("%s%s%s", "参数错误，采购经办人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
+            }
+            if (StringUtils.isBlank(qualityName) || qualityUid == null) {
+                throw new MyException(String.format("%s%s%s", "参数错误，品控经办人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
+            }
         }
 
         BigDecimal compareDecimal = new BigDecimal("30000");
@@ -525,20 +532,31 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setCeoId(ceoId);
         projectUpdate.setChairman(chairmanName);
         projectUpdate.setChairmanId(chairmanId);
-        projectUpdate.setBuAuditerId(projectUpdate.getBusinessUid());
-        projectUpdate.setBuAuditer(projectUpdate.getBusinessName());
+        projectUpdate.setBuAuditerId(businessUid);
+        projectUpdate.setBuAuditer(businessName);
 
         projectUpdate.setAuditingStatus(2); // 审核中
 
-        projectUpdate.setAuditingProcess(String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess())); // 物流经办人审核
-        projectUpdate.setAuditingUserId(logisticsAuditerId.toString()); // 物流经办人审核
+        Integer auditUserId = null;
+        CheckLog.AuditProcessingEnum auditProcessing = null;
+        // 非预投项目，需要从物流开始审核
+        if(orderCategory == null || orderCategory != 1) {
+            auditUserId = logisticsAuditerId;
+            auditProcessing = CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS;
+        } else {
+            //预投项目，直接项目负责人审核
+            auditUserId = businessUid;
+            auditProcessing = CheckLog.AuditProcessingEnum.NEW_PRO_BUSINESS;
+        }
+        projectUpdate.setAuditingProcess(String.valueOf(auditProcessing.getProcess())); // 物流经办人审核
+        projectUpdate.setAuditingUserId(auditUserId.toString()); // 物流经办人审核
 
-        sendDingtalk(projectUpdate.getOrder(), logisticsAuditerId.toString(), false);
-        auditBackLogHandle(projectUpdate, false, logisticsAuditerId.toString());
+        sendDingtalk(projectUpdate.getOrder(), auditUserId.toString(), false);
+        auditBackLogHandle(projectUpdate, false, auditUserId.toString());
         // 记录审核日志
         CheckLog checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.AuditProcessingEnum.NEW_PRO_BUSINESS_SUBMIT.getProcess(),
                 projectUpdate.getBusinessUid(), projectUpdate.getBusinessName(),
-                String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess()), logisticsAuditerId.toString(),
+                String.valueOf(auditProcessing.getProcess()), auditUserId.toString(),
                 "", "2", 2);
         checkLogDao.save(checkLog_i);
     }
