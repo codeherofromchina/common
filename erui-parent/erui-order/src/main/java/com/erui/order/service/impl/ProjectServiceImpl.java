@@ -507,18 +507,18 @@ public class ProjectServiceImpl implements ProjectService {
                 throw new MyException(String.format("%s%s%s", "参数错误，事业部总经理经办人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
             }
         }
-        compareDecimal = new BigDecimal("200000");
-        if (totalPriceUsd.compareTo(compareDecimal) > 0) {
-            if (StringUtils.isBlank(ceoName) || ceoId == null) {
-                throw new MyException(String.format("%s%s%s", "参数错误，总裁审批人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
-            }
-        }
-        compareDecimal = new BigDecimal("500000");
-        if (totalPriceUsd.compareTo(compareDecimal) >= 0) {
-            if (StringUtils.isBlank(chairmanName) || chairmanId == null) {
-                throw new MyException(String.format("%s%s%s", "参数错误，董事长审批人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
-            }
-        }
+//        compareDecimal = new BigDecimal("200000");
+//        if (totalPriceUsd.compareTo(compareDecimal) > 0) {
+//            if (StringUtils.isBlank(ceoName) || ceoId == null) {
+//                throw new MyException(String.format("%s%s%s", "参数错误，总裁审批人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
+//            }
+//        }
+//        compareDecimal = new BigDecimal("500000");
+//        if (totalPriceUsd.compareTo(compareDecimal) >= 0) {
+//            if (StringUtils.isBlank(chairmanName) || chairmanId == null) {
+//                throw new MyException(String.format("%s%s%s", "参数错误，董事长审批人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
+//            }
+//        }
 
         projectUpdate.setLogisticsAuditerId(logisticsAuditerId);
         projectUpdate.setLogisticsAuditer(logisticsAuditerName);
@@ -528,12 +528,13 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setQualityName(qualityName);
         projectUpdate.setBuVpAuditer(buVpAuditerName);
         projectUpdate.setBuVpAuditerId(buVpAuditerId);
-        projectUpdate.setCeo(ceoName);
-        projectUpdate.setCeoId(ceoId);
-        projectUpdate.setChairman(chairmanName);
-        projectUpdate.setChairmanId(chairmanId);
         projectUpdate.setBuAuditerId(businessUid);
         projectUpdate.setBuAuditer(businessName);
+        // ceo和总裁审核写死
+        projectUpdate.setCeo("宋伟");
+        projectUpdate.setCeoId(32035);
+        projectUpdate.setChairman("冷成志");
+        projectUpdate.setChairmanId(32046);
 
         projectUpdate.setAuditingStatus(2); // 审核中
 
