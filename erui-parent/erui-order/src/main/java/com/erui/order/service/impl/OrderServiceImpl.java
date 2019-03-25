@@ -712,7 +712,7 @@ public class OrderServiceImpl implements OrderService {
                             auditingProcess_i = "105,106";
                             auditingUserId_i = order.getLegalAuditerId() + "," + order.getSettlementLeaderId();//提交到法务和结算审核
                             auditorIds.append("," + auditingUserId_i + ",");
-                        } else if (order.getFinancing() == 1) {
+                        } else if (order.getFinancing() == 1&& order.getFinancingCommissionerId() != null) {
                             //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
                             auditingProcess_i = "104"; // 融资审核
                             auditingUserId_i = order.getFinancingCommissionerId().toString();
@@ -736,7 +736,7 @@ public class OrderServiceImpl implements OrderService {
                             auditingProcess_i = "105,106";
                             auditingUserId_i = order.getLegalAuditerId() + "," + order.getSettlementLeaderId();//提交法务和结算审核
                             auditorIds.append("," + auditingUserId_i + ",");
-                        } else if (order.getFinancing() == 1) {
+                        } else if (order.getFinancing() == 1&& order.getFinancingCommissionerId() != null) {
                             //若是融资项目 且订单金额小于20万美元 提交由融资专员审核
                             auditingProcess_i = "104"; // 融资审核
                             auditingUserId_i = order.getFinancingCommissionerId().toString();
@@ -758,7 +758,7 @@ public class OrderServiceImpl implements OrderService {
                         auditingProcess_i = "105,106";
                         auditingUserId_i = order.getLegalAuditerId() + "," + order.getSettlementLeaderId();//提交法务和结算审核
                         auditorIds.append("," + auditingUserId_i + ",");
-                    } else if (order.getFinancing() == 1) {
+                    } else if (order.getFinancing() == 1 && order.getFinancingCommissionerId() != null) {
                         //若是融资项目 且订单金额小于20万美元 提交由融资专员审核
                         auditingProcess_i = "104"; // 融资审核
                         auditingUserId_i = order.getFinancingCommissionerId().toString();
