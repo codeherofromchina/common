@@ -203,9 +203,9 @@ public class AddOrderVo {
     private Integer financingCommissionerId;//融资专员Id
     private String financingCommissioner;//融资专员
     private Integer settlementLeaderId;   //结算专员
-    private Integer settlementLeader;
+    private String settlementLeader;
     private Integer legalAuditerId;//法务审核人id
-    private Integer legalAuditer;//法务审核人
+    private String legalAuditer;//法务审核人
     // 项目审核接口中使用，审核的原因字段
     @Transient
     private String auditingReason;
@@ -254,14 +254,6 @@ public class AddOrderVo {
         this.settlementLeaderId = settlementLeaderId;
     }
 
-    public Integer getSettlementLeader() {
-        return settlementLeader;
-    }
-
-    public void setSettlementLeader(Integer settlementLeader) {
-        this.settlementLeader = settlementLeader;
-    }
-
     public Integer getLegalAuditerId() {
         return legalAuditerId;
     }
@@ -270,11 +262,19 @@ public class AddOrderVo {
         this.legalAuditerId = legalAuditerId;
     }
 
-    public Integer getLegalAuditer() {
+    public String getSettlementLeader() {
+        return settlementLeader;
+    }
+
+    public void setSettlementLeader(String settlementLeader) {
+        this.settlementLeader = settlementLeader;
+    }
+
+    public String getLegalAuditer() {
         return legalAuditer;
     }
 
-    public void setLegalAuditer(Integer legalAuditer) {
+    public void setLegalAuditer(String legalAuditer) {
         this.legalAuditer = legalAuditer;
     }
 
@@ -948,6 +948,13 @@ public class AddOrderVo {
         order.setOrderBelongs(this.orderBelongs);
         order.setOrderCategory(this.orderCategory);
         order.setOverseasSales(this.overseasSales);
+        order.setLegalAuditerId(this.legalAuditerId);
+        order.setLegalAuditer(this.legalAuditer);
+        order.setFinancingCommissionerId(this.financingCommissionerId);
+        order.setFinancingCommissioner(this.financingCommissioner);
+        order.setSettlementLeaderId(this.settlementLeaderId);
+        order.setSettlementLeader(this.settlementLeader);
+
     }
 
 
