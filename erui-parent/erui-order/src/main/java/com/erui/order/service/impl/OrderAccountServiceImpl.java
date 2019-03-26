@@ -273,7 +273,8 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             //获取回款时间
             if (orderAccount.getPaymentDate() != null) {
                 orderLog.setBusinessDate(orderAccount.getPaymentDate());
-            }BigDecimal discount = orderAccount.getDiscount() == null ? BigDecimal.valueOf(0) : orderAccount.getDiscount();   //其他扣款金额
+            }
+            BigDecimal discount = orderAccount.getDiscount() == null ? BigDecimal.valueOf(0) : orderAccount.getDiscount();   //其他扣款金额
             BigDecimal add = orderAccount.getMoney().add(discount);
             orderLog.setOperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getMsg()) + "  " + numberFormat1.format(add) + " " + currencyBn);
             orderLog.setEnoperation(StringUtils.defaultIfBlank(null, OrderLog.LogTypeEnum.ADVANCE.getEnMsg()) + "  " + numberFormat1.format(add) + " " + currencyBn);
@@ -842,7 +843,6 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                 BigDecimal subtract = lineOfCredit.subtract(creditAvailable);   //所欠授信额度
 
                 if (subtract.compareTo(BigDecimal.valueOf(0)) == 1 ){    //判断是否有欠款   所欠大于0
-
                     //判断本次回款总金额 是否 能够还所欠授信额度
                     BigDecimal subtract2 = subtract.subtract(moneySum);    //所欠授信额度   -   本次回款总金额
                     if(subtract2.compareTo(BigDecimal.valueOf(0)) == 1 || subtract2.compareTo(BigDecimal.valueOf(0)) == 0){ //大于  或者  等于
@@ -920,7 +920,7 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                     }
 
 
-                }else {
+                } else {
                     BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0.00) : order.getShipmentsMoney();  //已发货总金额 （财务管理
                     BigDecimal currencyBnAlreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0.00) : order.getAlreadyGatheringMoney();//已收款总金额
 
@@ -928,6 +928,8 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                     BigDecimal subtract1 = currencyBnAlreadyGatheringMoney.subtract(currencyBnShipmentsMoney);
                     if (subtract1.compareTo(BigDecimal.valueOf(0)) == 1 ){ // 如果大于发货金额， 说明有多出的钱
                         order.setAdvanceMoney(subtract1);
+                    } else {
+                        order.setAdvanceMoney(BigDecimal.ZERO);
                     }
                     orderDao.save(order);
                 }
@@ -940,12 +942,14 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                 BigDecimal subtract1 = currencyBnAlreadyGatheringMoney.subtract(currencyBnShipmentsMoney);
                 if (subtract1.compareTo(BigDecimal.valueOf(0)) == 1 ){ // 如果大于发货金额， 说明有多出的钱
                     order.setAdvanceMoney(subtract1);
+                } else {
+                    order.setAdvanceMoney(BigDecimal.ZERO);
                 }
                 orderDao.save(order);
             }
 
 
-        }else {
+        } else {
             BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0.00) : order.getShipmentsMoney();  //已发货总金额 （财务管理
             BigDecimal currencyBnAlreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0.00) : order.getAlreadyGatheringMoney();//已收款总金额
 
@@ -953,6 +957,8 @@ public class OrderAccountServiceImpl implements OrderAccountService {
             BigDecimal subtract1 = currencyBnAlreadyGatheringMoney.subtract(currencyBnShipmentsMoney);
             if (subtract1.compareTo(BigDecimal.valueOf(0)) == 1 ){ // 如果大于发货金额， 说明有多出的钱
                 order.setAdvanceMoney(subtract1);
+            } else {
+                order.setAdvanceMoney(BigDecimal.ZERO);
             }
             orderDao.save(order);
         }
@@ -1010,16 +1016,22 @@ public class OrderAccountServiceImpl implements OrderAccountService {
      * @param reditLogId //
      */
     public void disposeCreditPayment(Order order, BigDecimal newSumMoney, BigDecimal formerSumMoney, Integer reditLogId) throws Exception {
+        BigDecimal shipmentsMoney = order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney();//已发货总金额
+        BigDecimal alreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();// 已收款总金额
 
+        BigDecimal advanceM = alreadyGatheringMoney.subtract(shipmentsMoney);   //多出的 收款 金额
         BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(1) : order.getExchangeRate();//订单中利率
         String crmCode = order.getCrmCode();//crm客户码
 
         //获取授信信息
         DeliverConsign deliverConsign = deliverConsignService.queryCreditData(order);
-        if(deliverConsign.getLineOfCredit().compareTo(BigDecimal.valueOf(0)) == 1){
+
+
+
+        if(deliverConsign != null && deliverConsign.getLineOfCredit().compareTo(BigDecimal.valueOf(0)) == 1){
 
             BigDecimal lineOfCredit = deliverConsign.getLineOfCredit().divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);//授信额度
-            if(lineOfCredit.compareTo(BigDecimal.valueOf(0)) == 1){        //必须有授信额度
+            if(lineOfCredit.compareTo(BigDecimal.valueOf(0)) == 1) {        //必须有授信额度
                 BigDecimal creditAvailable = deliverConsign.getCreditAvailable().divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);    // 可用授信额度
                 BigDecimal subtract = lineOfCredit.subtract(creditAvailable);   //应还授信额度
 
@@ -1114,11 +1126,13 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                             order.setAdvanceMoney(add1);
                     }
                 }
+            } else {
+                order.setAdvanceMoney(advanceM.compareTo(BigDecimal.ZERO) == 1 ? advanceM : BigDecimal.ZERO);
             }
-            orderDao.save(order);
+        } else {
+            order.setAdvanceMoney(advanceM.compareTo(BigDecimal.ZERO) == 1 ? advanceM : BigDecimal.ZERO);
         }
-
-
+        orderDao.save(order);
     }
 
     /**
@@ -1208,39 +1222,39 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
             //查询授信信息
             DeliverConsign deliverConsign = deliverConsignService.queryCreditData(order);
+            try {
+                BigDecimal lineOfCredit = null;
+                if (deliverConsign != null && (lineOfCredit = deliverConsign.getLineOfCredit()).compareTo(BigDecimal.valueOf(0)) == 1) { //必须有额度
+                    //可用授信额度
+                    BigDecimal creditAvailable = deliverConsign.getCreditAvailable();
+                    //授信额度  -  可用授信额度   判断是否有额度
+                    BigDecimal subtract2 = lineOfCredit.subtract(creditAvailable);  //欠授信额度
+                    if (subtract2.compareTo(BigDecimal.valueOf(0)) == 1) {      //如果有所欠的
+                        BigDecimal subtract1 = subtract2.subtract(subtract);    // 欠授信额度  -  多出的 收款 金额
+                        //如果欠授信额度大   或者正好    取正值。  预收金额为0
+                        if (subtract1.compareTo(BigDecimal.valueOf(0)) == 1 || subtract1.compareTo(BigDecimal.valueOf(0)) == 0) {
+//                        order.setAdvanceMoney(subtract);
+                            order.setAdvanceMoney(BigDecimal.ZERO);
+                        } else { //取多出的负值
+                            BigDecimal abs = subtract1.abs(); //取正值
+                            order.setAdvanceMoney(abs);
+                        }
 
-            BigDecimal lineOfCredit = deliverConsign.getLineOfCredit();//授信额度
-            if(lineOfCredit.compareTo(BigDecimal.valueOf(0)) == 1){ //必须有额度
-                //可用授信额度
-                BigDecimal creditAvailable = deliverConsign.getCreditAvailable();
-                //授信额度  -  可用授信额度   判断是否有额度
-                BigDecimal subtract2 = lineOfCredit.subtract(creditAvailable);  //欠授信额度
-                if(subtract2.compareTo(BigDecimal.valueOf(0)) == 1){      //如果有所欠的
-                    BigDecimal subtract1 = subtract2.subtract(subtract);    // 欠授信额度  -  多出的 收款 金额
-                    //如果欠授信额度大   或者正好    取正值。  预收金额为0
-                    if (subtract1.compareTo(BigDecimal.valueOf(0)) == 1 || subtract1.compareTo(BigDecimal.valueOf(0)) == 0){
+                    } else { //如果没有直接处理到  预收金额
                         order.setAdvanceMoney(subtract);
-                    }else { //取多出的负值
-                        BigDecimal abs = subtract1.abs(); //取正值
-                        order.setAdvanceMoney(abs);
                     }
 
-                }else { //如果没有直接处理到  预收金额
+                } else { //如果没有多出的直接处理到  预收金额
                     order.setAdvanceMoney(subtract);
                 }
-
-            }else { //如果没有多出的直接处理到  预收金额
+            } catch (Exception ex) {
+                ex.printStackTrace();
                 order.setAdvanceMoney(subtract);
             }
-
-
-
         }else {
             order.setAdvanceMoney(BigDecimal.valueOf(0));
         }
-
         orderDao.save(order);
-
     }
 
 }
