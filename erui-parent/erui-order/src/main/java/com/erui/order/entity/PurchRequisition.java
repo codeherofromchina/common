@@ -64,6 +64,12 @@ public class PurchRequisition {
     @Column(name = "purchase_name") //采购经办人名称
     private String purchaseName;
 
+    @Column(name = "single_person_id")//分单人ID
+    private Integer singlePersonId;
+
+    @Column(name = "single_person") //分单人
+    private String singlePerson;
+
     /**
      * 采购状态 1：未进行  2：采购中  3：采购完成
      */
@@ -254,6 +260,22 @@ public class PurchRequisition {
 
     public void setPurchaseName(String purchaseName) {
         this.purchaseName = purchaseName;
+    }
+
+    public Integer getSinglePersonId() {
+        return singlePersonId;
+    }
+
+    public void setSinglePersonId(Integer singlePersonId) {
+        this.singlePersonId = singlePersonId;
+    }
+
+    public String getSinglePerson() {
+        return singlePerson;
+    }
+
+    public void setSinglePerson(String singlePerson) {
+        this.singlePerson = singlePerson;
     }
 
     public enum StatusEnum {
