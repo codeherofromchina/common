@@ -1185,7 +1185,7 @@ public class OrderServiceImpl implements OrderService {
             goods.setPrice(pGoods.getPrice());
             goodsList.add(goods);
         }
-        order.setGoodsList(goodsList);
+        //order.setGoodsList(goodsList);
         goodsDao.delete(dbGoodsMap.values());
         // 设置商品的项目信息
         List<Goods> goodsList1 = order.getGoodsList();
@@ -1207,7 +1207,42 @@ public class OrderServiceImpl implements OrderService {
         order.setCreateTime(new Date());
         order.setDeleteFlag(false);
         //订单商品添加
-        order.setGoodsList(addOrderGoods(addOrderVo));
+        List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
+        Goods goods = null;
+        List<Goods> goodsList = new ArrayList<>();
+        Set<String> skuRepeatSet = new HashSet<>();
+        for (PGoods pGoods : pGoodsList) {
+            goods = new Goods();
+            String sku = pGoods.getSku();
+            if (StringUtils.isNotBlank(sku) && !skuRepeatSet.add(sku)) {
+                // 已经存在的sku，返回错误
+                throw new MyException("同一sku不可以重复添加&&The same sku can not be added repeatedly");
+            }
+            goods.setSku(sku);
+            goods.setOutstockNum(0);
+            goods.setMeteType(pGoods.getMeteType());
+            goods.setMeteName(pGoods.getMeteName());
+            goods.setNameEn(pGoods.getNameEn());
+            goods.setNameZh(pGoods.getNameZh());
+            goods.setContractGoodsNum(pGoods.getContractGoodsNum());
+            goods.setUnit(pGoods.getUnit());
+            goods.setModel(pGoods.getModel());
+            goods.setClientDesc(pGoods.getClientDesc());
+            goods.setBrand(pGoods.getBrand());
+            goods.setContractNo(order.getContractNo());
+            goods.setPurchasedNum(0);
+            goods.setPrePurchsedNum(0);
+            goods.setInstockNum(0);
+            goods.setInspectNum(0);
+            goods.setOutstockApplyNum(0);
+            goods.setOutstockNum(0);
+            goods.setExchanged(false);
+            goods.setDepartment(pGoods.getDepartment());
+            goods.setPrice(pGoods.getPrice());
+            goods.setOrder(order);
+            goodsList.add(goods);
+        }
+        order.setGoodsList(goodsList);
         //根据订单金额判断 填写审批人级别
         if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != null && addOrderVo.getOrderCategory() != 6) {
             if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
