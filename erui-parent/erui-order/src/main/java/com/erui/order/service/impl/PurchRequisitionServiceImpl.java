@@ -119,6 +119,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             purchRequisition1.setPurchaseName(purchRequisition.getPurchaseName());
             purchRequisition1.setSinglePerson(name);
             purchRequisition1.setSinglePersonId(Integer.parseInt(submenuId));
+            purchRequisition1.setUpdateTime(new Date());
             purchRequisitionDao.save(purchRequisition1);
         }
         return true;

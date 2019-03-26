@@ -70,6 +70,9 @@ public class PurchRequisition {
     @Column(name = "single_person") //分单人
     private String singlePerson;
 
+    @Column(name = "update_time")
+    private Date updateTime;    //更新时间
+
     /**
      * 采购状态 1：未进行  2：采购中  3：采购完成
      */
@@ -276,6 +279,14 @@ public class PurchRequisition {
 
     public void setSinglePerson(String singlePerson) {
         this.singlePerson = singlePerson;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
     }
 
     public enum StatusEnum {
