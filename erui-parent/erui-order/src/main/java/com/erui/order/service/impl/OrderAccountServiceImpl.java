@@ -320,6 +320,8 @@ public class OrderAccountServiceImpl implements OrderAccountService {
                     }
 
                 }
+            } else {
+                disposeAdvanceMoney(order1);
             }
 
         }catch (Exception e){
