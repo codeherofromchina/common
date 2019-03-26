@@ -1333,8 +1333,8 @@ public class ProjectServiceImpl implements ProjectService {
                         auditingProcess_i = auditingProcess.replaceFirst(String.valueOf(curAuditProcess), "");
                         auditingUserId_i = auditingUserId.replaceFirst(auditorId, "");
                         while (auditingProcess_i.indexOf(",,") != -1 || auditingUserId_i.indexOf(",,") != -1) {
-                            auditingProcess_i = auditingProcess_i.replace(",,", "");
-                            auditingUserId_i = auditingUserId_i.replace(",,", "");
+                            auditingProcess_i = auditingProcess_i.replace(",,", ",");
+                            auditingUserId_i = auditingUserId_i.replace(",,", ",");
                         }
                         auditingProcess_i = StringUtils.strip(auditingProcess_i, ",");
                         auditingUserId_i = StringUtils.strip(auditingUserId_i, ",");
