@@ -328,7 +328,7 @@ public class OrderController {
         String reason = addOrderVo.getAuditingReason(); // 驳回原因
         String type = addOrderVo.getAuditingType(); // 驳回or审核
         // 判断订单是否存在，
-        Order order = orderService.findById(orderId);
+        Order order = orderService.findByIdLang(orderId, CookiesUtil.getLang(request));
         if (order == null) {
             return new Result<>(ResultStatusEnum.PROJECT_NOT_EXIST);
         }
