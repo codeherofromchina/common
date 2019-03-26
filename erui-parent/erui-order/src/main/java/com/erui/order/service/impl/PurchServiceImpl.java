@@ -311,7 +311,7 @@ public class PurchServiceImpl implements PurchService {
                     }
                     break;
                 case 25://事业部VP-变更为供应链中心总经理-金龙
-                    if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() <= 1000000) {
+                    if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() < 1000000) {
                         auditingStatus_i = 4; // 完成
                         auditingProcess_i = "999";
                         auditingUserId_i = null;
@@ -327,7 +327,7 @@ public class PurchServiceImpl implements PurchService {
                         auditingProcess_i = "999";
                         auditingUserId_i = null;
                         //如果订单金额大于三百万需要董事长审批
-                    } else if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() >= 3000000) {
+                    } else {
                         auditingProcess_i = "27"; // 董事长审核
                         auditingUserId_i = purch.getChairmanBoardId() + "";
                     }
