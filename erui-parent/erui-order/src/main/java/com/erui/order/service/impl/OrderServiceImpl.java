@@ -1020,7 +1020,7 @@ public class OrderServiceImpl implements OrderService {
 
         }
         CheckLog checkLog_i = null; // 审核日志
-        Order orderUpdate = orderDao.saveAndFlush(order);
+        Order orderUpdate = orderDao.save(order);
         // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
         //order.setAttachmentSet(addOrderVo.getAttachDesc());
         List<Attachment> attachmentList = null;
