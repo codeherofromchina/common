@@ -875,18 +875,13 @@ public class OrderServiceImpl implements OrderService {
                 String[] split = auditingUserId_i.split(",");
                 for (int n = 0; n < split.length; n++) {
                     sendDingtalk(order, split[n], rejectFlag, 1);
-                    auditBackLogHandle(order, rejectFlag, split[n]);
                 }
             } else {
                 sendDingtalk(order, auditingUserId_i, rejectFlag, 1);
-                if (!StringUtils.isBlank(auditingUserId_i) && !auditingUserId_i.contains(",")) {
-                    auditBackLogHandle(order, rejectFlag, auditingUserId_i);
-                } else {
-                    auditBackLogHandle(order, rejectFlag, null);
-                }
             }
         }
         orderDao.save(order);
+        auditBackLogHandle(order, rejectFlag, auditingUserId_i);
         return true;
     }
 
@@ -1061,16 +1056,11 @@ public class OrderServiceImpl implements OrderService {
                     String[] split = order.getAuditingUserId().split(",");
                     for (int n = 0; n < split.length; n++) {
                         sendDingtalk(order, split[n], false, 1);
-                        auditBackLogHandle(order, false, split[n]);
                     }
                 } else {
                     sendDingtalk(order, order.getAuditingUserId(), false, 1);
-                    if (!StringUtils.isBlank(order.getAuditingUserId())) {
-                        auditBackLogHandle(order, false, order.getAuditingUserId());
-                    } else {
-                        auditBackLogHandle(order, false, null);
-                    }
                 }
+                auditBackLogHandle(order, false, order.getAuditingUserId());
             }
         }
         Date signingDate = null;
@@ -1289,17 +1279,12 @@ public class OrderServiceImpl implements OrderService {
                     String[] split = order.getAuditingUserId().split(",");
                     for (int n = 0; n < split.length; n++) {
                         sendDingtalk(order, split[n], false, 1);
-                        auditBackLogHandle(order, false, split[n]);
                     }
                 } else {
                     sendDingtalk(order, order.getAuditingUserId(), false, 1);
-                    if (!StringUtils.isBlank(order.getAuditingUserId())) {
-                        auditBackLogHandle(order, false, order.getAuditingUserId());
-                    } else {
-                        auditBackLogHandle(order, false, null);
-                    }
                 }
             }
+            auditBackLogHandle(order, false, order.getAuditingUserId());
         }
         Date signingDate = null;
         if (order1.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
