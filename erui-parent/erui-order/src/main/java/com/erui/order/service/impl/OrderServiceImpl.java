@@ -695,7 +695,7 @@ public class OrderServiceImpl implements OrderService {
             auditorIds.append("," + auditingUserId_i + ",");
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
             checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, order.getAuditingProcess(), order.getAuditingUserId(), reason, "-1", 1);
-            if (auditingProcess_i.equals("0")) {
+            if (auditingProcess_i.equals("100")) {
                 order.setStatus(1);
             }
         } else {
@@ -824,6 +824,8 @@ public class OrderServiceImpl implements OrderService {
                             }
                         }
                         order.setContractNo(contractNo);
+                        //填写商品销售合同号
+                        order.getGoodsList().forEach(vo -> vo.setContractNo(order.getContractNo()));
                         order.getProject().setContractNo(contractNo);
                     }
                     String replace = StringUtils.strip(auditingUserId.replaceFirst(order.getLegalAuditerId().toString(), ""));
@@ -1025,7 +1027,7 @@ public class OrderServiceImpl implements OrderService {
         if (addOrderVo.getAttachDesc() != null && addOrderVo.getAttachDesc().size() > 0) {
             attachmentList = addOrderVo.getAttachDesc();
         } else {
-            new ArrayList<>();
+            attachmentList = new ArrayList<>();
         }
         if (order.getAttachmentSet() != null && order.getAttachmentSet().size() > 0) {
             Map<Integer, Attachment> dbAttahmentsMap = order.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
@@ -1139,7 +1141,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
-    private List<Goods> updateOrderGoods(AddOrderVo addOrderVo) throws Exception {
+    private List<Goods> updateOrderGoods(AddOrderVo addOrderVo) {
         Order order = orderDao.findOne(addOrderVo.getId());
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
         Goods goods = null;
