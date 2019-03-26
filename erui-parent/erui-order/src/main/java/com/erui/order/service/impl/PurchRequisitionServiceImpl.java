@@ -413,6 +413,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                 String purchStatus = condition.get("purchStatus");
                 if (StringUtils.isNotBlank(purchStatus) || StringUtils.isNumeric(purchStatus)) {
                     list.add(cb.equal(root.get("purchStatus").as(Integer.class), Integer.parseInt(purchStatus)));
+                }else{
+                    list.add(cb.notEqual(root.get("purchStatus").as(Integer.class), PurchRequisition.PurchStatusEnum.DONE.getCode()));
                 }
 
 
