@@ -261,7 +261,7 @@ public class PurchServiceImpl implements PurchService {
                             }
                         }else{//需要法务、财务审批
                             auditingProcess_i = "23,24";
-                            auditingUserId_i = purch.getLegalAuditerId() + "," + purch.getFinanceAuditerId();
+                            auditingUserId_i = String.format("%d,%d", purch.getLegalAuditerId(), purch.getFinanceAuditerId());
                         }
                     }else{
                         isComeMore = true;
@@ -282,7 +282,7 @@ public class PurchServiceImpl implements PurchService {
                             }
                         }else{//需要法务、财务审批
                             auditingProcess_i = "23,24";
-                            auditingUserId_i = purch.getLegalAuditerId() + "," + purch.getFinanceAuditerId();
+                            auditingUserId_i = String.format("%d,%d", purch.getLegalAuditerId(), purch.getFinanceAuditerId());
                         }
                     }else{
                         isComeMore = true;
@@ -906,7 +906,7 @@ public class PurchServiceImpl implements PurchService {
         } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
             purch.setAuditingProcess("21,22");
             purch.setAuditingStatus(1);
-            purch.setAuditingUserId(purch.getPurchAuditerId()+","+purch.getBusinessAuditerId());
+            purch.setAuditingUserId(String.format("%d,%d", purch.getPurchAuditerId(), purch.getBusinessAuditerId()));
 
         }
         CheckLog checkLog_i = null; //审批流日志
@@ -1224,7 +1224,7 @@ public class PurchServiceImpl implements PurchService {
         } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
             dbPurch.setAuditingProcess("21,22");
             dbPurch.setAuditingStatus(1);
-            dbPurch.setAuditingUserId(purch.getPurchAuditerId()+","+purch.getBusinessAuditerId());
+            dbPurch.setAuditingUserId(String.format("%d,%d", purch.getPurchAuditerId(), purch.getBusinessAuditerId()));
         }
         CheckLog checkLog_i = null; //审批流日志
 
