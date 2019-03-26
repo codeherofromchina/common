@@ -109,16 +109,12 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updatePurchaseUid(List<PurchRequisition> list) throws Exception {
-        String eruiToken = (String) ThreadLocalUtil.getObject();
-        Map<String, String> stringStringMap = getInstockServiceImpl.ssoUser(eruiToken);
-        String name = stringStringMap.get("name");
-        String submenuId = stringStringMap.get("id");
         for (PurchRequisition purchRequisition: list){
             PurchRequisition purchRequisition1 = purchRequisitionDao.findOne(purchRequisition.getId());
             purchRequisition1.setPurchaseUid(purchRequisition.getPurchaseUid());
             purchRequisition1.setPurchaseName(purchRequisition.getPurchaseName());
-            purchRequisition1.setSinglePerson(name);
-            purchRequisition1.setSinglePersonId(Integer.parseInt(submenuId));
+            purchRequisition1.setSinglePerson(purchRequisition.getSinglePerson());
+            purchRequisition1.setSinglePersonId(purchRequisition.getSinglePersonId());
             purchRequisition1.setUpdateTime(new Date());
             purchRequisitionDao.save(purchRequisition1);
         }

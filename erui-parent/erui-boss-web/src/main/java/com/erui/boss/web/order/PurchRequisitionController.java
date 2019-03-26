@@ -177,12 +177,16 @@ public class PurchRequisitionController {
             result.setMsg("采购经办人ID不能为空");
         } else {
             list = new ArrayList<PurchRequisition>();
+            Object userId = request.getSession().getAttribute("userid");
+            Object userName = request.getSession().getAttribute("realname");
             if(ids.split(",").length > 1){
                 for(String id : ids.split(",")){
                     purchRequisition = new PurchRequisition();
                     purchRequisition.setId(Integer.parseInt(id));
                     purchRequisition.setPurchaseUid(Integer.parseInt(purchaseUid));
                     purchRequisition.setPurchaseName(purchaseName);
+                    purchRequisition.setSinglePersonId(Integer.parseInt(userId.toString()));
+                    purchRequisition.setSinglePerson(userName.toString());
                     list.add(purchRequisition);
                 }
             }else{
@@ -190,11 +194,11 @@ public class PurchRequisitionController {
                 purchRequisition.setId(Integer.parseInt(ids));
                 purchRequisition.setPurchaseUid(Integer.parseInt(purchaseUid));
                 purchRequisition.setPurchaseName(purchaseName);
+                purchRequisition.setSinglePersonId(Integer.parseInt(userId.toString()));
+                purchRequisition.setSinglePerson(userName.toString());
                 list.add(purchRequisition);
             }
             boolean flag;
-            String eruiToken = CookiesUtil.getEruiToken(request);
-            ThreadLocalUtil.setObject(eruiToken);
             flag = purchRequisitionService.updatePurchaseUid(list);
             if (flag) {
                 return result;
