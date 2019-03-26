@@ -1106,6 +1106,12 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setAuditingStatus(0);
             //商务技术经办人名称
             Project project = projectDao.save(projectAdd);
+            List<Goods> goodsList1 = orderUpdate.getGoodsList();
+            goodsList1.parallelStream().forEach(goods1 -> {
+                goods1.setProject(project);
+                goods1.setProjectNo(project.getProjectNo());
+            });
+            goodsDao.save(goodsList1);
             //添加项目利润核算单信息
             ProjectProfit projectProfit = null;
             if (project.getProjectProfit() == null) {
@@ -1188,11 +1194,7 @@ public class OrderServiceImpl implements OrderService {
         //order.setGoodsList(goodsList);
         goodsDao.delete(dbGoodsMap.values());
         // 设置商品的项目信息
-        List<Goods> goodsList1 = order.getGoodsList();
-        goodsList1.parallelStream().forEach(goods1 -> {
-            goods1.setProject(order.getProject());
-        });
-        return goodsList1;
+        return goodsList;
     }
 
     @Override
