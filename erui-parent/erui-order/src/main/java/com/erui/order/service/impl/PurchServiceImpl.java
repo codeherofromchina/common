@@ -270,7 +270,7 @@ public class PurchServiceImpl implements PurchService {
                     }
                     break;
                 case 22://商务技术审核
-                    if(purch.getAuditingProcess().indexOf("21")==-1){//同级商务技术是否已审批
+                    if(purch.getAuditingProcess().indexOf("21")==-1){//同级采购经理是否已审批
                         if(purch.getContractVersion() != null && "1".equals(purch.getContractVersion())){//是否为标准版合同，是标准则越过法务、财务、供应链中心总经理的审批
                             if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() <= 1000000) {//大于100万需要总裁审批
                                 auditingStatus_i = 4; // 完成
