@@ -961,7 +961,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = findByIdLang(addOrderVo.getId(), "zh");
         if ((order.getOverseasSales() != null && order.getOverseasSales() != 2 && order.getOverseasSales() != 4) && (addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4)) {
             order.setContractNo("");
-        } else if ((addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4) && !order.getSigningCo().equals(addOrderVo.getSigningCo())) {
+        } else if ((addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4) && order.getSigningCo() != null && !order.getSigningCo().equals(addOrderVo.getSigningCo())) {
             order.setContractNo("");
         } else if (order.getOrderCategory() != null && order.getOrderCategory() == 6
                 && StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", addOrderVo.getSigningCo())
