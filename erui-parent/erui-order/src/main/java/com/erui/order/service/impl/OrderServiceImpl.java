@@ -1015,7 +1015,7 @@ public class OrderServiceImpl implements OrderService {
         if (addOrderVo.getAttachDesc() != null && addOrderVo.getAttachDesc().size() > 0) {
             attachmentList = addOrderVo.getAttachDesc();
         } else {
-            new ArrayList<>();
+            attachmentList = new ArrayList<>();
         }
         if (order.getAttachmentSet() != null && order.getAttachmentSet().size() > 0) {
             Map<Integer, Attachment> dbAttahmentsMap = order.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
