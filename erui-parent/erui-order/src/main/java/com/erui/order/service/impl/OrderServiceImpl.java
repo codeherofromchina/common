@@ -1070,10 +1070,10 @@ public class OrderServiceImpl implements OrderService {
             addLog(OrderLog.LogTypeEnum.CREATEORDER, orderUpdate.getId(), null, null, signingDate);
             applicationContext.publishEvent(new OrderProgressEvent(orderUpdate, 1, eruiToken));
             Project projectAdd = null;
-            if (order.getProject() == null) {
+            if (orderUpdate.getProject() == null) {
                 projectAdd = new Project();
             } else {
-                projectAdd = order.getProject();
+                projectAdd = orderUpdate.getProject();
             }
             projectAdd.setOrder(orderUpdate);
             //projectAdd.setExecCoName(orderUpdate.getExecCoName());
@@ -1101,7 +1101,7 @@ public class OrderServiceImpl implements OrderService {
                 goods1.setProject(project);
                 goods1.setProjectNo(project.getProjectNo());
             });
-            //goodsDao.save(goodsList1);
+            goodsDao.save(goodsList1);
             //添加项目利润核算单信息
             ProjectProfit projectProfit = null;
             if (project.getProjectProfit() == null) {
@@ -1124,7 +1124,7 @@ public class OrderServiceImpl implements OrderService {
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
                 logger.info("CRM返回信息：" + s);
             }
-            //项目提交的时候判断是否有驳回的信息  如果有删除  “驳回订单” 待办提示
+//            //项目提交的时候判断是否有驳回的信息  如果有删除  “驳回订单” 待办提示
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
             backLog.setHostId(order.getId());

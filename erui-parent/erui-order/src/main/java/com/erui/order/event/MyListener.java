@@ -24,7 +24,6 @@ public class MyListener implements ApplicationListener<OrderProgressEvent> {
     private ProjectDao projectDao;
 
     @Override
-    @Async
     public void onApplicationEvent(OrderProgressEvent orderProgressEvent) {
         Order order = (Order) orderProgressEvent.getSource();
         Project project = order.getProject();
