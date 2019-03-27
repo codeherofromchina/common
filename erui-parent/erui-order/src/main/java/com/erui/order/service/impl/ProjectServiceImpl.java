@@ -561,7 +561,7 @@ public class ProjectServiceImpl implements ProjectService {
         sendDingtalk(projectUpdate.getOrder(), auditUserId, false);
         auditBackLogHandle(projectUpdate, false, auditUserId);
         // 记录审核日志
-        CheckLog checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.AuditProcessingEnum.NEW_PRO_BUSINESS_SUBMIT.getProcess(),
+        CheckLog checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.PROJECT.getCode(), projectUpdate.getId(), CheckLog.AuditProcessingEnum.NEW_PRO_BUSINESS_SUBMIT.getProcess(),
                 projectUpdate.getBusinessUid(), projectUpdate.getBusinessName(),
         auditProcessing, auditUserId,
                 "", "2", 2);
@@ -1322,7 +1322,7 @@ public class ProjectServiceImpl implements ProjectService {
                     }
                 }
                 // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
-                checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, project.getAuditingProcess(), project.getAuditingUserId(), reason, "-1", 2);
+                checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.PROJECT.getCode(), project.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, project.getAuditingProcess(), project.getAuditingUserId(), reason, "-1", 2);
             } else {
                 // 处理进度
                 switch (curAuditProcess) {
@@ -1388,7 +1388,7 @@ public class ProjectServiceImpl implements ProjectService {
                     default:
                         return false;
                 }
-                checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 2);
+                checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.PROJECT.getCode(), project.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 2);
             }
             checkLogService.insert(checkLog_i);
             if (!rejectFlag) {
@@ -1506,7 +1506,7 @@ public class ProjectServiceImpl implements ProjectService {
                 project.setProjectStatus("SUBMIT");
             }
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
-            checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, project.getAuditingProcess(), project.getAuditingUserId(), reason, "-1", 2);
+            checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.PROJECT.getCode(), project.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, project.getAuditingProcess(), project.getAuditingUserId(), reason, "-1", 2);
         } else {
             Integer auditingLevel = project.getAuditingLevel();
             Integer logistics_audit = project.getLogisticsAudit();
@@ -1613,7 +1613,7 @@ public class ProjectServiceImpl implements ProjectService {
                         return false;
                 }
             }
-            checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 2);
+            checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.PROJECT.getCode(), project.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 2);
         }
         checkLogService.insert(checkLog_i);
         if (!paramProject.getAuditingType().equals("-1")) {
@@ -1884,10 +1884,12 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     // 处理日志
-    private CheckLog fullCheckLogInfo(Integer orderId, Integer auditingProcess, Integer auditorId, String auditorName, String nextAuditingProcess, String nextAuditingUserId,
+    private CheckLog fullCheckLogInfo(Integer orderId, String category, Integer joinId, Integer auditingProcess, Integer auditorId, String auditorName, String nextAuditingProcess, String nextAuditingUserId,
                                       String auditingMsg, String operation, int type) {
         CheckLog checkLog = new CheckLog();
         checkLog.setOrderId(orderId);
+        checkLog.setCategory(category);
+        checkLog.setJoinId(joinId);
         checkLog.setCreateTime(new Date());
         checkLog.setAuditingProcess(auditingProcess);
         checkLog.setAuditingUserId(auditorId);
