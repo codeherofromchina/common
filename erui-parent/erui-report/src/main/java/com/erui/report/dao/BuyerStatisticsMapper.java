@@ -23,7 +23,12 @@ public interface BuyerStatisticsMapper {
      */
     List<Map<String, Object>> findCountryMembershipBuyerList(Map<String, String> params);
 
-
+    /**
+     * 查询国家2019年成单会员用户列表
+     * @param params
+     * @return
+     */
+    List<Map<String, Object>> findCountryAfter2019MembershipBuyerList(Map<String, String> params);
 
     /**
      * 查询国家入网用户列表

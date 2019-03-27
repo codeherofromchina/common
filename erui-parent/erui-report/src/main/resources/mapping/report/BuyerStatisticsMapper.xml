@@ -45,6 +45,27 @@
         ORDER BY membership_time ASC
     </select>
 
+    <select id="findCountryAfter2019MembershipBuyerList" resultType="java.util.Map">
+        SELECT
+        id,
+        buyer_code AS buyerCode,
+        country_name AS countryName,
+        area_name AS areaName,
+        acquiring_user_name as acquiringUserName,
+        IFNULL(DATE_FORMAT(membership_time_2019after, '%Y/%m/%d'),'') AS membershipTime
+        FROM
+        erui_report.rep_buyer_country_info
+        WHERE
+        membership_time_2019after IS NOT NULL
+        <if test="membershipStartTime != null and membershipStartTime != ''">
+            AND membership_time_2019after <![CDATA[>=]]> #{membershipStartTime}
+        </if>
+        <if test="membershipEndTime != null and membershipEndTime != ''">
+            AND membership_time_2019after <![CDATA[<=]]> #{membershipEndTime}
+        </if>
+        ORDER BY membership_time_2019after ASC
+    </select>
+
 
     <select id="findCountryApplyBuyerList" resultType="java.util.Map">
         SELECT

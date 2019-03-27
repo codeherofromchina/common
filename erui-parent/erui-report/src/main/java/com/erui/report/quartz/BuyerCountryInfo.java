@@ -16,6 +16,7 @@ public class BuyerCountryInfo {
 	public void fullData() {
 		fullBuyerBaseInfo();
 		fullBuyerMembershipTime();
+		fullBuyerAfter2019MembershipTime();
 	}
 
 	private void fullBuyerBaseInfo() {
@@ -104,11 +105,42 @@ public class BuyerCountryInfo {
 		}
 	}
 
-	private static final String BASE_INFO_QUERY_SQL = "SELECT t1.buyer_no, t1.buyer_code, t4.bn AS area_bn, t4.name AS area_name, t2.bn AS country_bn , t2.name AS country_name, t1.created_by AS acquiring_user_id, emp.name AS acquiring_user_name, t1.checked_at AS register_time, bus.net_at AS apply_time FROM erui_buyer.buyer t1 LEFT JOIN erui_sys.employee emp ON emp.id = t1.created_by LEFT JOIN erui_buyer.buyer_business bus ON bus.buyer_id = t1.id, erui_dict.country t2, erui_operation.market_area_country t3, erui_operation.market_area t4 WHERE (t1.country_bn = t2.bn AND t2.bn = t3.country_bn AND t2.lang = 'zh' AND t1.deleted_flag = 'N' AND buyer_code IS NOT NULL AND t1.`status` IN ('arroved', 'pass') AND t3.market_area_bn = t4.bn AND t4.lang = 'zh')";
+
+	private void fullBuyerAfter2019MembershipTime() {
+		try {
+			Statement stmt = conn.createStatement();
+			PreparedStatement pstm = conn.prepareStatement(MEMBERSHIP_TIME_AFTER_2019_QUERY_SQL);
+			PreparedStatement pstm02 = conn.prepareStatement(UPDATE_MEMBER_TIME_AFTER_2019__SQL);
+			ResultSet rs = stmt.executeQuery(USER_QUERY_ALL_SQL);
+			while (rs.next()) {
+				String buyerCode = rs.getString("buyer_code");
+				Long id = rs.getLong("id");
+				pstm.setString(1, buyerCode);
+				ResultSet rs02 = pstm.executeQuery();
+				if (rs02.next()) {
+					Date membershipTime = rs02.getDate("membership_time_2019after");
+					pstm02.setDate(1, membershipTime);
+					pstm02.setLong(2, id);
+					pstm02.execute();
+				}
+				rs02.close();
+			}
+			rs.close();
+			pstm02.close();
+			pstm.close();
+			stmt.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	private static final String BASE_INFO_QUERY_SQL = "SELECT t1.buyer_no, t1.buyer_code, t4.bn AS area_bn, t4.name AS area_name, t2.bn AS country_bn , t2.name AS country_name, t1.created_by AS acquiring_user_id, emp.name AS acquiring_user_name, IFNULL(t1.checked_at,t1.created_at) AS register_time, bus.net_at AS apply_time FROM erui_buyer.buyer t1 LEFT JOIN erui_sys.employee emp ON emp.id = t1.created_by LEFT JOIN erui_buyer.buyer_business bus ON bus.buyer_id = t1.id, erui_dict.country t2, erui_operation.market_area_country t3, erui_operation.market_area t4 WHERE (t1.country_bn = t2.bn AND t2.bn = t3.country_bn AND t2.lang = 'zh' AND t1.deleted_flag = 'N' AND buyer_code IS NOT NULL AND t1.`status` IN ('arroved', 'pass') AND t3.market_area_bn = t4.bn AND t4.lang = 'zh')";
 	private static final String USER_QUERY_SQL = "select id from erui_report.rep_buyer_country_info where buyer_code = ?";
 	private static final String USER_QUERY_ALL_SQL = "select id,buyer_code from erui_report.rep_buyer_country_info";
 	private static final String USER_UPDATE_SQL = "UPDATE erui_report.rep_buyer_country_info SET area_bn = ?, area_name = ?, country_bn = ?, country_name = ?, acquiring_user_id = ?, acquiring_user_name = ?, register_time = ?, apply_time = ? WHERE id = ?";
 	private static final String USER_INSERT_SQL = "INSERT INTO erui_report.rep_buyer_country_info (area_bn, area_name, country_bn, country_name, acquiring_user_id , acquiring_user_name, register_time, apply_time, buyer_no, buyer_code) VALUES (?, ?, ?, ?, ? , ?, ?, ?, ?, ?)";
 	private static final String MEMBERSHIP_TIME_QUERY_SQL = "SELECT MIN(t2.start_date) AS membership_time FROM erui_order.`order` t1, erui_order.project t2 WHERE (t1.id = t2.order_id AND t1.`status` > 2 AND t2.start_date IS NOT NULL AND t1.crm_code = ?)";
 	private static final String UPDATE_MEMBER_TIME_SQL = "update erui_report.rep_buyer_country_info set membership_time = ? where id = ?";
+	private static final String MEMBERSHIP_TIME_AFTER_2019_QUERY_SQL = "SELECT MIN(t2.start_date) AS membership_time_2019after FROM erui_order.`order` t1, erui_order.project t2 WHERE (t1.id = t2.order_id AND t1.`status` > 2 AND t2.start_date IS NOT NULL AND t2.start_date >= '2019-01-01' AND t1.crm_code = ?)";
+	private static final String UPDATE_MEMBER_TIME_AFTER_2019__SQL = "update erui_report.rep_buyer_country_info set membership_time_2019after = ? where id = ?";
 }
