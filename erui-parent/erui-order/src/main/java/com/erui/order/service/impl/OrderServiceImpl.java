@@ -971,7 +971,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setDeleteFlag(false);
         //订单商品添加修改
-        order.setGoodsList(updateOrderGoods(addOrderVo));
+        order.setGoodsList(updateOrderGoods(order, addOrderVo));
         //根据订单金额判断 填写审批人级别
         if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != null && addOrderVo.getOrderCategory() != 6) {
             if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
@@ -991,8 +991,6 @@ public class OrderServiceImpl implements OrderService {
                 order.setAreaVp(addOrderVo.getAreaVp());
             }
         }
-        //融资专员为前端传值
-        //order.setFinancingCommissionerId(39535);
         if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
             order.setAuditingStatus(1);
         } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
@@ -1017,8 +1015,8 @@ public class OrderServiceImpl implements OrderService {
                 order.setAuditingStatus(2);
                 order.setAuditingUserId(addOrderVo.getCountryLeaderId().toString());
             }
-
         }
+        Date signingDate = null;
         CheckLog checkLog_i = null; // 审核日志
         Order orderUpdate = orderDao.saveAndFlush(order);
         // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
@@ -1035,14 +1033,10 @@ public class OrderServiceImpl implements OrderService {
         } else {
             attachmentService.addAttachments(attachmentList, order.getId(), Attachment.AttachmentCategory.ORDER.getCode());
         }
-
+        //审核日志 钉钉通知 和待办
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             if (addOrderVo.getOrderCategory() == 6) {
                 if (addOrderVo.getFinancing() == null || addOrderVo.getFinancing() == 0) {
-                    //若不是融资项目  提交至法务和结算
-                    order.setAuditingProcess("105,106");
-                    order.setAuditingStatus(2);
-                    order.setAuditingUserId(addOrderVo.getLegalAuditerId() + "," + addOrderVo.getSettlementLeaderId());
                     checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 100, addOrderVo.getCreateUserId(), addOrderVo.getCreateUserName(), order.getAuditingProcess(), addOrderVo.getLegalAuditerId() + "," + addOrderVo.getSettlementLeaderId(), addOrderVo.getAuditingReason(), "1", 1);
                 } else if (addOrderVo.getFinancing() == 1 && addOrderVo.getFinancingCommissionerId() != null) {
                     checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 100, addOrderVo.getCreateUserId(), addOrderVo.getCreateUserName(), order.getAuditingProcess(), addOrderVo.getFinancingCommissionerId().toString(), addOrderVo.getAuditingReason(), "1", 1);
@@ -1062,14 +1056,10 @@ public class OrderServiceImpl implements OrderService {
                 } else {
                     sendDingtalk(order, order.getAuditingUserId(), false, 1);
                 }
-                auditBackLogHandle(order, false, order.getAuditingUserId());
+                //  auditBackLogHandle(order, false, order.getAuditingUserId());
             }
-        }
-        Date signingDate = null;
-        if (orderUpdate.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             signingDate = orderUpdate.getSigningDate();
-        }
-        if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+
             List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeAsc(orderUpdate.getId());
             if (orderLog.size() > 0) {
                 Map<String, OrderLog> collect = orderLog.stream().collect(Collectors.toMap(vo -> vo.getLogType().toString(), vo -> vo));
@@ -1106,12 +1096,12 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setAuditingStatus(0);
             //商务技术经办人名称
             Project project = projectDao.save(projectAdd);
-            /*List<Goods> goodsList1 = orderUpdate.getGoodsList();
+            List<Goods> goodsList1 = orderUpdate.getGoodsList();
             goodsList1.parallelStream().forEach(goods1 -> {
                 goods1.setProject(project);
                 goods1.setProjectNo(project.getProjectNo());
             });
-            goodsDao.save(goodsList1);*/
+            //goodsDao.save(goodsList1);
             //添加项目利润核算单信息
             ProjectProfit projectProfit = null;
             if (project.getProjectProfit() == null) {
@@ -1141,14 +1131,11 @@ public class OrderServiceImpl implements OrderService {
             backLogService.updateBackLogByDelYn(backLog);
 
             auditBackLogHandle(orderUpdate, false, orderUpdate.getAuditingUserId());
-
         }
         return order.getId();
     }
 
-
-    private List<Goods> updateOrderGoods(AddOrderVo addOrderVo) {
-        Order order = orderDao.findOne(addOrderVo.getId());
+    private List<Goods> updateOrderGoods(Order order, AddOrderVo addOrderVo) {
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
         Goods goods = null;
         List<Goods> goodsList = new ArrayList<>();
@@ -1289,6 +1276,7 @@ public class OrderServiceImpl implements OrderService {
                 order.setAuditingUserId(addOrderVo.getCountryLeaderId().toString());
             }
         }
+        Date signingDate = null;
         CheckLog checkLog_i = null; //审批流日志
         Order order1 = orderDao.save(order);
         //order.setAttachmentSet(addOrderVo.getAttachDesc());
@@ -1299,10 +1287,6 @@ public class OrderServiceImpl implements OrderService {
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             if (addOrderVo.getOrderCategory() == 6) {
                 if (addOrderVo.getFinancing() == null || addOrderVo.getFinancing() == 0) {
-                    //若不是融资项目  提交至法务和结算
-                    order.setAuditingProcess("105,106");
-                    order.setAuditingStatus(2);
-                    order.setAuditingUserId(addOrderVo.getLegalAuditerId() + "," + addOrderVo.getSettlementLeaderId());
                     checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 100, addOrderVo.getCreateUserId(), addOrderVo.getCreateUserName(), order.getAuditingProcess(), addOrderVo.getLegalAuditerId() + "," + addOrderVo.getSettlementLeaderId(), addOrderVo.getAuditingReason(), "1", 1);
                 } else if (addOrderVo.getFinancing() == 1 && addOrderVo.getFinancingCommissionerId() != null) {
                     checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 100, addOrderVo.getCreateUserId(), addOrderVo.getCreateUserName(), order.getAuditingProcess(), addOrderVo.getFinancingCommissionerId().toString(), addOrderVo.getAuditingReason(), "1", 1);
@@ -1323,13 +1307,8 @@ public class OrderServiceImpl implements OrderService {
                     sendDingtalk(order, order.getAuditingUserId(), false, 1);
                 }
             }
-            auditBackLogHandle(order, false, order.getAuditingUserId());
-        }
-        Date signingDate = null;
-        if (order1.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            //auditBackLogHandle(order, false, order.getAuditingUserId());
             signingDate = order1.getSigningDate();
-        }
-        if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             //添加订单未执行事件
             applicationContext.publishEvent(new OrderProgressEvent(order1, 1, eruiToken));
             List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeAsc(order1.getId());
@@ -1394,7 +1373,6 @@ public class OrderServiceImpl implements OrderService {
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
             backLog.setHostId(order.getId());
             backLogService.updateBackLogByDelYn(backLog);
-
             // 推送审核内容
             auditBackLogHandle(order1, false, order1.getAuditingUserId());
 
