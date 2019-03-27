@@ -298,8 +298,10 @@ public class ProjectServiceImpl implements ProjectService {
                         System.out.println("***********6");
                         // 无项目经理提交项目时检查审核信息参数 2018-08-28
                         submitProjectProcessCheckAuditParams(project, projectUpdate, order);
-                        projectUpdate.getOrder().setAuditingProcess(String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess()));
-                        projectUpdate.getOrder().setAuditingUserId(project.getLogisticsAuditerId().toString());
+                        projectUpdate.getOrder().setAuditingProcess(projectUpdate.getAuditingProcess());
+                        projectUpdate.getOrder().setAuditingUserId(projectUpdate.getAuditingUserId());
+//                        projectUpdate.getOrder().setAuditingProcess(String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess()));
+//                        projectUpdate.getOrder().setAuditingUserId(project.getLogisticsAuditerId().toString());
 
                     }
                 } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
@@ -538,26 +540,30 @@ public class ProjectServiceImpl implements ProjectService {
 
         projectUpdate.setAuditingStatus(2); // 审核中
 
-        Integer auditUserId = null;
-        CheckLog.AuditProcessingEnum auditProcessing = null;
-        // 非预投项目，需要从物流开始审核
+        String auditUserId = "";
+        String auditProcessing = "";
+        // 非预投项目，需要从物流、采购经办人、品控经办人并行开始审核
         if(orderCategory == null || orderCategory != 1) {
-            auditUserId = logisticsAuditerId;
-            auditProcessing = CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS;
+            auditUserId = String.format("%d,%d,%d", logisticsAuditerId, project.getPurchaseUid(), project.getQualityUid());
+            auditProcessing = String.format("%d,%d,%d", CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_QA.getProcess());
         } else {
             //预投项目，直接项目负责人审核
-            auditUserId = businessUid;
-            auditProcessing = CheckLog.AuditProcessingEnum.NEW_PRO_BUSINESS;
+            auditUserId = businessUid.toString();
+            auditProcessing = String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_BUSINESS.getProcess());
         }
-        projectUpdate.setAuditingProcess(String.valueOf(auditProcessing.getProcess())); // 物流经办人审核
-        projectUpdate.setAuditingUserId(auditUserId.toString()); // 物流经办人审核
+        projectUpdate.setAuditingProcess(auditProcessing); // 物流经办人审核
+        projectUpdate.setAuditingUserId(auditUserId); // 物流经办人审核
 
-        sendDingtalk(projectUpdate.getOrder(), auditUserId.toString(), false);
-        auditBackLogHandle(projectUpdate, false, auditUserId.toString());
+
+        for (String user : auditUserId.split(",")) {
+            sendDingtalk(project.getOrder(), user, false);
+        }
+        sendDingtalk(projectUpdate.getOrder(), auditUserId, false);
+        auditBackLogHandle(projectUpdate, false, auditUserId);
         // 记录审核日志
         CheckLog checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.AuditProcessingEnum.NEW_PRO_BUSINESS_SUBMIT.getProcess(),
                 projectUpdate.getBusinessUid(), projectUpdate.getBusinessName(),
-                String.valueOf(auditProcessing.getProcess()), auditUserId.toString(),
+        auditProcessing, auditUserId,
                 "", "2", 2);
         checkLogDao.save(checkLog_i);
     }
@@ -1321,13 +1327,6 @@ public class ProjectServiceImpl implements ProjectService {
                 // 处理进度
                 switch (curAuditProcess) {
                     case 202: // 物流经办人审核
-                        auditingProcess_i = "203,204,205";
-                        auditingUserId_i = String.format("%d,%d,%d", project.getBuAuditerId(), project.getPurchaseUid(), project.getQualityUid());
-                        notifyUserList.add(project.getBuAuditerId().toString());
-                        notifyUserList.add(project.getPurchaseUid().toString());
-                        notifyUserList.add(project.getQualityUid().toString());
-                        break;
-                    case 203: // 事业部项目负责人并行审批
                     case 204: // 采购经办人并行审批
                     case 205: // 品控经办人并行审批
                         auditingProcess_i = auditingProcess.replaceFirst(String.valueOf(curAuditProcess), "");
