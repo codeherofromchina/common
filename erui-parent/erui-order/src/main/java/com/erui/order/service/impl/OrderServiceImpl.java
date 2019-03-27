@@ -705,7 +705,7 @@ public class OrderServiceImpl implements OrderService {
                 case 100:
                     break;
                 case 101://国家负责人审核
-                    if (order.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
+                    if (order.getTotalPriceUsd().doubleValue() <= STEP_ONE_PRICE.doubleValue()) {
                         //if (order.getFinancing() == null || order.getFinancing() == 0 || order.getOrderCategory() == 3) {
                         if (order.getFinancing() == null || order.getFinancing() == 0) {
                             //若不是融资项目 且订单金额小于10万美元 提交至商品添加
@@ -729,7 +729,7 @@ public class OrderServiceImpl implements OrderService {
 
                 case 102://地区总经理审核
                     //根据订单金额判断 填写审批人级别
-                    if (STEP_ONE_PRICE.doubleValue() <= order.getTotalPriceUsd().doubleValue() && order.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
+                    if (STEP_ONE_PRICE.doubleValue() < order.getTotalPriceUsd().doubleValue() && order.getTotalPriceUsd().doubleValue() <= STEP_TWO_PRICE.doubleValue()) {
                         //if (order.getFinancing() == null || order.getFinancing() == 0 || order.getOrderCategory() == 3) {
                         if (order.getFinancing() == null || order.getFinancing() == 0) {
                             //若不是融资项目 且订单金额大于20万美元
@@ -833,7 +833,7 @@ public class OrderServiceImpl implements OrderService {
                         //订单审核完成后项目才能办理项目
                         order.getProject().setAuditingStatus(1);
                         auditingStatus_i = 4; // 完成
-                        auditingProcess_i = ""; // 无下一审核进度和审核人
+                        auditingProcess_i = "107"; // 无下一审核进度和审核人
                         auditingUserId_i = null;
                     } else {
                         String replaceProcess = auditingProcess.replace("105", "");
@@ -848,7 +848,7 @@ public class OrderServiceImpl implements OrderService {
                         //订单审核完成后项目才能办理项目
                         order.getProject().setAuditingStatus(1);
                         auditingStatus_i = 4; // 完成
-                        auditingProcess_i = ""; // 无下一审核进度和审核人
+                        auditingProcess_i = "107"; // 无下一审核进度和审核人
                         auditingUserId_i = null;
                     } else {
                         String replaceProcess = auditingProcess.replace("106", "");
