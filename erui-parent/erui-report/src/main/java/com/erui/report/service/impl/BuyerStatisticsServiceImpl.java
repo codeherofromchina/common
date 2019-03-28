@@ -43,7 +43,8 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
     public PageInfo<Map<String, Object>> membershipBuyerList(int pageNum, int pageSize, Map<String, String> params) {
         PageHelper.startPage(pageNum, pageSize);
 
-        List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryMembershipBuyerList(params);
+//        List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryMembershipBuyerList(params);
+        List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryAfter2019MembershipBuyerList(params);
 
         PageInfo pageInfo = new PageInfo(buyerList);
         return pageInfo;
@@ -68,7 +69,7 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
     @Override
     public Map<String, Object> orderBuyerStatistics(Map<String, Object> params) {
         Map<String, Object> result = new HashMap<>();
-        String date2019 = "2019-01-01 00:00:00";
+        String date2018 = "2018-01-01 00:00:00";
         String startTime = null;
         String endTime = null;
         if (params != null) {
@@ -82,7 +83,7 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
         List<Map<String, Object>> aftStatisticsList = null;
         curStatisticsList = buyerStatisticsMapper.orderBuyerStatistics(params);
         Map<String, Object> params2 = new HashMap<>();
-        params2.put("startTime", date2019);
+        params2.put("startTime", date2018);
         params2.put("endTime", endTime);
         aftStatisticsList = buyerStatisticsMapper.orderBuyerStatistics(params2);
         if (startTime == null) {
@@ -90,7 +91,7 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
         } else {
             Date oneBefDay = DateUtil.getDateAfter(DateUtil.parseString2DateNoException(startTime, DateUtil.FULL_FORMAT_STR), -1);
             Map<String, Object> params3 = new HashMap<>();
-            params3.put("startTime", date2019);
+            params3.put("startTime", date2018);
             params3.put("endTime", DateUtil.format(DateUtil.FULL_FORMAT_STR, oneBefDay));
             befStatisticsList = buyerStatisticsMapper.orderBuyerStatistics(params3);
         }
@@ -193,9 +194,9 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
                 "序号",
                 "地区",
                 "国家",
-                "累计截止到上周末2019.1.1-" + (oneBefDay == null ? "今" : DateUtil.format(DateUtil.SHORT_FORMAT_DOT_STR,oneBefDay)),
+                "累计截止到上周末2018.1.1-" + (oneBefDay == null ? "今" : DateUtil.format(DateUtil.SHORT_FORMAT_DOT_STR,oneBefDay)),
                 "本周新增",
-                "累计截止到本周末2019.1.1-" + (endDay == null ? "今" : DateUtil.format(DateUtil.SHORT_FORMAT_DOT_STR,endDay)),
+                "累计截止到本周末2018.1.1-" + (endDay == null ? "今" : DateUtil.format(DateUtil.SHORT_FORMAT_DOT_STR,endDay)),
                 "备注",
         };
         List<Object[]> excelData = new ArrayList<Object[]>();

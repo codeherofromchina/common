@@ -49,7 +49,7 @@
             area_name AS areaName,
             area_bn AS areaBn,
             crm_code AS crmCode,
-            money AS money,
+            ifnull(money,0) AS money,
             profit_percent AS profitPercent,
             profit AS profit,
             ifnull(acquiring_user,"") AS acquiringUser,

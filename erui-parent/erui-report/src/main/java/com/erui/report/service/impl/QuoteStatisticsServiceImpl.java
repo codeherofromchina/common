@@ -185,7 +185,8 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
     @Override
     public HSSFWorkbook genQuotePerformanceExcel(Map<String, Object> params) {
         List<Map<String, Object>> datas = quotePerformance(params);
-        String[] header = {"序号", "获取人", "询单报出时间", "项目开始日期", "所属地区", "国家", "执行分公司", "报价个数", "订单个数", "成单率" };
+//        String[] header = {"序号", "获取人", "询单报出时间", "项目开始日期", "所属地区", "国家", "执行分公司", "报价个数", "订单个数", "成单率" };
+        String[] header = {"序号", "获取人", "报价个数", "订单个数", "成单率" };
         List<Object> excelData = new ArrayList<>();
         if (datas.size() > 0) {
             int seq = 1;
@@ -193,13 +194,13 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
                 Object[] rowData = new Object[header.length];
                 rowData[0] = seq;
                 rowData[1] = map.get("acquiring_user_name");
-                rowData[2] = map.get("quoteTime");
-                rowData[3] = map.get("orderTime");
-                rowData[4] = map.get("area_name");
-                rowData[5] = map.get("country_name");
-                rowData[7] = map.get("quoteNum");
-                rowData[8] = map.get("orderNum");
-                rowData[9] = map.get("succRate");
+//                rowData[2] = map.get("quoteTime");
+//                rowData[3] = map.get("orderTime");
+//                rowData[4] = map.get("area_name");
+//                rowData[5] = map.get("country_name");
+                rowData[2] = map.get("quoteNum");
+                rowData[3] = map.get("orderNum");
+                rowData[4] = map.get("succRate");
                 excelData.add(rowData);
                 seq++;
             }

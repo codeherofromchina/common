@@ -150,6 +150,9 @@ public class ProjectProfit {
     @Column(name = "gross_profit_margin")
     private BigDecimal grossProfitMargin;
 
+    /**
+     * 项目佣金
+     */
     @Column(name = "agent_fee")
     private BigDecimal agentFee;
 
@@ -248,6 +251,12 @@ public class ProjectProfit {
      */
     @Column(name = "rear_fee")
     private BigDecimal rearFee;
+
+    /**
+     * 平台代理费用
+     */
+    @Column(name = "platform_agent_cost")
+    private BigDecimal platformAgentCost;
 
     public BigDecimal getRearFee() {
         return rearFee;
@@ -909,5 +918,13 @@ public class ProjectProfit {
      */
     public void setQuotationProfit(BigDecimal quotationProfit) {
         this.quotationProfit = quotationProfit;
+    }
+
+    public BigDecimal getPlatformAgentCost() {
+        return platformAgentCost;
+    }
+
+    public void setPlatformAgentCost(BigDecimal platformAgentCost) {
+        this.platformAgentCost = platformAgentCost;
     }
 }
