@@ -1435,7 +1435,7 @@ public class ProjectServiceImpl implements ProjectService {
     public void addProfitData(XSSFWorkbook workbook, Map<String, Object> results) {
         Project projectDec = (Project) results.get("projectDec");
         // 获取第二个sheet页
-        Sheet sheet1 = workbook.getSheetAt(0);
+        Sheet sheet1 = workbook.getSheetAt(1);
         Row row4 = sheet1.getRow(1);
         if (projectDec.getOrder().getCountry() != null) {//国家：
             Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
