@@ -1606,7 +1606,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (projectDec.getBusinessName() != null) {//制单人:
             sheet1.getRow(39).getCell(1).setCellValue(projectDec.getBusinessName());
         }
-        if (projectDec.getBuAuditer() != null) {//审核人
+        if (projectDec.getBuAuditer() != null) {//审核人:
             sheet1.getRow(39).getCell(3).setCellValue(projectDec.getBuAuditer());
         }
         String stringR44C4 = sheet1.getRow(39).getCell(4).getStringCellValue().replace("项目财务：", "项目财务：田万全");
