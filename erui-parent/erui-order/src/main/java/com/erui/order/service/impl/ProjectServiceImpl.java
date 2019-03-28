@@ -1600,7 +1600,7 @@ public class ProjectServiceImpl implements ProjectService {
             }
             if (projectProfit.getQuotationProfit() != null) {//报价利润率
                 sheet1.getRow(38).getCell(2).setCellFormula(null);
-                sheet1.getRow(38).getCell(2).setCellValue(projectProfit.getQuotationProfit().toString());
+                sheet1.getRow(38).getCell(2).setCellValue(projectProfit.getQuotationProfit().toString() + "%");
             }
         }
         if (projectDec.getBusinessName() != null) {//制单人:
