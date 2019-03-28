@@ -1496,125 +1496,121 @@ public class ProjectServiceImpl implements ProjectService {
             if (projectProfit.getPurchasingCostsF() != null) {
                 sheet1.getRow(13).getCell(2).setCellValue(projectProfit.getPurchasingCostsF().toString());
             }
-            if (projectProfit.getDirectLabor() != null) {
-                sheet1.getRow(14).getCell(2).setCellValue(projectProfit.getDirectLabor().toString());
-            }
-            if (projectProfit.getManufacturingCosts() != null) {
-                sheet1.getRow(15).getCell(2).setCellValue(projectProfit.getManufacturingCosts().toString());
-            }
+//            if (projectProfit.getDirectLabor() != null) {
+//                sheet1.getRow(14).getCell(2).setCellValue(projectProfit.getDirectLabor().toString());
+//            }
+//            if (projectProfit.getManufacturingCosts() != null) {
+//                sheet1.getRow(15).getCell(2).setCellValue(projectProfit.getManufacturingCosts().toString());
+//            }
             if (projectProfit.getTaxRefund() != null) {
-                sheet1.getRow(16).getCell(2).setCellValue(projectProfit.getTaxRefund().toString());
+                sheet1.getRow(14).getCell(2).setCellValue(projectProfit.getTaxRefund().toString());
             }
             if (projectProfit.getLandFreight() != null) {
-                sheet1.getRow(17).getCell(2).setCellValue(projectProfit.getLandFreight().toString());
+                sheet1.getRow(15).getCell(2).setCellValue(projectProfit.getLandFreight().toString());
             }
             if (projectProfit.getLandInsurance() != null) {
-                sheet1.getRow(18).getCell(2).setCellValue(projectProfit.getLandInsurance().toString());
+                sheet1.getRow(16).getCell(2).setCellValue(projectProfit.getLandInsurance().toString());
             }
             if (projectProfit.getPortCharges() != null) {
-                sheet1.getRow(19).getCell(2).setCellValue(projectProfit.getPortCharges().toString());
+                sheet1.getRow(17).getCell(2).setCellValue(projectProfit.getPortCharges().toString());
             }
             if (projectProfit.getInspectionFee() != null) {
-                sheet1.getRow(20).getCell(2).setCellValue(projectProfit.getInspectionFee().toString());
+                sheet1.getRow(18).getCell(2).setCellValue(projectProfit.getInspectionFee().toString());
             }
             if (projectProfit.getInternationalTransport() != null) {
-                sheet1.getRow(21).getCell(2).setCellValue(projectProfit.getInternationalTransport().toString());
+                sheet1.getRow(19).getCell(2).setCellValue(projectProfit.getInternationalTransport().toString());
             }
             if (projectProfit.getTariff() != null) {
-                sheet1.getRow(22).getCell(2).setCellValue(projectProfit.getTariff().toString());
+                sheet1.getRow(20).getCell(2).setCellValue(projectProfit.getTariff().toString());
             }
             if (projectProfit.getVat() != null) {
-                sheet1.getRow(23).getCell(2).setCellValue(projectProfit.getVat().toString());
+                sheet1.getRow(21).getCell(2).setCellValue(projectProfit.getVat().toString());
             }
             if (projectProfit.getCustomsClearFee() != null) {
-                sheet1.getRow(24).getCell(2).setCellValue(projectProfit.getCustomsClearFee().toString());
+                sheet1.getRow(22).getCell(2).setCellValue(projectProfit.getCustomsClearFee().toString());
             }
             if (projectProfit.getCustomsAgentFee() != null) {
-                sheet1.getRow(25).getCell(2).setCellValue(projectProfit.getCustomsAgentFee().toString());
+                sheet1.getRow(23).getCell(2).setCellValue(projectProfit.getCustomsAgentFee().toString());
             }
             if (projectProfit.getTransportionInsurance() != null) {
-                sheet1.getRow(26).getCell(2).setCellValue(projectProfit.getTransportionInsurance().toString());
+                sheet1.getRow(24).getCell(2).setCellValue(projectProfit.getTransportionInsurance().toString());
             }
             if (projectProfit.getExportCreditInsurance() != null) {
-                sheet1.getRow(27).getCell(2).setCellValue(projectProfit.getExportCreditInsurance().toString());
+                sheet1.getRow(25).getCell(2).setCellValue(projectProfit.getExportCreditInsurance().toString());
             }
             if (projectProfit.getOtherCredit() != null) {
-                sheet1.getRow(28).getCell(2).setCellValue(projectProfit.getOtherCredit().toString());
+                sheet1.getRow(26).getCell(2).setCellValue(projectProfit.getOtherCredit().toString());
             }
             if (projectProfit.getTravelExpenses() != null) {
-                sheet1.getRow(29).getCell(2).setCellValue(projectProfit.getTravelExpenses().toString());
+                sheet1.getRow(27).getCell(2).setCellValue(projectProfit.getTravelExpenses().toString());
             }
             if (projectProfit.getProjectCost() != null) {
-                sheet1.getRow(30).getCell(2).setCellFormula(null);
-                sheet1.getRow(30).getCell(2).setCellValue(projectProfit.getProjectCost().toString());
+                sheet1.getRow(28).getCell(2).setCellFormula(null);
+                sheet1.getRow(28).getCell(2).setCellValue(projectProfit.getProjectCost().toString());
             }
-//            if (projectProfit.getGrossProfit() != null) {
-//                sheet1.getRow(31).getCell(2).setCellFormula(null);
-//                sheet1.getRow(31).getCell(2).setCellValue(projectProfit.getGrossProfit().toString());
-//            }
-//            if (projectProfit.getGrossProfitMargin() != null) {
-//                sheet1.getRow(32).getCell(2).setCellFormula(null);
-//                sheet1.getRow(32).getCell(2).setCellValue(projectProfit.getGrossProfitMargin().toString());
-//            }
             if (projectProfit.getAgentFee() != null) {
-                sheet1.getRow(31).getCell(2).setCellValue(projectProfit.getAgentFee().toString());
+                sheet1.getRow(29).getCell(2).setCellValue(projectProfit.getAgentFee().toString());
             }
             if (projectProfit.getGuaranceFee() != null) {
-                sheet1.getRow(32).getCell(2).setCellValue(projectProfit.getGuaranceFee().toString());
+                sheet1.getRow(30).getCell(2).setCellValue(projectProfit.getGuaranceFee().toString());
             }
             if (projectProfit.getFinancingInterest() != null) {
-                sheet1.getRow(33).getCell(2).setCellFormula(null);
-                sheet1.getRow(33).getCell(2).setCellValue(projectProfit.getFinancingInterest().toString());
+                sheet1.getRow(31).getCell(2).setCellFormula(null);
+                sheet1.getRow(31).getCell(2).setCellValue(projectProfit.getFinancingInterest().toString());
             }
             if (projectProfit.getBankFees() != null) {
-                sheet1.getRow(34).getCell(2).setCellFormula(null);
-                sheet1.getRow(34).getCell(2).setCellValue(projectProfit.getBankFees().toString());
+                sheet1.getRow(32).getCell(2).setCellFormula(null);
+                sheet1.getRow(32).getCell(2).setCellValue(projectProfit.getBankFees().toString());
             }
             if (projectProfit.getDomesticTaxs() != null) {
-                sheet1.getRow(35).getCell(2).setCellFormula(null);
-                sheet1.getRow(35).getCell(2).setCellValue(projectProfit.getDomesticTaxs().toString());
+                sheet1.getRow(33).getCell(2).setCellFormula(null);
+                sheet1.getRow(33).getCell(2).setCellValue(projectProfit.getDomesticTaxs().toString());
             }
             if (projectProfit.getForeignTaxes() != null) {
-                sheet1.getRow(36).getCell(2).setCellFormula(null);
-                sheet1.getRow(36).getCell(2).setCellValue(projectProfit.getForeignTaxes().toString());
+                sheet1.getRow(34).getCell(2).setCellFormula(null);
+                sheet1.getRow(34).getCell(2).setCellValue(projectProfit.getForeignTaxes().toString());
             }
             if (projectProfit.getManageFee() != null) {
-                sheet1.getRow(37).getCell(2).setCellFormula(null);
-                sheet1.getRow(37).getCell(2).setCellValue(projectProfit.getManageFee().toString());
+                sheet1.getRow(35).getCell(2).setCellFormula(null);
+                sheet1.getRow(35).getCell(2).setCellValue(projectProfit.getManageFee().toString());
             }
             if (projectProfit.getRearFee() != null) {
-                sheet1.getRow(38).getCell(2).setCellFormula(null);
-                sheet1.getRow(38).getCell(2).setCellValue(projectProfit.getRearFee().toString());
+                sheet1.getRow(36).getCell(2).setCellFormula(null);
+                sheet1.getRow(36).getCell(2).setCellValue(projectProfit.getRearFee().toString());
             }
             if (projectProfit.getTotalProjectCost() != null) {
-                sheet1.getRow(39).getCell(2).setCellFormula(null);
-                sheet1.getRow(39).getCell(2).setCellValue(projectProfit.getTotalProjectCost().toString());
+                sheet1.getRow(37).getCell(2).setCellFormula(null);
+                sheet1.getRow(37).getCell(2).setCellValue(projectProfit.getTotalProjectCost().toString());
             }
             if (projectProfit.getBeforeProfit() != null) {
-                sheet1.getRow(40).getCell(2).setCellFormula(null);
-                sheet1.getRow(40).getCell(2).setCellValue(projectProfit.getBeforeProfit().toString());
+                sheet1.getRow(38).getCell(2).setCellFormula(null);
+                sheet1.getRow(38).getCell(2).setCellValue(projectProfit.getBeforeProfit().toString());
             }
             if (projectProfit.getRaiseFee() != null) {
-                sheet1.getRow(41).getCell(2).setCellFormula(null);
-                sheet1.getRow(41).getCell(2).setCellValue(projectProfit.getRaiseFee().toString());
+                sheet1.getRow(39).getCell(2).setCellFormula(null);
+                sheet1.getRow(39).getCell(2).setCellValue(projectProfit.getRaiseFee().toString());
+            }
+            if (projectProfit.getPlatformAgentCost() != null) {
+                sheet1.getRow(40).getCell(2).setCellFormula(null);
+                sheet1.getRow(40).getCell(2).setCellValue(projectProfit.getPlatformAgentCost().toString());
             }
             if (projectProfit.getAfterProfit() != null) {
-                sheet1.getRow(42).getCell(2).setCellFormula(null);
-                sheet1.getRow(42).getCell(2).setCellValue(projectProfit.getAfterProfit().toString());
+                sheet1.getRow(41).getCell(2).setCellFormula(null);
+                sheet1.getRow(41).getCell(2).setCellValue(projectProfit.getAfterProfit().toString());
             }
             if (projectProfit.getQuotationProfit() != null) {
-                sheet1.getRow(43).getCell(2).setCellFormula(null);
-                sheet1.getRow(43).getCell(2).setCellValue(projectProfit.getQuotationProfit().toString());
+                sheet1.getRow(42).getCell(2).setCellFormula(null);
+                sheet1.getRow(42).getCell(2).setCellValue(projectProfit.getQuotationProfit().toString());
             }
         }
         if (projectDec.getBusinessName() != null) {
-            sheet1.getRow(44).getCell(1).setCellValue(projectDec.getBusinessName());
+            sheet1.getRow(43).getCell(1).setCellValue(projectDec.getBusinessName());
         }
         if (projectDec.getBuAuditer() != null) {
-            sheet1.getRow(44).getCell(3).setCellValue(projectDec.getBuAuditer());
+            sheet1.getRow(43).getCell(3).setCellValue(projectDec.getBuAuditer());
         }
-        String stringR44C4 = sheet1.getRow(44).getCell(4).getStringCellValue().replace("项目财务：", "项目财务：田万全");
-        sheet1.getRow(44).getCell(4).setCellValue(stringR44C4);
+        String stringR44C4 = sheet1.getRow(43).getCell(4).getStringCellValue().replace("项目财务：", "项目财务：田万全");
+        sheet1.getRow(43).getCell(4).setCellValue(stringR44C4);
         sheet1.getRow(7).getCell(4).setCellValue("");
     }
 
