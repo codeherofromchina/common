@@ -187,7 +187,7 @@ public class ProjectServiceImpl implements ProjectService {
         } else {
             if ((new Integer(4).equals(project.getOrderCategory()) || new Integer(3).equals(project.getOverseasSales()))
                     && paramProjectStatusEnum == Project.ProjectStatusEnum.DONE) {
-                System.out.println("***********2");
+                //System.out.println("***********2");
                 //Order order = projectUpdate.getOrder();
                 //projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
                 ProjectProfit projectProfit = project.getProjectProfit();
@@ -210,7 +210,7 @@ public class ProjectServiceImpl implements ProjectService {
                 backLogService.updateBackLogByDelYn(backLog);
 
             } else {
-                System.out.println("***********3");
+                //System.out.println("***********3");
                 // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
                 if (nowProjectStatusEnum.getNum() >= Project.ProjectStatusEnum.EXECUTING.getNum()) {
                     if (paramProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum()) {
@@ -218,7 +218,7 @@ public class ProjectServiceImpl implements ProjectService {
                     }
                     projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
                 } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT) {
-                    System.out.println("***********4");
+                    //System.out.println("***********4");
                     // 之前只保存了项目，则流程可以是提交到项目经理和执行
                     if (paramProjectStatusEnum.getNum() > Project.ProjectStatusEnum.EXECUTING.getNum()) {
                         throw new MyException(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error"));
@@ -251,7 +251,7 @@ public class ProjectServiceImpl implements ProjectService {
                     projectUpdate.setChairmanId(project.getChairmanId());
                     projectUpdate.setAuditingLevel(auditingLevel);
                     if (paramProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
-                        System.out.println("***********5");
+                        //System.out.println("***********5");
                         // 提交到项目经理，则项目成员不能设置
                         projectUpdate.setPurchaseUid(null);
                         projectUpdate.setQualityName(null);
@@ -295,7 +295,7 @@ public class ProjectServiceImpl implements ProjectService {
                         backLogService.addBackLogByDelYn(newBackLog);
                         //当参数项目状态为 AUDIT为提交审核状态 状态不入库
                     } else if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
-                        System.out.println("***********6");
+                        //System.out.println("***********6");
                         // 无项目经理提交项目时检查审核信息参数 2018-08-28
                         submitProjectProcessCheckAuditParams(project, projectUpdate, order);
                         projectUpdate.getOrder().setAuditingProcess(projectUpdate.getAuditingProcess());
@@ -305,9 +305,9 @@ public class ProjectServiceImpl implements ProjectService {
 
                     }
                 } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
-                    System.out.println("***********7");
+                    //System.out.println("***********7");
                     if (paramProjectStatusEnum == Project.ProjectStatusEnum.TURNDOWN) {
-                        System.out.println("***********8");
+                        //System.out.println("***********8");
                         projectUpdate.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
                         projectDao.save(projectUpdate);
 
@@ -489,9 +489,9 @@ public class ProjectServiceImpl implements ProjectService {
         Integer chairmanId = project.getChairmanId();
         String chairmanName = project.getChairman();
         // 是否是预投项目orderCategory=1为预投订单类型
-        Integer orderCategory = project.getOrderCategory();
+        Integer orderCategory = projectUpdate.getOrderCategory();
         // 预投项目则不需要物流、采购、品控审核，非预投则需要这三人审核
-        if(orderCategory == null || orderCategory != 1) {
+        if (orderCategory == null || orderCategory != 1) {
             if (StringUtils.isBlank(logisticsAuditerName) || logisticsAuditerId == null) {
                 throw new MyException(String.format("%s%s%s", "参数错误，物流审核人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
             }
@@ -503,7 +503,7 @@ public class ProjectServiceImpl implements ProjectService {
             }
         }
 
-        BigDecimal compareDecimal = new BigDecimal("30000");
+        BigDecimal compareDecimal = new BigDecimal("10000");
         if (totalPriceUsd.compareTo(compareDecimal) > 0) {
             if (StringUtils.isBlank(buVpAuditerName) || buVpAuditerId == null) {
                 throw new MyException(String.format("%s%s%s", "参数错误，事业部总经理经办人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
@@ -543,7 +543,7 @@ public class ProjectServiceImpl implements ProjectService {
         String auditUserId = "";
         String auditProcessing = "";
         // 非预投项目，需要从物流、采购经办人、品控经办人并行开始审核
-        if(orderCategory == null || orderCategory != 1) {
+        if (orderCategory == null || orderCategory != 1) {
             auditUserId = String.format("%d,%d,%d", logisticsAuditerId, project.getPurchaseUid(), project.getQualityUid());
             auditProcessing = String.format("%d,%d,%d", CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_QA.getProcess());
         } else {
@@ -563,7 +563,7 @@ public class ProjectServiceImpl implements ProjectService {
         // 记录审核日志
         CheckLog checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.PROJECT.getCode(), projectUpdate.getId(), CheckLog.AuditProcessingEnum.NEW_PRO_BUSINESS_SUBMIT.getProcess(),
                 projectUpdate.getBusinessUid(), projectUpdate.getBusinessName(),
-        auditProcessing, auditUserId,
+                auditProcessing, auditUserId,
                 "", "2", 2);
         checkLogDao.save(checkLog_i);
     }
@@ -1338,7 +1338,7 @@ public class ProjectServiceImpl implements ProjectService {
                         auditingProcess_i = StringUtils.strip(auditingProcess_i, ",");
                         auditingUserId_i = StringUtils.strip(auditingUserId_i, ",");
                         if (StringUtils.isBlank(auditingUserId_i)) { // 并行审核人员审核完毕
-                            BigDecimal compareDecimal = new BigDecimal("30000");
+                            BigDecimal compareDecimal = new BigDecimal("10000");
                             // 判断金额是否小于等于3万美元，小于3万美元则审核结束，大于3万美元则事业部总经理审批
                             if (order.getTotalPriceUsd().compareTo(compareDecimal) > 0) {
                                 // 到下一步事业部总经理审批
