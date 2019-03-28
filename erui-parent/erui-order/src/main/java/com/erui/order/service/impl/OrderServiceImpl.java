@@ -959,7 +959,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = findByIdLang(addOrderVo.getId(), "zh");
         if ((order.getOverseasSales() != null && order.getOverseasSales() != 2 && order.getOverseasSales() != 4) && (addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4)) {
             order.setContractNo("");
-        } else if ((addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4) && !order.getSigningCo().equals(addOrderVo.getSigningCo())) {
+        } else if ((addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4) && order.getSigningCo() != null && !order.getSigningCo().equals(addOrderVo.getSigningCo())) {
             order.setContractNo("");
         } else if (order.getOrderCategory() != null && order.getOrderCategory() == 6
                 && StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", addOrderVo.getSigningCo())
@@ -1020,7 +1020,7 @@ public class OrderServiceImpl implements OrderService {
         CheckLog checkLog_i = null; // 审核日志
         Order orderUpdate = orderDao.saveAndFlush(order);
         // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
-        //order.setAttachmentSet(addOrderVo.getAttachDesc());
+
         List<Attachment> attachmentList = null;
         if (addOrderVo.getAttachDesc() != null && addOrderVo.getAttachDesc().size() > 0) {
             attachmentList = addOrderVo.getAttachDesc();
