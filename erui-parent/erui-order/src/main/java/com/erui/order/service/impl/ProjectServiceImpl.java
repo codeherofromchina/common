@@ -549,7 +549,7 @@ public class ProjectServiceImpl implements ProjectService {
         } else {
             //预投项目，直接项目负责人审核
             auditUserId = businessUid.toString();
-            auditProcessing = String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_BUSINESS.getProcess());
+            auditProcessing = String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_MANAGER.getProcess());
         }
         projectUpdate.setAuditingProcess(auditProcessing); // 物流经办人审核
         projectUpdate.setAuditingUserId(auditUserId); // 物流经办人审核
@@ -1240,7 +1240,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     @Override
     public boolean audit(Integer projectId, String auditorId, String auditorName, Project paramProject) {
-        Project project = findById(projectId);
+        Project project = findDesc(projectId);
         Integer lockInt = Integer.valueOf(projectId % 255 - 128);
         synchronized (lockInt) {
             StringBuilder auditorIds = new StringBuilder(); // 存放当前项目的所有审核人列表信息

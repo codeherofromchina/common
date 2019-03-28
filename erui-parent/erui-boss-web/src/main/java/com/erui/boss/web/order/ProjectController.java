@@ -125,7 +125,7 @@ public class ProjectController {
         Integer checkLogId = pProject.getCheckLogId();
 
         // 判断项目是否存在，
-        Project project = projectService.findById(projectId);
+        Project project = projectService.findDesc(projectId);
         if (project == null) {
             return new Result<>(ResultStatusEnum.PROJECT_NOT_EXIST);
         }
