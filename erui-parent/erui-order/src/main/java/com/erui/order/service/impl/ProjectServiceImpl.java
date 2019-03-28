@@ -1462,16 +1462,16 @@ public class ProjectServiceImpl implements ProjectService {
                 switch (projectProfit.getProjectType()) {//项目类型
                     case "2":
                         projectType = "加工贸易";
-                        sheet1.getRow(4).getCell(1).setCellValue(sheet1.getRow(7).getCell(4).getStringCellValue() + projectType);
+                        sheet1.getRow(4).getCell(1).setCellValue(sheet1.getRow(4).getCell(4).getStringCellValue() + projectType);
                         break;
                     case "1":
                         projectType = "一般贸易";
-                        sheet1.getRow(4).getCell(2).setCellValue(sheet1.getRow(7).getCell(4).getStringCellValue() + projectType);
+                        sheet1.getRow(4).getCell(2).setCellValue(sheet1.getRow(4).getCell(4).getStringCellValue() + projectType);
 
                         break;
                     case "3":
                         projectType = "转口贸易";
-                        sheet1.getRow(4).getCell(3).setCellValue(sheet1.getRow(7).getCell(4).getStringCellValue() + projectType);
+                        sheet1.getRow(4).getCell(3).setCellValue(sheet1.getRow(4).getCell(4).getStringCellValue() + projectType);
 
                         break;
                     default:
