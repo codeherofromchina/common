@@ -706,8 +706,7 @@ public class OrderServiceImpl implements OrderService {
                     break;
                 case 101://国家负责人审核
                     if (order.getTotalPriceUsd().doubleValue() <= STEP_ONE_PRICE.doubleValue()) {
-                        //if (order.getFinancing() == null || order.getFinancing() == 0 || order.getOrderCategory() == 3) {
-                        if (order.getFinancing() == null || order.getFinancing() == 0) {
+                        if (order.getOrderCategory() == 3 || order.getFinancing() == null || order.getFinancing() == 0) {
                             //若不是融资项目 且订单金额小于10万美元 提交至商品添加
                             auditingProcess_i = "105,106";
                             auditingUserId_i = order.getLegalAuditerId() + "," + order.getSettlementLeaderId();//提交到法务和结算审核
@@ -730,8 +729,7 @@ public class OrderServiceImpl implements OrderService {
                 case 102://地区总经理审核
                     //根据订单金额判断 填写审批人级别
                     if (STEP_ONE_PRICE.doubleValue() < order.getTotalPriceUsd().doubleValue() && order.getTotalPriceUsd().doubleValue() <= STEP_TWO_PRICE.doubleValue()) {
-                        //if (order.getFinancing() == null || order.getFinancing() == 0 || order.getOrderCategory() == 3) {
-                        if (order.getFinancing() == null || order.getFinancing() == 0) {
+                        if (order.getOrderCategory() == 3 || order.getFinancing() == null || order.getFinancing() == 0) {
                             //若不是融资项目 且订单金额大于20万美元
                             auditingProcess_i = "105,106";
                             auditingUserId_i = order.getLegalAuditerId() + "," + order.getSettlementLeaderId();//提交法务和结算审核
@@ -752,8 +750,7 @@ public class OrderServiceImpl implements OrderService {
                     }
                     break;
                 case 103: // 分管领导审核
-                    //if (order.getFinancing() == null || order.getFinancing() == 0 || order.getOrderCategory() == 3) {
-                    if (order.getFinancing() == null || order.getFinancing() == 0) {
+                    if (order.getOrderCategory() == 3 || order.getFinancing() == null || order.getFinancing() == 0) {
                         //若不是融资项目 且订单金额大于20万美元
                         auditingProcess_i = "105,106";
                         auditingUserId_i = order.getLegalAuditerId() + "," + order.getSettlementLeaderId();//提交法务和结算审核
@@ -911,8 +908,8 @@ public class OrderServiceImpl implements OrderService {
                 Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
                 String infoContent = String.format("%s | %s", bnMapZhRegion.get(region), bnMapZhCountry.get(country));
                 String crmCode = order.getCrmCode();
-                Integer auditprocess = order.getAuditingProcess() == null ? -1 : Integer.parseInt(order.getAuditingProcess());
-                BackLog.ProjectStatusEnum pse = rejectFlag ? (auditprocess == 0 ? BackLog.ProjectStatusEnum.ORDER_REJECT2 : BackLog.ProjectStatusEnum.ORDER_REJECT) : (auditprocess == 6 ? BackLog.ProjectStatusEnum.ORDER_AUDIT2 : BackLog.ProjectStatusEnum.ORDER_AUDIT);
+                String auditprocess = order.getAuditingProcess() == null ? "-1" : order.getAuditingProcess();
+                BackLog.ProjectStatusEnum pse = rejectFlag ? ("100".equals(auditprocess) ? BackLog.ProjectStatusEnum.ORDER_REJECT2 : BackLog.ProjectStatusEnum.ORDER_REJECT) : ("108".equals(auditprocess) ? BackLog.ProjectStatusEnum.ORDER_AUDIT2 : BackLog.ProjectStatusEnum.ORDER_AUDIT);
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
                         pse,
                         crmCode,
