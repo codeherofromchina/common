@@ -705,8 +705,8 @@ public class OrderServiceImpl implements OrderService {
                 case 100:
                     break;
                 case 101://国家负责人审核
-                    if (order.getTotalPriceUsd().doubleValue() <= STEP_ONE_PRICE.doubleValue()) {
-                        if (order.getOrderCategory() == 3 || order.getFinancing() == null || order.getFinancing() == 0) {
+                    if (order.getOrderCategory() != 1 && order.getTotalPriceUsd().doubleValue() <= STEP_ONE_PRICE.doubleValue()) {
+                        if (order.getFinancing() == null || order.getFinancing() == 0) {
                             //若不是融资项目 且订单金额小于10万美元 提交至商品添加
                             auditingProcess_i = "105,106";
                             auditingUserId_i = order.getLegalAuditerId() + "," + order.getSettlementLeaderId();//提交到法务和结算审核
@@ -728,8 +728,8 @@ public class OrderServiceImpl implements OrderService {
 
                 case 102://地区总经理审核
                     //根据订单金额判断 填写审批人级别
-                    if (STEP_ONE_PRICE.doubleValue() < order.getTotalPriceUsd().doubleValue() && order.getTotalPriceUsd().doubleValue() <= STEP_TWO_PRICE.doubleValue()) {
-                        if (order.getOrderCategory() == 3 || order.getFinancing() == null || order.getFinancing() == 0) {
+                    if (order.getOrderCategory() != 1 && STEP_ONE_PRICE.doubleValue() < order.getTotalPriceUsd().doubleValue() && order.getTotalPriceUsd().doubleValue() <= STEP_TWO_PRICE.doubleValue()) {
+                        if (order.getOrderCategory() == 1 || order.getFinancing() == null || order.getFinancing() == 0) {
                             //若不是融资项目 且订单金额大于20万美元
                             auditingProcess_i = "105,106";
                             auditingUserId_i = order.getLegalAuditerId() + "," + order.getSettlementLeaderId();//提交法务和结算审核
@@ -750,7 +750,7 @@ public class OrderServiceImpl implements OrderService {
                     }
                     break;
                 case 103: // 分管领导审核
-                    if (order.getOrderCategory() == 3 || order.getFinancing() == null || order.getFinancing() == 0) {
+                    if (order.getOrderCategory() == 1 || order.getFinancing() == null || order.getFinancing() == 0) {
                         //若不是融资项目 且订单金额大于20万美元
                         auditingProcess_i = "105,106";
                         auditingUserId_i = order.getLegalAuditerId() + "," + order.getSettlementLeaderId();//提交法务和结算审核
