@@ -899,7 +899,7 @@ public class OrderServiceImpl implements OrderService {
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT2.getNum());
             backLogService.updateBackLogByDelYn(backLog2);
 
-            if (StringUtils.isNotBlank(auditingUserId) && "107".equals(order.getAuditingProcess())) {
+            if (StringUtils.isNotBlank(auditingUserId) && !"107".equals(order.getAuditingProcess())) {
                 Integer[] userIdArr = Arrays.stream(auditingUserId.split(",")).map(vo -> Integer.parseInt(vo)).toArray(Integer[]::new);
                 // 推送待办事件
                 String region = order.getRegion();   //所属地区
