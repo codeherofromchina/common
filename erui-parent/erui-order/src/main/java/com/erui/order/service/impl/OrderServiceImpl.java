@@ -909,7 +909,7 @@ public class OrderServiceImpl implements OrderService {
                 String infoContent = String.format("%s | %s", bnMapZhRegion.get(region), bnMapZhCountry.get(country));
                 String crmCode = order.getCrmCode();
                 String auditprocess = order.getAuditingProcess() == null ? "-1" : order.getAuditingProcess();
-                BackLog.ProjectStatusEnum pse = rejectFlag ? ("100".equals(auditprocess) ? BackLog.ProjectStatusEnum.ORDER_REJECT2 : BackLog.ProjectStatusEnum.ORDER_REJECT) : ("108".equals(auditprocess) ? BackLog.ProjectStatusEnum.ORDER_AUDIT2 : BackLog.ProjectStatusEnum.ORDER_AUDIT);
+                BackLog.ProjectStatusEnum pse = rejectFlag ? ("100".equals(auditprocess) ? BackLog.ProjectStatusEnum.ORDER_REJECT2 : BackLog.ProjectStatusEnum.ORDER_REJECT) : ("107".equals(auditprocess) ? BackLog.ProjectStatusEnum.ORDER_AUDIT2 : BackLog.ProjectStatusEnum.ORDER_AUDIT);
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
                         pse,
                         crmCode,
