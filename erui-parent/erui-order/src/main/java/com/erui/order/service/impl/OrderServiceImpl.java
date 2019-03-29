@@ -830,7 +830,7 @@ public class OrderServiceImpl implements OrderService {
                         //订单审核完成后项目才能办理项目
                         order.getProject().setAuditingStatus(1);
                         auditingStatus_i = 4; // 完成
-                        auditingProcess_i = "107"; // 无下一审核进度和审核人
+                        auditingProcess_i = "201"; // 无下一审核进度和审核人
                         auditingUserId_i = order.getTechnicalId().toString();
                     } else {
                         String replaceProcess = auditingProcess.replace("105", "");
@@ -845,7 +845,7 @@ public class OrderServiceImpl implements OrderService {
                         //订单审核完成后项目才能办理项目
                         order.getProject().setAuditingStatus(1);
                         auditingStatus_i = 4; // 完成
-                        auditingProcess_i = "107"; // 无下一审核进度和审核人
+                        auditingProcess_i = "201"; // 无下一审核进度和审核人
                         auditingUserId_i = order.getTechnicalId().toString();//事业部负责人审核
                     } else {
                         String replaceProcess = auditingProcess.replace("106", "");
@@ -899,7 +899,7 @@ public class OrderServiceImpl implements OrderService {
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT2.getNum());
             backLogService.updateBackLogByDelYn(backLog2);
 
-            if (StringUtils.isNotBlank(auditingUserId) && "107".equals(order.getAuditingProcess())) {
+            if (StringUtils.isNotBlank(auditingUserId) && !"107".equals(order.getAuditingProcess())) {
                 Integer[] userIdArr = Arrays.stream(auditingUserId.split(",")).map(vo -> Integer.parseInt(vo)).toArray(Integer[]::new);
                 // 推送待办事件
                 String region = order.getRegion();   //所属地区
