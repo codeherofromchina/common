@@ -1309,7 +1309,7 @@ public class ProjectServiceImpl implements ProjectService {
                     }
                     applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
                             pse, crmCode, infoContent,
-                            project.getOrder().getId(),
+                            project.getOrder().getId(),0,
                             Integer.parseInt(auditingUserId_order)));
                 } else { // 驳回到项目
                     auditingProcess_i = checkLog.getAuditingProcess().toString(); // 驳回到项目的哪一步
