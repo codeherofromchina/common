@@ -492,14 +492,16 @@ public class ProjectServiceImpl implements ProjectService {
         Integer orderCategory = projectUpdate.getOrderCategory();
         // 预投项目则不需要物流、采购、品控审核，非预投则需要这三人审核
         if (orderCategory == null || orderCategory != 1) {
+            if(orderCategory != 6){//国内订单不需要品控经办人审批
+                if (StringUtils.isBlank(qualityName) || qualityUid == null) {
+                    throw new MyException(String.format("%s%s%s", "参数错误，品控经办人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
+                }
+            }
             if (StringUtils.isBlank(logisticsAuditerName) || logisticsAuditerId == null) {
                 throw new MyException(String.format("%s%s%s", "参数错误，物流审核人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
             }
             if (StringUtils.isBlank(purchaseName) || purchaseUid == null) {
                 throw new MyException(String.format("%s%s%s", "参数错误，采购经办人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
-            }
-            if (StringUtils.isBlank(qualityName) || qualityUid == null) {
-                throw new MyException(String.format("%s%s%s", "参数错误，品控经办人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
             }
         }
 
@@ -544,8 +546,13 @@ public class ProjectServiceImpl implements ProjectService {
         String auditProcessing = "";
         // 非预投项目，需要从物流、采购经办人、品控经办人并行开始审核
         if (orderCategory == null || orderCategory != 1) {
-            auditUserId = String.format("%d,%d,%d", logisticsAuditerId, project.getPurchaseUid(), project.getQualityUid());
-            auditProcessing = String.format("%d,%d,%d", CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_QA.getProcess());
+            if(orderCategory != 6){
+                auditUserId = String.format("%d,%d,%d", logisticsAuditerId, project.getPurchaseUid(), project.getQualityUid());
+                auditProcessing = String.format("%d,%d,%d", CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_QA.getProcess());
+            }else{// 国内订单需要从物流、采购经办人并行开始审核
+                auditUserId = String.format("%d,%d", logisticsAuditerId, project.getPurchaseUid());
+                auditProcessing = String.format("%d,%d", CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess());
+            }
         } else {
             //预投项目，直接项目负责人审核
             auditUserId = businessUid.toString();
