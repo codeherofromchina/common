@@ -830,7 +830,7 @@ public class OrderServiceImpl implements OrderService {
                         //订单审核完成后项目才能办理项目
                         order.getProject().setAuditingStatus(1);
                         auditingStatus_i = 4; // 完成
-                        auditingProcess_i = "107"; // 无下一审核进度和审核人
+                        auditingProcess_i = "201"; // 无下一审核进度和审核人
                         auditingUserId_i = order.getTechnicalId().toString();
                     } else {
                         String replaceProcess = auditingProcess.replace("105", "");
@@ -845,7 +845,7 @@ public class OrderServiceImpl implements OrderService {
                         //订单审核完成后项目才能办理项目
                         order.getProject().setAuditingStatus(1);
                         auditingStatus_i = 4; // 完成
-                        auditingProcess_i = "107"; // 无下一审核进度和审核人
+                        auditingProcess_i = "201"; // 无下一审核进度和审核人
                         auditingUserId_i = order.getTechnicalId().toString();//事业部负责人审核
                     } else {
                         String replaceProcess = auditingProcess.replace("106", "");
@@ -899,7 +899,7 @@ public class OrderServiceImpl implements OrderService {
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT2.getNum());
             backLogService.updateBackLogByDelYn(backLog2);
 
-            if (StringUtils.isNotBlank(auditingUserId)) {
+            if (StringUtils.isNotBlank(auditingUserId) && !"107".equals(order.getAuditingProcess())) {
                 Integer[] userIdArr = Arrays.stream(auditingUserId.split(",")).map(vo -> Integer.parseInt(vo)).toArray(Integer[]::new);
                 // 推送待办事件
                 String region = order.getRegion();   //所属地区
@@ -971,21 +971,30 @@ public class OrderServiceImpl implements OrderService {
         order.setGoodsList(updateOrderGoods(order, addOrderVo));
         //根据订单金额判断 填写审批人级别
         if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != null && addOrderVo.getOrderCategory() != 6) {
-            if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
-                order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                order.setCountryLeader(addOrderVo.getCountryLeader());
-            } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
-                order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                order.setCountryLeader(addOrderVo.getCountryLeader());
-                order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-                order.setAreaLeader(addOrderVo.getAreaLeader());
-            } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_TWO_PRICE.doubleValue()) {
+            if( addOrderVo.getOrderCategory() == 1){//预投不做金额判断
                 order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
                 order.setCountryLeader(addOrderVo.getCountryLeader());
                 order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
                 order.setAreaLeader(addOrderVo.getAreaLeader());
                 order.setAreaVpId(addOrderVo.getAreaVpId());
                 order.setAreaVp(addOrderVo.getAreaVp());
+            }else{
+                if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
+                    order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
+                    order.setCountryLeader(addOrderVo.getCountryLeader());
+                } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
+                    order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
+                    order.setCountryLeader(addOrderVo.getCountryLeader());
+                    order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
+                    order.setAreaLeader(addOrderVo.getAreaLeader());
+                } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_TWO_PRICE.doubleValue()) {
+                    order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
+                    order.setCountryLeader(addOrderVo.getCountryLeader());
+                    order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
+                    order.setAreaLeader(addOrderVo.getAreaLeader());
+                    order.setAreaVpId(addOrderVo.getAreaVpId());
+                    order.setAreaVp(addOrderVo.getAreaVp());
+                }
             }
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
@@ -1231,21 +1240,30 @@ public class OrderServiceImpl implements OrderService {
         order.setGoodsList(goodsList);
         //根据订单金额判断 填写审批人级别
         if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != null && addOrderVo.getOrderCategory() != 6) {
-            if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
-                order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                order.setCountryLeader(addOrderVo.getCountryLeader());
-            } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
-                order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                order.setCountryLeader(addOrderVo.getCountryLeader());
-                order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-                order.setAreaLeader(addOrderVo.getAreaLeader());
-            } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_TWO_PRICE.doubleValue()) {
+            if( addOrderVo.getOrderCategory() == 1){//预投不做金额判断
                 order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
                 order.setCountryLeader(addOrderVo.getCountryLeader());
                 order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
                 order.setAreaLeader(addOrderVo.getAreaLeader());
                 order.setAreaVpId(addOrderVo.getAreaVpId());
                 order.setAreaVp(addOrderVo.getAreaVp());
+            }else{
+                if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
+                    order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
+                    order.setCountryLeader(addOrderVo.getCountryLeader());
+                } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
+                    order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
+                    order.setCountryLeader(addOrderVo.getCountryLeader());
+                    order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
+                    order.setAreaLeader(addOrderVo.getAreaLeader());
+                } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_TWO_PRICE.doubleValue()) {
+                    order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
+                    order.setCountryLeader(addOrderVo.getCountryLeader());
+                    order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
+                    order.setAreaLeader(addOrderVo.getAreaLeader());
+                    order.setAreaVpId(addOrderVo.getAreaVpId());
+                    order.setAreaVp(addOrderVo.getAreaVp());
+                }
             }
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {

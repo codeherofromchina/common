@@ -492,14 +492,16 @@ public class ProjectServiceImpl implements ProjectService {
         Integer orderCategory = projectUpdate.getOrderCategory();
         // 预投项目则不需要物流、采购、品控审核，非预投则需要这三人审核
         if (orderCategory == null || orderCategory != 1) {
+            if(orderCategory != 6){//国内订单不需要品控经办人审批
+                if (StringUtils.isBlank(qualityName) || qualityUid == null) {
+                    throw new MyException(String.format("%s%s%s", "参数错误，品控经办人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
+                }
+            }
             if (StringUtils.isBlank(logisticsAuditerName) || logisticsAuditerId == null) {
                 throw new MyException(String.format("%s%s%s", "参数错误，物流审核人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
             }
             if (StringUtils.isBlank(purchaseName) || purchaseUid == null) {
                 throw new MyException(String.format("%s%s%s", "参数错误，采购经办人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
-            }
-            if (StringUtils.isBlank(qualityName) || qualityUid == null) {
-                throw new MyException(String.format("%s%s%s", "参数错误，品控经办人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
             }
         }
 
@@ -544,8 +546,13 @@ public class ProjectServiceImpl implements ProjectService {
         String auditProcessing = "";
         // 非预投项目，需要从物流、采购经办人、品控经办人并行开始审核
         if (orderCategory == null || orderCategory != 1) {
-            auditUserId = String.format("%d,%d,%d", logisticsAuditerId, project.getPurchaseUid(), project.getQualityUid());
-            auditProcessing = String.format("%d,%d,%d", CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_QA.getProcess());
+            if(orderCategory != 6){
+                auditUserId = String.format("%d,%d,%d", logisticsAuditerId, project.getPurchaseUid(), project.getQualityUid());
+                auditProcessing = String.format("%d,%d,%d", CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_QA.getProcess());
+            }else{// 国内订单需要从物流、采购经办人并行开始审核，去掉品控
+                auditUserId = String.format("%d,%d", logisticsAuditerId, project.getPurchaseUid());
+                auditProcessing = String.format("%d,%d", CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess());
+            }
         } else {
             //预投项目，直接项目负责人审核
             auditUserId = businessUid.toString();
@@ -1279,6 +1286,8 @@ public class ProjectServiceImpl implements ProjectService {
             Integer auditingStatus_i = 2; // 操作完后的项目审核状态
             String auditingProcess_i = null; // 操作完后的项目审核进度
             String auditingUserId_i = null; // 操作完后的项目审核人
+            Integer auditingLevel = project.getAuditingLevel();//审核步骤4步为预投
+            if(auditingLevel == null) auditingLevel = 0;
             CheckLog checkLog_i = null; // 审核日志
             if (rejectFlag) { // 如果是驳回，则直接记录日志，修改审核进度
                 CheckLog checkLog = checkLogDao.findOne(paramProject.getCheckLogId());
@@ -1356,8 +1365,8 @@ public class ProjectServiceImpl implements ProjectService {
                         break;
                     case 206: // 事业部总经理审批
                         BigDecimal compareDecimal = new BigDecimal("200000");
-                        // 判断金额是否小于等于20万美元，小于20万美元则审核结束，大于20万美元则总裁审批
-                        if (order.getTotalPriceUsd().compareTo(compareDecimal) > 0) {
+                        // 判断金额是否小于等于20万美元，小于20万美元则审核结束，大于20万美元则总裁审批，或预投需要总经理审批
+                        if (order.getTotalPriceUsd().compareTo(compareDecimal) > 0 || auditingLevel == 4) {
                             // 到下一步事业部总经理审批
                             auditingProcess_i = "207"; // 总经理审核
                             auditingUserId_i = project.getCeoId().toString();
@@ -1370,8 +1379,8 @@ public class ProjectServiceImpl implements ProjectService {
                         break;
                     case 207: // 总裁审批
                         compareDecimal = new BigDecimal("500000");
-                        // 判断金额是否小于50万美元，小于50万美元则审核结束，大于50万美元则董事长审批
-                        if (order.getTotalPriceUsd().compareTo(compareDecimal) >= 0) {
+                        // 判断金额是否小于50万美元，小于50万美元则审核结束，大于50万美元则董事长审批，或预投需要董事长审批
+                        if (order.getTotalPriceUsd().compareTo(compareDecimal) >= 0 || auditingLevel == 4) {
                             // 到下一步事业部总经理审批
                             auditingProcess_i = "208"; // 总经理审核
                             auditingUserId_i = project.getChairmanId().toString();
