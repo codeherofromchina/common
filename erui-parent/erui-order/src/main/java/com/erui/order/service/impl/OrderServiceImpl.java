@@ -830,7 +830,7 @@ public class OrderServiceImpl implements OrderService {
                         //订单审核完成后项目才能办理项目
                         order.getProject().setAuditingStatus(1);
                         auditingStatus_i = 4; // 完成
-                        auditingProcess_i = "107"; // 无下一审核进度和审核人
+                        auditingProcess_i = "201"; // 无下一审核进度和审核人
                         auditingUserId_i = order.getTechnicalId().toString();
                     } else {
                         String replaceProcess = auditingProcess.replace("105", "");
@@ -845,7 +845,7 @@ public class OrderServiceImpl implements OrderService {
                         //订单审核完成后项目才能办理项目
                         order.getProject().setAuditingStatus(1);
                         auditingStatus_i = 4; // 完成
-                        auditingProcess_i = "107"; // 无下一审核进度和审核人
+                        auditingProcess_i = "201"; // 无下一审核进度和审核人
                         auditingUserId_i = order.getTechnicalId().toString();//事业部负责人审核
                     } else {
                         String replaceProcess = auditingProcess.replace("106", "");
