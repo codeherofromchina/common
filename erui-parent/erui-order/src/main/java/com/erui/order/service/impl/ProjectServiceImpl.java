@@ -773,8 +773,6 @@ public class ProjectServiceImpl implements ProjectService {
             }
             list = projectDao.findByPurchReqCreateAndPurchDoneAndPurchaseUid(Project.PurchReqCreateEnum.SUBMITED.getCode(), Boolean.FALSE, Integer.parseInt(purchaseUid));
         }
-
-
         if (list == null) {
             list = new ArrayList<>();
         } else {
