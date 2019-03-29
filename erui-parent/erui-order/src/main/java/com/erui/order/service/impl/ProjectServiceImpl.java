@@ -555,7 +555,7 @@ public class ProjectServiceImpl implements ProjectService {
             }
         } else {
             //预投项目，直接项目负责人审核
-            auditUserId = businessUid.toString();
+            auditUserId = buVpAuditerId.toString();
             auditProcessing = String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_MANAGER.getProcess());
         }
         projectUpdate.setAuditingProcess(auditProcessing); // 物流经办人审核
