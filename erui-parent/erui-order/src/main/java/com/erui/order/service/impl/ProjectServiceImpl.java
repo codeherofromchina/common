@@ -565,7 +565,6 @@ public class ProjectServiceImpl implements ProjectService {
         for (String user : auditUserId.split(",")) {
             sendDingtalk(project.getOrder(), user, false);
         }
-        sendDingtalk(projectUpdate.getOrder(), auditUserId, false);
         auditBackLogHandle(projectUpdate, false, auditUserId);
         // 记录审核日志
         CheckLog checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.PROJECT.getCode(), projectUpdate.getId(), CheckLog.AuditProcessingEnum.NEW_PRO_BUSINESS_SUBMIT.getProcess(),
@@ -1297,6 +1296,7 @@ public class ProjectServiceImpl implements ProjectService {
                     auditingStatus_i = 0; // 项目驳回到订单，项目的状态为0
                     Integer auditingProcess_order = checkLog.getAuditingProcess(); //驳回给订单哪一步骤
                     String auditingUserId_order = String.valueOf(checkLog.getAuditingUserId()); //要驳回给谁
+                    notifyUserList.add(auditingProcess_order.toString());
                     if (auditingProcess_order != null && auditingProcess_order == 100) {
                         // 如果驳回到订单的最初状态（订单可编辑状态）,则订单状态
                         project.getOrder().setStatus(Order.StatusEnum.INIT.getCode());
@@ -1318,7 +1318,7 @@ public class ProjectServiceImpl implements ProjectService {
                     }
                     applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
                             pse, crmCode, infoContent,
-                            project.getOrder().getId(),0,
+                            project.getOrder().getId(), 0,
                             Integer.parseInt(auditingUserId_order)));
                 } else { // 驳回到项目
                     auditingProcess_i = checkLog.getAuditingProcess().toString(); // 驳回到项目的哪一步
@@ -1329,6 +1329,7 @@ public class ProjectServiceImpl implements ProjectService {
                         // 设置项目为SUBMIT:未执行
                         project.setProjectStatus("SUBMIT");  // 如果驳回到项目的初始节点，则设置状态为未执行
                     }
+                    notifyUserList.add(auditingUserId_i);
                 }
                 // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
                 checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.PROJECT.getCode(), project.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, project.getAuditingProcess(), project.getAuditingUserId(), reason, "-1", 2);
