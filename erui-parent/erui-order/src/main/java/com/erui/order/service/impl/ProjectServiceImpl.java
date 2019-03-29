@@ -1496,7 +1496,7 @@ public class ProjectServiceImpl implements ProjectService {
                         Integer.parseInt(auditingUserId_order)));
 
             } else { // 驳回到项目
-                auditingProcess_i = checkLog.getAuditingProcess().toString(); // 事业部利润核算 处理
+                auditingProcess_i = checkLog.getAuditingProcess().toString();
                 auditingUserId_i = String.valueOf(checkLog.getAuditingUserId()); // 要驳回给谁
                 project.getOrder().setAuditingProcess(auditingProcess_i);
                 project.getOrder().setAuditingUserId(auditingUserId_i);
