@@ -971,21 +971,30 @@ public class OrderServiceImpl implements OrderService {
         order.setGoodsList(updateOrderGoods(order, addOrderVo));
         //根据订单金额判断 填写审批人级别
         if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != null && addOrderVo.getOrderCategory() != 6) {
-            if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
-                order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                order.setCountryLeader(addOrderVo.getCountryLeader());
-            } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
-                order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                order.setCountryLeader(addOrderVo.getCountryLeader());
-                order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-                order.setAreaLeader(addOrderVo.getAreaLeader());
-            } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_TWO_PRICE.doubleValue()) {
+            if( addOrderVo.getOrderCategory() == 1){//预投不做金额判断
                 order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
                 order.setCountryLeader(addOrderVo.getCountryLeader());
                 order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
                 order.setAreaLeader(addOrderVo.getAreaLeader());
                 order.setAreaVpId(addOrderVo.getAreaVpId());
                 order.setAreaVp(addOrderVo.getAreaVp());
+            }else{
+                if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
+                    order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
+                    order.setCountryLeader(addOrderVo.getCountryLeader());
+                } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
+                    order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
+                    order.setCountryLeader(addOrderVo.getCountryLeader());
+                    order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
+                    order.setAreaLeader(addOrderVo.getAreaLeader());
+                } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_TWO_PRICE.doubleValue()) {
+                    order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
+                    order.setCountryLeader(addOrderVo.getCountryLeader());
+                    order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
+                    order.setAreaLeader(addOrderVo.getAreaLeader());
+                    order.setAreaVpId(addOrderVo.getAreaVpId());
+                    order.setAreaVp(addOrderVo.getAreaVp());
+                }
             }
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
