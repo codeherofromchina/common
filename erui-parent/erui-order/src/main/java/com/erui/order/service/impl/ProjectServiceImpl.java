@@ -1655,7 +1655,7 @@ public class ProjectServiceImpl implements ProjectService {
                 // 推送待办事件
                 String infoContent = project.getProjectName();
                 String projectNo = project.getProjectNo();
-                String processProgress = project.getProcessProgress();
+                String processProgress = project.getAuditingProcess();
                 BackLog.ProjectStatusEnum pse = null;
 //                if (rejectFlag && StringUtils.equals(processProgress, "6")) {
                 if (rejectFlag && StringUtils.equals(processProgress, "201")) {
