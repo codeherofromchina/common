@@ -807,7 +807,6 @@ public class OrderServiceImpl implements OrderService {
                         }
                     }
                     if (!StringUtils.isBlank(contractNo)) {
-                        // 销售合同号不能为空
                         // 判断销售合同号不能重复
                         List<Integer> contractNoProjectIds = orderDao.findByContractNo(contractNo);
                         if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
