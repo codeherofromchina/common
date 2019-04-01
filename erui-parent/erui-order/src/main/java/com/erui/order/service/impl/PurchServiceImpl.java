@@ -645,7 +645,6 @@ public class PurchServiceImpl implements PurchService {
             row.getCell(3).setCellValue(checkedStr + "不含税 "); // 不含税
         }
 
-
         row = sheet.getRow(11);
         BigDecimal goalCost = purch.getGoalCost();
         if (goalCost != null) {
