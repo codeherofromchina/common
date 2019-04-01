@@ -805,11 +805,11 @@ public class OrderServiceImpl implements OrderService {
                         } else {
                             contractNo = StringUtil.genContractNo(lastContractNo);
                         }
-                    } else {
+                    } /*else {
                         contractNo = addOrderVo.getContractNo();
-                    }
-                    if (order.getOrderCategory() != 3 && !StringUtils.isBlank(contractNo)) {
-                        // 销售合同号不能为空
+                    }*/
+                    //order.getOrderCategory() != 3 && ! 20190401修改为 必填
+                    if (StringUtils.isBlank(contractNo)) {
                         // 判断销售合同号不能重复
                         List<Integer> contractNoProjectIds = orderDao.findByContractNo(contractNo);
                         if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
@@ -971,14 +971,14 @@ public class OrderServiceImpl implements OrderService {
         order.setGoodsList(updateOrderGoods(order, addOrderVo));
         //根据订单金额判断 填写审批人级别
         if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != null && addOrderVo.getOrderCategory() != 6) {
-            if( addOrderVo.getOrderCategory() == 1){//预投不做金额判断
+            if (addOrderVo.getOrderCategory() == 1) {//预投不做金额判断
                 order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
                 order.setCountryLeader(addOrderVo.getCountryLeader());
                 order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
                 order.setAreaLeader(addOrderVo.getAreaLeader());
                 order.setAreaVpId(addOrderVo.getAreaVpId());
                 order.setAreaVp(addOrderVo.getAreaVp());
-            }else{
+            } else {
                 if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
                     order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
                     order.setCountryLeader(addOrderVo.getCountryLeader());
@@ -1240,14 +1240,14 @@ public class OrderServiceImpl implements OrderService {
         order.setGoodsList(goodsList);
         //根据订单金额判断 填写审批人级别
         if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != null && addOrderVo.getOrderCategory() != 6) {
-            if( addOrderVo.getOrderCategory() == 1){//预投不做金额判断
+            if (addOrderVo.getOrderCategory() == 1) {//预投不做金额判断
                 order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
                 order.setCountryLeader(addOrderVo.getCountryLeader());
                 order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
                 order.setAreaLeader(addOrderVo.getAreaLeader());
                 order.setAreaVpId(addOrderVo.getAreaVpId());
                 order.setAreaVp(addOrderVo.getAreaVp());
-            }else{
+            } else {
                 if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
                     order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
                     order.setCountryLeader(addOrderVo.getCountryLeader());
