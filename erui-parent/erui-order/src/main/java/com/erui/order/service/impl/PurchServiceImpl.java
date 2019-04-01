@@ -298,7 +298,7 @@ public class PurchServiceImpl implements PurchService {
                         auditingUserId_i = purch.getLegalAuditerId() + "";
                     }
                     break;
-                case 25://事业部VP-变更为供应链中心总经理-金龙
+                case 25://事业部VP-变更为供应链中心总经理
                     if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() < 1000000) {
                         auditingStatus_i = 4; // 完成
                         auditingProcess_i = "999";
