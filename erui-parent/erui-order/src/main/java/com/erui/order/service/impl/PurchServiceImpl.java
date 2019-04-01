@@ -568,6 +568,7 @@ public class PurchServiceImpl implements PurchService {
     @Override
     public void fillTempExcelData(XSSFWorkbook workbook, int purchId) throws Exception {
         Purch purch = purchDao.findOne(purchId);
+        List<Attachment> attachments = attachmentDao.findByRelObjIdAndCategory(purch.getId(), Attachment.AttachmentCategory.PURCH.getCode());
         if (purch == null || purch.getStatus() == 1 || purch.getAuditingStatus() != 4) {
             // 采购为空、采购状态未进行、采购未审核都不能导出
             throw new Exception("采购状态未进行或采购未审核错误");
@@ -722,7 +723,6 @@ public class PurchServiceImpl implements PurchService {
         StringBuffer sb1 = new StringBuffer();
         StringBuffer sb2 = new StringBuffer();
         StringBuffer sb3 = new StringBuffer();
-        List<Attachment> attachments = purch.getAttachments();
         if (attachments != null && attachments.size() > 0) {
 
             for (Attachment attach : attachments) {
