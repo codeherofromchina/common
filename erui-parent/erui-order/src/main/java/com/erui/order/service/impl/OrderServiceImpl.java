@@ -777,7 +777,7 @@ public class OrderServiceImpl implements OrderService {
                             .build();
                     // 添加销售合同号
                     String contractNo = null;
-                    if ((order.getOverseasSales() == 2 || order.getOverseasSales() == 4 || order.getOrderCategory() == 3) && StringUtils.isBlank(order.getContractNo())) {
+                    if (StringUtils.isBlank(order.getContractNo())) {
                         if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())) {
                             String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
                             String lastContractNo = orderDao.findLastContractNo(prefix);
@@ -971,14 +971,14 @@ public class OrderServiceImpl implements OrderService {
         order.setGoodsList(updateOrderGoods(order, addOrderVo));
         //根据订单金额判断 填写审批人级别
         if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != null && addOrderVo.getOrderCategory() != 6) {
-            if( addOrderVo.getOrderCategory() == 1){//预投不做金额判断
+            if (addOrderVo.getOrderCategory() == 1) {//预投不做金额判断
                 order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
                 order.setCountryLeader(addOrderVo.getCountryLeader());
                 order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
                 order.setAreaLeader(addOrderVo.getAreaLeader());
                 order.setAreaVpId(addOrderVo.getAreaVpId());
                 order.setAreaVp(addOrderVo.getAreaVp());
-            }else{
+            } else {
                 if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
                     order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
                     order.setCountryLeader(addOrderVo.getCountryLeader());
@@ -1240,14 +1240,14 @@ public class OrderServiceImpl implements OrderService {
         order.setGoodsList(goodsList);
         //根据订单金额判断 填写审批人级别
         if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != null && addOrderVo.getOrderCategory() != 6) {
-            if( addOrderVo.getOrderCategory() == 1){//预投不做金额判断
+            if (addOrderVo.getOrderCategory() == 1) {//预投不做金额判断
                 order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
                 order.setCountryLeader(addOrderVo.getCountryLeader());
                 order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
                 order.setAreaLeader(addOrderVo.getAreaLeader());
                 order.setAreaVpId(addOrderVo.getAreaVpId());
                 order.setAreaVp(addOrderVo.getAreaVp());
-            }else{
+            } else {
                 if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
                     order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
                     order.setCountryLeader(addOrderVo.getCountryLeader());
