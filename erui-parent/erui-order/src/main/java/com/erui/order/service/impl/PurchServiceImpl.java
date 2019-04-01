@@ -250,15 +250,9 @@ public class PurchServiceImpl implements PurchService {
             switch (curAuditProcess) {
                 case 21: // 采购负责人-变更为-采购经理
                     if(purch.getAuditingProcess().indexOf("22")==-1){//同级商务技术是否已审批
-                        if(purch.getContractVersion() != null && "1".equals(purch.getContractVersion())){//是否为标准版合同，是标准则越过法务、财务、供应链中心总经理的审批
-                            if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() <= 1000000) {//大于100万需要总裁审批
-                                auditingStatus_i = 4; // 完成
-                                auditingProcess_i = "999";
-                                auditingUserId_i = null;
-                            } else {//需要总裁审批
-                                auditingProcess_i = "26";
-                                auditingUserId_i = purch.getChairmanId() + "";
-                            }
+                        if(purch.getContractVersion() != null && "1".equals(purch.getContractVersion())){//是否为标准版合同，是标准则越过法务审批
+                            auditingProcess_i = "24";
+                            auditingUserId_i = purch.getFinanceAuditerId() + "";
                         }else{//需要法务、财务审批
                             auditingProcess_i = "23,24";
                             auditingUserId_i = String.format("%d,%d", purch.getLegalAuditerId(), purch.getFinanceAuditerId());
@@ -271,15 +265,9 @@ public class PurchServiceImpl implements PurchService {
                     break;
                 case 22://商务技术审核
                     if(purch.getAuditingProcess().indexOf("21")==-1){//同级采购经理是否已审批
-                        if(purch.getContractVersion() != null && "1".equals(purch.getContractVersion())){//是否为标准版合同，是标准则越过法务、财务、供应链中心总经理的审批
-                            if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() <= 1000000) {//大于100万需要总裁审批
-                                auditingStatus_i = 4; // 完成
-                                auditingProcess_i = "999";
-                                auditingUserId_i = null;
-                            } else {//需要总裁审批
-                                auditingProcess_i = "26";
-                                auditingUserId_i = purch.getChairmanId() + "";
-                            }
+                        if(purch.getContractVersion() != null && "1".equals(purch.getContractVersion())){//是否为标准版合同，是标准则越过法务审批
+                            auditingProcess_i = "24";
+                            auditingUserId_i = purch.getFinanceAuditerId() + "";
                         }else{//需要法务、财务审批
                             auditingProcess_i = "23,24";
                             auditingUserId_i = String.format("%d,%d", purch.getLegalAuditerId(), purch.getFinanceAuditerId());
@@ -321,8 +309,8 @@ public class PurchServiceImpl implements PurchService {
                     }
                     break;
                 case 26://总裁审核
-                    //如果采购金额 大于一百万小于三百万 总裁审批完成
-                    if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() >= 1000000 && purch.getTotalPrice().doubleValue() <= 3000000) {
+                    //如果采购金额 小于等于三百万 总裁审批完成
+                    if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() <= 3000000) {
                         auditingStatus_i = 4; // 完成
                         auditingProcess_i = "999";
                         auditingUserId_i = null;
