@@ -603,7 +603,6 @@ public class PurchServiceImpl implements PurchService {
         row = sheet.getRow(2);
         row.getCell(1).setCellValue(StringUtils.strip(signingComs.toString(), "、")); // 签约主体	-- 签约主体
         //row.getCell(3).setCellValue(""); // 合同编号前缀 -- YRC
-
         row = sheet.getRow(3);
         row.getCell(1).setCellValue(StringUtils.strip(businessUnitNames.toString(), "、")); // 审核单位	-- 执行事业部
         row.getCell(3).setCellValue(DateUtil.format(DateUtil.SHORT_FORMAT_STR, purch.getSigningDate())); // 合同签订日期
