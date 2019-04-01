@@ -1272,8 +1272,8 @@ public class ProjectServiceImpl implements ProjectService {
             Integer auditingStatus_i = 2; // 操作完后的项目审核状态
             String auditingProcess_i = null; // 操作完后的项目审核进度
             String auditingUserId_i = null; // 操作完后的项目审核人
-            Integer auditingLevel = project.getAuditingLevel();//审核步骤4步为预投
-            if(auditingLevel == null) auditingLevel = 0;
+            Integer orderCategory = project.getOrder().getOrderCategory();//订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单 6 国内订单
+            if(orderCategory == null) orderCategory = 0;
             CheckLog checkLog_i = null; // 审核日志
             if (rejectFlag) { // 如果是驳回，则直接记录日志，修改审核进度
                 CheckLog checkLog = checkLogDao.findOne(paramProject.getCheckLogId());
@@ -1352,7 +1352,7 @@ public class ProjectServiceImpl implements ProjectService {
                     case 206: // 事业部总经理审批
                         BigDecimal compareDecimal = new BigDecimal("200000");
                         // 判断金额是否小于等于20万美元，小于20万美元则审核结束，大于20万美元则总裁审批，或预投需要总经理审批
-                        if (order.getTotalPriceUsd().compareTo(compareDecimal) > 0 || auditingLevel == 4) {
+                        if (order.getTotalPriceUsd().compareTo(compareDecimal) > 0 || orderCategory == 1) {
                             // 到下一步事业部总经理审批
                             auditingProcess_i = "207"; // 总经理审核
                             auditingUserId_i = project.getCeoId().toString();
@@ -1366,7 +1366,7 @@ public class ProjectServiceImpl implements ProjectService {
                     case 207: // 总裁审批
                         compareDecimal = new BigDecimal("500000");
                         // 判断金额是否小于50万美元，小于50万美元则审核结束，大于50万美元则董事长审批，或预投需要董事长审批
-                        if (order.getTotalPriceUsd().compareTo(compareDecimal) >= 0 || auditingLevel == 4) {
+                        if (order.getTotalPriceUsd().compareTo(compareDecimal) >= 0 || orderCategory == 1) {
                             // 到下一步事业部总经理审批
                             auditingProcess_i = "208"; // 总经理审核
                             auditingUserId_i = project.getChairmanId().toString();
