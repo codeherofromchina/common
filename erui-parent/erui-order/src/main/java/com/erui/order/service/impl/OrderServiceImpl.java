@@ -805,10 +805,8 @@ public class OrderServiceImpl implements OrderService {
                         } else {
                             contractNo = StringUtil.genContractNo(lastContractNo);
                         }
-                    } else {
-                        contractNo = addOrderVo.getContractNo();
                     }
-                    if (order.getOrderCategory() != 3 && !StringUtils.isBlank(contractNo)) {
+                    if (!StringUtils.isBlank(contractNo)) {
                         // 销售合同号不能为空
                         // 判断销售合同号不能重复
                         List<Integer> contractNoProjectIds = orderDao.findByContractNo(contractNo);
