@@ -540,9 +540,9 @@ public class ProjectServiceImpl implements ProjectService {
             if(orderCategory != 6){
                 auditUserId = String.format("%d,%d,%d", logisticsAuditerId, project.getPurchaseUid(), project.getQualityUid());
                 auditProcessing = String.format("%d,%d,%d", CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_QA.getProcess());
-            }else{// 国内订单需要从物流、采购经办人并行开始审核，去掉品控
-                auditUserId = String.format("%d,%d", logisticsAuditerId, project.getPurchaseUid());
-                auditProcessing = String.format("%d,%d", CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess());
+            }else{// 国内订单需要从采购经办人开始审核，去掉品控、物流
+                auditUserId = project.getPurchaseUid().toString();
+                auditProcessing = CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess() + "";
             }
         } else {
             //预投项目，直接项目负责人审核
