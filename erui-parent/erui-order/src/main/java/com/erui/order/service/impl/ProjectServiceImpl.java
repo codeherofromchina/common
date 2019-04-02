@@ -421,7 +421,6 @@ public class ProjectServiceImpl implements ProjectService {
                         BackLog backLog = new BackLog();
                         backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum());    //功能访问路径标识
                         backLog.setHostId(projectUpdate.getOrder().getId());
-                        //                    backLogService.updateBackLogByDelYn(backLog);
 
                         //如果项目是提交状态    如果有项目经理驳回信息删除
                         BackLog backLog2 = new BackLog();
