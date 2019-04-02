@@ -542,7 +542,7 @@ public class ProjectServiceImpl implements ProjectService {
                 auditProcessing = String.format("%d,%d,%d", CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_QA.getProcess());
             }else{// 国内订单需要从采购经办人开始审核，去掉品控、物流
                 auditUserId = project.getPurchaseUid().toString();
-                auditProcessing = CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess() + "";
+                auditProcessing =  String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess());
             }
         } else {
             //预投项目，直接项目负责人审核
@@ -1275,7 +1275,7 @@ public class ProjectServiceImpl implements ProjectService {
             Integer auditingStatus_i = 2; // 操作完后的项目审核状态
             String auditingProcess_i = null; // 操作完后的项目审核进度
             String auditingUserId_i = null; // 操作完后的项目审核人
-            Integer orderCategory = project.getOrder().getOrderCategory();//订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单 6 国内订单
+            Integer orderCategory = project.getOrderCategory();//订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单 6 国内订单
             if(orderCategory == null) orderCategory = 0;
             CheckLog checkLog_i = null; // 审核日志
             if (rejectFlag) { // 如果是驳回，则直接记录日志，修改审核进度
