@@ -1391,6 +1391,7 @@ public class ProjectServiceImpl implements ProjectService {
                 checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.PROJECT.getCode(), project.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 2);
             }
             checkLogService.insert(checkLog_i);
+
             if (!rejectFlag) {
                 if (StringUtils.isNotBlank(auditingProcess_i)) {
                     project.getOrder().setAuditingProcess(auditingProcess_i);
