@@ -568,6 +568,7 @@ public class PurchServiceImpl implements PurchService {
     @Override
     public void fillTempExcelData(XSSFWorkbook workbook, int purchId) throws Exception {
         Purch purch = purchDao.findOne(purchId);
+        List<Attachment> attachments = attachmentDao.findByRelObjIdAndCategory(purch.getId(), Attachment.AttachmentCategory.PURCH.getCode());
         if (purch == null || purch.getStatus() == 1 || purch.getAuditingStatus() != 4) {
             // 采购为空、采购状态未进行、采购未审核都不能导出
             throw new Exception("采购状态未进行或采购未审核错误");
@@ -602,7 +603,6 @@ public class PurchServiceImpl implements PurchService {
         row = sheet.getRow(2);
         row.getCell(1).setCellValue(StringUtils.strip(signingComs.toString(), "、")); // 签约主体	-- 签约主体
         //row.getCell(3).setCellValue(""); // 合同编号前缀 -- YRC
-
         row = sheet.getRow(3);
         row.getCell(1).setCellValue(StringUtils.strip(businessUnitNames.toString(), "、")); // 审核单位	-- 执行事业部
         row.getCell(3).setCellValue(DateUtil.format(DateUtil.SHORT_FORMAT_STR, purch.getSigningDate())); // 合同签订日期
@@ -643,7 +643,6 @@ public class PurchServiceImpl implements PurchService {
         } else if (taxBearing != null && 2 == taxBearing) {
             row.getCell(3).setCellValue(checkedStr + "不含税 "); // 不含税
         }
-
 
         row = sheet.getRow(11);
         BigDecimal goalCost = purch.getGoalCost();
@@ -722,7 +721,6 @@ public class PurchServiceImpl implements PurchService {
         StringBuffer sb1 = new StringBuffer();
         StringBuffer sb2 = new StringBuffer();
         StringBuffer sb3 = new StringBuffer();
-        List<Attachment> attachments = purch.getAttachments();
         if (attachments != null && attachments.size() > 0) {
 
             for (Attachment attach : attachments) {
