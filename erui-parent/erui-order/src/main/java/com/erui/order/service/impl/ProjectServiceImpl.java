@@ -499,9 +499,9 @@ public class ProjectServiceImpl implements ProjectService {
                 if (StringUtils.isBlank(qualityName) || qualityUid == null) {
                     throw new MyException(String.format("%s%s%s", "参数错误，品控经办人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
                 }
-            }
-            if (StringUtils.isBlank(logisticsAuditerName) || logisticsAuditerId == null) {
-                throw new MyException(String.format("%s%s%s", "参数错误，物流审核人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
+                if (StringUtils.isBlank(logisticsAuditerName) || logisticsAuditerId == null) {
+                    throw new MyException(String.format("%s%s%s", "参数错误，物流审核人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
+                }
             }
             if (StringUtils.isBlank(purchaseName) || purchaseUid == null) {
                 throw new MyException(String.format("%s%s%s", "参数错误，采购经办人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
