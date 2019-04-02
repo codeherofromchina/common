@@ -1335,7 +1335,7 @@ public class ProjectServiceImpl implements ProjectService {
                         auditingUserId_i = StringUtils.strip(auditingUserId_i, ",");
                         if (StringUtils.isBlank(auditingUserId_i)) { // 并行审核人员审核完毕
                             BigDecimal compareDecimal = new BigDecimal("10000");
-                            // 判断金额是否小于等于3万美元，小于3万美元则审核结束，大于3万美元则事业部总经理审批
+                            // 判断金额是否小于等于1万美元，小于1万美元则审核结束，大于1万美元则事业部总经理审批
                             if (order.getTotalPriceUsd().compareTo(compareDecimal) > 0) {
                                 // 到下一步事业部总经理审批
                                 auditingProcess_i = "206"; // 总经理审核
