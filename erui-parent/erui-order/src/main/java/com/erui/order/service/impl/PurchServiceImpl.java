@@ -248,8 +248,8 @@ public class PurchServiceImpl implements PurchService {
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "-1", 3);
         } else {
             switch (curAuditProcess) {
-                case 21: // 采购负责人-变更为-采购经理
-                    if(purch.getAuditingProcess().indexOf("22")==-1){//同级商务技术是否已审批
+                case 21: // 采购经理审核核
+                    if(purch.getAuditingProcess().indexOf("22")==-1){//同级事业部项目负责人是否已审核
                         if(purch.getContractVersion() != null && "1".equals(purch.getContractVersion())){//是否为标准版合同，是标准则越过法务审批
                             auditingProcess_i = "24";
                             auditingUserId_i = purch.getFinanceAuditerId() + "";
@@ -263,7 +263,7 @@ public class PurchServiceImpl implements PurchService {
                         auditingUserId_i = purch.getBusinessAuditerId() + "";
                     }
                     break;
-                case 22://商务技术审核
+                case 22://商务技术职称改为->事业部项目负责人审核
                     if(purch.getAuditingProcess().indexOf("21")==-1){//同级采购经理是否已审批
                         if(purch.getContractVersion() != null && "1".equals(purch.getContractVersion())){//是否为标准版合同，是标准则越过法务审批
                             auditingProcess_i = "24";
@@ -298,7 +298,7 @@ public class PurchServiceImpl implements PurchService {
                         auditingUserId_i = purch.getLegalAuditerId() + "";
                     }
                     break;
-                case 25://事业部VP-变更为供应链中心总经理
+                case 25://供应链中心总经理
                     if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() < 1000000) {
                         auditingStatus_i = 4; // 完成
                         auditingProcess_i = "999";
