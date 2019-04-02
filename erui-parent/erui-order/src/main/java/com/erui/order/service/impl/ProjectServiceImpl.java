@@ -438,7 +438,7 @@ public class ProjectServiceImpl implements ProjectService {
                         String country = projectUpdate.getOrder().getCountry();  //国家
                         Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
                         newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
-                        newBackLog.setHostId(order.getId());    //父ID，列表页id
+                        newBackLog.setHostId(order.getId());  //父ID，列表页id
                         newBackLog.setPlaceSystem("项目");
                         newBackLog.setFollowId(projectUpdate.getId());    //子ID，详情中列表页id
                         Integer businessUid = projectUpdate.getBusinessUid(); //商务技术经办人id
