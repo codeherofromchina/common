@@ -777,7 +777,7 @@ public class OrderServiceImpl implements OrderService {
                             .build();
                     // 添加销售合同号
                     String contractNo = null;
-                    if ((order.getOverseasSales() == 2 || order.getOverseasSales() == 4 || order.getOrderCategory() == 3) && StringUtils.isBlank(order.getContractNo())) {
+                    if (StringUtils.isBlank(order.getContractNo())) {
                         if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())) {
                             String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
                             String lastContractNo = orderDao.findLastContractNo(prefix);
@@ -805,11 +805,8 @@ public class OrderServiceImpl implements OrderService {
                         } else {
                             contractNo = StringUtil.genContractNo(lastContractNo);
                         }
-                    } /*else {
-                        contractNo = addOrderVo.getContractNo();
-                    }*/
-                    //order.getOrderCategory() != 3 && ! 20190401修改为 必填
-                    if (StringUtils.isBlank(contractNo)) {
+                    }
+                    if (!StringUtils.isBlank(contractNo)) {
                         // 判断销售合同号不能重复
                         List<Integer> contractNoProjectIds = orderDao.findByContractNo(contractNo);
                         if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
