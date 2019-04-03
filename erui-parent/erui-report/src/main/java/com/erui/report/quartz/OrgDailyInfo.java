@@ -25,7 +25,7 @@ public class OrgDailyInfo {
 	 * 填充报价金额信息
 	 */
 	public void fullQuoteAmount() {
-		fullFieldData(QUOTE_AMOUNT_QUERY_SQL, QUOTE_AMOUNT_UPDATE_SQL, QUOTE_AMOUNT_INSERT_SQL, "quote_amount");
+		fullFieldData(QUOTE_AMOUNT_QUERY_SQL, QUOTE_AMOUNT_UPDATE_SQL, QUOTE_AMOUNT_INSERT_SQL, "quote_amount", "quote_num");
 	}
 
 	/**
@@ -139,10 +139,10 @@ public class OrgDailyInfo {
 	}
 
 	private static final String COMMON_QUERY_SQL = "SELECT id FROM erui_report.rep_org_daily_info WHERE (day_date = ? AND org_name = ? )";
-	// 注册用户数量信息sql
-	private static final String QUOTE_AMOUNT_QUERY_SQL = "SELECT DATE_FORMAT(t5.dt, '%Y-%m-%d') AS day_date, t5.org_name , SUM(IFNULL(t5.total_quote_price, 0)) AS quote_amount FROM ( SELECT t4.dt , CASE  WHEN t3.name = '易瑞-钻完井设备事业部' THEN '易瑞-钻完井设备事业部' WHEN t3.name = '易瑞-采油工程事业部' THEN '易瑞-采油工程事业部' WHEN t3.name = '易瑞-工业品事业部' THEN '易瑞-工业品事业部' ELSE '其他' END AS org_name, t2.total_quote_price FROM erui_rfq.inquiry t1, erui_rfq.quote t2, erui_sys.org t3, ( SELECT inquiry_id, MAX(out_at) AS dt FROM erui_rfq.inquiry_check_log WHERE out_node = 'MARKET_CONFIRMING' GROUP BY inquiry_id ) t4 WHERE (t1.id = t2.inquiry_id AND t3.id = t1.org_id AND t4.inquiry_id = t1.id AND t2.`status` IN ('MARKET_CONFIRMING', 'QUOTE_SENT', 'INQUIRY_CLOSED')) ) t5 GROUP BY t5.org_name, DATE_FORMAT(t5.dt, '%Y-%m-%d') ORDER BY 1";
-	private static final String QUOTE_AMOUNT_UPDATE_SQL = "UPDATE erui_report.rep_org_daily_info SET quote_amount = ? WHERE id = ?";
-	private static final String QUOTE_AMOUNT_INSERT_SQL = "INSERT INTO erui_report.rep_org_daily_info (day_date, org_name, quote_amount) VALUES (?, ?, ?)";
+	// 报价金额和报价数量sql
+	private static final String QUOTE_AMOUNT_QUERY_SQL = "SELECT DATE_FORMAT(t5.dt, '%Y-%m-%d') AS day_date, t5.org_name , SUM(IFNULL(t5.total_quote_price, 0)) AS quote_amount, COUNT(DISTINCT quote_id) AS quote_num FROM ( SELECT t4.dt , CASE  WHEN t3.name = '易瑞-钻完井设备事业部' THEN '易瑞-钻完井设备事业部' WHEN t3.name = '易瑞-采油工程事业部' THEN '易瑞-采油工程事业部' WHEN t3.name = '易瑞-工业品事业部' THEN '易瑞-工业品事业部' ELSE '其他' END AS org_name, t2.total_quote_price, t2.id as quote_id FROM erui_rfq.inquiry t1, erui_rfq.quote t2, erui_sys.org t3, ( SELECT inquiry_id, MAX(out_at) AS dt FROM erui_rfq.inquiry_check_log WHERE out_node = 'MARKET_CONFIRMING' GROUP BY inquiry_id ) t4 WHERE (t1.id = t2.inquiry_id AND t3.id = t1.org_id AND t4.inquiry_id = t1.id AND t2.`status` IN ('MARKET_CONFIRMING', 'QUOTE_SENT', 'INQUIRY_CLOSED')) ) t5 GROUP BY t5.org_name, DATE_FORMAT(t5.dt, '%Y-%m-%d') ORDER BY 1";
+	private static final String QUOTE_AMOUNT_UPDATE_SQL = "UPDATE erui_report.rep_org_daily_info SET quote_amount = ?, quote_num = ? WHERE id = ?";
+	private static final String QUOTE_AMOUNT_INSERT_SQL = "INSERT INTO erui_report.rep_org_daily_info (day_date, org_name, quote_amount, quote_num) VALUES (?, ?, ?, ?)";
 
 	// 订单数量和订单金额信息sql
 	private static final String ORDER_INFO_QUERY_SQL = "SELECT DATE_FORMAT(t4.start_date, '%Y-%m-%d') AS day_date, t4.name AS org_name , COUNT(t4.oid) AS order_num , SUM(IFNULL(t4.total_price, 0)) AS order_amount FROM ( SELECT CASE  WHEN t2.name = '易瑞-钻完井设备事业部' THEN '易瑞-钻完井设备事业部' WHEN t2.name = '易瑞-采油工程事业部' THEN '易瑞-采油工程事业部' WHEN t2.name = '易瑞-工业品事业部' THEN '易瑞-工业品事业部' ELSE '其他' END AS name, t1.id AS oid, t1.total_price_usd AS total_price, t3.start_date FROM erui_order.order t1, erui_sys.org t2, erui_order.project t3 WHERE (t1.id = t3.order_id AND t1.business_unit_id = t2.id AND t3.start_date IS NOT NULL AND t1.status > 2 AND t1.delete_flag = 0) ) t4 GROUP BY t4.name, DATE_FORMAT(t4.start_date, '%Y-%m-%d') ORDER BY 1 ASC";
