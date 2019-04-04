@@ -821,7 +821,6 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         }
 
-
         Order one = orderDao.findOne(orderId);
         if(sumDiscountSum != null ){
             one.setAlreadyGatheringMoney(sumMoneySum.add(sumDiscountSum));     //已收款总金额       已收款总额=回款金额总额+其他扣款金额总和
