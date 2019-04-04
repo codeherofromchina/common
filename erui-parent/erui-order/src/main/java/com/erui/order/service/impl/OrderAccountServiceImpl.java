@@ -785,12 +785,13 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         Order save = orderDao.save(one);
 
         //更新出口通知单的预收金额信息   出口通知单预收金额 = 订单里面的应收货款
-        List<DeliverConsign>deliverConsignList = deliverConsignService.findByOrderId(save.getId());
-        for (DeliverConsign deliverConsign : deliverConsignList) {
-            deliverConsign.setAdvanceMoney(save.getAdvanceMoney());
+        List<DeliverConsign>deliverConsignList = deliverConsignService.findByOrderId(orderId);
+        if(deliverConsignList != null && deliverConsignList.size() > 0){
+            for (DeliverConsign deliverConsign : deliverConsignList) {
+                deliverConsign.setAdvanceMoney(one.getAdvanceMoney());
+            }
+            deliverConsignDao.save(deliverConsignList);
         }
-        deliverConsignDao.save(deliverConsignList);
-
         return save;
     }
 
@@ -842,11 +843,13 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         Order save = orderDao.save(one);
 
         //更新出口通知单的预收金额信息   出口通知单预收金额 = 订单里面的应收货款
-        List<DeliverConsign>deliverConsignList = deliverConsignService.findByOrderId(save.getId());
-        for (DeliverConsign deliverConsign : deliverConsignList) {
-            deliverConsign.setAdvanceMoney(save.getAdvanceMoney());
+        List<DeliverConsign>deliverConsignList = deliverConsignService.findByOrderId(orderId);
+        if(deliverConsignList != null && deliverConsignList.size() > 0){
+            for (DeliverConsign deliverConsign : deliverConsignList) {
+                deliverConsign.setAdvanceMoney(one.getAdvanceMoney());
+            }
+            deliverConsignDao.save(deliverConsignList);
         }
-        deliverConsignDao.save(deliverConsignList);
         return save;
     }
 
