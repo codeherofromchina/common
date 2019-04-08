@@ -3054,69 +3054,68 @@ public class OrderServiceImpl implements OrderService {
                 passed = new ArrayList<>();
             }
         }
+        String stringR33C1 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", "                                                        ＞20万美金");
+        sheet1.getRow(31).getCell(2).setCellValue(stringR33C1);
+        String stringR15C21 = sheet1.getRow(15).getCell(2).getStringCellValue().replace("金额在10万美金以上的", "金额在3万美金以上的");
+        sheet1.getRow(15).getCell(2).setCellValue(stringR15C21);
+        String stringR29C21 = sheet1.getRow(29).getCell(2).getStringCellValue().replace("                                              ≤50万美金", "                                              ≤20万美金");
+        sheet1.getRow(29).getCell(2).setCellValue(stringR29C21);
         for (CheckLog cl : passed) {
-            //只有金额大于10万美元 且不是国内订单才有区域审核
-            if (orderDec.getOrderCategory() != 6 && STEP_ONE_PRICE.doubleValue() <= orderDec.getTotalPriceUsd().doubleValue()) {
-                //区域审核接受时间
-                if (cl.getAuditingProcess() == 3) {
+            //只有订单金额大于3万小于20万或是预投才有地区总经理审核
+            if (orderDec.getOrderCategory() == 1 || orderDec.getTotalPriceUsd().doubleValue() > STEP_ONE_PRICE.doubleValue()) {
+                //地区总经理审核接受时间
+                if (cl.getAuditingProcess() == 102) {
+                    String stringR15C2 = sheet1.getRow(15).getCell(2).getStringCellValue().replace("金额在3万美金以上的", "  " + cl.getAuditingUserName());
+                    sheet1.getRow(15).getCell(2).setCellValue(stringR15C2);
+
                     String stringR15C10 = sheet1.getRow(15).getCell(4).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                     sheet1.getRow(15).getCell(4).setCellValue(stringR15C10);
                 }
-                //区域审核取走时间 如果大于20万美元则是 区域vp审核时间 否则 若为融资则是融资生成时间 否则为提交商品时间
-                if (orderDec.getTotalPriceUsd().doubleValue() >= STEP_TWO_PRICE.doubleValue()) {
-                    if (cl.getAuditingProcess() == 4) {
-                        String stringR16C4 = sheet1.getRow(16).getCell(4).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
-                        sheet1.getRow(16).getCell(4).setCellValue(stringR16C4);
-                    }
-
-                } else if (orderDec.getFinancing() != null && orderDec.getFinancing() == 1) {
-                    if (cl.getAuditingProcess() == 5) {
-                        String stringR16C4 = sheet1.getRow(16).getCell(4).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
-                        sheet1.getRow(16).getCell(4).setCellValue(stringR16C4);
+                //地区总经理审核取走时间
+                if (orderDec.getOrderCategory() != 1 && orderDec.getTotalPriceUsd().doubleValue() <= STEP_TWO_PRICE.doubleValue()) {
+                    if (orderDec.getFinancing() == null || orderDec.getFinancing() == 0) {
+                        //若不是融资项目 且订单金额大于20万美元,取法务或结算审核时间
+                        if (cl.getAuditingProcess() == 105 || cl.getAuditingProcess() == 106) {
+                            String stringR16C4 = sheet1.getRow(16).getCell(4).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
+                            sheet1.getRow(16).getCell(4).setCellValue(stringR16C4);
+                        }
+                    } else if (orderDec.getFinancing() == 1 && orderDec.getFinancingCommissionerId() != null) {
+                        //若是融资项目 且订单金额小于20万美元 取融资专员审核时间
+                        if (cl.getAuditingProcess() == 104) {
+                            String stringR16C4 = sheet1.getRow(16).getCell(4).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
+                            sheet1.getRow(16).getCell(4).setCellValue(stringR16C4);
+                        }
                     }
                 } else {
-                    if (cl.getAuditingProcess() == 6) {
+                    //订单金额大于20万或是预投 取分管领导审核时间
+                    if (cl.getAuditingProcess() == 103) {
                         String stringR16C4 = sheet1.getRow(16).getCell(4).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                         sheet1.getRow(16).getCell(4).setCellValue(stringR16C4);
                     }
                 }
             }
-            //区域vp
-            if (orderDec.getOrderCategory() != 6 && STEP_TWO_PRICE.doubleValue() <= orderDec.getTotalPriceUsd().doubleValue()) {
+            //分管领导 订单金额大于20万或是预投 才有分管领导审核
+            if (orderDec.getOrderCategory() == 1 || STEP_TWO_PRICE.doubleValue() < orderDec.getTotalPriceUsd().doubleValue()) {
                 //区域审核接受时间
-                if (cl.getAuditingProcess() == 4) {
+                if (cl.getAuditingProcess() == 103) {
+                    sheet1.getRow(15).getCell(7).setCellValue(cl.getAuditingUserName());
+
                     String stringR15C10 = sheet1.getRow(15).getCell(10).getStringCellValue().replace("接收时间：审核流入时间", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                     sheet1.getRow(15).getCell(10).setCellValue(stringR15C10);
                 }
                 //区域vp审核取走时间  若为融资则是融资生成时间 否则为提交商品时间
-                if (orderDec.getFinancing() != null && orderDec.getFinancing() == 1) {
-                    if (cl.getAuditingProcess() == 5) {
+                if (orderDec.getOrderCategory() == 1 || orderDec.getFinancing() == null || orderDec.getFinancing() == 0) {
+                    //若不是融资项目 且订单金额大于20万美元或预投,取法务或结算审核时间
+                    if (cl.getAuditingProcess() == 105 || cl.getAuditingProcess() == 106) {
                         String stringR16C4 = sheet1.getRow(16).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                         sheet1.getRow(16).getCell(10).setCellValue(stringR16C4);
                     }
-                } else {
-                    if (cl.getAuditingProcess() == 6) {
+                } else if (orderDec.getFinancing() == 1 && orderDec.getFinancingCommissionerId() != null) {
+                    //若是融资项目 取融资专员审核时间
+                    if (cl.getAuditingProcess() == 104) {
                         String stringR16C4 = sheet1.getRow(16).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                         sheet1.getRow(16).getCell(10).setCellValue(stringR16C4);
                     }
-                }
-            }
-            //法务审核取走时间 如果大于3万美元则是 区域vp审核时间 否则 若为融资则是融资生成时间 否则为提交商品时间
-            if (orderDec.getOrderCategory() != 6 && STEP_ONE_PRICE.doubleValue() <= orderDec.getTotalPriceUsd().doubleValue()) {
-                if (cl.getAuditingProcess() == 3) {
-                    String stringR26C10 = sheet1.getRow(26).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
-                    sheet1.getRow(26).getCell(10).setCellValue(stringR26C10);
-                }
-
-            } else if (orderDec.getFinancing() != null && orderDec.getFinancing() == 1) {
-                if (cl.getAuditingProcess() == 5) {
-                    String stringR26C10 = sheet1.getRow(26).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
-                    sheet1.getRow(26).getCell(10).setCellValue(stringR26C10);
-                }
-            } else {
-                if (cl.getAuditingProcess() == 6) {
-                    String stringR26C10 = sheet1.getRow(26).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
-                    sheet1.getRow(26).getCell(10).setCellValue(stringR26C10);
                 }
             }
             //国际金融审核时间
@@ -3132,21 +3131,37 @@ public class OrderServiceImpl implements OrderService {
                     String stringR18C10 = sheet1.getRow(18).getCell(10).getStringCellValue().replace("时间：", "时间： " + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                     sheet1.getRow(18).getCell(10).setCellValue(stringR18C10);
                 }
+            }
+
+            //商务技术
+            if (cl.getAuditingProcess() == 201) {
+                String stringR19C1 = sheet1.getRow(19).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + cl.getAuditingUserName());
+                sheet1.getRow(19).getCell(1).setCellValue(stringR19C1);
+
                 //商务技术接受时间
                 String stringR19C10 = sheet1.getRow(19).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(19).getCell(10).setCellValue(stringR19C10);
+            }
+            //商务技术
+            if (cl.getAuditingProcess() == 201) {
+                String stringR21C1 = sheet1.getRow(21).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + cl.getAuditingUserName());
+                sheet1.getRow(21).getCell(1).setCellValue(stringR21C1);
 
+                //商务技术接受时间
                 String stringR21C10 = sheet1.getRow(21).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(21).getCell(10).setCellValue(stringR21C10);
             }
 
+            //商务技术取走时间
+            if (cl.getAuditingProcess() == 202 || cl.getAuditingProcess() == 204 || cl.getAuditingProcess() == 205) {
+                String stringR19C10 = sheet1.getRow(19).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
+                sheet1.getRow(20).getCell(10).setCellValue(stringR19C10);
+                String stringR21C10 = sheet1.getRow(21).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
+                sheet1.getRow(22).getCell(10).setCellValue(stringR21C10);
+            }
+
             //财务或国际结算
-            if (cl.getAuditingProcess() == 13) {
-                //商务技术取走时间
-                String stringR20C10 = sheet1.getRow(20).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
-                sheet1.getRow(20).getCell(10).setCellValue(stringR20C10);
-                String stringR22C10 = sheet1.getRow(22).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
-                sheet1.getRow(22).getCell(10).setCellValue(stringR22C10);
+            if (cl.getAuditingProcess() == 106) {
                 //国际结算审核人
                 String stringR23C1 = sheet1.getRow(23).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + cl.getAuditingUserName() + ",郑效明");
                 sheet1.getRow(23).getCell(1).setCellValue(stringR23C1);
@@ -3156,33 +3171,32 @@ public class OrderServiceImpl implements OrderService {
             }
 
             //财务或国际结算取走时间
-            if (cl.getAuditingProcess() == 14) {
+            if (cl.getAuditingProcess() == 201) {
                 String stringR24C10 = sheet1.getRow(24).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(24).getCell(10).setCellValue(stringR24C10);
-
-                if (orderDec.getProject().getLogisticsAudit() != 2) {
-                    //事业部总监审核接收时间
-                    String stringR29C10 = sheet1.getRow(29).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
-                    sheet1.getRow(29).getCell(10).setCellValue(stringR29C10);
-                }
-
             }
-            //法务
-            if (cl.getAuditingProcess() == 8) {
+            //法务审核
+            if (cl.getAuditingProcess() == 105) {
                 String stringR25C1 = sheet1.getRow(25).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + cl.getAuditingUserName());
                 sheet1.getRow(25).getCell(1).setCellValue(stringR25C1);
                 //法务审核接收时间
                 String stringR25C10 = sheet1.getRow(25).getCell(10).getStringCellValue().replace("接收时间", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(25).getCell(10).setCellValue(stringR25C10);
             }
+            if (cl.getAuditingProcess() == 201) {
+                String stringR26C10 = sheet1.getRow(26).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
+                sheet1.getRow(26).getCell(10).setCellValue(stringR26C10);
+            }
 
             //物流审核接收时间
-            if (orderDec.getProject().getLogisticsAudit() == 2 && cl.getAuditingProcess() == 15) {
+            if (orderDec.getProject().getLogisticsAudit() == 2 && cl.getAuditingProcess() == 202) {
                 String stringR27C10 = sheet1.getRow(27).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(27).getCell(10).setCellValue(stringR27C10);
+                stringR27C10 = sheet1.getRow(28).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
+                sheet1.getRow(28).getCell(10).setCellValue(stringR27C10);
             }
             //物流审核取走时间
-            if (orderDec.getProject().getLogisticsAudit() == 2 && cl.getAuditingProcess() == 16) {
+            if (orderDec.getProject().getLogisticsAudit() == 2 && cl.getAuditingProcess() == 206) {
                 String stringR27C10 = sheet1.getRow(28).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(28).getCell(10).setCellValue(stringR27C10);
 
@@ -3190,63 +3204,44 @@ public class OrderServiceImpl implements OrderService {
                 String stringR29C10 = sheet1.getRow(29).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(29).getCell(10).setCellValue(stringR29C10);
 
-                if (orderDec.getTotalPriceUsd().compareTo(new BigDecimal(500000)) <= 0) {
+                if (orderDec.getTotalPriceUsd().compareTo(new BigDecimal(200000)) <= 0) {
                     String stringR30C10 = sheet1.getRow(30).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                     sheet1.getRow(30).getCell(10).setCellValue(stringR30C10);
                 }
             }
 
+            //事业部总监审核
+            if (cl.getAuditingProcess() == 206) {
+                String stringR29C2 = sheet1.getRow(29).getCell(2).getStringCellValue().replace("                                              ≤20万美金", cl.getAuditingUserName() + "                    ≤20万美金");
+                sheet1.getRow(29).getCell(2).setCellValue(stringR29C2);
+            }
 
             //事业部总监审核取走时间
-            if (cl.getAuditingProcess() == 17) {
+            if (cl.getAuditingProcess() == 207) {
                 String stringR30C10 = sheet1.getRow(30).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(30).getCell(10).setCellValue(stringR30C10);
             }
-            //事业部VP审核
-            if (cl.getAuditingProcess() == 17) {
-                String auditingUserName = "" + cl.getAuditingUserName() + "                      ＞50万美金";
-                if ("18".equals(cl.getNextAuditingProcess()) && cl.getNextAuditingUserId() == null) {
-                    String stringR33C1 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", auditingUserName);
-                    sheet1.getRow(31).getCell(2).setCellValue(stringR33C1);
-                } else {
-                    String stringR33C102 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", "" + cl.getAuditingUserName() + "，宋伟                      ＞50万美金");
-                    sheet1.getRow(31).getCell(2).setCellValue(stringR33C102);
-                }
+            //事业部总裁
+            if (cl.getAuditingProcess() == 207) {
+                String auditingUserName = "" + cl.getAuditingUserName() + "                      ＞20万美金";
+                String stringR33C11 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞20万美金", auditingUserName);
+                sheet1.getRow(31).getCell(2).setCellValue(stringR33C11);
             }
             //事业部总裁审核接收时间
-            if (cl.getAuditingProcess() == 18) {
+            if (cl.getAuditingProcess() == 207) {
                 String stringR32C10 = sheet1.getRow(31).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(31).getCell(10).setCellValue(stringR32C10);
             }
             //事业部总裁审核取走时间
-            if (cl.getAuditingProcess() == 19) {
+            if (cl.getAuditingProcess() == 208) {
                 String stringR32C10 = sheet1.getRow(32).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(32).getCell(10).setCellValue(stringR32C10);
             }
-        }
-        //区域负责人
-        if (orderDec.getOrderCategory() != 5 && STEP_ONE_PRICE.doubleValue() <= orderDec.getTotalPriceUsd().doubleValue() && orderDec.getAreaLeader() != null) {
-            String stringR15C2 = sheet1.getRow(15).getCell(2).getStringCellValue().replace("金额在10万美金以上的", "  " + orderDec.getAreaLeader());
-            sheet1.getRow(15).getCell(2).setCellValue(stringR15C2);
-        }
-        //区域vp 分管领导
-        if (orderDec.getOrderCategory() != 5 && STEP_TWO_PRICE.doubleValue() <= orderDec.getTotalPriceUsd().doubleValue() && orderDec.getAreaVp() != null) {
-            sheet1.getRow(15).getCell(7).setCellValue(orderDec.getAreaVp());
         }
         //国际金融
         if (orderDec.getFinancing() != null && orderDec.getFinancing() == 1) {
             String stringR17C1 = sheet1.getRow(17).getCell(1).getStringCellValue().replace("审核人：", "审核人： 郭永涛");
             sheet1.getRow(17).getCell(1).setCellValue(stringR17C1);
-        }
-        //商务技术
-        if (orderDec.getBusinessName() != null) {
-            String stringR19C1 = sheet1.getRow(19).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + orderDec.getBusinessName());
-            sheet1.getRow(19).getCell(1).setCellValue(stringR19C1);
-        }
-        //商务技术
-        if (orderDec.getBusinessName() != null) {
-            String stringR21C1 = sheet1.getRow(21).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + orderDec.getBusinessName());
-            sheet1.getRow(21).getCell(1).setCellValue(stringR21C1);
         }
         if (orderDec.getProject() != null) {
             //是否物流审核 1:不需要  2：需要
@@ -3259,11 +3254,6 @@ public class OrderServiceImpl implements OrderService {
             } else {
                 String stringR27C1 = sheet1.getRow(27).getCell(1).getStringCellValue().replace("□ 否", sheet1.getRow(3).getCell(11).getStringCellValue() + " 否");
                 sheet1.getRow(27).getCell(1).setCellValue(stringR27C1);
-            }
-            //事业部总监审核
-            if (orderDec.getProject().getBuAuditer() != null) {
-                String stringR29C2 = sheet1.getRow(29).getCell(2).getStringCellValue().replace("                                              ≤50万美金", orderDec.getProject().getBuAuditer() + "                    ≤50万美金");
-                sheet1.getRow(29).getCell(2).setCellValue(stringR29C2);
             }
 
         }
