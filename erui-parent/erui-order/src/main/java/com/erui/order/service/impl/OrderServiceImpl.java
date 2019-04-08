@@ -3183,7 +3183,7 @@ public class OrderServiceImpl implements OrderService {
                 if (cl.getAuditingProcess() == 106) {
                     //国际结算审核人
                     if(!cshell23) {
-                        String stringR23C1 = sheet1.getRow(23).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + cl.getAuditingUserName() + ",郑效明");
+                        String stringR23C1 = sheet1.getRow(23).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + cl.getAuditingUserName());
                         sheet1.getRow(23).getCell(1).setCellValue(stringR23C1);
                         cshell23 = true;
                     }

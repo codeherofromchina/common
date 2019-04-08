@@ -492,10 +492,12 @@ public class ProjectServiceImpl implements ProjectService {
         // 董事长审核人
         Integer chairmanId = project.getChairmanId();
         String chairmanName = project.getChairman();
-        // 是否是预投项目orderCategory=1为预投订单类型
+        // 是否是预投项目orderCategory=1为预投订单类型  订单类别 1预投 2 售后 3 试用 4 现货（出库） 5 订单 6 国内订单
         Integer orderCategory = projectUpdate.getOrderCategory();
-        // 预投项目则不需要物流、采购、品控审核，非预投则需要这三人审核
-        if (orderCategory == null || orderCategory != 1) {
+        //海外销售类型 1 海外销（装备采购） 2 海外销（易瑞采购） 3 海外销（当地采购） 4 易瑞销 5  装备销
+        Integer overseasSales = projectUpdate.getOverseasSales();
+        // 预投项目或现货或当地采购，则不需要物流、采购、品控审核，非预投则需要这三人审核
+        if ((orderCategory == null || (orderCategory != 1 && orderCategory != 4)) && (overseasSales == null || overseasSales != 3 )) {
             if(orderCategory != 6){//国内订单不需要品控经办人审批
                 if (StringUtils.isBlank(qualityName) || qualityUid == null) {
                     throw new MyException(String.format("%s%s%s", "参数错误，品控经办人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
@@ -536,8 +538,8 @@ public class ProjectServiceImpl implements ProjectService {
 
         String auditUserId = "";
         String auditProcessing = "";
-        // 非预投项目，需要从物流、采购经办人、品控经办人并行开始审核
-        if (orderCategory == null || orderCategory != 1) {
+        // 非现货、非当地采购、非预投则需要这三人审核，需要从物流、采购经办人、品控经办人并行开始审核
+        if ((orderCategory == null || (orderCategory != 1 && orderCategory != 4)) && (overseasSales == null || overseasSales != 3 )) {
             if(orderCategory != 6){
                 auditUserId = String.format("%d,%d,%d", logisticsAuditerId, project.getPurchaseUid(), project.getQualityUid());
                 auditProcessing = String.format("%d,%d,%d", CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_QA.getProcess());
