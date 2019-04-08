@@ -485,6 +485,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                     backLogService.addBackLogByDelYn(newBackLog);
                 }
             }
+
         } else if (directInstockGoods) {
             //  判断采购是否已经完成并修正
             checkPurchHasDone(dbInspectApply.getPurch());
