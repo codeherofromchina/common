@@ -3209,7 +3209,6 @@ public class OrderServiceImpl implements OrderService {
                     sheet1.getRow(30).getCell(10).setCellValue(stringR30C10);
                 }
             }
-
             //事业部总监审核
             if (cl.getAuditingProcess() == 206) {
                 String stringR29C2 = sheet1.getRow(29).getCell(2).getStringCellValue().replace("                                              ≤20万美金", cl.getAuditingUserName() + "                    ≤20万美金");
