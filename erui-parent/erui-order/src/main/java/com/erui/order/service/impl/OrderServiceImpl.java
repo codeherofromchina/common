@@ -3098,7 +3098,8 @@ public class OrderServiceImpl implements OrderService {
             if (orderDec.getOrderCategory() == 1 || STEP_TWO_PRICE.doubleValue() < orderDec.getTotalPriceUsd().doubleValue()) {
                 //区域审核接受时间
                 if (cl.getAuditingProcess() == 103) {
-                    sheet1.getRow(15).getCell(7).setCellValue(cl.getAuditingUserName());
+                    sheet1.getRow(15).getCell(8).setCellFormula(null);
+                    sheet1.getRow(15).getCell(8).setCellValue(cl.getAuditingUserName());
 
                     String stringR15C10 = sheet1.getRow(15).getCell(10).getStringCellValue().replace("接收时间：审核流入时间", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                     sheet1.getRow(15).getCell(10).setCellValue(stringR15C10);
