@@ -1415,6 +1415,12 @@ public class ProjectServiceImpl implements ProjectService {
             project.setAudiRemark(auditorIds.toString());
             projectDao.save(project);
 
+            if("999".equals(auditingProcess_i)){ // 如果项目审核完成返回前端proAuditStatus值为 1
+                Order order2 = project.getOrder();
+                order2.setProAuditStatus(1);
+                orderDao.save(order2);
+            }
+
             auditBackLogHandle(project, rejectFlag, auditingUserId_i);
 
             return true;
