@@ -84,7 +84,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         if (inspectApply != null) {
             List<Attachment> attachments = attachmentService.queryAttachs(inspectApply.getId(), Attachment.AttachmentCategory.INSPECTAPPLY.getCode());
             inspectApply.setAttachmentList(attachments);
-            inspectApply.getAttachmentList().size();
         }
         return inspectApply;
     }
@@ -452,8 +451,8 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
         //deliverConsign1.setAttachmentList(deliverConsign1.getAttachmentList());
         List<Attachment> attachmentList = inspectApply.getAttachmentList();
-        Map<Integer, Attachment> dbAttahmentsMap = dbInspectApply.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
         if (attachmentList != null && attachmentList.size() > 0) {
+            Map<Integer, Attachment> dbAttahmentsMap = dbInspectApply.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
             attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbInspectApply.getId(), Attachment.AttachmentCategory.INSPECTAPPLY.getCode());
         }
         // 完善提交后的后续操作
