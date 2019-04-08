@@ -3190,14 +3190,14 @@ public class OrderServiceImpl implements OrderService {
             }
 
             //物流审核接收时间
-            if (orderDec.getProject().getLogisticsAudit() == 2 && cl.getAuditingProcess() == 202) {
+            if (cl.getAuditingProcess() == 202) {
                 String stringR27C10 = sheet1.getRow(27).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(27).getCell(10).setCellValue(stringR27C10);
                 stringR27C10 = sheet1.getRow(28).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(28).getCell(10).setCellValue(stringR27C10);
             }
             //物流审核取走时间
-            if (orderDec.getProject().getLogisticsAudit() == 2 && cl.getAuditingProcess() == 206) {
+            if (cl.getAuditingProcess() == 206) {
                 String stringR27C10 = sheet1.getRow(28).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(28).getCell(10).setCellValue(stringR27C10);
 
@@ -3245,7 +3245,7 @@ public class OrderServiceImpl implements OrderService {
         }
         if (orderDec.getProject() != null) {
             //是否物流审核 1:不需要  2：需要
-            if (orderDec.getProject().getLogisticsAudit() != null && orderDec.getProject().getLogisticsAudit() == 2 && orderDec.getProject().getLogisticsAuditer() != null) {
+            if (orderDec.getProject().getLogisticsAuditer() != null) {
                 String stringR27C1 = sheet1.getRow(27).getCell(1).getStringCellValue().replace("□ 是", sheet1.getRow(3).getCell(11).getStringCellValue() + " 是");
                 sheet1.getRow(27).getCell(1).setCellValue(stringR27C1);
                 //审核人
