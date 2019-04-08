@@ -3139,7 +3139,6 @@ public class OrderServiceImpl implements OrderService {
                         sheet1.getRow(18).getCell(10).setCellValue(stringR18C10);
                     }
                 }
-
                 //商务技术
                 if (cl.getAuditingProcess() == 201) {
                     sheet1.getRow(19).getCell(1).setCellFormula(null);
