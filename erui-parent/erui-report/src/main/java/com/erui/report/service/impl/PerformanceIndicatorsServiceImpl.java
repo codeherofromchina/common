@@ -43,7 +43,7 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
             performanceIndicators.setCountryName((String) countryInfoMap.get("countryName"));
             performanceIndicators.setAreaBn((String) countryInfoMap.get("areaBn"));
             performanceIndicators.setAreaName((String) countryInfoMap.get("areaName"));
-        }
+        }performanceIndicatorsMapper
         performanceIndicators.setCreateTime(new Date());
         int insert = performanceIndicatorsMapper.insert(performanceIndicators);
         return insert > 0 ? 0 : 1;
