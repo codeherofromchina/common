@@ -3066,6 +3066,13 @@ public class OrderServiceImpl implements OrderService {
             sheet1.getRow(15).getCell(2).setCellValue(stringR15C21);
             String stringR29C21 = sheet1.getRow(29).getCell(2).getStringCellValue().replace("                                              ≤50万美金", "                                              ≤20万美金");
             sheet1.getRow(29).getCell(2).setCellValue(stringR29C21);
+
+            boolean cshell19 = Boolean.FALSE;
+            boolean cshell21 = Boolean.FALSE;
+            boolean cshell23 = Boolean.FALSE;
+            boolean cshell25 = Boolean.FALSE;
+            boolean cshell29 = Boolean.FALSE;
+            boolean cshell31 = Boolean.FALSE;
             for (CheckLog cl : passed) {
                 //只有订单金额大于3万小于20万或是预投才有地区总经理审核
                 if (orderDec.getOrderCategory() == 1 || orderDec.getTotalPriceUsd().doubleValue() > STEP_ONE_PRICE.doubleValue()) {
@@ -3141,8 +3148,11 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //商务技术
                 if (cl.getAuditingProcess() == 201) {
-                    sheet1.getRow(19).getCell(1).setCellFormula(null);
-                    sheet1.getRow(19).getCell(1).setCellValue("审核人： " + cl.getAuditingUserName());
+                    if(!cshell19){
+                        String stringR23C1 = sheet1.getRow(19).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + cl.getAuditingUserName());
+                        sheet1.getRow(19).getCell(1).setCellValue(stringR23C1);
+                        cshell19 = true;
+                    }
 
                     //商务技术接受时间
                     sheet1.getRow(19).getCell(10).setCellFormula(null);
@@ -3150,8 +3160,11 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //商务技术
                 if (cl.getAuditingProcess() == 201) {
-                    sheet1.getRow(21).getCell(1).setCellFormula(null);
-                    sheet1.getRow(21).getCell(1).setCellValue("审核人： " + cl.getAuditingUserName());
+                    if(!cshell21) {
+                        String stringR23C1 = sheet1.getRow(21).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + cl.getAuditingUserName());
+                        sheet1.getRow(21).getCell(1).setCellValue(stringR23C1);
+                        cshell21 = true;
+                    }
 
                     //商务技术接受时间
                     sheet1.getRow(21).getCell(10).setCellFormula(null);
@@ -3169,8 +3182,11 @@ public class OrderServiceImpl implements OrderService {
                 //财务或国际结算
                 if (cl.getAuditingProcess() == 106) {
                     //国际结算审核人
-                    sheet1.getRow(23).getCell(1).setCellFormula(null);
-                    sheet1.getRow(23).getCell(1).setCellValue("审核人： " + cl.getAuditingUserName() + ",郑效明");
+                    if(!cshell23) {
+                        String stringR23C1 = sheet1.getRow(23).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + cl.getAuditingUserName() + ",郑效明");
+                        sheet1.getRow(23).getCell(1).setCellValue(stringR23C1);
+                        cshell23 = true;
+                    }
                     //财务或国际结算接受时间
                     sheet1.getRow(23).getCell(10).setCellFormula(null);
                     sheet1.getRow(23).getCell(10).setCellValue("接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
@@ -3183,8 +3199,11 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //法务审核
                 if (cl.getAuditingProcess() == 105) {
-                    String stringR25C1 = sheet1.getRow(25).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + cl.getAuditingUserName());
-                    sheet1.getRow(25).getCell(1).setCellValue(stringR25C1);
+                    if(!cshell25) {
+                        String stringR23C1 = sheet1.getRow(25).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + cl.getAuditingUserName());
+                        sheet1.getRow(25).getCell(1).setCellValue(stringR23C1);
+                        cshell25 = true;
+                    }
                     //法务审核接收时间
                     String stringR25C10 = sheet1.getRow(25).getCell(10).getStringCellValue().replace("接收时间", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                     sheet1.getRow(25).getCell(10).setCellValue(stringR25C10);
@@ -3216,9 +3235,10 @@ public class OrderServiceImpl implements OrderService {
                     }
                 }
                 //事业部总监审核
-                if (cl.getAuditingProcess() == 206) {
+                if (cl.getAuditingProcess() == 206 && !cshell29) {
                     String stringR29C2 = sheet1.getRow(29).getCell(2).getStringCellValue().replace("                                              ≤20万美金", cl.getAuditingUserName() + "                    ≤20万美金");
                     sheet1.getRow(29).getCell(2).setCellValue(stringR29C2);
+                    cshell29 = true;
                 }
 
                 //事业部总监审核取走时间
@@ -3227,10 +3247,11 @@ public class OrderServiceImpl implements OrderService {
                     sheet1.getRow(30).getCell(10).setCellValue(stringR30C10);
                 }
                 //事业部总裁
-                if (cl.getAuditingProcess() == 207) {
+                if (cl.getAuditingProcess() == 207 && !cshell31) {
                     String auditingUserName = "" + cl.getAuditingUserName() + "                      ＞20万美金";
                     String stringR33C11 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞20万美金", auditingUserName);
                     sheet1.getRow(31).getCell(2).setCellValue(stringR33C11);
+                    cshell31 = true;
                 }
                 //事业部总裁审核接收时间
                 if (cl.getAuditingProcess() == 207) {
