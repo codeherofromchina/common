@@ -3240,7 +3240,6 @@ public class OrderServiceImpl implements OrderService {
                     sheet1.getRow(29).getCell(2).setCellValue(stringR29C2);
                     cshell29 = true;
                 }
-
                 //事业部总监审核取走时间
                 if (cl.getAuditingProcess() == 207) {
                     String stringR30C10 = sheet1.getRow(30).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
