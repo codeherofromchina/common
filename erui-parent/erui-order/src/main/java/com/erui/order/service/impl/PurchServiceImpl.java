@@ -221,7 +221,7 @@ public class PurchServiceImpl implements PurchService {
         String auditingProcess = purch.getAuditingProcess();
         String auditingUserId = purch.getAuditingUserId();
         Integer curAuditProcess = null;
-        boolean isComeMore = Boolean.FALSE;//是否来自并行的审批，且并行还没走完。
+        boolean isComeMore = Boolean.FALSE;// 是否来自并行的审批，且并行还没走完。
         if (StringUtils.equals(auditorId, auditingUserId)) {
             curAuditProcess = Integer.parseInt(auditingProcess);
         } else {
