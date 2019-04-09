@@ -64,7 +64,7 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
             result.put("xAxisData", xAxisData);
             result.put("amountData", amountData);
             result.put("countData", countData);
-            result.put("totalAmount", totalAmount.divide(wanDollar).setScale(2,BigDecimal.ROUND_DOWN));
+            result.put("totalAmount", totalAmount);
             result.put("totalCount", totalCount);
         }
         return result;
