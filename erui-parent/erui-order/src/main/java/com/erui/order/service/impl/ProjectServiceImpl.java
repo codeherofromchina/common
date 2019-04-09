@@ -547,7 +547,7 @@ public class ProjectServiceImpl implements ProjectService {
                 auditProcessing =  String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess());
             }
         } else {
-            if(orderCategory == 1){//预投项目，直接项目负责人审核
+            if(orderCategory == 1){// 预投项目，直接项目负责人审核
                 auditUserId = buVpAuditerId.toString();
                 auditProcessing = String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_MANAGER.getProcess());
             }else{//现货或者当地采购直接审核结束
