@@ -3,6 +3,7 @@ package com.erui.order.service;
 import com.erui.order.entity.PurchRequisition;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,5 +36,13 @@ public interface PurchRequisitionService {
       * @modified By
       */
     int checkProjectNo(String projectNo, Integer id);
+    /**
+     * 采购单分单采购经办人
+     *
+     * @param list
+     * @return
+     * @throws Exception
+     */
 
+    boolean updatePurchaseUid(List<PurchRequisition> list) throws Exception;
 }

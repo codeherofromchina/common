@@ -1103,7 +1103,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
             if (auditingUserId != null) {
                 // 推送待办事件
-                // 推送待办事件
                 String region = deliverConsign.getOrder().getRegion();   //所属地区
                 Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
                 String country = deliverConsign.getOrder().getCountry();  //国家

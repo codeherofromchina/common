@@ -80,7 +80,14 @@ public class CheckLogServiceImpl implements CheckLogService {
         if (orderId != null) {
             List<CheckLog> checkLogList = checkLogDao.findByOrderIdOrderByCreateTimeDesc(orderId);
             if (checkLogList != null && checkLogList.size() > 0) {
-                List<CheckLog> collect = checkLogList.stream().filter(vo -> vo.getType() == 1 || vo.getType() == 2).collect(Collectors.toList());
+                List<CheckLog> collect = checkLogList.stream().filter(vo -> vo.getType() == 1 || vo.getType() == 2).map(vo -> {
+                    Integer auditingProcess = vo.getAuditingProcess();
+                    CheckLog.AuditProcessingEnum anEnum = CheckLog.AuditProcessingEnum.findEnum(vo.getType(), auditingProcess);
+                    if (anEnum != null) {
+                        vo.setProcessName(anEnum.getName());
+                    }
+                    return vo;
+                }).collect(Collectors.toList());
                 return collect;
             }
         }
@@ -210,7 +217,19 @@ public class CheckLogServiceImpl implements CheckLogService {
 
             Project project = order.getProject();
             // 订单当前的审核进度
-            CheckLog.AuditProcessingEnum orderCurAuditProcess = CheckLog.AuditProcessingEnum.findEnum(1, order.getAuditingProcess());
+            CheckLog.AuditProcessingEnum orderCurAuditProcess = null;
+            if (order != null && !StringUtils.isBlank(order.getAuditingProcess())) {
+                String[] split = order.getAuditingProcess().split(",");
+                int maxAuditingProcess = 0;
+                for (String s : split) {
+                    int i = Integer.parseInt(s);
+                    if (i > maxAuditingProcess) {
+                        maxAuditingProcess = i;
+                    }
+                }
+                orderCurAuditProcess = CheckLog.AuditProcessingEnum.findEnum(1, maxAuditingProcess);
+            }
+
             // 项目当前的审核进度
             CheckLog.AuditProcessingEnum projectCurAuditProcess = null;
             if (project != null && !StringUtils.isBlank(project.getAuditingProcess())) {

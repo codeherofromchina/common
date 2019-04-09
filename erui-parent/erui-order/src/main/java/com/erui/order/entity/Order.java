@@ -303,7 +303,7 @@ public class Order {
     private Integer auditingStatus;   //审核状态
 
     @Column(name = "auditing_process")
-    private Integer auditingProcess; //审核进度
+    private String auditingProcess; //审核进度
 
     @Column(name = "auditing_user_id")
     private String auditingUserId;   //当前审核人ID，逗号分隔多个
@@ -332,6 +332,18 @@ public class Order {
     private String audiRemark;//所经过审核人
     @Column(name = "financing_commissioner_id")
     private Integer financingCommissionerId;//融资专员Id
+    @Column(name = "financing_commissioner")
+    private String financingCommissioner;//融资专员
+    @Column(name = "settlement_leader_id")//结算专员
+    private Integer settlementLeaderId;
+    @Column(name = "settlement_leader")
+    private String settlementLeader;
+    @Column(name = "legal_auditer_id")//结算专员
+    private Integer legalAuditerId;//法务审核人id
+    @Column(name = "legal_auditer")
+    private String legalAuditer;//法务审核人
+
+
     //如果项目审核完成返回前端 值为 1
     @Transient
     private Integer proAuditStatus = 0;
@@ -362,6 +374,47 @@ public class Order {
         this.financingCommissionerId = financingCommissionerId;
     }
 
+    public String getFinancingCommissioner() {
+        return financingCommissioner;
+    }
+
+    public void setFinancingCommissioner(String financingCommissioner) {
+        this.financingCommissioner = financingCommissioner;
+    }
+
+    public Integer getSettlementLeaderId() {
+        return settlementLeaderId;
+    }
+
+    public void setSettlementLeaderId(Integer settlementLeaderId) {
+        this.settlementLeaderId = settlementLeaderId;
+    }
+
+    public String getSettlementLeader() {
+        return settlementLeader;
+    }
+
+    public void setSettlementLeader(String settlementLeader) {
+        this.settlementLeader = settlementLeader;
+    }
+
+    public String getLegalAuditer() {
+        return legalAuditer;
+    }
+
+    public void setLegalAuditer(String legalAuditer) {
+        this.legalAuditer = legalAuditer;
+    }
+
+    public Integer getLegalAuditerId() {
+        return legalAuditerId;
+    }
+
+    public void setLegalAuditerId(Integer legalAuditerId) {
+        this.legalAuditerId = legalAuditerId;
+    }
+
+
     public String getAudiRemark() {
         return audiRemark;
     }
@@ -386,11 +439,11 @@ public class Order {
         this.auditingStatus = auditingStatus;
     }
 
-    public Integer getAuditingProcess() {
+    public String getAuditingProcess() {
         return auditingProcess;
     }
 
-    public void setAuditingProcess(Integer auditingProcess) {
+    public void setAuditingProcess(String auditingProcess) {
         this.auditingProcess = auditingProcess;
     }
 

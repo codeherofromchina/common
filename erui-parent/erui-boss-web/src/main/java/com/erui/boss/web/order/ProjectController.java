@@ -125,7 +125,7 @@ public class ProjectController {
         Integer checkLogId = pProject.getCheckLogId();
 
         // 判断项目是否存在，
-        Project project = projectService.findById(projectId);
+        Project project = projectService.findDesc(projectId);
         if (project == null) {
             return new Result<>(ResultStatusEnum.PROJECT_NOT_EXIST);
         }
@@ -142,10 +142,11 @@ public class ProjectController {
         if (rejectFlag && (StringUtils.isBlank(reason) || checkLogId == null)) {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR).setMsg("驳回原因和驳回步骤为必填信息");
         }
-        project.setCheckLogId(checkLogId);
+//        project.setCheckLogId(checkLogId);
 
         // 判断通过，审核项目并返回是否审核成功
-        boolean flag = projectService.audit(project, String.valueOf(userId), String.valueOf(realname), pProject);
+//        boolean flag = projectService.audit(project, String.valueOf(userId), String.valueOf(realname), pProject);
+        boolean flag = projectService.audit(projectId, String.valueOf(userId), String.valueOf(realname), pProject);
         if (flag) {
             return new Result<>();
         }
@@ -171,11 +172,11 @@ public class ProjectController {
             String eruiToken = CookiesUtil.getEruiToken(request);
             ThreadLocalUtil.setObject(eruiToken);
 
-            // 判断是否需要审核
-            String auditingUserId = proStatus.getAuditingUserId();
-            if (auditingUserId != null) {
-                return auditProject(request, project);
-            }
+//            // 判断是否需要审核
+//            String auditingUserId = proStatus.getAuditingUserId();
+//            if (auditingUserId != null) {
+//                return auditProject(request, project);
+//            }
             // 如果不是审核，则继续走审核人流程
 
             // 审核流出添加代码 2018-08-27

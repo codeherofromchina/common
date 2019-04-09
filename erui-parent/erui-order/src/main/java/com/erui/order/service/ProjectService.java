@@ -98,6 +98,7 @@ public interface ProjectService {
      * @return
      */
     boolean audit(Project project, String auditorId,String auditorName, Project paramsProject);
+    boolean audit(Integer projectId, String auditorId,String auditorName, Project paramsProject);
     /**
      * 导出核算利润表
      * @param workbook
