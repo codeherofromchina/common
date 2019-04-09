@@ -238,6 +238,9 @@ public class ProjectController {
                 project.setPurchs(null);
             }
 
+            if(project.getAuditingProcess() != null && "999".equals(project.getAuditingProcess())){
+                project.getOrder().setProAuditStatus(1);
+            }
             // 按照父子商品排序
             GoodsUtils.sortGoodsByParentAndSon(project.getGoodsList());
 
