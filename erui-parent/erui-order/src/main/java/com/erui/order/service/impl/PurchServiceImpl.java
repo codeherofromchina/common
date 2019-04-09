@@ -206,7 +206,7 @@ public class PurchServiceImpl implements PurchService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean audit(Integer purchId, String auditorId, String auditorName, PurchParam paramPurch) {
-        Purch purch = purchDao.findOne(purchId);
+        Purch purch = findDetailInfo(purchId);
         //@param rejectFlag true:驳回项目   false:审核项目
         StringBuilder auditorIds = null;
         if (purch.getAudiRemark() != null) {
@@ -224,9 +224,9 @@ public class PurchServiceImpl implements PurchService {
         boolean isComeMore = Boolean.FALSE;//是否来自并行的审批，且并行还没走完。
         if (StringUtils.equals(auditorId, auditingUserId)) {
             curAuditProcess = Integer.parseInt(auditingProcess);
-        }else {
-            if(auditingUserId.indexOf(auditorId)>=0){
-                curAuditProcess = Integer.parseInt(auditingProcess.split(",")[auditingUserId.indexOf(auditorId)==0?0:1]);
+        } else {
+            if (auditingUserId.indexOf(auditorId) >= 0) {
+                curAuditProcess = Integer.parseInt(auditingProcess.split(",")[auditingUserId.indexOf(auditorId) == 0 ? 0 : 1]);
             }
         }
         if (curAuditProcess == null) {
@@ -248,57 +248,57 @@ public class PurchServiceImpl implements PurchService {
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "-1", 3);
         } else {
             switch (curAuditProcess) {
-                case 21: // 采购负责人-变更为-采购经理
-                    if(purch.getAuditingProcess().indexOf("22")==-1){//同级商务技术是否已审批
-                        if(purch.getContractVersion() != null && "1".equals(purch.getContractVersion())){//是否为标准版合同，是标准则越过法务审批
+                case 21: // 采购经理审核核
+                    if (purch.getAuditingProcess().indexOf("22") == -1) {//同级事业部项目负责人是否已审核
+                        if (purch.getContractVersion() != null && "1".equals(purch.getContractVersion())) {//是否为标准版合同，是标准则越过法务审批
                             auditingProcess_i = "24";
                             auditingUserId_i = purch.getFinanceAuditerId() + "";
-                        }else{//需要法务、财务审批
+                        } else {//需要法务、财务审批
                             auditingProcess_i = "23,24";
                             auditingUserId_i = String.format("%d,%d", purch.getLegalAuditerId(), purch.getFinanceAuditerId());
                         }
-                    }else{
+                    } else {
                         isComeMore = true;
                         auditingProcess_i = "22";
                         auditingUserId_i = purch.getBusinessAuditerId() + "";
                     }
                     break;
-                case 22://商务技术审核
-                    if(purch.getAuditingProcess().indexOf("21")==-1){//同级采购经理是否已审批
-                        if(purch.getContractVersion() != null && "1".equals(purch.getContractVersion())){//是否为标准版合同，是标准则越过法务审批
+                case 22://商务技术职称改为->事业部项目负责人审核
+                    if (purch.getAuditingProcess().indexOf("21") == -1) {//同级采购经理是否已审批
+                        if (purch.getContractVersion() != null && "1".equals(purch.getContractVersion())) {//是否为标准版合同，是标准则越过法务审批
                             auditingProcess_i = "24";
                             auditingUserId_i = purch.getFinanceAuditerId() + "";
-                        }else{//需要法务、财务审批
+                        } else {//需要法务、财务审批
                             auditingProcess_i = "23,24";
                             auditingUserId_i = String.format("%d,%d", purch.getLegalAuditerId(), purch.getFinanceAuditerId());
                         }
-                    }else{
+                    } else {
                         isComeMore = true;
                         auditingProcess_i = "21";
                         auditingUserId_i = purch.getPurchAuditerId() + "";
                     }
                     break;
                 case 23://法务审核
-                    if(purch.getAuditingProcess().indexOf("24")==-1){//同级财务审核是否已审批
+                    if (purch.getAuditingProcess().indexOf("24") == -1) {//同级财务审核是否已审批
                         auditingProcess_i = "25";
                         auditingUserId_i = purch.getBuVpAuditerId() + "";
-                    }else{
+                    } else {
                         isComeMore = true;
                         auditingProcess_i = "24";
                         auditingUserId_i = purch.getFinanceAuditerId() + "";
                     }
                     break;
                 case 24://财务审核
-                    if(purch.getAuditingProcess().indexOf("23")==-1){//同级法务审核是否已审批
+                    if (purch.getAuditingProcess().indexOf("23") == -1) {//同级法务审核是否已审批
                         auditingProcess_i = "25";
                         auditingUserId_i = purch.getBuVpAuditerId() + "";
-                    }else{
+                    } else {
                         isComeMore = true;
                         auditingProcess_i = "23";
                         auditingUserId_i = purch.getLegalAuditerId() + "";
                     }
                     break;
-                case 25://事业部VP-变更为供应链中心总经理
+                case 25://供应链中心总经理
                     if (purch.getTotalPrice() != null && purch.getTotalPrice().doubleValue() < 1000000) {
                         auditingStatus_i = 4; // 完成
                         auditingProcess_i = "999";
@@ -335,7 +335,7 @@ public class PurchServiceImpl implements PurchService {
         purch.setAuditingProcess(auditingProcess_i);
         purch.setAuditingUserId(auditingUserId_i);
         if (auditingUserId_i != null) {
-            for (String user : auditingUserId_i.split(",")){
+            for (String user : auditingUserId_i.split(",")) {
                 sendDingtalk(purch, user, rejectFlag);
             }
         }
@@ -347,7 +347,7 @@ public class PurchServiceImpl implements PurchService {
         purch.setAudiRemark(auditorIds.toString());
         purchDao.save(purch);
 
-        auditBackLogHandle(purch, rejectFlag, auditingUserId_i , isComeMore);
+        auditBackLogHandle(purch, rejectFlag, auditingUserId_i, isComeMore);
 
         return true;
     }
@@ -362,16 +362,16 @@ public class PurchServiceImpl implements PurchService {
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCH_REJECT.getNum());    //功能访问路径标识
             backLog2.setHostId(purch.getId());
             backLogService.updateBackLogByDelYn(backLog2);
-            if(isComeMore){
+            if (isComeMore) {
                 backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCH_AUDIT.getNum());    //功能访问路径标识
                 backLogService.updateBackLogByDelYnNew(backLog2, auditingUserId);
-            }else {
+            } else {
                 backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCH_AUDIT.getNum());    //功能访问路径标识
                 backLogService.updateBackLogByDelYn(backLog2);
             }
 
             if (auditingUserId != null && !isComeMore) {//并行未走完不用推送待办
-                for (String user : auditingUserId.split(",")){
+                for (String user : auditingUserId.split(",")) {
                     // 推送待办事件
                     String infoContent = String.format("%s", purch.getSupplierName());
                     String purchNo = purch.getPurchNo();
@@ -386,8 +386,12 @@ public class PurchServiceImpl implements PurchService {
                             Integer.parseInt(user)));
                 }
             }
-
-            if (purch.getAuditingStatus() == 4 && "999".equals(purch.getAuditingProcess())) {
+            int orderCate = 0;
+            //获取订单类型，当时国内订单时不推送质检
+            if (purch.getProjects() != null && purch.getProjects().size() > 0) {
+                orderCate = purch.getProjects().get(0).getOrder().getOrderCategory();
+            }
+            if (orderCate != 6 && purch.getAuditingStatus() == 4 && "999".equals(purch.getAuditingProcess())) {
                 // 推动
                 String returnNo = purch.getPurchNo(); // 返回单号
                 String infoContent = purch.getSupplierName();//提示内容

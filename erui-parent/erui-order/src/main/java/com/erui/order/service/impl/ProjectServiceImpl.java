@@ -65,6 +65,8 @@ public class ProjectServiceImpl implements ProjectService {
     private CheckLogDao checkLogDao;
     @Autowired
     private ProjectProfitDao projectProfitDao;
+    @Autowired
+    private PurchRequisitionDao purchRequisitionDao;
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
     @Value("#{orderProp[DING_SEND_SMS]}")
@@ -414,33 +416,35 @@ public class ProjectServiceImpl implements ProjectService {
                     applicationContext.publishEvent(new OrderProgressEvent(order, 10, eruiToken));
                     orderDao.save(order);
 
-                    //如果是直接执行项目，删除   “执行项目”  待办提示信息
-                    BackLog backLog = new BackLog();
-                    backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum());    //功能访问路径标识
-                    backLog.setHostId(projectUpdate.getOrder().getId());
-//                    backLogService.updateBackLogByDelYn(backLog);
+                    if(purchRequisitionDao.countByProjectNo(projectUpdate.getProjectNo()) == 0) {//如果已经办理过采购申请，就不需要再发送待办申请了
+                        //如果是直接执行项目，删除   “执行项目”  待办提示信息
+                        BackLog backLog = new BackLog();
+                        backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum());    //功能访问路径标识
+                        backLog.setHostId(projectUpdate.getOrder().getId());
 
-                    //如果项目是提交状态    如果有项目经理驳回信息删除
-                    BackLog backLog2 = new BackLog();
-                    backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTPROJRCT.getNum());    //功能访问路径标识
-                    backLog2.setHostId(projectUpdate.getOrder().getId());
-                    backLogService.updateBackLogByDelYns(backLog, backLog2);
+                        //如果项目是提交状态    如果有项目经理驳回信息删除
+                        BackLog backLog2 = new BackLog();
+                        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTPROJRCT.getNum());    //功能访问路径标识
+                        backLog2.setHostId(projectUpdate.getOrder().getId());
+                        backLogService.updateBackLogByDelYns(backLog, backLog2);
 
-                    //项目状态是提交状态  通知商务技术经办人办理采购申请
-                    BackLog newBackLog = new BackLog();
-                    newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHREQUISITION.getMsg());  //功能名称
-                    newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHREQUISITION.getNum());    //功能访问路径标识
-                    newBackLog.setReturnNo(projectUpdate.getContractNo());  //返回单号    销售合同号
-                    String region = projectUpdate.getOrder().getRegion();   //所属地区
-                    Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
-                    String country = projectUpdate.getOrder().getCountry();  //国家
-                    Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
-                    newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
-                    newBackLog.setHostId(order.getId());    //父ID，列表页id
-                    newBackLog.setFollowId(projectUpdate.getId());    //子ID，详情中列表页id
-                    Integer businessUid = projectUpdate.getBusinessUid(); //商务技术经办人id
-                    newBackLog.setUid(businessUid);   ////经办人id
-                    backLogService.addBackLogByDelYn(newBackLog);
+                        //项目状态是提交状态  通知商务技术经办人办理采购申请
+                        BackLog newBackLog = new BackLog();
+                        newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHREQUISITION.getMsg());  //功能名称
+                        newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHREQUISITION.getNum());    //功能访问路径标识
+                        newBackLog.setReturnNo(projectUpdate.getContractNo());  //返回单号    销售合同号
+                        String region = projectUpdate.getOrder().getRegion();   //所属地区
+                        Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+                        String country = projectUpdate.getOrder().getCountry();  //国家
+                        Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+                        newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
+                        newBackLog.setHostId(order.getId());  //父ID，列表页id
+                        newBackLog.setPlaceSystem("项目");
+                        newBackLog.setFollowId(projectUpdate.getId());    //子ID，详情中列表页id
+                        Integer businessUid = projectUpdate.getBusinessUid(); //商务技术经办人id
+                        newBackLog.setUid(businessUid);   ////经办人id
+                        backLogService.addBackLogByDelYn(newBackLog);
+                    }
                 }
             }
             projectUpdate.setUpdateTime(new Date());
@@ -488,17 +492,19 @@ public class ProjectServiceImpl implements ProjectService {
         // 董事长审核人
         Integer chairmanId = project.getChairmanId();
         String chairmanName = project.getChairman();
-        // 是否是预投项目orderCategory=1为预投订单类型
+        // 是否是预投项目orderCategory=1为预投订单类型  订单类别 1预投 2 售后 3 试用 4 现货（出库） 5 订单 6 国内订单
         Integer orderCategory = projectUpdate.getOrderCategory();
-        // 预投项目则不需要物流、采购、品控审核，非预投则需要这三人审核
-        if (orderCategory == null || orderCategory != 1) {
+        //海外销售类型 1 海外销（装备采购） 2 海外销（易瑞采购） 3 海外销（当地采购） 4 易瑞销 5  装备销
+        Integer overseasSales = projectUpdate.getOverseasSales();
+        // 预投项目或现货或当地采购，则不需要物流、采购、品控审核，非预投则需要这三人审核
+        if ((orderCategory == null || (orderCategory != 1 && orderCategory != 4)) && (overseasSales == null || overseasSales != 3 )) {
             if(orderCategory != 6){//国内订单不需要品控经办人审批
                 if (StringUtils.isBlank(qualityName) || qualityUid == null) {
                     throw new MyException(String.format("%s%s%s", "参数错误，品控经办人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
                 }
-            }
-            if (StringUtils.isBlank(logisticsAuditerName) || logisticsAuditerId == null) {
-                throw new MyException(String.format("%s%s%s", "参数错误，物流审核人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
+                if (StringUtils.isBlank(logisticsAuditerName) || logisticsAuditerId == null) {
+                    throw new MyException(String.format("%s%s%s", "参数错误，物流审核人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
+                }
             }
             if (StringUtils.isBlank(purchaseName) || purchaseUid == null) {
                 throw new MyException(String.format("%s%s%s", "参数错误，采购经办人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
@@ -532,28 +538,38 @@ public class ProjectServiceImpl implements ProjectService {
 
         String auditUserId = "";
         String auditProcessing = "";
-        // 非预投项目，需要从物流、采购经办人、品控经办人并行开始审核
-        if (orderCategory == null || orderCategory != 1) {
+        // 非现货、非当地采购、非预投则需要这三人审核，需要从物流、采购经办人、品控经办人并行开始审核
+        if ((orderCategory == null || (orderCategory != 1 && orderCategory != 4)) && (overseasSales == null || overseasSales != 3 )) {
             if(orderCategory != 6){
                 auditUserId = String.format("%d,%d,%d", logisticsAuditerId, project.getPurchaseUid(), project.getQualityUid());
                 auditProcessing = String.format("%d,%d,%d", CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_QA.getProcess());
-            }else{// 国内订单需要从物流、采购经办人并行开始审核，去掉品控
-                auditUserId = String.format("%d,%d", logisticsAuditerId, project.getPurchaseUid());
-                auditProcessing = String.format("%d,%d", CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess());
+            }else{// 国内订单需要从采购经办人开始审核，去掉品控、物流
+                auditUserId = project.getPurchaseUid().toString();
+                auditProcessing =  String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess());
             }
         } else {
-            //预投项目，直接项目负责人审核
-            auditUserId = buVpAuditerId.toString();
-            auditProcessing = String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_MANAGER.getProcess());
+            if(orderCategory == 1){//预投项目，直接项目负责人审核
+                auditUserId = buVpAuditerId.toString();
+                auditProcessing = String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_MANAGER.getProcess());
+            }else{//现货或者当地采购直接审核结束
+                auditUserId = null;
+                auditProcessing = "999";
+            }
         }
-        projectUpdate.setAuditingProcess(auditProcessing); // 物流经办人审核
-        projectUpdate.setAuditingUserId(auditUserId); // 物流经办人审核
+        projectUpdate.setAuditingProcess(auditProcessing); // 审核流程
+        projectUpdate.setAuditingUserId(auditUserId); // 审核人
 
-
-        for (String user : auditUserId.split(",")) {
-            sendDingtalk(project.getOrder(), user, false);
+        if(auditUserId != null){//审核完成不需要发送待办和钉钉
+            for (String user : auditUserId.split(",")) {
+                sendDingtalk(project.getOrder(), user, false);
+            }
+            auditBackLogHandle(projectUpdate, false, auditUserId);
+        }else{//如果项目审核完成返回前端proAuditStatus值为 1
+            projectUpdate.setAuditingStatus(4);//审核完成
+            Order order2 = project.getOrder();
+            order2.setProAuditStatus(1);
+            orderDao.save(order2);
         }
-        auditBackLogHandle(projectUpdate, false, auditUserId);
         // 记录审核日志
         CheckLog checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.PROJECT.getCode(), projectUpdate.getId(), CheckLog.AuditProcessingEnum.NEW_PRO_BUSINESS_SUBMIT.getProcess(),
                 projectUpdate.getBusinessUid(), projectUpdate.getBusinessName(),
@@ -1272,7 +1288,7 @@ public class ProjectServiceImpl implements ProjectService {
             Integer auditingStatus_i = 2; // 操作完后的项目审核状态
             String auditingProcess_i = null; // 操作完后的项目审核进度
             String auditingUserId_i = null; // 操作完后的项目审核人
-            Integer orderCategory = project.getOrder().getOrderCategory();//订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单 6 国内订单
+            Integer orderCategory = project.getOrderCategory();//订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单 6 国内订单
             if(orderCategory == null) orderCategory = 0;
             CheckLog checkLog_i = null; // 审核日志
             if (rejectFlag) { // 如果是驳回，则直接记录日志，修改审核进度
@@ -1335,7 +1351,7 @@ public class ProjectServiceImpl implements ProjectService {
                         auditingUserId_i = StringUtils.strip(auditingUserId_i, ",");
                         if (StringUtils.isBlank(auditingUserId_i)) { // 并行审核人员审核完毕
                             BigDecimal compareDecimal = new BigDecimal("10000");
-                            // 判断金额是否小于等于3万美元，小于3万美元则审核结束，大于3万美元则事业部总经理审批
+                            // 判断金额是否小于等于1万美元，小于1万美元则审核结束，大于1万美元则事业部总经理审批
                             if (order.getTotalPriceUsd().compareTo(compareDecimal) > 0) {
                                 // 到下一步事业部总经理审批
                                 auditingProcess_i = "206"; // 总经理审核
@@ -1387,6 +1403,7 @@ public class ProjectServiceImpl implements ProjectService {
                 checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.PROJECT.getCode(), project.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 2);
             }
             checkLogService.insert(checkLog_i);
+
             if (!rejectFlag) {
                 if (StringUtils.isNotBlank(auditingProcess_i)) {
                     project.getOrder().setAuditingProcess(auditingProcess_i);
@@ -1407,6 +1424,12 @@ public class ProjectServiceImpl implements ProjectService {
             }
             project.setAudiRemark(auditorIds.toString());
             projectDao.save(project);
+
+            if(auditingProcess_i != null && "999".equals(auditingProcess_i)){ // 如果项目审核完成返回前端proAuditStatus值为 1
+                Order order2 = project.getOrder();
+                order2.setProAuditStatus(1);
+                orderDao.save(order2);
+            }
 
             auditBackLogHandle(project, rejectFlag, auditingUserId_i);
 

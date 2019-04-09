@@ -67,6 +67,9 @@ public class OrderAccountServiceImpl implements OrderAccountService {
     @Autowired
     private DeliverConsignService deliverConsignService;
 
+    @Autowired
+    private DeliverConsignDao deliverConsignDao;
+
     @Value("#{orderProp[CREDIT_EXTENSION]}")
     private String creditExtension;  //授信服务器地址
 
@@ -771,12 +774,24 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         one.setShipmentsMoney(shipmentsMoneySum); //已发货总金额        已发货总金额=发货金额的总和
         BigDecimal alreadyGatheringMoney = one.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : one.getAlreadyGatheringMoney();  //已收款总金额
         one.setReceivableAccountRemaining(shipmentsMoneySum.subtract(alreadyGatheringMoney));// 应收账款余额
-        Order save = orderDao.save(one);
-        if(save != null){
-            return save;
+        //预收金额 = 收款总金额  -  发货总金额
+        BigDecimal subtract1 = alreadyGatheringMoney.subtract(shipmentsMoneySum);
+        if (subtract1.compareTo(BigDecimal.valueOf(0)) == 1 ){ // 如果大于发货金额， 说明有多出的钱
+            one.setAdvanceMoney(subtract1);
+        } else {
+            one.setAdvanceMoney(BigDecimal.ZERO);
         }
+        Order save = orderDao.save(one);
 
-        return  null;
+        //更新出口通知单的预收金额信息   出口通知单预收金额 = 订单里面的应收货款
+        List<DeliverConsign>deliverConsignList = deliverConsignService.findByOrderId(orderId);
+        if(deliverConsignList != null && deliverConsignList.size() > 0){
+            for (DeliverConsign deliverConsign : deliverConsignList) {
+                deliverConsign.setAdvanceMoney(one.getAdvanceMoney());
+            }
+            deliverConsignDao.save(deliverConsignList);
+        }
+        return save;
     }
 
 
@@ -806,7 +821,6 @@ public class OrderAccountServiceImpl implements OrderAccountService {
 
         }
 
-
         Order one = orderDao.findOne(orderId);
         if(sumDiscountSum != null ){
             one.setAlreadyGatheringMoney(sumMoneySum.add(sumDiscountSum));     //已收款总金额       已收款总额=回款金额总额+其他扣款金额总和
@@ -817,9 +831,24 @@ public class OrderAccountServiceImpl implements OrderAccountService {
         BigDecimal shipmentsMoney = one.getShipmentsMoney()== null ? BigDecimal.valueOf(0) :one.getShipmentsMoney();//已发货总金额
 
         one.setReceivableAccountRemaining(shipmentsMoney.subtract(one.getAlreadyGatheringMoney()));// 应收账款余额
+        //预收金额 = 收款总金额  -  发货总金额
+        BigDecimal subtract1 = one.getAlreadyGatheringMoney().subtract(shipmentsMoney);
+        if (subtract1.compareTo(BigDecimal.valueOf(0)) == 1 ){ // 如果大于发货金额， 说明有多出的钱
+            one.setAdvanceMoney(subtract1);
+        } else {
+            one.setAdvanceMoney(BigDecimal.ZERO);
+        }
 
         Order save = orderDao.save(one);
 
+        //更新出口通知单的预收金额信息   出口通知单预收金额 = 订单里面的应收货款
+        List<DeliverConsign>deliverConsignList = deliverConsignService.findByOrderId(orderId);
+        if(deliverConsignList != null && deliverConsignList.size() > 0){
+            for (DeliverConsign deliverConsign : deliverConsignList) {
+                deliverConsign.setAdvanceMoney(one.getAdvanceMoney());
+            }
+            deliverConsignDao.save(deliverConsignList);
+        }
         return save;
     }
 

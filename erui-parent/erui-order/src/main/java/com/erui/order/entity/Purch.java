@@ -149,10 +149,10 @@ public class Purch {
     @Column(name = "purch_auditer")
     private String purchAuditer;
 
-    //business_auditer_id 商务技术审核人id
+    //business_auditer_id 事业部项目负责人审核人id
     @Column(name = "business_auditer_id")
     private Integer businessAuditerId;
-    //business_auditer   商务技术审核人姓名
+    //business_auditer   事业部项目负责人审核人姓名
     @Column(name = "business_auditer")
     private String businessAuditer;
 
@@ -172,10 +172,10 @@ public class Purch {
     private String financeAuditer;
 
 
-    //bu_vp_auditer_id  事业部vp审核人id
+    //bu_vp_auditer_id  供应链中心总经理审核人id
     @Column(name = "bu_vp_auditer_id")
     private Integer buVpAuditerId;
-    //bu_vp_auditer     事业部vp审核人姓名
+    //bu_vp_auditer     供应链中心总经理审核人姓名
     @Column(name = "bu_vp_auditer")
     private String buVpAuditer;
 
