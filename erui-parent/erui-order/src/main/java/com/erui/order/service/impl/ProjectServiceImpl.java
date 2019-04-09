@@ -75,7 +75,6 @@ public class ProjectServiceImpl implements ProjectService {
     private String memberInformation;  //查询人员信息调用接口
     @Value("#{orderProp[DING_SEND_SMS]}")
     private String dingSendSms;  //发钉钉通知接口
-
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
     @Autowired
