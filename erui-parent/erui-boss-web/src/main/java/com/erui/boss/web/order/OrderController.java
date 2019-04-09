@@ -271,7 +271,7 @@ public class OrderController {
             } else if (addOrderVo.getGoodDesc().parallelStream().anyMatch(vo -> vo.getContractGoodsNum() == null)) {
                 result.setMsg("合同数量不能为空");
                 result.setEnMsg("Quantity must be filled in");
-            } else if (addOrderVo.getOrderCategory() != 2 && (addOrderVo.getTotalPrice() == null || addOrderVo.getTotalPrice().compareTo(BigDecimal.ZERO) != 1)) {
+            } else if (addOrderVo.getOrderCategory() != 2 && addOrderVo.getOrderCategory() != 3 &&(addOrderVo.getTotalPrice() == null || addOrderVo.getTotalPrice().compareTo(BigDecimal.ZERO) != 1)) {
                 result.setMsg("合同总价错误");
                 result.setEnMsg("Contract price error");
             } else if (addOrderVo.getTaxBearing() == null) {
