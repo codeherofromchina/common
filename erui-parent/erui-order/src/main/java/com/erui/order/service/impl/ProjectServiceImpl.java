@@ -533,7 +533,6 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setCeoId(32035);
         projectUpdate.setChairman("冷成志");
         projectUpdate.setChairmanId(32046);
-
         projectUpdate.setAuditingStatus(2); // 审核中
 
         String auditUserId = "";
