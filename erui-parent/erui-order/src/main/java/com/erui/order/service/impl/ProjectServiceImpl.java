@@ -564,10 +564,10 @@ public class ProjectServiceImpl implements ProjectService {
             for (String user : auditUserId.split(",")) {
                 sendDingtalk(projectUpdate.getOrder(), user, false);
             }
-            auditBackLogHandle(projectUpdate, false, auditUserId);
         }else{
             projectUpdate.setAuditingStatus(4);//审核完成
         }
+        auditBackLogHandle(projectUpdate, false, auditUserId);
         // 记录审核日志
         CheckLog checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.PROJECT.getCode(), projectUpdate.getId(), CheckLog.AuditProcessingEnum.NEW_PRO_BUSINESS_SUBMIT.getProcess(),
                 projectUpdate.getBusinessUid(), projectUpdate.getBusinessName(),
