@@ -533,7 +533,6 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setCeoId(32035);
         projectUpdate.setChairman("冷成志");
         projectUpdate.setChairmanId(32046);
-
         projectUpdate.setAuditingStatus(2); // 审核中
 
         String auditUserId = "";
@@ -548,12 +547,14 @@ public class ProjectServiceImpl implements ProjectService {
                 auditProcessing =  String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess());
             }
         } else {
-            if(orderCategory == 1){//预投项目，直接项目负责人审核
+            if(orderCategory == 1){// 预投项目，直接项目负责人审核
                 auditUserId = buVpAuditerId.toString();
                 auditProcessing = String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_MANAGER.getProcess());
             }else{//现货或者当地采购直接审核结束
                 auditUserId = null;
                 auditProcessing = "999";
+                projectUpdate.getOrder().setAuditingProcess(auditProcessing);
+                projectUpdate.getOrder().setAuditingUserId(null);
             }
         }
         projectUpdate.setAuditingProcess(auditProcessing); // 审核流程
@@ -561,15 +562,12 @@ public class ProjectServiceImpl implements ProjectService {
 
         if(auditUserId != null){//审核完成不需要发送待办和钉钉
             for (String user : auditUserId.split(",")) {
-                sendDingtalk(project.getOrder(), user, false);
+                sendDingtalk(projectUpdate.getOrder(), user, false);
             }
-            auditBackLogHandle(projectUpdate, false, auditUserId);
-        }else{//如果项目审核完成返回前端proAuditStatus值为 1
+        }else{
             projectUpdate.setAuditingStatus(4);//审核完成
-            Order order2 = project.getOrder();
-            order2.setProAuditStatus(1);
-            orderDao.save(order2);
         }
+        auditBackLogHandle(projectUpdate, false, auditUserId);
         // 记录审核日志
         CheckLog checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.PROJECT.getCode(), projectUpdate.getId(), CheckLog.AuditProcessingEnum.NEW_PRO_BUSINESS_SUBMIT.getProcess(),
                 projectUpdate.getBusinessUid(), projectUpdate.getBusinessName(),
@@ -1424,12 +1422,6 @@ public class ProjectServiceImpl implements ProjectService {
             }
             project.setAudiRemark(auditorIds.toString());
             projectDao.save(project);
-
-            if(auditingProcess_i != null && "999".equals(auditingProcess_i)){ // 如果项目审核完成返回前端proAuditStatus值为 1
-                Order order2 = project.getOrder();
-                order2.setProAuditStatus(1);
-                orderDao.save(order2);
-            }
 
             auditBackLogHandle(project, rejectFlag, auditingUserId_i);
 
