@@ -559,7 +559,6 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setAuditingProcess(auditProcessing); // 审核流程
         projectUpdate.setAuditingUserId(auditUserId); // 审核人
 
-
         if(auditUserId != null){//审核完成不需要发送待办和钉钉
             for (String user : auditUserId.split(",")) {
                 sendDingtalk(project.getOrder(), user, false);
