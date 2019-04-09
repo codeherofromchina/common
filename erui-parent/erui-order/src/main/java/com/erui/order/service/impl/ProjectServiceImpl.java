@@ -47,6 +47,10 @@ public class ProjectServiceImpl implements ProjectService {
 
     private static Logger logger = LoggerFactory.getLogger(DeliverDetailServiceImpl.class);
 
+    static final BigDecimal STEP_ONE_AMOUNT = new BigDecimal("10000"); //判断金额是否小于等于1万美元，小于1万美元则审核结束，大于1万美元则事业部总经理审批
+    static final BigDecimal STEP_TWO_AMOUNT = new BigDecimal("200000"); //判断金额是否小于等于20万美元，小于20万美元则审核结束，大于20万美元则总裁审批，或预投需要总经理审批
+    static final BigDecimal STEP_THREE_AMOUNT = new BigDecimal("500000"); //判断金额是否小于50万美元，小于50万美元则审核结束，大于50万美元则董事长审批，或预投需要董事长审批
+
     @Autowired
     private ApplicationContext applicationContext;
     @Autowired
@@ -71,7 +75,6 @@ public class ProjectServiceImpl implements ProjectService {
     private String memberInformation;  //查询人员信息调用接口
     @Value("#{orderProp[DING_SEND_SMS]}")
     private String dingSendSms;  //发钉钉通知接口
-
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
     @Autowired
@@ -511,8 +514,7 @@ public class ProjectServiceImpl implements ProjectService {
             }
         }
 
-        BigDecimal compareDecimal = new BigDecimal("10000");
-        if (totalPriceUsd.compareTo(compareDecimal) > 0) {
+        if (totalPriceUsd.compareTo(STEP_ONE_AMOUNT) > 0) {//判断金额是否小于等于1万美元，小于1万美元则审核结束，大于1万美元则事业部总经理审批
             if (StringUtils.isBlank(buVpAuditerName) || buVpAuditerId == null) {
                 throw new MyException(String.format("%s%s%s", "参数错误，事业部总经理经办人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
             }
@@ -547,10 +549,12 @@ public class ProjectServiceImpl implements ProjectService {
                 auditProcessing =  String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess());
             }
         } else {
-            if(orderCategory == 1){// 预投项目，直接项目负责人审核
+            //  预投项目或判断金额是否小于等于1万美元，小于1万美元则审核结束，大于1万美元则事业部总经理审批
+            if(orderCategory == 1 || order.getTotalPriceUsd().compareTo(STEP_ONE_AMOUNT) > 0){
                 auditUserId = buVpAuditerId.toString();
                 auditProcessing = String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_MANAGER.getProcess());
-            }else{//现货或者当地采购直接审核结束
+            }else{//现货或者当地采购直接审核结束或直接项目负责人审核
+                // 结束
                 auditUserId = null;
                 auditProcessing = "999";
                 projectUpdate.getOrder().setAuditingProcess(auditProcessing);
@@ -1348,9 +1352,8 @@ public class ProjectServiceImpl implements ProjectService {
                         auditingProcess_i = StringUtils.strip(auditingProcess_i, ",");
                         auditingUserId_i = StringUtils.strip(auditingUserId_i, ",");
                         if (StringUtils.isBlank(auditingUserId_i)) { // 并行审核人员审核完毕
-                            BigDecimal compareDecimal = new BigDecimal("10000");
                             // 判断金额是否小于等于1万美元，小于1万美元则审核结束，大于1万美元则事业部总经理审批
-                            if (order.getTotalPriceUsd().compareTo(compareDecimal) > 0) {
+                            if (order.getTotalPriceUsd().compareTo(STEP_ONE_AMOUNT) > 0) {
                                 // 到下一步事业部总经理审批
                                 auditingProcess_i = "206"; // 总经理审核
                                 auditingUserId_i = project.getBuVpAuditerId().toString();
@@ -1364,9 +1367,8 @@ public class ProjectServiceImpl implements ProjectService {
                         }
                         break;
                     case 206: // 事业部总经理审批
-                        BigDecimal compareDecimal = new BigDecimal("200000");
                         // 判断金额是否小于等于20万美元，小于20万美元则审核结束，大于20万美元则总裁审批，或预投需要总经理审批
-                        if (order.getTotalPriceUsd().compareTo(compareDecimal) > 0 || orderCategory == 1) {
+                        if (order.getTotalPriceUsd().compareTo(STEP_TWO_AMOUNT) > 0 || orderCategory == 1) {
                             // 到下一步事业部总经理审批
                             auditingProcess_i = "207"; // 总经理审核
                             auditingUserId_i = project.getCeoId().toString();
@@ -1378,9 +1380,8 @@ public class ProjectServiceImpl implements ProjectService {
                         }
                         break;
                     case 207: // 总裁审批
-                        compareDecimal = new BigDecimal("500000");
                         // 判断金额是否小于50万美元，小于50万美元则审核结束，大于50万美元则董事长审批，或预投需要董事长审批
-                        if (order.getTotalPriceUsd().compareTo(compareDecimal) >= 0 || orderCategory == 1) {
+                        if (order.getTotalPriceUsd().compareTo(STEP_THREE_AMOUNT) >= 0 || orderCategory == 1) {
                             // 到下一步事业部总经理审批
                             auditingProcess_i = "208"; // 总经理审核
                             auditingUserId_i = project.getChairmanId().toString();
