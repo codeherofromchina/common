@@ -554,6 +554,8 @@ public class ProjectServiceImpl implements ProjectService {
             }else{//现货或者当地采购直接审核结束
                 auditUserId = null;
                 auditProcessing = "999";
+                projectUpdate.getOrder().setAuditingProcess(auditProcessing);
+                projectUpdate.getOrder().setAuditingUserId(null);
             }
         }
         projectUpdate.setAuditingProcess(auditProcessing); // 审核流程
