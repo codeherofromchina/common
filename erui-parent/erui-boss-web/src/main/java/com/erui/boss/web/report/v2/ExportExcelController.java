@@ -76,6 +76,9 @@ public class ExportExcelController {
             params.put("endTime", endTime);
         }
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            params = new HashMap<>();
+        }
         HSSFWorkbook wb = quoteStatisticsService.genQuotePerformanceExcel(params);
         String fileName = "报价单成单统计" + System.currentTimeMillis() + ".xls";
         HttpUtils.setExcelResponseHeader(response, fileName.toString());

@@ -47,7 +47,7 @@ public class OrderStatisticsController {
 
 
     /**
-     * 订单统计-整体业绩
+     * 订单统计-整体地区业绩
      *
      * @return
      */
