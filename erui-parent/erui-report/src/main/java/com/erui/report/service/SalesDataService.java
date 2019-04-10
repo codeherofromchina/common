@@ -1,5 +1,6 @@
 package com.erui.report.service;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.util.Map;
@@ -27,6 +28,16 @@ public interface SalesDataService {
      */
     Map<String, Object> selectAreaDetailByType(Map<String, Object> params);
 
+
+    /**
+     * 查询指定分析类型的各大区同比数据
+     * type ：询单金额 、询单数量、报价数量
+     *
+     * @param params
+     * @return
+     */
+    Map<String, Object> selectAreaDetailByTypeYearOnYear(Map<String, Object> params);
+
     /**
      * 询单数量或询单金额
      * analyzeType :询单数量、询单金额
@@ -35,6 +46,14 @@ public interface SalesDataService {
      * @return
      */
     Map<String, Object> selectInquiryInfoByCountry(Map<String, Object> params);
+    /**
+     * 询单数量或询单金额同比信息
+     * analyzeType :询单数量、询单金额
+     *
+     * @param params
+     * @return
+     */
+    Map<String, Object> selectInquiryInfoByCountryYearOnYear(Map<String, Object> params);
 
     /**
      * 报价数量或报价金额
@@ -44,6 +63,14 @@ public interface SalesDataService {
      * @return
      */
     Map<String, Object> selectQuoteInfoByCountry(Map<String, Object> params);
+    /**
+     * 报价数量或报价金额同比信息
+     * analyzeType :报价数量、报价金额
+     *
+     * @param params
+     * @return
+     */
+    Map<String, Object> selectQuoteInfoByCountryYearOnYear(Map<String, Object> params);
 
     /**
      * 查询指定分析类型的各事业部数据
@@ -53,6 +80,16 @@ public interface SalesDataService {
      * @return
      */
     Map<String, Object> selectOrgDetailByType(Map<String, Object> params);
+
+
+    /**
+     * 查询指定分析类型的各事业部同比数据数据
+     * type ：询单金额 、询单数量、报价数量 、报价用时
+     *
+     * @param params
+     * @return
+     */
+    Map<String, Object> selectOrgDetailByTypeYearOnYear(Map<String, Object> params);
 
 
     /**
@@ -128,4 +165,12 @@ public interface SalesDataService {
      * @return
      */
     XSSFWorkbook exportAreaDetail(Map<String, Object> params);
+
+    /**
+     * 导出品类信息 - 询报价数据统计 - 品类、品类事业部、品类地区
+     * @param params
+     * @param analyzeType
+     * @return
+     */
+    HSSFWorkbook exportSelectCategoryNum(Map<String, Object> params, String analyzeType);
 }

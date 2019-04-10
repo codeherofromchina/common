@@ -1,6 +1,7 @@
 package com.erui.order.entity;
 
 import com.erui.comm.NewDateUtil;
+import com.erui.order.service.impl.OrderServiceImpl;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -127,6 +128,110 @@ public class Purch {
     private int page = 1; // 默认从1开始
     @Transient
     private int rows = 20; // 默认每页20条记录
+    //auditing_status   审核状态
+    @Column(name = "auditing_status")
+    private Integer auditingStatus;
+    //auditing_process  审核流程
+    @Column(name = "auditing_process")
+    private Integer auditingProcess;
+
+    //auditing_user_id  审核人id
+    @Column(name = "auditing_user_id")
+    private Integer auditingUserId;
+    //auditing_user     审核人姓名
+    @Column(name = "auditing_user")
+    private String auditingUser;
+
+    //purch_auditer_id  采购责任人id
+    @Column(name = "purch_auditer_id")
+    private Integer purchAuditerId;
+    //purch_auditer     采购责任人姓名
+    @Column(name = "purch_auditer")
+    private String purchAuditer;
+
+    //business_auditer_id 商务技术审核人id
+    @Column(name = "business_auditer_id")
+    private Integer businessAuditerId;
+    //business_auditer   商务技术审核人姓名
+    @Column(name = "business_auditer")
+    private String businessAuditer;
+
+    //legal_auditer_id  法务审核人id
+    @Column(name = "legal_auditer_id")
+    private Integer legalAuditerId;
+
+    //legal_auditer    法务审核人姓名
+    @Column(name = "legal_auditer")
+    private String legalAuditer;
+
+    //finance_auditer_id 财务审核人id
+    @Column(name = "finance_auditer_id")
+    private Integer financeAuditerId;
+    //finance_auditer   财务审核人姓名
+    @Column(name = "finance_auditer")
+    private String financeAuditer;
+
+
+    //bu_vp_auditer_id  事业部vp审核人id
+    @Column(name = "bu_vp_auditer_id")
+    private Integer buVpAuditerId;
+    //bu_vp_auditer     事业部vp审核人姓名
+    @Column(name = "bu_vp_auditer")
+    private String buVpAuditer;
+
+    //chairman_id       总裁id
+    @Column(name = "chairman_id")
+    private Integer chairmanId;
+    //chairman          总裁姓名
+    private String chairman;
+    //chairman_board_id       董事长id
+    @Column(name = "chairman_board_id")
+    private Integer chairmanBoardId;
+    //chairman          董事长姓名
+    @Column(name = "chairman_board")
+    private String chairmanBoard;
+
+    @Column(name = "audi_remark")
+    private String audiRemark;
+
+    // 项目审核接口中使用，审核的原因字段
+    @Transient
+    private String auditingReason;
+    // 项目审核接口中使用，审核的类型字段，审核类型：-1：驳回（驳回必须存在驳回原因参数） 其他或空：正常审核
+    @Transient
+    private String auditingType;
+    // 审核日志，驳回操作使用
+    @Transient
+    private Integer checkLogId;
+
+    @Column(name = "supply_area")
+    private String supplyArea;
+
+    @Column(name = "contract_version")
+    private String contractVersion;
+
+    @Column(name = "goal_cost")
+    private BigDecimal goalCost;
+
+    @Column(name = "save_amount")
+    private BigDecimal saveAmount;
+
+    @Column(name = "save_mode")
+    private String saveMode;
+
+    @Column(name = "price_mode")
+    private String priceMode;
+
+    @Column(name = "contract_tag")
+    private String contractTag;
+
+    @Column(name = "profit_percent")
+    private BigDecimal profitPercent;
+
+    @Column(name = "tax_bearing")
+    private Integer taxBearing;
+    @Column(name = "exchange_rate")
+    private BigDecimal exchangeRate; //汇率
 
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -140,10 +245,11 @@ public class Purch {
     @JsonIgnore
     private Set<Project> projects = new HashSet<>();*/
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    /*@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "purch_attach",
             joinColumns = @JoinColumn(name = "purch_id"),
-            inverseJoinColumns = @JoinColumn(name = "attach_id"))
+            inverseJoinColumns = @JoinColumn(name = "attach_id"))*/
+    @Transient
     private List<Attachment> attachments = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -154,6 +260,262 @@ public class Purch {
     @JoinColumn(name = "purch_id")
     @OrderBy("id asc")
     private List<PurchGoods> purchGoodsList = new ArrayList<>();
+
+    public Integer getChairmanBoardId() {
+        return chairmanBoardId;
+    }
+
+    public void setChairmanBoardId(Integer chairmanBoardId) {
+        this.chairmanBoardId = chairmanBoardId;
+    }
+
+    public String getChairmanBoard() {
+        return chairmanBoard;
+    }
+
+    public void setChairmanBoard(String chairmanBoard) {
+        this.chairmanBoard = chairmanBoard;
+    }
+
+    public BigDecimal getExchangeRate() {
+        return exchangeRate;
+    }
+
+    public void setExchangeRate(BigDecimal exchangeRate) {
+        this.exchangeRate = exchangeRate;
+    }
+
+    public String getSupplyArea() {
+        return supplyArea;
+    }
+
+    public void setSupplyArea(String supplyArea) {
+        this.supplyArea = supplyArea;
+    }
+
+    public String getContractVersion() {
+        return contractVersion;
+    }
+
+    public void setContractVersion(String contractVersion) {
+        this.contractVersion = contractVersion;
+    }
+
+    public BigDecimal getGoalCost() {
+        return goalCost;
+    }
+
+    public void setGoalCost(BigDecimal goalCost) {
+        this.goalCost = goalCost;
+    }
+
+    public BigDecimal getSaveAmount() {
+        return saveAmount;
+    }
+
+    public void setSaveAmount(BigDecimal saveAmount) {
+        this.saveAmount = saveAmount;
+    }
+
+    public String getSaveMode() {
+        return saveMode;
+    }
+
+    public void setSaveMode(String saveMode) {
+        this.saveMode = saveMode;
+    }
+
+    public String getPriceMode() {
+        return priceMode;
+    }
+
+    public void setPriceMode(String priceMode) {
+        this.priceMode = priceMode;
+    }
+
+    public String getContractTag() {
+        return contractTag;
+    }
+
+    public void setContractTag(String contractTag) {
+        this.contractTag = contractTag;
+    }
+
+    public BigDecimal getProfitPercent() {
+        return profitPercent;
+    }
+
+    public void setProfitPercent(BigDecimal profitPercent) {
+        this.profitPercent = profitPercent;
+    }
+
+    public Integer getTaxBearing() {
+        return taxBearing;
+    }
+
+    public void setTaxBearing(Integer taxBearing) {
+        this.taxBearing = taxBearing;
+    }
+
+    public Integer getAuditingProcess() {
+        return auditingProcess;
+    }
+
+    public void setAuditingProcess(Integer auditingProcess) {
+        this.auditingProcess = auditingProcess;
+    }
+
+    public Integer getAuditingUserId() {
+        return auditingUserId;
+    }
+
+    public void setAuditingUserId(Integer auditingUserId) {
+        this.auditingUserId = auditingUserId;
+    }
+
+    public String getAuditingUser() {
+        return auditingUser;
+    }
+
+    public void setAuditingUser(String auditingUser) {
+        this.auditingUser = auditingUser;
+    }
+
+    public Integer getPurchAuditerId() {
+        return purchAuditerId;
+    }
+
+    public void setPurchAuditerId(Integer purchAuditerId) {
+        this.purchAuditerId = purchAuditerId;
+    }
+
+    public String getPurchAuditer() {
+        return purchAuditer;
+    }
+
+    public void setPurchAuditer(String purchAuditer) {
+        this.purchAuditer = purchAuditer;
+    }
+
+    public Integer getBusinessAuditerId() {
+        return businessAuditerId;
+    }
+
+    public void setBusinessAuditerId(Integer businessAuditerId) {
+        this.businessAuditerId = businessAuditerId;
+    }
+
+    public String getBusinessAuditer() {
+        return businessAuditer;
+    }
+
+    public void setBusinessAuditer(String businessAuditer) {
+        this.businessAuditer = businessAuditer;
+    }
+
+    public Integer getLegalAuditerId() {
+        return legalAuditerId;
+    }
+
+    public void setLegalAuditerId(Integer legalAuditerId) {
+        this.legalAuditerId = legalAuditerId;
+    }
+
+    public String getLegalAuditer() {
+        return legalAuditer;
+    }
+
+    public void setLegalAuditer(String legalAuditer) {
+        this.legalAuditer = legalAuditer;
+    }
+
+    public Integer getFinanceAuditerId() {
+        return financeAuditerId;
+    }
+
+    public void setFinanceAuditerId(Integer financeAuditerId) {
+        this.financeAuditerId = financeAuditerId;
+    }
+
+    public String getFinanceAuditer() {
+        return financeAuditer;
+    }
+
+    public void setFinanceAuditer(String financeAuditer) {
+        this.financeAuditer = financeAuditer;
+    }
+
+    public Integer getBuVpAuditerId() {
+        return buVpAuditerId;
+    }
+
+    public void setBuVpAuditerId(Integer buVpAuditerId) {
+        this.buVpAuditerId = buVpAuditerId;
+    }
+
+    public String getBuVpAuditer() {
+        return buVpAuditer;
+    }
+
+    public void setBuVpAuditer(String buVpAuditer) {
+        this.buVpAuditer = buVpAuditer;
+    }
+
+    public Integer getChairmanId() {
+        return chairmanId;
+    }
+
+    public void setChairmanId(Integer chairmanId) {
+        this.chairmanId = chairmanId;
+    }
+
+    public String getChairman() {
+        return chairman;
+    }
+
+    public void setChairman(String chairman) {
+        this.chairman = chairman;
+    }
+
+    public String getAudiRemark() {
+        return audiRemark;
+    }
+
+    public void setAudiRemark(String audiRemark) {
+        this.audiRemark = audiRemark;
+    }
+
+    public String getAuditingReason() {
+        return auditingReason;
+    }
+
+    public void setAuditingReason(String auditingReason) {
+        this.auditingReason = auditingReason;
+    }
+
+    public String getAuditingType() {
+        return auditingType;
+    }
+
+    public void setAuditingType(String auditingType) {
+        this.auditingType = auditingType;
+    }
+
+    public Integer getCheckLogId() {
+        return checkLogId;
+    }
+
+    public void setCheckLogId(Integer checkLogId) {
+        this.checkLogId = checkLogId;
+    }
+
+    public Integer getAuditingStatus() {
+        return auditingStatus;
+    }
+
+    public void setAuditingStatus(Integer auditingStatus) {
+        this.auditingStatus = auditingStatus;
+    }
 
     public Integer getId() {
         return id;
@@ -563,6 +925,38 @@ public class Purch {
         this.setInvoiceNo(purch.getInvoiceNo()); // 发票号
         this.setAccountDate(purch.getAccountDate()); // 挂账时间
         this.setRemarks(purch.getRemarks()); // 备注
+
+        this.setPurchAuditerId(purch.getPurchAuditerId());
+        this.setPurchAuditer(purch.getPurchAuditer());
+
+        this.setBusinessAuditerId(purch.getBusinessAuditerId());
+        this.setBusinessAuditer(purch.getBusinessAuditer());
+
+        this.setFinanceAuditerId(purch.getFinanceAuditerId());
+        this.setFinanceAuditer(purch.getFinanceAuditer());
+
+        this.setLegalAuditerId(purch.getLegalAuditerId());
+        this.setLegalAuditer(purch.getLegalAuditer());
+
+        this.setBuVpAuditerId(purch.getBuVpAuditerId());
+        this.setBuVpAuditer(purch.getBuVpAuditer());
+
+        this.setChairmanId(purch.getChairmanId());
+        this.setChairman(purch.getChairman());
+
+        this.setChairmanBoardId(purch.getChairmanBoardId());
+        this.setChairmanBoard(purch.getChairmanBoard());
+
+        this.setSupplyArea(purch.getSupplyArea());
+        this.setContractVersion(purch.getContractVersion());
+        this.setContractTag(purch.getContractTag());
+        this.setGoalCost(purch.getGoalCost());
+        this.setSaveAmount(purch.getSaveAmount());
+        this.setSaveMode(purch.getSaveMode());
+        this.setPriceMode(purch.getPriceMode());
+        this.setTaxBearing(purch.getTaxBearing());
+        this.setProfitPercent(purch.getProfitPercent());
+        this.setExchangeRate(purch.getExchangeRate());
         if (this.createUserId == null) {
             this.setCreateUserId(purch.getCreateUserId());
             this.setCreateUserName(purch.getCreateUserName());

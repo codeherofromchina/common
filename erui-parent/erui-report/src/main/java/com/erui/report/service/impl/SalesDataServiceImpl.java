@@ -2,7 +2,11 @@ package com.erui.report.service.impl;
 
 import com.erui.comm.RateUtil;
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.comm.util.excel.BuildExcel;
+import com.erui.comm.util.excel.BuildExcelImpl;
+import com.erui.comm.util.excel.ExcelCustomStyle;
 import com.erui.report.dao.SalesDataMapper;
+import com.erui.report.service.CommonService;
 import com.erui.report.service.SalesDataService;
 import com.erui.report.util.AnalyzeTypeEnum;
 import com.erui.report.util.SetList;
@@ -10,19 +14,25 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.xssf.usermodel.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.DoubleToIntFunction;
 import java.util.stream.Collectors;
 
 @Service
 public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implements SalesDataService {
 
+    @Autowired
+    private CommonService commonService;
 
     @Override
     public Map<String, Object> selectInqQuoteTrendData(Map<String, String> params) throws Exception {
@@ -182,6 +192,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
     }
 
 
+
     @Override
     public Map<String, Object> selectAreaDetailByType(Map<String, Object> params) {
 
@@ -189,7 +200,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         List<Map<String, Object>> dataList = readMapper.selectAreaAndCountryDetail(params);
         Map<String, Object> result = new HashMap<>();
         List<Object> dList = new ArrayList<>(); //各大区数据列表存放
-        Set<String> keySet = new HashSet<>();
+        List<String> keySet = new ArrayList<>();
 
         if (CollectionUtils.isNotEmpty(dataList)) {
             String area = params.get("area") == null ? "" : String.valueOf(params.get("area"));
@@ -231,7 +242,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
             }
             //如果有数据
             if (MapUtils.isNotEmpty(dataMap)) {
-                keySet = dataMap.keySet();
+                keySet = new ArrayList<>(dataMap.keySet());
                 if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) { //分析类型为询单数量
                     for (String key : keySet) {
                         int inqCount = Integer.parseInt(dataMap.get(key).get("inqCount").toString());
@@ -266,6 +277,90 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
 
         result.put("areas", keySet);
         result.put("datas", dList);
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> selectAreaDetailByTypeYearOnYear(Map<String, Object> params) {
+        // 判断是否是同一年的信息数据
+        String startTimeStr = (String) params.get("startTime");
+        String endTimeStr = (String) params.get("endTime");
+        if (StringUtils.isAnyBlank(startTimeStr, endTimeStr)) {
+            return null;
+        }
+        Date startTime = DateUtil.parseString2DateNoException(startTimeStr, DateUtil.FULL_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException(endTimeStr, DateUtil.FULL_FORMAT_STR);
+        // 判断开始日期和结束日期是否是同一年
+        if (DateUtil.getDateYear(startTime) != DateUtil.getDateYear(endTime)) {
+            return  null;
+        }
+        // 获取上年的日期
+        Date preYearStartTime = DateUtil.getPreYearDate(startTime);
+        Date preYearEndTime = DateUtil.getPreYearDate(endTime);
+        if (preYearStartTime == null || preYearEndTime == null) {
+            return null;
+        }
+        // 获取数据并做同比数据
+        Map<String, Object> curMapData = selectAreaDetailByType(params);
+        params.put("startTime", preYearStartTime);
+        params.put("endTime", preYearEndTime);
+        Map<String, Object> preMapData = selectAreaDetailByType(params);
+
+
+
+        //计算同比
+        List<String> areasList = (List<String>) curMapData.get("areas");
+        List<String> preAreasList = (List<String>) preMapData.get("areas");
+        // 声明放置同比信息的容器
+        List<Number> curDataList = (List<Number>) curMapData.get("datas");
+        List<Number> preDataList = (List<Number>) preMapData.get("datas");
+        //
+        List<Number> preYearResultList = computYearOnYearRate(areasList, preAreasList, curDataList, preDataList);
+        // 返回数据
+        Map<String, Object> result = new HashMap<>();
+        result.put("areas", areasList);
+        result.put("curYearData", curDataList);
+        result.put("preYearData", preYearResultList);
+        return result;
+    }
+
+
+    @Override
+    public Map<String, Object> selectInquiryInfoByCountryYearOnYear(Map<String, Object> params) {
+        // 判断是否是同一年的信息数据
+        String startTimeStr = (String) params.get("startTime");
+        String endTimeStr = (String) params.get("endTime");
+        if (StringUtils.isAnyBlank(startTimeStr, endTimeStr)) {
+            return null;
+        }
+        Date startTime = DateUtil.parseString2DateNoException(startTimeStr, DateUtil.FULL_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException(endTimeStr, DateUtil.FULL_FORMAT_STR);
+        // 判断开始日期和结束日期是否是同一年
+        if (DateUtil.getDateYear(startTime) != DateUtil.getDateYear(endTime)) {
+            return  null;
+        }
+        // 获取上年的日期
+        Date preYearStartTime = DateUtil.getPreYearDate(startTime);
+        Date preYearEndTime = DateUtil.getPreYearDate(endTime);
+        if (preYearStartTime == null || preYearEndTime == null) {
+            return null;
+        }
+        // 获取数据并做同比数据
+        Map<String, Object> curMapData = selectInquiryInfoByCountry(params);
+        params.put("startTime", preYearStartTime);
+        params.put("endTime", preYearEndTime);
+        Map<String, Object> preMapData = selectInquiryInfoByCountry(params);
+        //计算同比
+        List<String> nameList = (List<String>) curMapData.get("names");
+        List<String> preNameList = (List<String>) preMapData.get("names");
+        List<Number> curDataList = (List<Number>) curMapData.get("datas");
+        List<Number> preDataList = (List<Number>) preMapData.get("datas");
+        List<Number> preYearResultList = computYearOnYearRate(nameList, preNameList, curDataList, preDataList);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("names", nameList);
+        result.put("curYearData", curDataList);
+        result.put("preYearData", preYearResultList);
         return result;
     }
 
@@ -321,6 +416,47 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
     }
 
     @Override
+    public Map<String, Object> selectQuoteInfoByCountryYearOnYear(Map<String, Object> params) {
+        // 判断是否是同一年的信息数据
+        String startTimeStr = (String) params.get("startTime");
+        String endTimeStr = (String) params.get("endTime");
+        if (StringUtils.isAnyBlank(startTimeStr, endTimeStr)) {
+            return null;
+        }
+        Date startTime = DateUtil.parseString2DateNoException(startTimeStr, DateUtil.FULL_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException(endTimeStr, DateUtil.FULL_FORMAT_STR);
+        // 判断开始日期和结束日期是否是同一年
+        if (DateUtil.getDateYear(startTime) != DateUtil.getDateYear(endTime)) {
+            return  null;
+        }
+        // 获取上年的日期
+        Date preYearStartTime = DateUtil.getPreYearDate(startTime);
+        Date preYearEndTime = DateUtil.getPreYearDate(endTime);
+        if (preYearStartTime == null || preYearEndTime == null) {
+            return null;
+        }
+        // 获取数据并做同比数据
+        Map<String, Object> curMapData = selectQuoteInfoByCountry(params);
+        params.put("startTime", preYearStartTime);
+        params.put("endTime", preYearEndTime);
+        Map<String, Object> preMapData = selectQuoteInfoByCountry(params);
+
+        //计算同比
+        List<String> nameList = (List<String>) curMapData.get("names");
+        List<String> preNameList = (List<String>) preMapData.get("names");
+        List<Number> curDataList = (List<Number>) curMapData.get("datas");
+        List<Number> preDataList = (List<Number>) preMapData.get("datas");
+        List<Number> preYearResultList = computYearOnYearRate(nameList, preNameList, curDataList, preDataList);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("names", nameList);
+        result.put("curYearData", curDataList);
+        result.put("preYearData", preYearResultList);
+        return result;
+
+    }
+
+    @Override
     public Map<String, Object> selectQuoteInfoByCountry(Map<String, Object> params) {
         List<Map<String, Object>> datasList = readMapper.selectQuoteCountAndQuoteAmountGroupByCountry(params);
         Map<String, Object> result = new HashMap<>(); // 声明结果集
@@ -371,6 +507,116 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         return result;
     }
 
+
+    /**
+     * 查询指定分析类型的各事业部数据同比信息
+     * type ：询单数量、报价数量 、报价用时
+     *
+     * @param params
+     * @return
+     */
+    @Override
+    public Map<String, Object> selectOrgDetailByTypeYearOnYear(Map<String, Object> params) {
+        // 判断是否是同一年的信息数据
+        String startTimeStr = (String) params.get("startTime");
+        String endTimeStr = (String) params.get("endTime");
+        if (StringUtils.isAnyBlank(startTimeStr, endTimeStr)) {
+            return null;
+        }
+        Date startTime = DateUtil.parseString2DateNoException(startTimeStr, DateUtil.FULL_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException(endTimeStr, DateUtil.FULL_FORMAT_STR);
+        // 判断开始日期和结束日期是否是同一年
+        if (DateUtil.getDateYear(startTime) != DateUtil.getDateYear(endTime)) {
+            return  null;
+        }
+        // 获取上年的日期
+        Date preYearStartTime = DateUtil.getPreYearDate(startTime);
+        Date preYearEndTime = DateUtil.getPreYearDate(endTime);
+        if (preYearStartTime == null || preYearEndTime == null) {
+            return null;
+        }
+        // 获取数据并做同比数据
+        Map<String, Object> curMapData = selectOrgDetailByType(params);
+        params.put("startTime", preYearStartTime);
+        params.put("endTime", preYearEndTime);
+        Map<String, Object> preMapData = selectOrgDetailByType(params);
+        //分析类型 ：默认 、询单数量、询单金额、报价数量、报价金额、报价用时
+        String analyzeType = params.get("analyzeType").toString();
+        //计算同比
+        List<String> orgList = (List<String>) curMapData.get("orgs");
+        List<String> preOrgList = (List<String>) preMapData.get("orgs");
+        // 声明放置同比信息的容器
+        List<? extends Number> curDataList = null;
+        List<Number> preYearResultList = null;
+        if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) { //如果分析类型为询单数量
+            curDataList = (List<Integer>) curMapData.get("inqCountList");
+            List<Integer> preInqCountList = (List<Integer>) preMapData.get("inqCountList");
+            preYearResultList = computYearOnYearRate(orgList, preOrgList, curDataList, preInqCountList);
+        } else if (analyzeType.equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) { //分析类型为询单金额
+            curDataList = (List<Double>) curMapData.get("inqAmountList");
+            List<Double> preInqCountList = (List<Double>) preMapData.get("inqAmountList");
+            preYearResultList = computYearOnYearRate(orgList, preOrgList, curDataList, preInqCountList);
+        } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) { //分析类型为报价数量
+            curDataList = (List<Integer>) curMapData.get("quoteCountList");
+            List<Integer> preInqCountList = (List<Integer>) preMapData.get("quoteCountList");
+            preYearResultList = computYearOnYearRate(orgList, preOrgList, curDataList, preInqCountList);
+        } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) { //分析类型为报价金额
+            curDataList = (List<Double>) curMapData.get("quoteAmountList");
+            List<Double> preInqCountList = (List<Double>) preMapData.get("quoteAmountList");
+            preYearResultList = computYearOnYearRate(orgList, preOrgList, curDataList, preInqCountList);
+        } else if (analyzeType.equals(AnalyzeTypeEnum.QUOTE_TIME_COST.getTypeName())) { //分析类型为报价用时
+            curDataList = (List<Double>) curMapData.get("inqAmountList");
+            List<Double> preInqCountList = (List<Double>) preMapData.get("inqAmountList");
+            preYearResultList = computYearOnYearRate(orgList, preOrgList, curDataList, preInqCountList);
+        } else { // 其他返回空
+            return null;
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("orgs", orgList);
+        result.put("curYearData", curDataList);
+        result.put("preYearData", preYearResultList);
+        return result;
+    }
+
+    /**
+     * 计算同比信息
+     * @param orgList
+     * @param preOrgList
+     * @param curDateList
+     * @param preDateList
+     * @return
+     */
+    private List<Number> computYearOnYearRate(List<String> orgList, List<String> preOrgList, List<? extends Number> curDateList, List<? extends Number> preDateList) {
+//        List<Double> rateList = new ArrayList<>();
+//        for (int i = 0; i < orgList.size(); i++) {
+//            String org = orgList.get(i);
+//            int index = preOrgList.indexOf(org);
+//            if (index != -1) {
+//                Number count01 = curDateList.get(i);
+//                Number count02 = preDateList.get(i);
+//                rateList.add((count01.doubleValue() / count02.doubleValue() - 1));
+//            } else {
+//                rateList.add(0D);
+//            }
+//        }
+//        return rateList;
+
+        List<Number> preYearData = new ArrayList<>();
+        for (int i = 0; i < orgList.size(); i++) {
+            String org = orgList.get(i);
+            int index = preOrgList.indexOf(org);
+            if (index != -1) {
+                Number count02 = preDateList.get(index);
+                preYearData.add(count02);
+            } else {
+                preYearData.add(0);
+            }
+        }
+        return preYearData;
+    }
+
+
+
     @Override
     public Map<String, Object> selectOrgDetailByType(Map<String, Object> params) {
         //查询各事业部的相关数据
@@ -419,6 +665,90 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         }
 
         return result;
+    }
+
+    /**
+     * 导出品类信息 - 询报价数据统计 - 品类、品类事业部、品类地区
+     * @param params
+     * @param analyzeType
+     * @return
+     */
+    @Override
+    public HSSFWorkbook exportSelectCategoryNum(Map<String, Object> params, String analyzeType) {
+        // 查询数据
+        Map<String, Object> data = null;
+        if (AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName().equalsIgnoreCase(analyzeType)) { // 询单数量
+            data = selectCategoryInquiryNum(params);
+        } else if (AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) { // 报价金额
+            data = selectCategoryQuoteAmount(params);
+        } else if (AnalyzeTypeEnum.QUOTE_COUNT.getTypeName().equalsIgnoreCase(analyzeType)) {  // 报价数量
+            data = selectCategoryQuoteNum(params);
+        } else if (AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName().equalsIgnoreCase(analyzeType)) { // 报价金额
+            data = selectCategoryQuoteAmount(params);
+        }
+
+        // 组织数据
+        if (data == null || data.size() == 0 || ((List) data.get("names")).size() == 0) {
+            return null;
+        }
+
+        List<Object> headerList = (List<Object>) data.get("names");
+        headerList.add(0, "");
+        List<Object> row01 = (List<Object>) data.get("nums");
+
+        List<Object> row02 = new ArrayList<>();
+
+        Integer total = row01.parallelStream().map(vo -> ((BigDecimal) vo).intValue()).reduce(0,( a , b) -> a + b);
+        BigDecimal totalBigDecimal = BigDecimal.ZERO;
+        if (total != null && total != 0) {
+            totalBigDecimal = new BigDecimal(total);
+        }
+        for (Object obj:row01) {
+            if (totalBigDecimal == totalBigDecimal.ZERO) {
+                row02.add(BigDecimal.ZERO);
+            } else {
+                row02.add(((BigDecimal) obj).divide(totalBigDecimal,4,BigDecimal.ROUND_DOWN));
+            }
+        }
+        row01.add(0, "品类数量");
+        row02.add(0, "品类占比");
+
+        // 填充数据
+        List<Object[]> rowList = new ArrayList<>();
+        rowList.add(row01.toArray());
+        rowList.add(row02.toArray());
+
+        String orgId = (String) params.get("orgId");
+        String areaBn = (String) params.get("areaBn");
+        String latitudeName = "";
+        if (StringUtils.isNotBlank(orgId) && StringUtils.isNumeric(orgId)) {
+            Map<String, Object> orgInfo = commonService.findOrgInfoById(Integer.parseInt(orgId));
+            latitudeName = "-事业部";
+            if (orgInfo.get("orgName") != null) {
+                String orgName = (String) orgInfo.get("orgName");
+                latitudeName += "-" + orgName;
+            }
+        } else if (StringUtils.isNotBlank(areaBn)) {
+            latitudeName = "-地区";
+            Map<String, Object> orgInfo = commonService.findAreaInfoByBn(areaBn);
+            if (orgInfo.get("areaName") != null) {
+                String areaName = (String) orgInfo.get("areaName");
+                latitudeName += "-" + areaName;
+            }
+        }
+
+        // 生成excel并返回
+        String workbookName = "询报价数据统计-品类占比" + latitudeName;
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
+                workbookName);
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 1);
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, workbookName + "（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        return workbook;
     }
 
     /**
@@ -501,9 +831,16 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         Map<String, Object> result = new HashMap<>();
         List<String> names = new ArrayList<>();
         List<BigDecimal> nums = new ArrayList<>();
+        BigDecimal oneDouble = new BigDecimal("0.01");
         for (Map<String, Object> entry : maps) {
-            names.add(String.valueOf(entry.get("category")));
-            nums.add(((BigDecimal) entry.get("num")).setScale(2, BigDecimal.ROUND_DOWN));
+            String name = String.valueOf(entry.get("category"));
+
+            BigDecimal value = ((BigDecimal) entry.get("num")).setScale(2, BigDecimal.ROUND_DOWN);
+            if (value.compareTo(oneDouble) < 0) {
+                continue;
+            }
+            names.add(name);
+            nums.add(value);
         }
         result.put("names", names);
         result.put("nums", nums);
@@ -920,7 +1257,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         //声明工作簿
         XSSFWorkbook wb = new XSSFWorkbook();
         XSSFCellStyle cellStyle = wb.createCellStyle();
-        cellStyle.setAlignment(HorizontalAlignment.CENTER);//设置字体居中
+        cellStyle.setAlignment(HorizontalAlignment.CENTER); //设置字体居中
 
         //生成一个表格
         XSSFSheet sheet = wb.createSheet("销售数据统计-询报价品类明细");
@@ -942,13 +1279,13 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
                 XSSFCell cell0 = row1.createCell(0);
                 cell0.setCellValue(m.get("category").toString());
                 XSSFCell cell1 = row1.createCell(1);
-                if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) {//分析类型为询单数量
+                if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_COUNT.getTypeName())) { //分析类型为询单数量
                     cell1.setCellValue(Integer.parseInt(m.get("inqCount").toString()));
-                } else if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) {//分析类型为询单金额
+                } else if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.INQUIRY_AMOUNT.getTypeName())) { //分析类型为询单金额
                     cell1.setCellValue(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("inqAmount").toString()), 10000));
-                } else if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) {//分析类型为报价数量
+                } else if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_COUNT.getTypeName())) { //分析类型为报价数量
                     cell1.setCellValue(Integer.parseInt(m.get("quoteCount").toString()));
-                } else if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) {//分析类型为报价金额
+                } else if (params.get("analyzeType").toString().equals(AnalyzeTypeEnum.QUOTE_AMOUNT.getTypeName())) { //分析类型为报价金额
                     cell1.setCellValue(RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("quoteAmount").toString()), 10000));
                 } else {
                     cell1.setCellValue(0);
@@ -966,7 +1303,7 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         //声明工作簿
         XSSFWorkbook wb = new XSSFWorkbook();
         XSSFCellStyle cellStyle = wb.createCellStyle();
-        cellStyle.setAlignment(HorizontalAlignment.CENTER);//设置字体居中
+        cellStyle.setAlignment(HorizontalAlignment.CENTER); //设置字体居中
 
         //生成一个表格
         XSSFSheet sheet = wb.createSheet("询报价事业部明细");

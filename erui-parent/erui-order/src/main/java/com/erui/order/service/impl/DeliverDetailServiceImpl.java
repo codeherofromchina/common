@@ -12,6 +12,7 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.event.OrderProgressEvent;
+import com.erui.order.event.TasksAddEvent;
 import com.erui.order.requestVo.DeliverD;
 import com.erui.order.requestVo.DeliverDetailVo;
 import com.erui.order.requestVo.DeliverW;
@@ -52,8 +53,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Autowired
     private AttachmentServiceImpl attachmentService;
 
-    @Autowired
-    private OrderServiceImpl orderService;
 
     @Autowired
     private OrderDao orderDao;
@@ -77,7 +76,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     IogisticsDao iogisticsDao;
 
     @Autowired
-    private  InstockServiceImpl instockServiceImpl;
+    private InstockServiceImpl instockServiceImpl;
 
     @Autowired
     private InstockServiceImpl getInstockServiceImpl;
@@ -133,11 +132,22 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     public DeliverDetail findDetailById(Integer id) {
         DeliverDetail deliverDetail = deliverDetailDao.findOne(id);
         /*deliverDetail.getDeliverNotice().getId();*/
-        deliverDetail.getAttachmentList().size();
-        List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
-        if(deliverConsignGoodsList.size() > 0){
-            for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList){
-                deliverConsignGoods.getGoods().setPurchGoods(null);
+        List<Attachment> attachments = null;
+        if (deliverDetail != null && deliverDetail.getId() > 0) {
+            attachments = attachmentService.queryAttachs(deliverDetail.getId(), Attachment.AttachmentCategory.DELIVERDETAIL.getCode());
+
+            if (attachments != null && attachments.size() > 0) {
+                deliverDetail.setAttachmentList(attachments);
+                deliverDetail.getAttachmentList().size();
+            }
+            List<DeliverConsignGoods> deliverConsignGoodsList = null;
+            if (deliverDetail.getDeliverConsignGoodsList() != null && deliverDetail.getDeliverConsignGoodsList().size() > 0) {
+                deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
+            }
+            if (deliverConsignGoodsList.size() > 0) {
+                for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList) {
+                    deliverConsignGoods.getGoods().setPurchGoods(null);
+                }
             }
         }
         return deliverDetail;
@@ -154,7 +164,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         Integer deliverDetailId = deliverDetailVo.getId();
 
         if (deliverDetailId != null) {
-            deliverDetail = deliverDetailDao.findOne(deliverDetailId);
+            deliverDetail = findDetailById(deliverDetailId);
         } else {
             deliverDetail = new DeliverDetail();
         }
@@ -171,10 +181,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
     /**
      * 出库管理
-     *
-     *  订单V2.0
-     *
-     *  根据出口通知单查询出库信息
+     * <p>
+     * 订单V2.0
+     * <p>
+     * 根据出口通知单查询出库信息
      *
      * @param deliverD
      * @return
@@ -198,7 +208,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 //根据销售合同号   根据项目号   出口通知单号
                 if (StringUtil.isNotBlank(deliverD.getContractNo()) || StringUtil.isNotBlank(deliverD.getProjectNo()) || StringUtil.isNotBlank(deliverD.getDeliverConsignNo())) {
                     Join<DeliverDetail, DeliverConsign> deliverConsign = root.join("deliverConsign");   //关联出库通知单
-                    if(StringUtil.isNotBlank(deliverD.getDeliverConsignNo())){
+                    if (StringUtil.isNotBlank(deliverD.getDeliverConsignNo())) {
                         list.add(cb.like(deliverConsign.get("deliverConsignNo").as(String.class), "%" + deliverD.getDeliverConsignNo() + "%"));
                     }
                     Join<DeliverConsign, Order> order = deliverConsign.join("order");   //关联订单
@@ -220,11 +230,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 }
                 //根据出库日期
                 if (deliverD.getLeaveDate() != null) {
-                    list.add(cb.equal(root.get("leaveDate"),deliverD.getLeaveDate() ));
+                    list.add(cb.equal(root.get("leaveDate"), deliverD.getLeaveDate()));
                 }
                 //根据仓库经办人
                 if (deliverD.getWareHouseman() != null) {
-                    list.add(cb.equal(root.get("wareHouseman").as(Integer.class),deliverD.getWareHouseman()));
+                    list.add(cb.equal(root.get("wareHouseman").as(Integer.class), deliverD.getWareHouseman()));
                 }
                 //根据出库状态   status    1：未质检    2：质检中   3：质检完成   4：已出库
                 if (deliverD.getStatus() != null) {
@@ -256,19 +266,19 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
                 DeliverConsign deliverConsign = notice.getDeliverConsign();    //出口发货通知单
                 if (deliverConsign == null) {
-                    throw new Exception(String.format("%s%s%s","产品放行单号(" + notice.getDeliverDetailNo() + ")无出口发货通知单关系", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Product release number ("+ notice.getDeliverDetailNo() + ") without export notification"));
+                    throw new Exception(String.format("%s%s%s", "产品放行单号(" + notice.getDeliverDetailNo() + ")无出口发货通知单关系", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Product release number (" + notice.getDeliverDetailNo() + ") without export notification"));
                 }
-                    Order order = deliverConsign.getOrder();    //获取订单关系
+                Order order = deliverConsign.getOrder();    //获取订单关系
                 String deliverConsignNo = deliverConsign.getDeliverConsignNo(); //出口发货通知单号
                 if (order == null) {
-                        throw new Exception(String.format("%s%s%s","出口发货通知单号(" + deliverConsignNo + ")缺少订单关系", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Export shipping notification number ("+ deliverConsignNo +") lacks order relationship."));
-                    }
+                    throw new Exception(String.format("%s%s%s", "出口发货通知单号(" + deliverConsignNo + ")缺少订单关系", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Export shipping notification number (" + deliverConsignNo + ") lacks order relationship."));
+                }
                 notice.setDeliverConsignNo(deliverConsignNo);//出口发货通知单号
 
-                    Project project = order.getProject();   //获取项目信息
-                    if (project == null) {
-                        throw new Exception(String.format("%s%s%s","订单(" + order.getContractNo() + ")号缺少项目信息", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Order ("+ order.getContractNo() +") lacks project information"));
-                    }
+                Project project = order.getProject();   //获取项目信息
+                if (project == null) {
+                    throw new Exception(String.format("%s%s%s", "订单(" + order.getContractNo() + ")号缺少项目信息", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Order (" + order.getContractNo() + ") lacks project information"));
+                }
                 notice.setContractNo(order.getContractNo());     //销售合同号
                 notice.setProjectNo(project.getProjectNo());//项目号
             }
@@ -352,9 +362,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             for (DeliverDetail notice : page.getContent()) {
                 List<String> contractNos = new ArrayList<String>();    //销售合同号
                 DeliverConsign deliverConsign1 = notice.getDeliverConsign();
-                    Order order = deliverConsign1.getOrder();
-                    contractNos.add(order.getContractNo());  //销售合同号
-                     notice.setContractNo(StringUtils.join(contractNos, ","));
+                Order order = deliverConsign1.getOrder();
+                contractNos.add(order.getContractNo());  //销售合同号
+                notice.setContractNo(StringUtils.join(contractNos, ","));
             }
         }
 
@@ -387,35 +397,35 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 Integer outboundNum = deliverConsignGoods.getOutboundNum() == null ? 0 : deliverConsignGoods.getOutboundNum();  //出库数量
                 Integer straightNum = deliverConsignGoods.getStraightNum() == null ? 0 : deliverConsignGoods.getStraightNum();    //厂家直发数量
 
-                if(one.getSendNum() !=  outboundNum + straightNum){    //出库数量和厂家直发数量是否相等
-                    throw new Exception(String.format("%s%s%s","出库商品数量不正确", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Quantity of goods without Treasury"));
+                if (one.getSendNum() != outboundNum + straightNum) {    //出库数量和厂家直发数量是否相等
+                    throw new Exception(String.format("%s%s%s", "出库商品数量不正确", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Quantity of goods without Treasury"));
                 }
                 one.setOutboundRemark(deliverConsignGoods.getOutboundRemark()); // 出库备注
-                if(status == 2 || status == 1){
+                if (status == 2 || status == 1) {
                     one.setOutboundNum(outboundNum); //出库数量
                     one.setStraightNum(straightNum); //厂家直发数量
                 }
 
                 deliverConsignGoodsDao.saveAndFlush(one);
-                if(outboundNum != null && straightNum != null){
-                    outboundNums = outboundNums+outboundNum; //出库数量累加
-                    straightNums = straightNums+straightNum; //厂家直发数量累加
+                if (outboundNum != null && straightNum != null) {
+                    outboundNums = outboundNums + outboundNum; //出库数量累加
+                    straightNums = straightNums + straightNum; //厂家直发数量累加
                 }
 
                 //V2.0  减少商品入库数量
-                if(status == 2){
+                if (status == 2) {
 
                     Goods goods = one.getGoods();
 
-                    if(outboundNum == 0 && straightNum == 0){
-                        throw new Exception(String.format("%s%s%s","商品的出库数量不能为0", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"The goods cannot be zero"));
+                    if (outboundNum == 0 && straightNum == 0) {
+                        throw new Exception(String.format("%s%s%s", "商品的出库数量不能为0", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The goods cannot be zero"));
                     }
 
-                    if(outboundNum != null && outboundNum != 0){
-                        goods.setInspectInstockNum(goods.getInspectInstockNum()-outboundNum);     //质检入库总数量  -  出库数量
+                    if (outboundNum != null && outboundNum != 0) {
+                        goods.setInspectInstockNum(goods.getInspectInstockNum() - outboundNum);     //质检入库总数量  -  出库数量
                     }
-                    if(straightNum != null && straightNum != 0){
-                        goods.setNullInstockNum(goods.getNullInstockNum()-straightNum);    //厂家直发总数量 - 厂家直发数量
+                    if (straightNum != null && straightNum != 0) {
+                        goods.setNullInstockNum(goods.getNullInstockNum() - straightNum);    //厂家直发总数量 - 厂家直发数量
                     }
                     goodsDao.save(goods);
 
@@ -423,10 +433,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             }
         }
 
-        DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getId());
+        DeliverDetail one = findDetailById(deliverDetail.getId());
 
         if (one == null) {
-            throw new Exception(String.format("%s%s%s","查询不到出库信息", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Query no outgoing information"));
+            throw new Exception(String.format("%s%s%s", "查询不到出库信息", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Query no outgoing information"));
         }
         //开单日期
         if (deliverDetail.getBillingDate() != null) {
@@ -504,7 +514,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         Project project = null; //项目信息
 
 
-        // 只接受仓储物流部的附件
+      /*  // 只接受仓储物流部的附件
         List<Attachment> collect = deliverDetail.getAttachmentList().stream().filter(attachment -> {
             return "仓储物流部".equals(attachment.getGroup());
         }).collect(Collectors.toList());
@@ -520,14 +530,20 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 attachmentList02.add(next);
                 iterator.remove();
             }
-        }
+        }*/
 
-        List<Attachment> attachments = attachmentService.handleParamAttachment(attachmentList, collect, deliverDetail.getCreateUserId(), deliverDetail.getCreateUserName());
-        attachmentList02.addAll(attachments);
-        one.setAttachmentList(attachmentList02);
+        //List<Attachment> attachments = attachmentService.handleParamAttachment(attachmentList, collect, deliverDetail.getCreateUserId(), deliverDetail.getCreateUserName());
+        //attachmentList02.addAll(attachments);
+        //one.setAttachmentList(attachmentList02);
 
         DeliverDetail deliverDetail1 = deliverDetailDao.saveAndFlush(one);
-
+        // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
+        //deliverConsign1.setAttachmentList(deliverConsign1.getAttachmentList());
+        List<Attachment> attachmentList = deliverDetail.getAttachmentList();
+        Map<Integer, Attachment> dbAttahmentsMap = one.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        if (attachmentList != null && attachmentList.size() > 0) {
+            attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, one.getId(), Attachment.AttachmentCategory.DELIVERDETAIL.getCode());
+        }
 
 
         //获取项目信息
@@ -569,16 +585,16 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                         JSONObject ob = (JSONObject) data1.get(i);
                         listAll.add(ob.getInteger("id"));    //获取物流分单员id
                     }
-                }else {
-                    throw new  Exception("出库分单员查询失败");
+                } else {
+                    throw new Exception("出库分单员查询失败");
                 }
-            }catch (Exception e){
-                throw new  Exception("出库分单员查询失败");
+            } catch (Exception e) {
+                throw new Exception("出库分单员查询失败");
             }
         }
 
 
-        if(status == 2 || status == 1){
+        if (status == 2 || status == 1) {
 
             //出库提交的时候不管有没有经办人都去判断删除一下   删除分单员的信息推送  办理分单
             BackLog backLog2 = new BackLog();
@@ -591,7 +607,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
 
         //出库通知：通知质检经办人办理质检
-        if(status == 2) {
+        if (status == 2) {
 
           /*  //如果是厂家直接发货    推送  出库经办人 出库日期 到商品表
             pushWareHouseman(one,1);*/
@@ -608,7 +624,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             }
 
 
-
             //出库提交删除  办理出库 代办
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTDELIVER.getNum());    //功能访问路径标识
@@ -618,10 +633,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
 
             //如果不外检  是厂家直发的话，直接修改状态
-            if(outboundNums == 0){  //判断出库总数量
+            if (outboundNums == 0) {  //判断出库总数量
 
-                if(straightNums == 0){      //判断厂家直发总数量   没有出库商品的时候不让出库
-                    throw new Exception(String.format("%s%s%s","没有出库商品数量", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"No quantity of goods out of the Treasury"));
+                if (straightNums == 0) {      //判断厂家直发总数量   没有出库商品的时候不让出库
+                    throw new Exception(String.format("%s%s%s", "没有出库商品数量", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "No quantity of goods out of the Treasury"));
                 }
 
                 one.setLeaveDate(new Date());   //出库时间
@@ -630,10 +645,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 DeliverDetail deliverDetail2 = deliverDetailDao.saveAndFlush(one);
 
                 //如果是厂家直接发货    推送  出库经办人 出库日期 到商品表
-                pushWareHouseman(deliverDetail2,2);
+                pushWareHouseman(deliverDetail2, 2);
 
                 //  V2.0订单执行跟踪   推送商品出库
-                pushGoodsLeaverDate(deliverConsign1,deliverDetail2);
+                pushGoodsLeaverDate(deliverConsign1, deliverDetail2);
 
                 //推送信息到出库信息管理
                 Iogistics iogistics = new Iogistics();  //物流信息
@@ -648,21 +663,21 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 Iogistics save = iogisticsDao.save(iogistics);
 
                 // 如果是厂家直发 在出库提交的时候直接推送到出库信息管理      出库通知：出库单下达后通知物流分单员
-                Map<String,Object> map = new HashMap<>();
+                Map<String, Object> map = new HashMap<>();
                 map.put("projectNo", contractNo);        //销售合同号
-                map.put("deliverDetailNo",deliverDetail1.getDeliverDetailNo());        //产品放行单号
-                map.put("wareHousemanName",deliverDetail1.getWareHousemanName());        //仓储经办人名字
-                map.put("status",5);        //发送短信标识
+                map.put("deliverDetailNo", deliverDetail1.getDeliverDetailNo());        //产品放行单号
+                map.put("wareHousemanName", deliverDetail1.getWareHousemanName());        //仓储经办人名字
+                map.put("status", 5);        //发送短信标识
                 sendSms(map);
 
                 //如果是厂家直发，直接将待办信息提示到出库信息管理
-                if(listAll.size() > 0) {
+                if (listAll.size() > 0) {
                     for (Integer in : listAll) { //分单员有几个人推送几条
                         BackLog newBackLog = new BackLog();
                         newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.LOGISTICS.getMsg());  //功能名称
                         newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.LOGISTICS.getNum());    //功能访问路径标识
                         newBackLog.setReturnNo(deliverDetail1.getDeliverDetailNo());  //返回单号    产品放行单号
-                        newBackLog.setInformTheContent(deliverConsignNo+" | "+contractNo);  //提示内容
+                        newBackLog.setInformTheContent(deliverConsignNo + " | " + contractNo);  //提示内容
                         newBackLog.setHostId(save.getId());    //父ID，列表页id
                         newBackLog.setUid(in);   ////经办人id
                         backLogService.addBackLogByDelYn(newBackLog);
@@ -670,7 +685,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 }
 
 
-            }else {
+            } else {
                 //如果不是厂家直发添加   质检待办信息
                 //出库提交以后添加  办理出库质检
                 DeliverConsign deliverConsign = one.getDeliverConsign();
@@ -680,15 +695,13 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.DELIVERDETAIL.getMsg());  //功能名称
                 newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERDETAIL.getNum());    //功能访问路径标识
                 newBackLog.setReturnNo(deliverConsign.getDeliverConsignNo());  //返回单号  出口通知单号
-                newBackLog.setInformTheContent(order.getContractNo()+ " | "+project1.getProjectNo());  //提示内容  销售合同号，项目号
+                newBackLog.setInformTheContent(order.getContractNo() + " | " + project1.getProjectNo());  //提示内容  销售合同号，项目号
                 newBackLog.setHostId(deliverDetail1.getId());    //父ID，列表页id
                 newBackLog.setUid(project1.getQualityUid());   //经办人id   经办人id
                 backLogService.addBackLogByDelYn(newBackLog);
 
             }
         }
-
-
 
 
         //确认出库
@@ -699,26 +712,26 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
 
             //如果是厂家直接发货    推送  出库日期 到商品表
-            pushWareHouseman(one,2);
+            pushWareHouseman(one, 2);
 
             //已出库
-            applicationContext.publishEvent(new OrderProgressEvent(deliverConsign1.getOrder(), 8));
+            applicationContext.publishEvent(new OrderProgressEvent(deliverConsign1.getOrder(), 8, eruiToken));
 
             //  V2.0订单执行跟踪   推送商品出库
-             pushGoodsLeaverDate(deliverConsign1,deliverDetail2);
+            pushGoodsLeaverDate(deliverConsign1, deliverDetail2);
 
 
             //出库通知：出库单下达后通知物流分单员（确认出库）
-            Map<String,Object> map = new HashMap<>();
+            Map<String, Object> map = new HashMap<>();
             map.put("projectNo", contractNo);        //销售合同号
-            map.put("deliverDetailNo",one.getDeliverDetailNo());        //产品放行单号
-            map.put("wareHousemanName",one.getWareHousemanName());        //仓储经办人名字
-            map.put("status",5);        //发送短信标识
+            map.put("deliverDetailNo", one.getDeliverDetailNo());        //产品放行单号
+            map.put("wareHousemanName", one.getWareHousemanName());        //仓储经办人名字
+            map.put("status", 5);        //发送短信标识
             sendSms(map);
 
 
-            if(outboundNums == 0 && straightNums == 0){ //没有出库商品的时候不让出库
-                throw new Exception(String.format("%s%s%s","没有出库商品数量", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"No quantity of goods out of the Treasury"));
+            if (outboundNums == 0 && straightNums == 0) { //没有出库商品的时候不让出库
+                throw new Exception(String.format("%s%s%s", "没有出库商品数量", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "No quantity of goods out of the Treasury"));
             }
 
             //确认出库提交删除 确认出库  待办信息
@@ -729,7 +742,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             backLogService.updateBackLogByDelYn(backLog2);
 
 
-            if(outboundNums > 0){    //外检
+            if (outboundNums > 0) {    //外检
                 Iogistics iogistics = new Iogistics();  //物流信息
 
                 iogistics.setDeliverDetailId(deliverDetail1);   //出库信息
@@ -743,13 +756,13 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 Iogistics save = iogisticsDao.save(iogistics);
 
                 //确认出库添加  办理物流分单  待办
-                if(listAll.size() > 0) {
+                if (listAll.size() > 0) {
                     for (Integer in : listAll) { //分单员有几个人推送几条
                         BackLog newBackLog = new BackLog();
                         newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.LOGISTICS.getMsg());  //功能名称
                         newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.LOGISTICS.getNum());    //功能访问路径标识
                         newBackLog.setReturnNo(deliverDetail1.getDeliverDetailNo());  //返回单号    产品放行单号
-                        newBackLog.setInformTheContent(deliverConsignNo+" | "+contractNo);  //提示内容
+                        newBackLog.setInformTheContent(deliverConsignNo + " | " + contractNo);  //提示内容
                         newBackLog.setHostId(save.getId());    //父ID，列表页id
                         newBackLog.setUid(in);   ////经办人id
                         backLogService.addBackLogByDelYn(newBackLog);
@@ -758,7 +771,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
 
             }
-            if(straightNums > 0){   //不外检
+            if (straightNums > 0) {   //不外检
                 Iogistics iogistics = new Iogistics();  //物流信息
 
                 iogistics.setDeliverDetailId(deliverDetail1);   //出库信息
@@ -773,13 +786,13 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
 
                 //确认出库添加  办理物流分单  待办
-                if(listAll.size() > 0) {
+                if (listAll.size() > 0) {
                     for (Integer in : listAll) { //分单员有几个人推送几条
                         BackLog newBackLog = new BackLog();
                         newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.LOGISTICS.getMsg());  //功能名称
                         newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.LOGISTICS.getNum());    //功能访问路径标识
                         newBackLog.setReturnNo(deliverDetail1.getDeliverDetailNo());  //返回单号    产品放行单号
-                        newBackLog.setInformTheContent(deliverConsignNo+" | "+contractNo);  //提示内容
+                        newBackLog.setInformTheContent(deliverConsignNo + " | " + contractNo);  //提示内容
                         newBackLog.setHostId(save.getId());    //父ID，列表页id
                         newBackLog.setUid(in);   ////经办人id
                         backLogService.addBackLogByDelYn(newBackLog);
@@ -806,12 +819,16 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     public DeliverDetail logisticsMoveFollow(Integer id) {
         DeliverDetail one = deliverDetailDao.findOne(id);
         one.getDeliverConsignGoodsList().size();
+        List<Attachment> attachments = attachmentService.queryAttachs(one.getId(), Attachment.AttachmentCategory.DELIVERDETAIL.getCode());
+        if (attachments != null && attachments.size() > 0) {
+            one.setAttachmentList(attachments);
+        }
         one.getAttachmentList().size();
         List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
         for (DeliverConsign deliverConsign : deliverConsigns) {
             List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
-            if (deliverConsignGoodsSet.size() > 0){
-                for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
+            if (deliverConsignGoodsSet.size() > 0) {
+                for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet) {
                     deliverConsignGoods.getGoods().setPurchGoods(null);
                 }
             }
@@ -835,8 +852,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void logisticsActionAddOrSave(DeliverDetail deliverDetail) {
-        DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getId());
+    public void logisticsActionAddOrSave(DeliverDetail deliverDetail) throws Exception {
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        DeliverDetail one = findDetailById(deliverDetail.getId());
         //物流经办人
         if (deliverDetail.getLogisticsUserId() != null) {
             one.setLogisticsUserId(deliverDetail.getLogisticsUserId());
@@ -937,7 +955,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             }
             if (deliverDetail.getStatus() == 6 && deliverDetail.getLeaveFactory() != null) {
                 //已发运
-                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 9));
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 9, eruiToken));
             }
             if (deliverDetail.getStatus() == 7) {
                 Date date = new Date();
@@ -955,7 +973,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         }
 
 
-        // 只接受国际物流部的附件
+       /* // 只接受国际物流部的附件
         List<Attachment> collect = deliverDetail.getAttachmentList().stream().filter(attachment -> {
             return "国际物流部".equals(attachment.getGroup());
         }).collect(Collectors.toList());
@@ -974,9 +992,16 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
         List<Attachment> attachments = attachmentService.handleParamAttachment(attachmentList, collect, deliverDetail.getCreateUserId(), deliverDetail.getCreateUserName());
         attachmentList02.addAll(attachments);
-        one.setAttachmentList(attachmentList02);
+        one.setAttachmentList(attachmentList02);*/
 
         deliverDetailDao.saveAndFlush(one);
+        // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
+        //deliverConsign1.setAttachmentList(deliverConsign1.getAttachmentList());
+        List<Attachment> attachmentList = deliverDetail.getAttachmentList();
+        Map<Integer, Attachment> dbAttahmentsMap = one.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        if (attachmentList != null && attachmentList.size() > 0) {
+            attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, one.getId(), Attachment.AttachmentCategory.DELIVERDETAIL.getCode());
+        }
     }
 
 
@@ -996,8 +1021,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
             for (DeliverConsign deliverConsign : deliverConsigns) {
                 List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
-                if (deliverConsignGoodsSet.size() > 0){
-                    for (DeliverConsignGoods deliverConsignGoods  : deliverConsignGoodsSet){
+                if (deliverConsignGoodsSet.size() > 0) {
+                    for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet) {
                         deliverConsignGoods.getGoods().setPurchGoods(null);
                     }
                 }
@@ -1058,10 +1083,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         DeliverDetail one = deliverDetailDao.findOne(deliverDetail.getId());
         one.setWareHouseman(deliverDetail.getWareHouseman());   //出库经办人ID
         one.setWareHousemanName(deliverDetail.getWareHousemanName());   //出库经办人姓名
-        if(StringUtil.isBlank(one.getSubmenuName())){
+        if (StringUtil.isBlank(one.getSubmenuName())) {
             one.setSubmenuName(name); //分单员经办人姓名
         }
-        if(one.getSubmenuId() == null){
+        if (one.getSubmenuId() == null) {
             one.setSubmenuId(Integer.parseInt(id));   //入库分单人Id
         }
         DeliverDetail save = deliverDetailDao.save(one);
@@ -1069,11 +1094,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
         //V2.0出库转交经办人：出库分单员转交推送给出库经办人
         Map<String, Object> map = new HashMap();
-        map.put("projectNo",one.getDeliverConsign().getOrder().getContractNo());  //销售合同号
-        map.put("inspectApplyNo",one.getDeliverDetailNo()); //产品放行单号查询
-        map.put("submenuName",one.getSubmenuName());   //出库分单员名称
-        map.put("logisticsUserId",one.getWareHouseman());   //出库经办人id
-        map.put("yn",2); //出库
+        map.put("projectNo", one.getDeliverConsign().getOrder().getContractNo());  //销售合同号
+        map.put("inspectApplyNo", one.getDeliverDetailNo()); //产品放行单号查询
+        map.put("submenuName", one.getSubmenuName());   //出库分单员名称
+        map.put("logisticsUserId", one.getWareHouseman());   //出库经办人id
+        map.put("yn", 2); //出库
         try {
             instockServiceImpl.sendSms(map);
         } catch (Exception e) {
@@ -1094,7 +1119,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTDELIVER.getMsg());  //功能名称
         newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTDELIVER.getNum());    //功能访问路径标识
         newBackLog.setReturnNo(deliverConsign.getDeliverConsignNo());  //返回单号   出口通知单号
-        newBackLog.setInformTheContent(order.getContractNo()+ " | "+order.getProjectNo());  //提示内容
+        newBackLog.setInformTheContent(order.getContractNo() + " | " + order.getProjectNo());  //提示内容
         newBackLog.setHostId(one.getId());    //父ID，列表页id
         newBackLog.setFollowId(1);  // 1：为办理和分单    4：为确认出库
         newBackLog.setUid(save.getWareHouseman());   ////经办人id
@@ -1136,7 +1161,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 }
 
                 //查询需要外检
-                list.add(cb.equal(root.get("outCheck").as(Integer.class), 1 ));
+                list.add(cb.equal(root.get("outCheck").as(Integer.class), 1));
 
                 // 检验员ID精确查询
                 String checkerUid = condition.get("checkerUid");
@@ -1273,12 +1298,13 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean saveQuality(DeliverDetail deliverDetail) throws Exception {
-        DeliverDetail dbDeliverDetail = deliverDetailDao.findOne(deliverDetail.getId());
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        DeliverDetail dbDeliverDetail = findDetailById(deliverDetail.getId());
 
         if (dbDeliverDetail == null ||
                 (dbDeliverDetail.getStatus() != DeliverDetail.StatusEnum.SAVED_OUT_INSPECT.getStatusCode() &&
                         dbDeliverDetail.getStatus() != DeliverDetail.StatusEnum.SUBMITED_OUTSTOCK.getStatusCode())) {
-            throw new Exception(String.format("%s%s%s","入库质检当前状态不可修改", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"The current state of the warehouse quality inspection cannot be modified"));
+            throw new Exception(String.format("%s%s%s", "入库质检当前状态不可修改", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The current state of the warehouse quality inspection cannot be modified"));
         }
 
         // 复制基本信息
@@ -1307,13 +1333,13 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 DeliverDetail.StatusEnum.fromStatusCode(dbDeliverDetail.getStatus()) == DeliverDetail.StatusEnum.SUBMITED_OUT_INSPECT) {
             List<DeliverConsignGoods> deliverConsignGoodsList1 = dbDeliverDetail.getDeliverConsignGoodsList();
             for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList1) {
-                if(deliverConsignGoods.getSendNum() != 0) {  //本批次发货数量为0的商品不推送信息
+                if (deliverConsignGoods.getSendNum() != 0) {  //本批次发货数量为0的商品不推送信息
                     Goods goods = deliverConsignGoods.getGoods();
                     Goods one1 = goodsDao.findOne(goods.getId());
                     one1.setReleaseDate(deliverDetail.getReleaseDate());//推送   放行日期    到商品表
                     goodsDao.save(one1);
                     //出库质检
-                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 7));
+                    applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 7, eruiToken));
                 }
             }
 
@@ -1321,13 +1347,13 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             Project project = null; //项目信息
             //获取项目信息
             DeliverConsign deliverConsign1 = dbDeliverDetail.getDeliverConsign();
-                project = deliverConsign1.getOrder().getProject();
+            project = deliverConsign1.getOrder().getProject();
 
             Map<String, Object> map = new HashMap<>();
             map.put("qualityUid", dbDeliverDetail.getWareHouseman());       //仓库经办人id
             map.put("projectNo", project.getProjectNo());        //项目号
-            map.put("deliverDetailNo",dbDeliverDetail.getDeliverDetailNo());        //产品放行单号
-            map.put("status",4);        //发送短信标识
+            map.put("deliverDetailNo", dbDeliverDetail.getDeliverDetailNo());        //产品放行单号
+            map.put("status", 4);        //发送短信标识
             sendSms(map);
 
 
@@ -1346,17 +1372,16 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.NOTARIZEDELIVER.getMsg());  //功能名称
             newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.NOTARIZEDELIVER.getNum());    //功能访问路径标识
             newBackLog.setReturnNo(deliverConsign.getDeliverConsignNo());  //返回单号
-            newBackLog.setInformTheContent(order.getContractNo()+ " | "+project1.getProjectNo());  //提示内容
+            newBackLog.setInformTheContent(order.getContractNo() + " | " + project1.getProjectNo());  //提示内容
             newBackLog.setHostId(dbDeliverDetail.getId());    //父ID，列表页id
             newBackLog.setFollowId(4);  // 1：为办理和分单    4：为确认出库
             newBackLog.setUid(dbDeliverDetail.getWareHouseman());   //经办人id  仓库经办人id
             backLogService.addBackLogByDelYn(newBackLog);
-
         }
 
 
         // 只接受品控部的附件
-        List<Attachment> collect = deliverDetail.getAttachmentList().stream().filter(attachment -> {
+      /*  List<Attachment> collect = deliverDetail.getAttachmentList().stream().filter(attachment -> {
             return "品控部".equals(attachment.getGroup());
         }).collect(Collectors.toList());
 
@@ -1376,9 +1401,16 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         List<Attachment> attachments = attachmentService.handleParamAttachment(attachmentList, collect, deliverDetail.getCreateUserId(), deliverDetail.getCreateUserName());
         attachmentList02.addAll(attachments);
 
-        dbDeliverDetail.setAttachmentList(attachmentList02);
+        dbDeliverDetail.setAttachmentList(attachmentList02);*/
 
         deliverDetailDao.save(dbDeliverDetail);
+        // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
+        //deliverConsign1.setAttachmentList(deliverConsign1.getAttachmentList());
+        List<Attachment> attachmentList = deliverDetail.getAttachmentList();
+        Map<Integer, Attachment> dbAttahmentsMap = dbDeliverDetail.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        if (attachmentList != null && attachmentList.size() > 0) {
+            attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbDeliverDetail.getId(), Attachment.AttachmentCategory.DELIVERDETAIL.getCode());
+        }
 
 
         return true;
@@ -1393,7 +1425,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             try {
                 Integer status = (Integer) map1.get("status");  //出库or出库质检or确认出库状态
                 // 根据id获取人员信息
-                if(status == 2 || status ==4){   // status 是2的时候  检质检经办人id      status 是4的时候 //仓库经办人id
+                if (status == 2 || status == 4) {   // status 是2的时候  检质检经办人id      status 是4的时候 //仓库经办人id
                     String jsonParam = "{\"id\":\"" + map1.get("qualityUid") + "\"}";
                     Map<String, String> header = new HashMap<>();
                     header.put(CookiesUtil.TOKEN_NAME, eruiToken);
@@ -1409,8 +1441,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
                         JSONObject data = jsonObject.getJSONObject("data");
                         mobile = data.getString("mobile");
-                        if(StringUtil.isBlank(mobile)){
-                            throw new Exception(data.getString("name")+": 手机号为空");
+                        if (StringUtil.isBlank(mobile)) {
+                            throw new Exception(data.getString("name") + ": 手机号为空");
                         }
 
                         //发送短信
@@ -1429,7 +1461,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                         String s1 = HttpRequest.sendPost(sendSms, JSONObject.toJSONString(map), header);
                         logger.info("发送短信返回状态" + s1);
                     }
-                }else{  // status 是5的时候  是确认出库
+                } else {  // status 是5的时候  是确认出库
 
                     String jsonParam = "{\"role_no\":\"O020\"}";    //物流分单员
                     Map<String, String> header = new HashMap<>();
@@ -1446,10 +1478,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                         JSONArray data1 = jsonObject.getJSONArray("data");
                         //去除重复
                         Set<String> listAll = new HashSet<>();
-                        for (int i = 0; i < data1.size(); i++){
-                            JSONObject ob  = (JSONObject)data1.get(i);
+                        for (int i = 0; i < data1.size(); i++) {
+                            JSONObject ob = (JSONObject) data1.get(i);
                             String mobile = ob.getString("mobile");
-                            if(StringUtil.isNotBlank(mobile)){
+                            if (StringUtil.isNotBlank(mobile)) {
                                 listAll.add(mobile);    //获取人员手机号
                             }
                         }
@@ -1473,23 +1505,23 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
 
             } catch (Exception e) {
-                throw new Exception(String.format("%s%s%s","发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Failure to send SMS"));
+                throw new Exception(String.format("%s%s%s", "发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Failure to send SMS"));
             }
 
         }
     }
 
     //如果是厂家直接发货    推送  出库经办人  到商品表
-    public void pushWareHouseman(DeliverDetail one,Integer yn){
+    public void pushWareHouseman(DeliverDetail one, Integer yn) {
         List<DeliverConsignGoods> deliverConsignGoodsList1 = one.getDeliverConsignGoodsList();
         for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList1) {
-            if(deliverConsignGoods.getSendNum() != 0){
+            if (deliverConsignGoods.getSendNum() != 0) {
                 Goods one1 = goodsDao.findOne(deliverConsignGoods.getGoods().getId());   //查询到商品信息
                 if (one.getWareHouseman() != null) {
                     one1.setWareHouseman(one.getWareHouseman());//推送   出库经办人  到商品表
                 }
-                if(yn != 1){    //不等1的时候是确认出库推送  出库日期
-                    if(one.getLeaveDate() != null){
+                if (yn != 1) {    //不等1的时候是确认出库推送  出库日期
+                    if (one.getLeaveDate() != null) {
                         one1.setLeaveDate(one.getLeaveDate());//推送   出库日期  到商品表
                     }
                 }
@@ -1500,7 +1532,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
 
     //推送商品出库时间到订单执行跟踪
-    public void pushGoodsLeaverDate(DeliverConsign deliverConsign1 , DeliverDetail deliverDetail2){
+    public void pushGoodsLeaverDate(DeliverConsign deliverConsign1, DeliverDetail deliverDetail2) {
         //  V2.0订单执行跟踪   推送商品出库
         OrderLog orderLog = new OrderLog();
         try {

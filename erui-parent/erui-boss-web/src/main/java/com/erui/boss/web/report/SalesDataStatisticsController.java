@@ -320,9 +320,10 @@ public class SalesDataStatisticsController {
      * 会员询单额
      * {"startTime":"","endTime":"","type":""}
      * type  1：报价金额   2：询单数量   3：报价数量
-     *
+     * @see SalesDataStatisticsController#newMmemberInquiryAmount(Map)
      * @return
      */
+    @Deprecated
     @ResponseBody
     @RequestMapping(value = "memberInquiryAmount", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> memberInquiryAmount(@RequestBody Map<String, Object> params) {
@@ -342,6 +343,45 @@ public class SalesDataStatisticsController {
         } else if ("3".equals(type)) {
             // 报价数量按地区统计
             data = supplierchainService.quoteNumbersGroupArea(params);
+        } else {
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+        }
+        if (data == null || data.size() == 0) {
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+        } else {
+            result.setData(data);
+        }
+
+        return result;
+    }
+
+
+    /**
+     * 新的会员询单额信息统计
+     * {"startTime":"","endTime":"","type":""}
+     * type  1：报价金额   2：询单数量   3：报价数量
+     *
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "newMemberInquiryAmount", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> newMmemberInquiryAmount(@RequestBody Map<String, Object> params) {
+        params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
+        if (params == null) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        String type = String.valueOf(params.get("type"));
+        Map<String, List<Object>> data = null;
+        Result<Object> result = new Result<>();
+        if ("1".equals(type)) {
+            // 报价金额按地区统计
+            data = supplierchainService.newQuoteAmountGroupArea(params);
+        } else if ("2".equals(type)) {
+            // 询单数量按地区统计
+            data = supplierchainService.newInquiryNumbersGroupArea(params);
+        } else if ("3".equals(type)) {
+            // 报价数量按地区统计
+            data = supplierchainService.newQuoteNumbersGroupArea(params);
         } else {
             result.setStatus(ResultStatusEnum.DATA_NULL);
         }

@@ -100,7 +100,7 @@ public class DeliverNoticeController {
                     toPlaceList.add(order1.getToPlace());
                     transportTypeList.add(order1.getTransportType());
                     agentNameList.add(order1.getTechnicalId());
-                    deliveryDateList.add(new SimpleDateFormat("yyyy-MM-dd").format(order1.getProject().getDeliveryDate()));
+                    deliveryDateList.add(new SimpleDateFormat("yyyy-MM-dd").format(order1.getDeliveryDate()));
                     order1.setAttachmentSet(null);
                     order1.setGoodsList(null);
                     order1.setOrderPayments(null);

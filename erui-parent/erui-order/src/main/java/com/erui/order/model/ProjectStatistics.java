@@ -64,7 +64,8 @@ public class ProjectStatistics {
     //订单ID
     private Integer orderId;
     // 项目开始日期
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date startDate; // 项目开始时间
     //销售合同号
     private String contractNo;

@@ -1,5 +1,6 @@
 package com.erui.order.entity;
 
+import com.erui.order.util.exception.MyException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -24,6 +25,7 @@ public class Attachment {
 
     @Column(name = "user_id")
     private Integer userId;
+
     @Column(name = "user_name")
     private String userName;
 
@@ -42,6 +44,26 @@ public class Attachment {
     @JsonIgnore
     private Date createTime;
     private Integer type;
+    @Column(name = "rel_obj_id")
+    private Integer relObjId;//关联附件id
+
+    private String category;//附件分类值统一为大写例如ORDER
+
+    public Integer getRelObjId() {
+        return relObjId;
+    }
+
+    public void setRelObjId(Integer relObjId) {
+        this.relObjId = relObjId;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
 
     public Integer getType() {
         return type;
@@ -129,5 +151,53 @@ public class Attachment {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public void copyBaseInfoTo(Attachment attachment) {
+        if (attachment == null) {
+            throw new MyException("附件为空&null");
+        }
+        attachment.setCategory(this.getCategory());
+        attachment.setCreateTime(this.getCreateTime());
+        attachment.setDeleteFlag(this.getDeleteFlag());
+        attachment.setFrontDate(this.getFrontDate());
+        attachment.setGroup(this.getGroup());
+        attachment.setRelObjId(this.getRelObjId());
+        attachment.setTitle(this.getTitle());
+        attachment.setType(this.getType());
+        attachment.setUrl(this.getUrl());
+        attachment.setUserId(this.getUserId());
+        attachment.setUserName(this.getUserName());
+    }
+
+
+    public static enum AttachmentCategory {
+        ORDER("ORDER", "订单", 1), PROJECT("PROJECT", "项目", 2),
+        PURCHREQUEST("PURCHREQUEST", "采购申请", 3), PURCH("PURCH", "采购", 4), INSTOCKQUALITY("INSTOCKQUALITY", "入库质检", 5),
+        OUTSTOCKQUALITY("OUTSTOCKQUALITY", "出库质检", 6), WAREHOUSEINSTOCK("WAREHOUSEINSTOCK", "入库", 7),
+        WAREHOUSEOUTSTOCK("WAREHOUSEOUTSTOCK", "出库", 8), DELIVERCONSIGN("DELIVERCONSIGN", "出口通知单", 9),
+        INSPECTAPPLY("INSPECTAPPLY", "报检单", 10), DELIVERDETAIL("DELIVERDETAIL", "出库单详情", 11), LOGISTICS("LOGISTICS", "物流详情", 12),
+        DELIVERNOTICE("DELIVERNOTICE", "看货通知单", 13),INSPECTREPORT("INSPECTREPORT", "仓库-入库-质检报告", 14);
+        private String code;
+        private String msg;
+        private Integer num;
+
+        AttachmentCategory(String code, String msg, Integer num) {
+            this.code = code;
+            this.msg = msg;
+            this.num = num;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+
+        public Integer getNum() {
+            return num;
+        }
     }
 }

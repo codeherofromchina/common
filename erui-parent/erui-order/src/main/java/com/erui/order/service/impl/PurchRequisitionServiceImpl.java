@@ -49,7 +49,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     @Autowired
     private BackLogService backLogService;
     @Autowired
-    private BackLogDao backLogDao;
+    private AttachmentDao attachmentDao;
 
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
@@ -71,7 +71,11 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                     goods.setPurchGoods(null);
                 }
             }
-            purchRequisition.getAttachmentSet().size();
+            List<Attachment> attachments = attachmentDao.findByRelObjIdAndCategory(purchRequisition.getId(), Attachment.AttachmentCategory.PURCHREQUEST.getCode());
+            if (attachments != null && attachments.size() > 0) {
+                purchRequisition.setAttachmentSet(attachments);
+                purchRequisition.getAttachmentSet().size();
+            }
             return purchRequisition;
         }
         return null;
@@ -104,7 +108,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     @Override
     public boolean updatePurchRequisition(PurchRequisition purchRequisition) throws Exception {
         Project project = projectDao.findOne(purchRequisition.getProId());
-        PurchRequisition prt = purchRequisitionDao.findOne(purchRequisition.getId());
+        PurchRequisition prt = findById(purchRequisition.getId(), project.getOrder().getId());
         if (!purchRequisition.getProjectNo().equals(prt.getProjectNo())) {
             if (StringUtils.isNotBlank(purchRequisition.getProjectNo()) && purchRequisitionDao.countByProjectNo(purchRequisition.getProjectNo()) > 0) {
                 throw new MyException("项目号已存在&&The project No. already exists");
@@ -118,16 +122,15 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             project.getOrder().getGoodsList().size();
 
         }
-        PurchRequisition purchRequisitionUpdate = purchRequisitionDao.findOne(purchRequisition.getId());
-        purchRequisitionUpdate.setProject(project);
-        purchRequisitionUpdate.setProjectNo(purchRequisition.getProjectNo());
-        purchRequisitionUpdate.setSubmitDate(purchRequisition.getSubmitDate());
-        purchRequisitionUpdate.setTradeMethod(purchRequisition.getTradeMethod());
-        purchRequisitionUpdate.setDeliveryPlace(purchRequisition.getDeliveryPlace());
-        purchRequisitionUpdate.setFactorySend(purchRequisition.isFactorySend());
-        purchRequisitionUpdate.setRequirements(purchRequisition.getRequirements());
-        purchRequisitionUpdate.setRemarks(purchRequisition.getRemarks());
-        purchRequisitionUpdate.setAttachmentSet(purchRequisition.getAttachmentSet());
+        prt.setProject(project);
+        prt.setProjectNo(purchRequisition.getProjectNo());
+        prt.setSubmitDate(purchRequisition.getSubmitDate());
+        prt.setTradeMethod(purchRequisition.getTradeMethod());
+        prt.setDeliveryPlace(purchRequisition.getDeliveryPlace());
+        prt.setFactorySend(purchRequisition.isFactorySend());
+        prt.setRequirements(purchRequisition.getRequirements());
+        prt.setRemarks(purchRequisition.getRemarks());
+        //purchRequisitionUpdate.setAttachmentSet(purchRequisition.getAttachmentSet());
         ArrayList<Goods> list = new ArrayList<>();
         Map<Integer, Goods> goodsMap = project.getOrder().getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
         purchRequisition.getGoodsList().stream().forEach(dcGoods -> {
@@ -142,13 +145,29 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             goods.setRequirePurchaseDate(dcGoods.getRequirePurchaseDate());
             goods.setTechAudit(dcGoods.getTechAudit());
             goods.setTechRequire(dcGoods.getTechRequire());
-            goods.setProjectNo(purchRequisitionUpdate.getProjectNo());
+            goods.setProjectNo(prt.getProjectNo());
             goodsDao.save(goods);
             list.add(goods);
         });
-        purchRequisitionUpdate.setGoodsList(list);
-        purchRequisitionUpdate.setStatus(purchRequisition.getStatus());
-        PurchRequisition purchRequisition1 = purchRequisitionDao.save(purchRequisitionUpdate);
+        prt.setGoodsList(list);
+        prt.setStatus(purchRequisition.getStatus());
+        PurchRequisition purchRequisition1 = purchRequisitionDao.save(prt);
+        // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
+        //purchRequisition1.setAttachmentList(purchRequisition.getAttachmentList());
+        List<Attachment> attachmentList = null;
+        if (purchRequisition.getAttachmentSet() != null && purchRequisition.getAttachmentSet().size() > 0) {
+            attachmentList = purchRequisition.getAttachmentSet();
+        } else {
+            attachmentList = new ArrayList<>();
+        }
+        Map<Integer, Attachment> dbAttahmentsMap = new HashMap<>();
+        if (prt.getAttachmentSet() != null && prt.getAttachmentSet().size() > 0) {
+            dbAttahmentsMap = prt.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+            attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, prt.getId(), Attachment.AttachmentCategory.PURCHREQUEST.getCode());
+        } else {
+            attachmentService.addAttachments(attachmentList, prt.getId(), Attachment.AttachmentCategory.PURCHREQUEST.getCode());
+        }
+
         if (purchRequisition1.getStatus() == PurchRequisition.StatusEnum.SUBMITED.getCode()) {
             Project project1 = purchRequisition1.getProject();
             project1.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
@@ -220,8 +239,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionAdd.setRequirements(purchRequisition.getRequirements());
         purchRequisitionAdd.setRemarks(purchRequisition.getRemarks());
         // 处理附件信息
-//        Set<Attachment> attachments = attachmentService.handleParamAttachment(null, purchRequisition.getAttachmentSet(), null, null);
-        purchRequisitionAdd.setAttachmentSet(purchRequisition.getAttachmentSet());
+        //Set<Attachment> attachments = attachmentService.handleParamAttachment(null, purchRequisition.getAttachmentSet(), null, null);
+        //purchRequisitionAdd.setAttachmentSet(purchRequisition.getAttachmentSet());
         ArrayList<Goods> list = new ArrayList<>();
         Map<Integer, Goods> goodsMap = project.getOrder().getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
         purchRequisition.getGoodsList().stream().forEach(dcGoods -> {
@@ -243,6 +262,12 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionAdd.setGoodsList(list);
         purchRequisitionAdd.setStatus(purchRequisition.getStatus());
         PurchRequisition purchRequisition1 = purchRequisitionDao.save(purchRequisitionAdd);
+        // 添加附件
+        //purchRequisition1.setAttachmentList(purchRequisition.getAttachmentList());
+        if (purchRequisition.getAttachmentSet() != null && purchRequisition.getAttachmentSet().size() > 0) {
+            attachmentService.addAttachments(purchRequisition.getAttachmentSet(), purchRequisition1.getId(), Attachment.AttachmentCategory.PURCHREQUEST.getCode());
+        }
+
         if (purchRequisition1.getStatus() == PurchRequisition.StatusEnum.SUBMITED.getCode()) {
             Project project1 = purchRequisition1.getProject();
             project1.setPurchReqCreate(Project.PurchReqCreateEnum.SUBMITED.getCode());
@@ -266,10 +291,10 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHORDER.getNum());    //功能访问路径标识
             newBackLog.setReturnNo("");  //返回单号    返回空，两个标签
             String contractNo = save.getContractNo();   //销售合同号
-            String projectNo = save.getProjectNo();//项目号
+            String projectNo = save.getProjectNo(); //项目号
             newBackLog.setInformTheContent(contractNo + " | " + projectNo);  //提示内容
             newBackLog.setHostId(save.getId());    //父ID，列表页id
-            Integer purchaseUid = save.getPurchaseUid();//采购经办人id
+            Integer purchaseUid = save.getPurchaseUid(); //采购经办人id
             newBackLog.setUid(purchaseUid);   ////经办人id
             backLogService.addBackLogByDelYn(newBackLog);
 
@@ -285,14 +310,14 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 
 
     //采购申请通知：采购申请单下达后通知采购经办人
-    public void sendSms(Project Project1) throws Exception {
+    public void sendSms(Project project1) throws Exception {
 
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
         if (StringUtils.isNotBlank(eruiToken)) {
             try {
                 // 根据id获取采购经办人信息
-                String jsonParam = "{\"id\":\"" + Project1.getPurchaseUid() + "\"}";
+                String jsonParam = "{\"id\":\"" + project1.getPurchaseUid() + "\"}";
                 Map<String, String> header = new HashMap<>();
                 header.put(CookiesUtil.TOKEN_NAME, eruiToken);
                 header.put("Content-Type", "application/json");
@@ -311,7 +336,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                     Map<String, String> map = new HashMap();
                     map.put("areaCode", "86");
                     map.put("to", "[\"" + mobile + "\"]");
-                    map.put("content", "您好，项目号：" + Project1.getProjectNo() + "，商务技术经办人：" + Project1.getBusinessName() + "，已申请采购，请及时处理。感谢您对我们的支持与信任！");
+                    map.put("content", "您好，项目号：" + project1.getProjectNo() + "，商务技术经办人：" + project1.getBusinessName() + "，已申请采购，请及时处理。感谢您对我们的支持与信任！");
                     map.put("subType", "0");
                     map.put("groupSending", "0");
                     map.put("useType", "订单");
@@ -361,6 +386,13 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                 Join<PurchRequisition, Project> projectPath = root.join("project");
                 // 提交了
                 list.add(cb.equal(root.get("status").as(Integer.class), PurchRequisition.StatusEnum.SUBMITED.getCode()));
+                // 采购状态过滤
+                String purchStatus = condition.get("purchStatus");
+                if (StringUtils.isNotBlank(purchStatus) || StringUtils.isNumeric(purchStatus)) {
+                    list.add(cb.equal(root.get("purchStatus").as(Integer.class), Integer.parseInt(purchStatus)));
+                }
+
+
                 list.add(cb.equal(projectPath.get("purchDone").as(Boolean.class), Boolean.FALSE));
                 // 销售合同号查询
                 String contractNo = condition.get("contractNo");
@@ -380,20 +412,20 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                 Date date = null;
                 // 项目开始日期查询
                 String startDate = condition.get("startDate");
-                if (StringUtils.isNotBlank(startDate) &&
-                        (date = DateUtil.parseString2DateNoException(startDate, DateUtil.SHORT_FORMAT_STR)) != null) {
+                if (StringUtils.isNotBlank(startDate)
+                        && (date = DateUtil.parseString2DateNoException(startDate, DateUtil.SHORT_FORMAT_STR)) != null) {
                     list.add(cb.equal(projectPath.get("startDate").as(Date.class), date));
                 }
                 // 下发采购日期查询
                 String submitDate = condition.get("submitDate");
-                if (StringUtils.isNotBlank(submitDate) &&
-                        (date = DateUtil.parseString2DateNoException(submitDate, DateUtil.SHORT_FORMAT_STR)) != null) {
+                if (StringUtils.isNotBlank(submitDate)
+                        && (date = DateUtil.parseString2DateNoException(submitDate, DateUtil.SHORT_FORMAT_STR)) != null) {
                     list.add(cb.equal(root.get("submitDate").as(Date.class), date));
                 }
                 // 要求采购到货日期查询
                 String requirePurchaseDate = condition.get("requirePurchaseDate");
-                if (StringUtils.isNotBlank(requirePurchaseDate) &&
-                        (date = DateUtil.parseString2DateNoException(requirePurchaseDate, DateUtil.SHORT_FORMAT_STR)) != null) {
+                if (StringUtils.isNotBlank(requirePurchaseDate)
+                        && (date = DateUtil.parseString2DateNoException(requirePurchaseDate, DateUtil.SHORT_FORMAT_STR)) != null) {
                     list.add(cb.equal(projectPath.get("requirePurchaseDate").as(Date.class), date));
                 }
                 // 商务技术经办人查询
@@ -427,6 +459,23 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             map.put("requirePurchaseDate", project.getRequirePurchaseDate()); // 要求采购到货日期
             map.put("id", pr.getId()); // 采购申请ID
             map.put("status", pr.getStatus()); // 采购申请状态 1:未编辑 2:待确认/已保存 3:已提交
+            map.put("purchStatus", pr.getPurchStatus());
+            map.put("purchDone", PurchRequisition.PurchStatusEnum.msgFromCode(pr.getPurchStatus()));
+//            if (pr.getGoodsList() != null && pr.getGoodsList().size() > 0) {
+//                int purchasedNum = 0;
+//                int contractNum = 0;
+//                for (Goods gs : pr.getGoodsList()) {
+//                    contractNum = +gs.getContractGoodsNum();
+//                    purchasedNum = +gs.getPurchasedNum();
+//                }
+//                if (purchasedNum != 0 && purchasedNum < contractNum) {
+//                    map.put("purchDone", "进行中");
+//                } else if (purchasedNum == 0) {
+//                    map.put("purchDone", "未进行");
+//                } else {
+//                    map.put("purchDone", "完成");
+//                }
+//            }
             dataList.add(map);
         }
 

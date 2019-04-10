@@ -1234,9 +1234,9 @@ public class StatisticsServiceImpl implements StatisticsService {
                 omp.setOrderId(order.getId());   //订单id / 点击销售合同号查询
                 omp.setTotalPriceUsd(order.getTotalPriceUsd()); // 合同总价(USD)
                 omp.setCurrencyBn(order.getCurrencyBn()); //   订单货币类型
-                omp.setRegion(project.getRegion());     // 地区
+                omp.setRegion(project.getOrder().getRegion());     // 地区
                 Map<String, String> bnMapZhCountry = findBnMapZhCountry();  //获取国家中英文   kay/vlaue
-                omp.setCountry(bnMapZhCountry.get(project.getCountry()));   //  国家
+                omp.setCountry(bnMapZhCountry.get(project.getOrder().getCountry()));   //  国家
                 omp.setProjectNo(project.getProjectNo());   //项目号
                 omp.setProjectName(project.getProjectName());    //项目名称
                 omp.setOrderStatus(order.getStatus()); //订单状态

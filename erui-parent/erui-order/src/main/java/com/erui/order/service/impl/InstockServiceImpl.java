@@ -13,6 +13,7 @@ import com.erui.order.dao.InspectApplyGoodsDao;
 import com.erui.order.dao.InstockDao;
 import com.erui.order.entity.*;
 import com.erui.order.event.OrderProgressEvent;
+import com.erui.order.event.TasksAddEvent;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.BackLogService;
 import com.erui.order.service.InstockService;
@@ -246,8 +247,8 @@ public class InstockServiceImpl implements InstockService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean save(Instock instock) throws Exception {
-
-        Instock dbInstock = instockDao.findOne(instock.getId());
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        Instock dbInstock = detail(instock.getId());
 
         // 保存基本信息
         dbInstock.setUid(instock.getUid());
@@ -270,7 +271,7 @@ public class InstockServiceImpl implements InstockService {
                 one.setInstockDate(dbInstock.getInstockDate()); //入库日期
                 one.setUid(instock.getUid());   //入库经办人id
                 goodsDao.saveAndFlush(one);
-                applicationContext.publishEvent(new OrderProgressEvent(one.getOrder(), 6));
+                applicationContext.publishEvent(new OrderProgressEvent(one.getOrder(), 6, eruiToken));
             }
 
             //入库提交的时候   删除分单员的信息推送   办理分单
@@ -285,19 +286,13 @@ public class InstockServiceImpl implements InstockService {
             backLog2.setHostId(dbInstock.getId());
             backLogService.updateBackLogByDelYn(backLog2);
 
-        }else if(instock.getStatus() == 2){
+        } else if (instock.getStatus() == 2) {
 
             //入库提交的时候   删除分单员的信息推送   办理分单
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENU.getNum());    //功能访问路径标识
             backLog.setHostId(dbInstock.getId());
             backLogService.updateBackLogByDelYn(backLog);
-
-
-            //推送给分单人待办事项  办理入库
-            BackLog newBackLog = new BackLog();
-            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTINSTOCK.getMsg());  //功能名称
-            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTINSTOCK.getNum());    //功能访问路径标识
 
             List<String> projectNoList = new ArrayList<>();
             List<InstockGoods> instockGoodsLists = dbInstock.getInstockGoodsList();
@@ -308,18 +303,23 @@ public class InstockServiceImpl implements InstockService {
                     projectNoList.add(goods.getProjectNo());
                 }
             });
-            String inspectApplyNo = dbInstock.getInspectApplyNo();  //报检单号
-            newBackLog.setReturnNo(inspectApplyNo);  //返回单号
             String supplierName = dbInstock.getSupplierName();  //供应商名称
-            newBackLog.setInformTheContent(StringUtils.join(projectNoList,",")+" | "+supplierName);  //提示内容
-            newBackLog.setHostId(dbInstock.getId());    //父ID，列表页id
-            newBackLog.setUid(instock.getUid());   ////经办人id
-            backLogService.addBackLogByDelYn(newBackLog);
+            String returnNo = dbInstock.getInspectApplyNo(); // 返回单号
+            String infoContent = StringUtils.join(projectNoList, ",") + " | " + supplierName;  //提示内容
+            Integer hostId = dbInstock.getId();
+            Integer userId = instock.getUid(); //经办人id
+            // 推送增加待办事件，推送给分单人待办事项  办理入库
+            applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                    BackLog.ProjectStatusEnum.TRANSACTINSTOCK,
+                    returnNo,
+                    infoContent,
+                    hostId,
+                    userId));
 
         }
         // 保存附件信息
-        List<Attachment> attachments = attachmentService.handleParamAttachment(dbInstock.getAttachmentList(), instock.getAttachmentList(), instock.getCurrentUserId(), instock.getCurrentUserName());
-        dbInstock.setAttachmentList(attachments);
+        //List<Attachment> attachments = attachmentService.handleParamAttachment(dbInstock.getAttachmentList(), instock.getAttachmentList(), instock.getCurrentUserId(), instock.getCurrentUserName());
+        //dbInstock.setAttachmentList(attachments);
         // 处理商品信息
         Map<Integer, InstockGoods> instockGoodsMap = instockGoodsList.parallelStream().collect(Collectors.toMap(InstockGoods::getId, vo -> vo));
         for (InstockGoods instockGoods : instock.getInstockGoodsList()) {
@@ -368,6 +368,20 @@ public class InstockServiceImpl implements InstockService {
             throw new Exception(String.format("%s%s%s", "入库商品数量错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The number of goods in the warehouse"));
         }
         instockDao.save(dbInstock);
+        //附件处理
+        List<Attachment> attachmentList = null;
+        if (instock.getAttachmentList() != null && instock.getAttachmentList().size() > 0) {
+            attachmentList = instock.getAttachmentList();
+        } else {
+            attachmentList = new ArrayList<>();
+        }
+        Map<Integer, Attachment> dbAttahmentsMap = null;
+        if (dbInstock.getAttachmentList() != null && dbInstock.getAttachmentList().size() > 0) {
+            dbAttahmentsMap = dbInstock.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        } else {
+            dbAttahmentsMap = new HashMap<>();
+        }
+        attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbInstock.getId(), Attachment.AttachmentCategory.INSTOCKQUALITY.getCode());
 
         return true;
     }
@@ -377,6 +391,12 @@ public class InstockServiceImpl implements InstockService {
     @Transactional(readOnly = true)
     public Instock detail(Integer id) {
         Instock instock = instockDao.findOne(id);
+        if (instock.getId() != null) {
+            List<Attachment> attachments = attachmentService.queryAttachs(instock.getId(), Attachment.AttachmentCategory.INSTOCKQUALITY.getCode());
+            if (attachments != null && attachments.size() > 0) {
+                instock.setAttachmentList(attachments);
+            }
+        }
         instock.getAttachmentList().size();
         List<InstockGoods> instockGoodsList = instock.getInstockGoodsList();
         for (InstockGoods v : instockGoodsList) {
@@ -440,9 +460,6 @@ public class InstockServiceImpl implements InstockService {
         backLogService.updateBackLogByDelYn(backLog2);
 
         //推送给分单人待办事项  办理入库
-        BackLog newBackLog = new BackLog();
-        newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTINSTOCK.getMsg());  //功能名称
-        newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTINSTOCK.getNum());    //功能访问路径标识
         List<String> projectNoList = new ArrayList<>();
         List<InstockGoods> instockGoodsLists = dbInstock.getInstockGoodsList();
         instockGoodsLists.stream().forEach(instockGoods -> {
@@ -452,14 +469,17 @@ public class InstockServiceImpl implements InstockService {
                 projectNoList.add(goods.getProjectNo());
             }
         });
-        String inspectApplyNo = dbInstock.getInspectApplyNo();  //报检单号
-        newBackLog.setReturnNo(inspectApplyNo);  //返回单号
-        String supplierName = dbInstock.getSupplierName();  //供应商名称
-        newBackLog.setInformTheContent(StringUtils.join(projectNoList,",")+" | "+supplierName);  //提示内容
-        newBackLog.setHostId(instockSave.getId());    //父ID，列表页id
-        newBackLog.setUid(dbInstock.getUid());   ////经办人id
-        backLogService.addBackLogByDelYn(newBackLog);
-
+        String returnNo = dbInstock.getInspectApplyNo(); // 返回单号
+        String infoContent = StringUtils.join(projectNoList, ",") + " | " + dbInstock.getSupplierName();  //提示内容
+        Integer hostId = instockSave.getId();
+        Integer userId = dbInstock.getUid(); //经办人id
+        // 推送增加待办事件，推送给分单人待办事项  办理入库
+        applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                BackLog.ProjectStatusEnum.TRANSACTINSTOCK,
+                returnNo,
+                infoContent,
+                hostId,
+                userId));
         return true;
     }
 

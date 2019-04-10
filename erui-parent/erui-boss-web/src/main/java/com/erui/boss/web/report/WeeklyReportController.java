@@ -140,7 +140,7 @@ public class WeeklyReportController {
      */
     @ResponseBody
     @RequestMapping(value = "/orgDetail", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
-    public Object orgDetail(@RequestBody(required = true) Map<String, Object> params,HttpServletRequest request) throws IOException {
+    public Object orgDetail(@RequestBody(required = true) Map<String, Object> params, HttpServletRequest request) throws IOException {
         String startTime = (String) params.get("startTime");
         String endTime = (String) params.get("endTime");
         if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
@@ -168,8 +168,8 @@ public class WeeklyReportController {
 //        // 查询事业部spu和sku数量信息
 //        Map<String, Object> spuSkuNumInfoData = weeklyReportService.selectSpuAndSkuNumInfoGroupByOrg(params);
         Cookie[] cookies = request.getCookies();
-        Map<String, Object> spuSkuNumInfoData = getSpuSkuNumGroupByOrgToES(params,cookies);
-        if(spuSkuNumInfoData==null){
+        Map<String, Object> spuSkuNumInfoData = getSpuSkuNumGroupByOrgToES(params, cookies);
+        if (spuSkuNumInfoData == null) {
             return new Result<>(ResultStatusEnum.GET_USERINFO_ERROR);
         }
         Map<String, Map> data = new HashMap<>();
@@ -191,7 +191,7 @@ public class WeeklyReportController {
      * @return
      */
     @RequestMapping(value = "/exportOrgDetail")
-    public Object exportOrgDetail(HttpServletRequest request,HttpServletResponse response, String startTime, String endTime) throws IOException {
+    public Object exportOrgDetail(HttpServletRequest request, HttpServletResponse response, String startTime, String endTime) throws IOException {
         Map<String, Object> params = new HashMap();
         if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
@@ -209,12 +209,12 @@ public class WeeklyReportController {
             params.put("chainStartTime", DateUtil.formatDateToString(chainStartTime, DateUtil.FULL_FORMAT_STR));
         }
         Cookie[] cookies = request.getCookies();
-        params.put("pageSize","10");
-        params.put("currentPage","1");
-        params.put("lang","zh");
-        Map<String, Object> spuSkuNumInfoData = getSpuSkuNumGroupByOrgToES(params,cookies);
-        if(spuSkuNumInfoData == null){
-            Integer[] zeroArr = new Integer[]{0,0,0,0,0,0,0,0};
+        params.put("pageSize", "10");
+        params.put("currentPage", "1");
+        params.put("lang", "zh");
+        Map<String, Object> spuSkuNumInfoData = getSpuSkuNumGroupByOrgToES(params, cookies);
+        if (spuSkuNumInfoData == null) {
+            Integer[] zeroArr = new Integer[]{0, 0, 0, 0, 0, 0, 0, 0};
             spuSkuNumInfoData = new HashMap<>();
             spuSkuNumInfoData.put("currentWeekSpuCounts", zeroArr);
             spuSkuNumInfoData.put("currentWeekSkuCounts", zeroArr);
@@ -222,7 +222,7 @@ public class WeeklyReportController {
             spuSkuNumInfoData.put("historySkuCounts", zeroArr);
         }
 
-        HSSFWorkbook wb = weeklyReportService.genOrgDetailExcel(params,spuSkuNumInfoData);
+        HSSFWorkbook wb = weeklyReportService.genOrgDetailExcel(params, spuSkuNumInfoData);
         //excel文件名
         String fileName = "事业部周报明细" + System.currentTimeMillis() + ".xls";
         try {
@@ -263,22 +263,21 @@ public class WeeklyReportController {
         // 查询时间段内询单数
         Map<String, Object> inqNumInfoData = weeklyReportService.selectInqNumGroupByAreaTotal(params);
         // 查询时间段内的报价数量
-        Map<String,Object> quoteInfoData = weeklyReportService.selectQuoteInfoGroupByAreaTotal(params);
+        Map<String, Object> quoteInfoData = weeklyReportService.selectQuoteInfoGroupByAreaTotal(params);
         // 查询时间段内的订单数量
-        Map<String,Object> orderInfoData = weeklyReportService.selectOrderInfoGroupByAreaTotal(params);
+        Map<String, Object> orderInfoData = weeklyReportService.selectOrderInfoGroupByAreaTotal(params);
         // 谷歌统计信息
-        Map<String,Object> googleStatistics = weeklyReportService.googleStatisticsInfo(params);
+        Map<String, Object> googleStatistics = weeklyReportService.googleStatisticsInfo(params);
 
-        Map<String,Map> data = new HashMap<>();
-        data.put("googleStatistics",googleStatistics); // 谷歌统计信息
-        data.put("inqNumInfo",inqNumInfoData); // 询单数量数据信息
-        data.put("quoteInfo",quoteInfoData); // 报价数量数据信息
-        data.put("orderInfo",orderInfoData); // 订单数量数据信息
+        Map<String, Map> data = new HashMap<>();
+        data.put("googleStatistics", googleStatistics); // 谷歌统计信息
+        data.put("inqNumInfo", inqNumInfoData); // 询单数量数据信息
+        data.put("quoteInfo", quoteInfoData); // 报价数量数据信息
+        data.put("orderInfo", orderInfoData); // 订单数量数据信息
 
 
         return new Result<>(data);
     }
-
 
 
     /**
@@ -321,72 +320,73 @@ public class WeeklyReportController {
     }
 
     @Value("#{webProp[esproduct_url]}")
-    private  String esproductUrl;
+    private String esproductUrl;
 
     @Value("#{webProp[esgoods_url]}")
-    private  String esgoodsUrl;
+    private String esgoodsUrl;
 
     /**
      * 从es中获取各事业部的spu、sku数量
+     *
      * @return
      */
-    public   Map<String, Object> getSpuSkuNumGroupByOrgToES(Map<String,Object> params, Cookie[] cookies) throws IOException {
+    public Map<String, Object> getSpuSkuNumGroupByOrgToES(Map<String, Object> params, Cookie[] cookies) throws IOException {
         String token = PerformanceController.getToken(cookies);
-        String eruiToken="eruitoken="+token;
-        if(StringUtil.isEmpty(token)){
+        String eruiToken = "eruitoken=" + token;
+        if (StringUtil.isEmpty(token)) {
             return null;
         }
-        params.put("onshelf_at_start",params.get("startTime").toString());
-        params.put("onshelf_at_end",params.get("endTime").toString());
+        params.put("onshelf_at_start", params.get("startTime").toString());
+        params.put("onshelf_at_end", params.get("endTime").toString());
         List<Map<String, Object>> spuList = sendPutToES(params, eruiToken, esproductUrl);
-        if(spuList==null){
+        if (spuList == null) {
             return null;
         }
         List<Map<String, Object>> skuList = sendPutToES(params, eruiToken, esgoodsUrl);
-        if(skuList==null){
+        if (skuList == null) {
             return null;
         }
         //获取历史数据
-        params.put("onshelf_at_start","2018-01-01 00:00:00");
-        params.put("onshelf_at_end",params.get("endTime").toString());
+        params.put("onshelf_at_start", "2019-01-01 00:00:00");
+        params.put("onshelf_at_end", params.get("endTime").toString());
 //        Date start = DateUtil.parseString2DateNoException("2018-01-01 00:00:00", DateUtil.FULL_FORMAT_STR);
 //        Date endDate = DateUtil.parseString2DateNoException(String.valueOf(params.get("onshelf_at_end")), DateUtil.FULL_FORMAT_STR);
 //        if (start.after(endDate)) {
 //           params.put("onshelf_at_end","2018-01-01 00:00:01");
 //        }
         List<Map<String, Object>> spuHistoryList = sendPutToES(params, eruiToken, esproductUrl);
-        if(spuHistoryList==null){
+        if (spuHistoryList == null) {
             return null;
         }
         List<Map<String, Object>> skuHistoryList = sendPutToES(params, eruiToken, esgoodsUrl);
-        if(skuHistoryList==null){
+        if (skuHistoryList == null) {
             return null;
         }
-        Map<String,Object> result=weeklyReportService.handleSpuSkuResult(spuList,skuList,spuHistoryList,skuHistoryList);
+        Map<String, Object> result = weeklyReportService.handleSpuSkuResult(spuList, skuList, spuHistoryList, skuHistoryList);
         return result;
     }
 
-    List<Map<String,Object>> sendPutToES(Map<String,Object> params,String eruiToken,String url) throws IOException {
+    List<Map<String, Object>> sendPutToES(Map<String, Object> params, String eruiToken, String url) throws IOException {
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpPut putMethod=new HttpPut(url);
-        putMethod.setHeader("Cookie",eruiToken);
+        HttpPut putMethod = new HttpPut(url);
+        putMethod.setHeader("Cookie", eruiToken);
         StringEntity paramEntity = new StringEntity(JSON.toJSONString(params), "utf-8");
         putMethod.setEntity(paramEntity);
         CloseableHttpResponse execute = httpClient.execute(putMethod);
         HttpEntity entity = execute.getEntity();
-        String result =null;
-        if(entity!=null){
-            result= EntityUtils.toString(entity, "UTF-8");
+        String result = null;
+        if (entity != null) {
+            result = EntityUtils.toString(entity, "UTF-8");
         }
-        Map<String,Object> spuMap = JSON.parseObject(result, Map.class);
-        List<Map<String,Object>> dataList=null;
-        if(spuMap!=null){
-            dataList=(List<Map<String,Object>>) spuMap.get("data");
-            if((int)spuMap.get("code")!=403&&dataList==null){
-                dataList=new ArrayList<>();
+        Map<String, Object> spuMap = JSON.parseObject(result, Map.class);
+        List<Map<String, Object>> dataList = null;
+        if (spuMap != null) {
+            dataList = (List<Map<String, Object>>) spuMap.get("data");
+            if ((int) spuMap.get("code") != 403 && dataList == null) {
+                dataList = new ArrayList<>();
             }
         }
-       return  dataList;
+        return dataList;
     }
 }

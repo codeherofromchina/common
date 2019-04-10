@@ -3,6 +3,7 @@ package com.erui.order.service.impl;
 import com.erui.order.dao.BackLogDao;
 import com.erui.order.entity.BackLog;
 import com.erui.order.service.BackLogService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ import java.util.List;
 
 
 @Service
-public class BackLogServiceImpl implements BackLogService{
+public class BackLogServiceImpl implements BackLogService {
 
     private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
@@ -34,6 +35,7 @@ public class BackLogServiceImpl implements BackLogService{
 
     /**
      * 待办列表查询
+     *
      * @param backLog
      * @return
      */
@@ -42,10 +44,10 @@ public class BackLogServiceImpl implements BackLogService{
     public Page<BackLog> findBackLogByList(BackLog backLog) {
         Integer page = 0;
         Integer rows = 50;
-        if(backLog.getPage() != null){
+        if (backLog.getPage() != null) {
             page = backLog.getPage() - 1;
         }
-        if(backLog.getRows() != null){
+        if (backLog.getRows() != null) {
             rows = backLog.getRows();
         }
 
@@ -56,7 +58,7 @@ public class BackLogServiceImpl implements BackLogService{
             public Predicate toPredicate(Root<BackLog> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>();
 
-                if(backLog.getUid() != null){
+                if (backLog.getUid() != null) {
                     list.add(cb.equal(root.get("uid").as(Integer.class), backLog.getUid()));
                 }
 
@@ -76,6 +78,7 @@ public class BackLogServiceImpl implements BackLogService{
 
     /**
      * 待办事项新增
+     *
      * @param backLog
      * @return
      */
@@ -83,34 +86,34 @@ public class BackLogServiceImpl implements BackLogService{
     public void addBackLogByDelYn(BackLog backLog) throws Exception {
 
         backLog.setCreateDate(new SimpleDateFormat("yyyyMMdd").format(new Date())); //提交时间
-        backLog.setPlaceSystem("订单");   //所在系统
+        if (StringUtils.isBlank(backLog.getPlaceSystem())) {
+            backLog.setPlaceSystem("订单");   //所在系统
+        }
         backLog.setDelYn(1);
 
         String informTheContent = backLog.getInformTheContent(); //返回内容
 
         List<BackLog> backLogList = null;
-        if(backLog.getFollowId() != null){
-            backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndFollowIdAndUidAndDelYnAndInformTheContent(backLog.getFunctionExplainId(),backLog.getHostId(),backLog.getFollowId(),backLog.getUid(),1,informTheContent);
-        }else {
-            backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndUidAndDelYnAndInformTheContent(backLog.getFunctionExplainId(),backLog.getHostId(),backLog.getUid(),1,informTheContent);
+        if (backLog.getFollowId() != null) {
+            backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndFollowIdAndUidAndDelYnAndInformTheContent(backLog.getFunctionExplainId(), backLog.getHostId(), backLog.getFollowId(), backLog.getUid(), 1, informTheContent);
+        } else {
+            backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndUidAndDelYnAndInformTheContent(backLog.getFunctionExplainId(), backLog.getHostId(), backLog.getUid(), 1, informTheContent);
         }
 
-       if(backLogList.size() <= 0 ){
-           try {
-               BackLog save = backLogDao.save(backLog);
-           }catch (Exception e){
-               logger.error("新增待办事项失败："+e);
-               throw new Exception(e);
-           }
-       }
+        if (backLogList.size() <= 0) {
+            try {
+                BackLog save = backLogDao.save(backLog);
+            } catch (Exception e) {
+                logger.error("新增待办事项失败：" + e);
+                throw new Exception(e);
+            }
+        }
     }
-
-
-
 
 
     /**
      * 待办事项逻辑删除
+     *
      * @param backLog
      * @return
      */
@@ -119,27 +122,30 @@ public class BackLogServiceImpl implements BackLogService{
     public void updateBackLogByDelYn(BackLog backLog) throws Exception {
         List<BackLog> backLogList = null;
         try {
-            backLogList =backLogDao.findByFunctionExplainIdAndHostIdAndDelYn(backLog.getFunctionExplainId(),backLog.getHostId(),1);
-        }catch (Exception e){
-            logger.error("逻辑删除 - 查询待办事项失败："+e);
+            //backLog.getFunctionExplainId() == 999 时查找未删除待办订单
+            if (backLog.getFunctionExplainId() == 999) {
+                backLogList = backLogDao.findByHostIdAndDelYn(backLog.getHostId(), 1);
+            } else {
+                backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndDelYn(backLog.getFunctionExplainId(), backLog.getHostId(), 1);
+            }
+        } catch (Exception e) {
+            logger.error("逻辑删除 - 查询待办事项失败：" + e);
             throw new Exception(e);
         }
-        if(backLogList.size() > 0){
-            for (BackLog backLog1 : backLogList){
+        if (backLogList.size() > 0) {
+            for (BackLog backLog1 : backLogList) {
                 backLog1.setDelYn(0);
                 backLog1.setDeleteTime(new Date());
             }
             try {
                 backLogDao.save(backLogList);
-            }catch (Exception e){
-                logger.error("逻辑删除 - 修改待办事项失败："+e);
+            } catch (Exception e) {
+                logger.error("逻辑删除 - 修改待办事项失败：" + e);
                 throw new Exception(e);
             }
         }
 
     }
-
-
 
 
 }

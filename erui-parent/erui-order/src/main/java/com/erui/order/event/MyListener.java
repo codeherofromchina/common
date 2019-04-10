@@ -6,6 +6,7 @@ import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -15,7 +16,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class MyListener implements ApplicationListener<OrderProgressEvent> {
-
+    @Autowired
+    private ApplicationContext applicationContext;
     @Autowired
     private OrderDao orderDao;
     @Autowired
@@ -66,10 +68,14 @@ public class MyListener implements ApplicationListener<OrderProgressEvent> {
         } else if (type == 9 && processProgress < 9) {
             order.setProcessProgress(Project.ProjectProgressEnum.SHIPED.getNum().toString());
             project.setProcessProgress(Project.ProjectProgressEnum.SHIPED.getNum().toString());
-        }else {
+        } else {
             if ((order.getOverseasSales() == 3 || order.getOrderCategory() == 4) && project.getAuditingStatus() == 4) {
                 order.setProcessProgress(Project.ProjectProgressEnum.SHIPED.getNum().toString());
                 order.setStatus(Order.StatusEnum.DONE.getCode());
+                if (order.getPayStatus() == 3) {
+                    // 调用积分系统
+                    applicationContext.publishEvent(new NotifyPointProjectEvent(applicationContext, order.getId(), orderProgressEvent.getToken()));
+                }
                 project.setProcessProgress(Project.ProjectProgressEnum.SHIPED.getNum().toString());
                 project.setProjectStatus(Project.ProjectStatusEnum.DONE.getCode());
             }

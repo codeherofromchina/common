@@ -13,30 +13,44 @@ import java.util.List;
 public interface CheckLogService {
 
     /**
-     *
      * @param type  1:订单  2：项目
-     * @param refId   项目或订单ID，根据type
+     * @param refId 项目或订单ID，根据type
      * @return
      */
     CheckLog findLastLog(int type, Integer refId);
+
     /**
-     *
-     * @param refId   项目或订单ID，根据type
+     * @param refId 项目或订单ID，根据type
      * @return
      */
     CheckLog findLogOne(Integer refId);
+
     /**
      * 插入审核日志
+     *
      * @param checkLog_i
      */
     void insert(CheckLog checkLog_i);
-     /**
-      * @Author:SHIGS
-      * @Description 根据订单查找审批日志
-      * @Date:18:38 2018/8/29
-      * @modified By
-      */
-     List<CheckLog> findListByOrderId(Integer orderId);
+
+    /**
+     * @Author:SHIGS
+     * @Description 根据订单查找审批日志
+     * @Date:18:38 2018/8/29
+     * @modified By
+     */
+    List<CheckLog> findListByOrderId(Integer orderId);
+
+
+    List<CheckLog> findListByOrderIdAndType(Integer orderId, Integer type);
+
+    /**
+     * @Author:SHIGS
+     * @Description 根据订单查找审批日志
+     * @Date:18:38 2018/8/29
+     * @modified By
+     */
+    List<CheckLog> findListByJoinId(String category, Integer joinId, Integer type);
+
     /**
      * @Author:SHIGS
      * @Description 根据订单查找已经通过审核的日志
@@ -44,6 +58,7 @@ public interface CheckLogService {
      * @modified By
      */
     List<CheckLog> findPassed(Integer orderId);
+
     /**
      * @Author:SHIGS
      * @Description 根据订单查找已经通过审核的日志导出销售合同审批表用
@@ -51,4 +66,12 @@ public interface CheckLogService {
      * @modified By
      */
     List<CheckLog> findPassed2(Integer orderId);
+
+    /**
+     * 查询采购的所有审核记录
+     *
+     * @param purchId
+     * @return
+     */
+    List<CheckLog> findCheckLogsByPurchId(int purchId);
 }

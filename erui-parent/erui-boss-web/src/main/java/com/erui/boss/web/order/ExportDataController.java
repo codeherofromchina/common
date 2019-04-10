@@ -3,8 +3,10 @@ package com.erui.boss.web.order;
 import com.alibaba.fastjson.JSON;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.data.date.DateUtil;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.excel.BuildExcel;
 import com.erui.comm.util.excel.BuildExcelImpl;
 import com.erui.comm.util.excel.ExcelCustomStyle;
@@ -17,6 +19,7 @@ import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.OrderService;
 import com.erui.order.service.ProjectService;
+import com.erui.order.service.PurchService;
 import com.erui.order.service.StatisticsService;
 import com.erui.report.util.ExcelUploadTypeEnum;
 import org.apache.commons.collections.map.HashedMap;
@@ -30,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.WebUtils;
 
@@ -48,7 +52,7 @@ import java.util.*;
 @Controller("orderExportDataController")
 @RequestMapping("/order/exportData")
 public class ExportDataController {
-    private final static Logger LOGGER = LoggerFactory.getLogger(ExportDataController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExportDataController.class);
 
     @Autowired
     private StatisticsService statisticsService;
@@ -56,6 +60,8 @@ public class ExportDataController {
     private OrderService orderService;
     @Autowired
     private ProjectService projectService;
+    @Autowired
+    private PurchService purchService;
 
     /**
      * 导出销售业绩统计信息
@@ -173,9 +179,12 @@ public class ExportDataController {
     public ModelAndView orderExport(HttpServletResponse response, HttpServletRequest request) throws Exception {
         Map<String, String> params = getParameters(request);
         try {
+            String lang = CookiesUtil.getLang(request);
+            //service获取token信息
+            String eruiToken = CookiesUtil.getEruiToken(request);
+            ThreadLocalUtil.setObject(eruiToken);
             OrderListCondition obj = JSON.parseObject(JSON.toJSONString(params), OrderListCondition.class);
             List<Order> orderList = orderService.findOrderExport(obj);
-            String lang = CookiesUtil.getLang(request);
             if (orderList.size() > 0) {
                 orderList.forEach(vo -> {
                     vo.setOrderPayments(null);
@@ -188,22 +197,18 @@ public class ExportDataController {
                     vo.setOrderPayments(null);
                 });
             }
-            //"币种"
           /*  String[] header = new String[]{"销售合同号", "项目号", "Po号", "询单号", "市场经办人", "商务技术经办人", "合同交货日期", "订单签约日期",
                     "CRM客户代码", "订单类型", "合同总价(USD)", "款项状态", "订单来源", "订单状态", "流程进度"};*/
             String[] header = new String[]{"销售合同号", "项目号", "询单号", "商务技术经办人", "执行事业部", "合同交货日期",
                     "CRM客户代码", "合同总价(USD)", "款项状态", "订单状态", "流程进度"};
-            //"currency"
            /* String[] enHeader = new String[]{"Contract No.", "Project number", "PO No", "Inquiry No", "Market manager", "Agent from business technology department", "Delivery date in the contract", "Signing date of the order",
                     "CRM ID", "Order type",  "Total value(USD)", "Payment status", "Order origin", "Order status", "Project progress"};*/
             String[] enHeader = new String[]{"Contract No.", "Project No", "Inquiry No", "Agent from business technology department", "Executive Division", "Delivery date in the contract",
                     "CRM ID", "Total value(USD)", "Payment status", "Order status", "Project progress"};
-            //"currencyBn"
            /* String[] keys = new String[]{"contractNo", "projectNo", "poNo", "inquiryNo", "agentName", "businessName", "deliveryDate", "signingDate",
                     "crmCode", "orderTypeName", "totalPriceUsdSplit", "payStatusName", "orderSourceName", "orderStatusName", "processProgressName"};*/
             String[] keys = new String[]{"contractNo", "projectNo", "inquiryNo", "businessName", "businessUnitName", "deliveryDate",
                     "crmCode", "totalPriceUsd", "payStatusName", "orderStatusName", "processProgressName"};
-            //"currencyBn"
            /* String[] enKeys = new String[]{"contractNo", "projectNo", "poNo", "inquiryNo", "agentName", "businessName", "deliveryDate", "signingDate",
                     "crmCode", "enOrderTypeName", "totalPriceUsdSplit", "enPayStatusName", "enOrderSourceName", "enOrderStatusName", "enProcessProgressName"};*/
             String[] enKeys = new String[]{"contractNo", "projectNo", "inquiryNo", "businessName", "businessUnitName", "deliveryDate",
@@ -248,7 +253,7 @@ public class ExportDataController {
                 project.setOrder(null);
                 project.setPurchs(null);
                 project.setProjectProfit(null);
-                project.setRegion(bnMapZhRegion.get(project.getRegion()));
+                project.setRegion(bnMapZhRegion.get(project.getOrder().getRegion()));
             }
 
         }
@@ -470,7 +475,60 @@ public class ExportDataController {
         return result;
     }
 
-    private final static String EXCEL_TEMPLATE_PATH = "/WEB-INF/template/excel";
-    private final static String EXCEL_SUFFIX = ".xlsx";
-    private final static String EXCEL_SUFFIX02 = ".xls";
+    /**
+     * 导出采购合同excel
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "/exportPurchContract", method = RequestMethod.GET)
+    public void exportPurchContract(HttpServletRequest request, HttpServletResponse response) {
+        String id = request.getParameter("id");
+        if (StringUtils.isBlank(id) || !StringUtils.isNumeric(id)) {
+            LOGGER.error("参数不正确 {}", id);
+            return; // 参数错误，无法下载
+        }
+        OutputStream out = null;
+        try {
+            // 拿到模板文件
+            // 获取模板文件内容
+            String fileName = ExcelUploadTypeEnum.getByType(18).getTable();
+            String contextRealPath = request.getSession().getServletContext().getRealPath(EXCEL_TEMPLATE_PATH);
+            File file = new File(contextRealPath, fileName + EXCEL_SUFFIX);
+            FileInputStream tps = new FileInputStream(file);
+            final XSSFWorkbook workbook = new XSSFWorkbook(tps);
+            out = response.getOutputStream();
+            String encode = URLEncoder.encode(fileName, "UTF-8");
+            // 输出到客户端
+            response.reset();
+            response.setContentType("application/octet-stream;charset=UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + encode
+                    + DateUtil.format(DateUtil.SHORT_FORMAT_STR, new Date()) + EXCEL_SUFFIX + "\"");
+            // 填充数据
+            purchService.fillTempExcelData(workbook, Integer.parseInt(id));
+            // 输出Excel内容，生成Excel文件
+            if (workbook != null) {
+                workbook.write(out);
+            }
+
+        } catch (final Exception e) {
+            LOGGER.error("异常" + e.getMessage(), e);
+        } finally {
+            try {
+                // 最后记得关闭输出流
+                response.flushBuffer();
+                if (out != null) {
+                    out.flush();
+                    out.close();
+                }
+            } catch (final IOException e) {
+                LOGGER.error("异常" + e.getMessage(), e);
+            }
+        }
+    }
+
+    private static final String EXCEL_TEMPLATE_PATH = "/WEB-INF/template/excel";
+    private static final String EXCEL_SUFFIX = ".xlsx";
+    private static final String EXCEL_SUFFIX02 = ".xls";
 }

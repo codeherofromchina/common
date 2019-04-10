@@ -12,11 +12,10 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.event.OrderProgressEvent;
+import com.erui.order.event.PurchDoneCheckEvent;
+import com.erui.order.event.TasksAddEvent;
 import com.erui.order.requestVo.ProjectListCondition;
-import com.erui.order.service.BackLogService;
-import com.erui.order.service.CheckLogService;
-import com.erui.order.service.ProjectService;
-import com.erui.order.service.StatisticsService;
+import com.erui.order.service.*;
 import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
@@ -34,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -71,6 +72,10 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
+    @Autowired
+    private AttachmentDao attachmentDao;
+    @Autowired
+    AttachmentService attachmentService;
 
     @Override
     @Transactional(readOnly = true)
@@ -79,6 +84,11 @@ public class ProjectServiceImpl implements ProjectService {
         if (project != null) {
             project.getOrder();
         }
+        List<Attachment> orderAttachment = attachmentDao.findByRelObjIdAndCategory(id, Attachment.AttachmentCategory.PROJECT.getCode());
+        if (orderAttachment != null && orderAttachment.size() > 0) {
+            project.setAttachmentList(orderAttachment);
+        }
+        project.getAttachmentList().size();
         return project;
     }
 
@@ -96,10 +106,28 @@ public class ProjectServiceImpl implements ProjectService {
         return projects;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Integer> findByProjectNos(List<String> projectNos) {
+        List<Project> projects = null;
+        List<Integer> teachnalsList = new ArrayList<>();
+        if (projectNos != null && projectNos.size() > 0) {
+            projects = projectDao.findByProjectNoIn(projectNos);
+        }
+        if (projects != null && projects.size() > 0) {
+            for (Project p : projects) {
+                teachnalsList.add(p.getBusinessUid());
+            }
+            return teachnalsList;
+        }
+        return null;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateProject(Project project) throws Exception {
-        Project projectUpdate = projectDao.findOne(project.getId());
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        Project projectUpdate = findById(project.getId());
         Order order = projectUpdate.getOrder();
         Project.ProjectStatusEnum nowProjectStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         Project.ProjectStatusEnum paramProjectStatusEnum = Project.ProjectStatusEnum.fromCode(project.getProjectStatus());
@@ -142,7 +170,7 @@ public class ProjectServiceImpl implements ProjectService {
                     newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.REJECTORDER.getMsg());  //功能名称
                     newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
                     String contractNo = order.getContractNo();  //销售合同号
-                    newBackLog.setReturnNo(contractNo);  //返回单号
+                    newBackLog.setReturnNo(contractNo);  // 返回单号
                     String region = order.getRegion();//地区
                     Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
                     String country = order.getCountry();//国家
@@ -163,7 +191,12 @@ public class ProjectServiceImpl implements ProjectService {
                 ProjectProfit projectProfit = project.getProjectProfit();
                 projectProfit.setProject(project);
                 projectProfitDao.save(projectProfit);
-                projectUpdate.setAttachmentList(project.getAttachmentList());
+                // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
+                //projectUpdate.setAttachmentList(project.getAttachmentList());
+                List<Attachment> attachmentList = project.getAttachmentList();
+                Map<Integer, Attachment> dbAttahmentsMap = projectUpdate.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+                attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, projectUpdate.getId(), Attachment.AttachmentCategory.PROJECT.getCode());
+
                 project.copyProjectDescTo(projectUpdate);
                 //order.setStatus(Order.StatusEnum.DONE.getCode());
                 //applicationContext.publishEvent(new OrderProgressEvent(order, 2));
@@ -181,6 +214,7 @@ public class ProjectServiceImpl implements ProjectService {
                     if (paramProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum()) {
                         throw new MyException(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error"));
                     }
+                    projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
                 } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT) {
                     // 之前只保存了项目，则流程可以是提交到项目经理和执行
                     if (paramProjectStatusEnum.getNum() > Project.ProjectStatusEnum.EXECUTING.getNum()) {
@@ -190,7 +224,12 @@ public class ProjectServiceImpl implements ProjectService {
                     projectProfit.setProject(project);
                     projectProfitDao.save(projectProfit);
                     project.copyProjectDescTo(projectUpdate);
-                    projectUpdate.setAttachmentList(project.getAttachmentList());
+                    // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
+                    //projectUpdate.setAttachmentList(project.getAttachmentList());
+                    List<Attachment> attachmentList = project.getAttachmentList();
+                    Map<Integer, Attachment> dbAttahmentsMap = projectUpdate.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+                    attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, projectUpdate.getId(), Attachment.AttachmentCategory.PROJECT.getCode());
+
                     Integer auditingLevel = project.getAuditingLevel();
                     Integer orderCategory = order.getOrderCategory();
                     if (orderCategory != null && orderCategory == 1) { // 预投
@@ -241,9 +280,9 @@ public class ProjectServiceImpl implements ProjectService {
                         newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getMsg());  //功能名称
                         newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum());    //功能访问路径标识
                         newBackLog.setReturnNo(projectUpdate.getContractNo());  //返回单号    销售合同号
-                        String region = projectUpdate.getRegion();   //所属地区
+                        String region = projectUpdate.getOrder().getRegion();   //所属地区
                         Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
-                        String country = projectUpdate.getCountry();  //国家
+                        String country = projectUpdate.getOrder().getCountry();  //国家
                         Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
                         newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
                         newBackLog.setHostId(order.getId());    //父ID，列表页id
@@ -335,20 +374,20 @@ public class ProjectServiceImpl implements ProjectService {
                 }
                 // 操作相关订单信息
                 if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING && !Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
-                    //Order order = projectUpdate.getOrder();
-                    try {
-                        order.getGoodsList().forEach(gd -> {
-                                    gd.setStartDate(project.getStartDate());
-                                    gd.setDeliveryDate(project.getDeliveryDate());
-                                    gd.setProjectRequirePurchaseDate(project.getRequirePurchaseDate());
-                                    gd.setExeChgDate(project.getExeChgDate());
-                                }
-                        );
+                    if (nowProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum() && paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
+                        try {
+                            order.getGoodsList().forEach(gd -> {
+                                        gd.setStartDate(project.getStartDate());
+                                        gd.setDeliveryDate(project.getDeliveryDate());
+                                        gd.setProjectRequirePurchaseDate(project.getRequirePurchaseDate());
+                                        gd.setExeChgDate(project.getExeChgDate());
+                                    }
+                            );
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-                    projectUpdate.setStartDate(project.getStartDate());
                     projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
                     projectUpdate.setRequirePurchaseDate(project.getRequirePurchaseDate());
                     if (projectUpdate.getExeChgDate() == null) {
@@ -356,21 +395,21 @@ public class ProjectServiceImpl implements ProjectService {
                         projectUpdate.setExeChgDate(project.getExeChgDate());
                     }
                     order.setStatus(Order.StatusEnum.EXECUTING.getCode());
-                    applicationContext.publishEvent(new OrderProgressEvent(order, 2));
+                    applicationContext.publishEvent(new OrderProgressEvent(order, 2, eruiToken));
                     //现货出库和海外销（当地采购）的单子流程状态改为 已发运
-                    applicationContext.publishEvent(new OrderProgressEvent(order, 10));
+                    applicationContext.publishEvent(new OrderProgressEvent(order, 10, eruiToken));
                     orderDao.save(order);
 
                     //如果是直接执行项目，删除   “执行项目”  待办提示信息
                     BackLog backLog = new BackLog();
                     backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum());    //功能访问路径标识
-                    backLog.setHostId(projectUpdate.getId());
+                    backLog.setHostId(projectUpdate.getOrder().getId());
                     backLogService.updateBackLogByDelYn(backLog);
 
                     //如果项目是提交状态    如果有项目经理驳回信息删除
                     BackLog backLog2 = new BackLog();
                     backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTPROJRCT.getNum());    //功能访问路径标识
-                    backLog2.setHostId(projectUpdate.getId());
+                    backLog2.setHostId(projectUpdate.getOrder().getId());
                     backLogService.updateBackLogByDelYn(backLog2);
 
                     //项目状态是提交状态  通知商务技术经办人办理采购申请
@@ -378,14 +417,14 @@ public class ProjectServiceImpl implements ProjectService {
                     newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHREQUISITION.getMsg());  //功能名称
                     newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHREQUISITION.getNum());    //功能访问路径标识
                     newBackLog.setReturnNo(projectUpdate.getContractNo());  //返回单号    销售合同号
-                    String region = projectUpdate.getRegion();   //所属地区
+                    String region = projectUpdate.getOrder().getRegion();   //所属地区
                     Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
-                    String country = projectUpdate.getCountry();  //国家
+                    String country = projectUpdate.getOrder().getCountry();  //国家
                     Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
                     newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
                     newBackLog.setHostId(order.getId());    //父ID，列表页id
                     newBackLog.setFollowId(projectUpdate.getId());    //子ID，详情中列表页id
-                    Integer businessUid = projectUpdate.getBusinessUid();//商务技术经办人id
+                    Integer businessUid = projectUpdate.getBusinessUid(); //商务技术经办人id
                     newBackLog.setUid(businessUid);   ////经办人id
                     backLogService.addBackLogByDelYn(newBackLog);
                 }
@@ -445,9 +484,11 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setAuditingUserId("31025,39552"); // 崔荣光、田万全*/
         projectUpdate.setAuditingProcess("13"); // 3.财务审核
         projectUpdate.setAuditingUserId("39552"); // 田万全
-        sendDingtalk(projectUpdate.getOrder(), "31025", false);
+        //sendDingtalk(projectUpdate.getOrder(), "31025", false);
         sendDingtalk(projectUpdate.getOrder(), "39552", false);
         projectUpdate.setAuditingStatus(2); // 审核中
+
+        auditBackLogHandle(projectUpdate, false, "39552");
     }
 
     @Transactional(readOnly = true)
@@ -477,7 +518,16 @@ public class ProjectServiceImpl implements ProjectService {
                 }
                 //根据项目开始时间查询
                 if (condition.getStartDate() != null) {
-                    searchList.add(cb.equal(root.get("startDate").as(Date.class), NewDateUtil.getDate(condition.getStartDate())));
+                    String startDateStr = condition.getStartDate().toString();
+                    String endDateStr = condition.getStartDate().toString();
+                    if (StringUtils.isNotBlank(startDateStr)) {
+                        Date startT = DateUtil.getOperationTime(condition.getStartDate(), 0, 0, 0);
+                        searchList.add(cb.greaterThanOrEqualTo(root.get("startDate").as(Date.class), startT));
+                    }
+                    if (StringUtils.isNotBlank(endDateStr)) {
+                        Date endT = DateUtil.getOperationTime(condition.getStartDate(), 23, 59, 59);
+                        searchList.add(cb.lessThan(root.get("startDate").as(Date.class), endT));
+                    }
                 }
                 //根据项目状态
                 String[] projectStatus = null;
@@ -807,6 +857,11 @@ public class ProjectServiceImpl implements ProjectService {
                     goods.setPurchGoods(null);
                 }
             }
+            List<Attachment> orderAttachment = attachmentDao.findByRelObjIdAndCategory(id, Attachment.AttachmentCategory.PROJECT.getCode());
+            if (orderAttachment != null && orderAttachment.size() > 0) {
+                project.setAttachmentList(orderAttachment);
+            }
+            project.getAttachmentList().size();
 
         }
         return project;
@@ -824,6 +879,11 @@ public class ProjectServiceImpl implements ProjectService {
                     goods.setPurchGoods(null);
                 }
             }
+            List<Attachment> orderAttachment = attachmentDao.findByRelObjIdAndCategory(project.getId(), Attachment.AttachmentCategory.PROJECT.getCode());
+            if (orderAttachment != null && orderAttachment.size() > 0) {
+                project.setAttachmentList(orderAttachment);
+            }
+            project.getAttachmentList().size();
 
             return project;
         }
@@ -1140,14 +1200,31 @@ public class ProjectServiceImpl implements ProjectService {
             auditingStatus_i = 3;
             if (checkLog.getType() == 1) { // 驳回到订单
                 Integer auditingProcess_order = checkLog.getAuditingProcess(); //驳回给哪一步骤
-                String auditingUserId_order = String.valueOf(checkLog.getAuditingUserId());//要驳回给谁
+                String auditingUserId_order = String.valueOf(checkLog.getAuditingUserId()); //要驳回给谁
                 if (auditingProcess_order != null && auditingProcess_order == 0) {
                     project.getOrder().setStatus(1);
                 }
                 project.getOrder().setAuditingUserId(auditingUserId_order);
                 project.getOrder().setAuditingStatus(auditingStatus_i);
                 project.getOrder().setAuditingProcess(auditingProcess_order);
-                project.getOrder().getProject().setAuditingStatus(0);
+                project.setAuditingStatus(0);
+
+                // 推送待办事件
+                String infoContent = String.format("%s | %s", project.getOrder().getRegion(), project.getOrder().getCountry());
+                String crmCode = project.getOrder().getCrmCode();
+                BackLog.ProjectStatusEnum pse = null;
+                if (auditingProcess_order != null && auditingProcess_order == 0) {
+                    pse = BackLog.ProjectStatusEnum.ORDER_REJECT2;
+                } else if (auditingProcess_order != null && auditingProcess_order == 6) {
+                    pse = BackLog.ProjectStatusEnum.ORDER_REJECT3;
+                } else {
+                    pse = BackLog.ProjectStatusEnum.ORDER_REJECT;
+                }
+                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                        pse, crmCode, infoContent,
+                        project.getOrder().getId(),
+                        Integer.parseInt(auditingUserId_order)));
+
             } else { // 驳回到项目
                 auditingProcess_i = checkLog.getAuditingProcess().toString(); // 事业部利润核算 处理
                 auditingUserId_i = String.valueOf(checkLog.getAuditingUserId()); // 要驳回给谁
@@ -1177,6 +1254,7 @@ public class ProjectServiceImpl implements ProjectService {
                         throw new MyException(String.format("%s%s%s", "审核流程错误，无事业部利润核算审核", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Audit process error, no profit accounting audit."));
                     case 12: // 法务审核
                         /*String replace = auditingUserId.replace("31025", "");
+
                         if ("".equals(replace)) { // 跟他并行审核的都已经审核完成
                             if (logistics_audit != null && logistics_audit == 2) { // 需要物流审核
                                 auditingProcess_i = "5"; //
@@ -1239,7 +1317,7 @@ public class ProjectServiceImpl implements ProjectService {
                     case 16:
                         if (auditingLevel > 1) {
                             auditingProcess_i = "17"; //
-                            auditingUserId_i = project.getBuVpAuditerId().toString(); //黄永霞
+                            auditingUserId_i = project.getBuVpAuditerId().toString();
                             break;
                         }
                     case 17:
@@ -1256,7 +1334,7 @@ public class ProjectServiceImpl implements ProjectService {
                         }
                     case 19:
                         auditingStatus_i = 4; // 完成
-                        auditingProcess_i = null; // 无下一审核进度和审核人
+                        auditingProcess_i = "999"; // 无下一审核进度和审核人
                         auditingUserId_i = null;
                         break;
                     default:
@@ -1284,8 +1362,65 @@ public class ProjectServiceImpl implements ProjectService {
         sendDingtalk(project.getOrder(), auditingUserId_i, rejectFlag);
         project.setAudiRemark(auditorIds.toString());
         projectDao.save(project);
+
+        auditBackLogHandle(project, rejectFlag, auditingUserId_i);
+
         return true;
     }
+
+    private void auditBackLogHandle(Project project, boolean rejectFlag, String auditingUserId) {
+        try {
+            // 删除上一个待办，上一个待办可能是以下几种情况
+            BackLog backLog2 = new BackLog();
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_AUDIT.getNum());
+            backLog2.setHostId(project.getOrder().getId());
+            backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_REJECT.getNum());
+            backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_REJECT2.getNum());
+            backLogService.updateBackLogByDelYn(backLog2);
+
+            if (StringUtils.isNotBlank(auditingUserId)) {
+                Integer[] userIdArr = Arrays.stream(auditingUserId.split(",")).map(vo -> Integer.parseInt(vo)).toArray(Integer[]::new);
+                // 推送待办事件
+                String infoContent = project.getProjectName();
+                String projectNo = project.getProjectNo();
+                String processProgress = project.getProcessProgress();
+                BackLog.ProjectStatusEnum pse = null;
+                if (rejectFlag && StringUtils.equals(processProgress, "6")) {
+                    // 是项目驳回，且驳回到商务技术，则需要编辑页面的地址
+                    pse = BackLog.ProjectStatusEnum.PROJECT_REJECT2;
+                } else if (rejectFlag) {
+                    pse = BackLog.ProjectStatusEnum.PROJECT_REJECT;
+                } else {
+                    pse = BackLog.ProjectStatusEnum.PROJECT_AUDIT;
+                }
+                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                        pse, projectNo,
+                        infoContent,
+                        project.getOrder().getId(),
+                        "项目",
+                        userIdArr));
+            } else if ("999".equals(project.getAuditingProcess())) {
+                // 所有审核完成，推送消息到项目商务技术经办人
+
+                String region = project.getOrder().getRegion();   //所属地区
+                Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+                String country = project.getOrder().getCountry();  //国家
+                Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+                String infoContent = bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country);  //提示内容
+                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                        BackLog.ProjectStatusEnum.EXECUTEPROJECT, project.getProjectNo(),
+                        infoContent,
+                        project.getOrder().getId(),
+                        "项目",
+                        project.getBusinessUid()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     public void addProfitData(XSSFWorkbook workbook, Map<String, Object> results) {
@@ -1293,8 +1428,9 @@ public class ProjectServiceImpl implements ProjectService {
         // 获取第二个sheet页
         Sheet sheet1 = workbook.getSheetAt(0);
         Row row4 = sheet1.getRow(4);
-        if (projectDec.getCountry() != null) {
-            row4.getCell(1).setCellValue(projectDec.getCountry());
+        if (projectDec.getOrder().getCountry() != null) {
+            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+            row4.getCell(1).setCellValue(bnMapZhCountry.get(projectDec.getOrder().getCountry()));
         }
         if (projectDec.getBusinessUnitName() != null) {
             row4.getCell(4).setCellValue(projectDec.getBusinessUnitName());
@@ -1479,6 +1615,8 @@ public class ProjectServiceImpl implements ProjectService {
         checkLog.setAuditingMsg(auditingMsg);
         checkLog.setOperation(operation);
         checkLog.setType(type);
+        CheckLog.AuditProcessingEnum ape = CheckLog.AuditProcessingEnum.findEnum(type, auditingProcess);
+        checkLog.setAuditSeq(ape.getAuditSeq());
 
         return checkLog;
     }

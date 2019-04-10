@@ -26,7 +26,6 @@ import java.util.*;
 
 /**
  * 仓库管理 - 出库管理
- *
  */
 @RestController
 @RequestMapping(value = "/order/storehouseManage")
@@ -44,16 +43,16 @@ public class DeliverDetailsController {
      * @return
      */
     @RequestMapping(value = "outboundManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> outboundManage(@RequestBody DeliverD deliverD){
+    public Result<Object> outboundManage(@RequestBody DeliverD deliverD) {
         Result<Object> result = new Result<>();
         int page = deliverD.getPage();
         if (page < 1) {
             return new Result<>(ResultStatusEnum.PAGE_ERROR);
         }
-        Page<DeliverDetail> deliverDetail=null;
+        Page<DeliverDetail> deliverDetail = null;
         try {
-            deliverDetail=deliverDetailService.outboundManage(deliverD);
-        }catch (Exception e){
+            deliverDetail = deliverDetailService.outboundManage(deliverD);
+        } catch (Exception e) {
             String message = e.getMessage();
             return new Result<>(ResultStatusEnum.FAIL).setMsg(message);
         }
@@ -63,20 +62,23 @@ public class DeliverDetailsController {
 
     /**
      * 出库详情页 - 查看
-     *
+     * <p>
      * V2.0
-     *
+     * <p>
      * 从出口通知单获取信息
      *
      * @return
      */
     //TODO 掉接口
     @RequestMapping(value = "outboundDetailsPage", method = RequestMethod.POST)
-    public Result<Object> outboundDetailsPage(@RequestBody DeliverDetail deliverDetails){
-        if(deliverDetails == null || deliverDetails.getId() == null){
+    public Result<Object> outboundDetailsPage(@RequestBody DeliverDetail deliverDetails) {
+        if (deliverDetails == null || deliverDetails.getId() == null) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
         DeliverDetail deliverDetail = deliverDetailService.findDetailById(deliverDetails.getId());
+        if (deliverDetail == null) {
+            return new Result<>("无出库发货通知单关系");
+        }
         Map<String, Object> data = new HashMap<>();
         // 出库基本信息
         data.put("deliverDetailInfo", deliverDetail); // 出库基本信息
@@ -84,11 +86,11 @@ public class DeliverDetailsController {
         Map<String, Object> deliverNoticeInfo = new HashMap<>();
 
         DeliverConsign deliverConsign = deliverDetail.getDeliverConsign();
-        if(deliverConsign == null ){
+        if (deliverConsign == null) {
             return new Result<>("无出库发货通知单关系");
         }
-        deliverNoticeInfo.put("toPlace",deliverConsign.getOrder().getToPort()); // 目的港
-        deliverNoticeInfo.put("tradeTerms",deliverConsign.getOrder().getTradeTerms()); // 贸易术语
+        deliverNoticeInfo.put("toPlace", deliverConsign.getOrder().getToPort()); // 目的港
+        deliverNoticeInfo.put("tradeTerms", deliverConsign.getOrder().getTradeTerms()); // 贸易术语
         deliverNoticeInfo.put("numers", deliverDetail.getPackTotal()); // 总包装件数
 
         List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
@@ -116,26 +118,26 @@ public class DeliverDetailsController {
      * @return
      */
     @RequestMapping(value = "outboundSaveOrAdd", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> outboundSaveOrAdd(@RequestBody DeliverDetail deliverDetail, HttpServletRequest request){
+    public Result<Object> outboundSaveOrAdd(@RequestBody DeliverDetail deliverDetail, HttpServletRequest request) {
         Result<Object> result = new Result<>();
-        String message =null;
+        String message = null;
         try {
             String eruiToken = CookiesUtil.getEruiToken(request);
             ThreadLocalUtil.setObject(eruiToken);
 
             boolean flag = false;
-            if(deliverDetail.getStatus() == 5){
+            if (deliverDetail.getStatus() == 5) {
                 flag = deliverDetailService.outboundSaveOrAdd(deliverDetail);
-            }else{
+            } else {
                 if (deliverDetail.getBillingDate() == null) {
                     result.setCode(ResultStatusEnum.FAIL.getCode());
                     result.setMsg("开单日期不能为空");
                     return result;
-                }else if (deliverDetail.getPackTotal() == null){
+                } else if (deliverDetail.getPackTotal() == null) {
                     result.setCode(ResultStatusEnum.FAIL.getCode());
                     result.setMsg("总包装件数不能为空");
                     return result;
-                }else{
+                } else {
                     flag = deliverDetailService.outboundSaveOrAdd(deliverDetail);
                 }
             }
@@ -143,13 +145,11 @@ public class DeliverDetailsController {
                 return new Result<>();
             }
         } catch (Exception ex) {
-            message=ex.getMessage();
+            message = ex.getMessage();
             logger.error("出库详情页操作失败：{}", deliverDetail, ex);
         }
         return new Result<>(ResultStatusEnum.FAIL).setMsg(message);
     }
-
-
 
 
     /**
@@ -159,54 +159,52 @@ public class DeliverDetailsController {
      * @return
      */
     @RequestMapping(value = "storehouseManageDeliverAgent", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> storehouseManageDeliverAgent(@RequestBody DeliverDetail deliverDetail, HttpServletRequest request){
+    public Result<Object> storehouseManageDeliverAgent(@RequestBody DeliverDetail deliverDetail, HttpServletRequest request) {
         Result<Object> result = new Result<>();
-        String message =null;
+        String message = null;
         try {
             String eruiToken = CookiesUtil.getEruiToken(request);
             ThreadLocalUtil.setObject(eruiToken);
 
-            if(deliverDetail.getStatus() != DeliverDetail.StatusEnum.SAVED_OUTSTOCK.getStatusCode()){
+            if (deliverDetail.getStatus() != DeliverDetail.StatusEnum.SAVED_OUTSTOCK.getStatusCode()) {
                 result.setCode(ResultStatusEnum.FAIL.getCode());
                 result.setMsg("出库信息状态不正确");
                 return result;
 
-            }else if (deliverDetail.getId() == null) {
+            } else if (deliverDetail.getId() == null) {
                 result.setCode(ResultStatusEnum.FAIL.getCode());
                 result.setMsg("出库id不能为空");
                 return result;
 
-            }else if (deliverDetail.getWareHouseman() == null){
+            } else if (deliverDetail.getWareHouseman() == null) {
                 result.setCode(ResultStatusEnum.FAIL.getCode());
                 result.setMsg("出库经办人ID不能为空");
                 return result;
 
-            }else if (StringUtil.isBlank(deliverDetail.getWareHousemanName())){
+            } else if (StringUtil.isBlank(deliverDetail.getWareHousemanName())) {
                 result.setCode(ResultStatusEnum.FAIL.getCode());
                 result.setMsg("出库经办人姓名不能为空");
                 return result;
 
-            } else if(deliverDetailService.storehouseManageDeliverAgent(deliverDetail)){
+            } else if (deliverDetailService.storehouseManageDeliverAgent(deliverDetail)) {
                 return new Result<>();
 
             }
 
         } catch (Exception ex) {
-            message=ex.getMessage();
+            message = ex.getMessage();
             logger.error("出库详情页操作失败：{}", deliverDetail, ex);
         }
         return new Result<>(ResultStatusEnum.FAIL).setMsg(message);
     }
 
 
-
-
     //处理商品信息
-    public static List<Map<String, Object>> goodsMessage(List<DeliverConsignGoods> deliverConsignGoodsList){
+    public static List<Map<String, Object>> goodsMessage(List<DeliverConsignGoods> deliverConsignGoodsList) {
 
         List<Map<String, Object>> goodsInfoList = new ArrayList<>();
         for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList) {
-            if(deliverConsignGoods.getSendNum() != 0){
+            if (deliverConsignGoods.getSendNum() != 0) {
                 Goods goods = deliverConsignGoods.getGoods();
                 goods.setPurchGoods(null);
                 Map<String, Object> goodsInfoMap = new HashMap<>();
@@ -231,12 +229,12 @@ public class DeliverDetailsController {
                 goodsInfoList.add(goodsInfoMap);
             }
         }
-        return  goodsInfoList;
+        return goodsInfoList;
     }
 
 
     //处理附件信息
-    public static Map<String, Object> attachmentLists(List<Attachment> attachmentLists){
+    public static Map<String, Object> attachmentLists(List<Attachment> attachmentLists) {
         Map<String, Object> deliverNoticeInfo = new HashMap<>();
 
         //仓储物流部
@@ -263,10 +261,10 @@ public class DeliverDetailsController {
             }
         }
 
-        deliverNoticeInfo.put("attachmentList2",attachmentList03);//品控部
+        deliverNoticeInfo.put("attachmentList2", attachmentList03);//品控部
         deliverNoticeInfo.put("attachmentList", attachmentList);    //仓储物流部
 
-        return  deliverNoticeInfo;
+        return deliverNoticeInfo;
     }
 
 

@@ -29,6 +29,7 @@ public interface ProjectService {
      * @return
      */
     List<Project> findByIds(List<Integer> ids);
+    List<Integer> findByProjectNos(List<String> projectNos);
 
     /**
      * 办理项目
@@ -104,4 +105,6 @@ public interface ProjectService {
      * @return
      */
     void addProfitData(XSSFWorkbook workbook, Map<String, Object> results);
+
+
 }

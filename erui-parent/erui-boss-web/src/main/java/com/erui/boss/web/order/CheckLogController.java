@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("order/checkLog")
 public class CheckLogController {
-    private final static Logger logger = LoggerFactory.getLogger(CheckLogController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CheckLogController.class);
     @Autowired
     private CheckLogService checkLogService;
 
@@ -44,6 +45,42 @@ public class CheckLogController {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         return new Result<>(listByOrderId);
+    }
+
+
+    /**
+     * 根据订单id查询(进行中/已完成)采购列表
+     *
+     * @param params {orderId:"订单ID"}
+     * @return
+     */
+    @RequestMapping(value = "queryCheckLogs", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> byPurchId(@RequestBody Map<String, String> params) {
+
+        List<CheckLog> data = null;
+        String category = params.get("category");
+        Integer joinId = null;
+        Integer type = null;
+        if (params.containsKey("joinId") && params.get("joinId") != null) {
+            joinId = Integer.parseInt(params.get("joinId"));
+        }
+        if (params.containsKey("type") && params.get("type") != null) {
+            type = Integer.parseInt(params.get("type"));
+        }
+
+        if (joinId != null && type != null && joinId > 0) {
+            try {
+                data = checkLogService.findListByJoinId(category, joinId, type);
+            } catch (Exception e) {
+                LOGGER.error("错误", e);
+                return new Result<>(ResultStatusEnum.FAIL);
+            }
+        } else {
+            data = new ArrayList<>();
+        }
+
+
+        return new Result<>(data);
     }
 
     /**

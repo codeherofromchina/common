@@ -80,7 +80,13 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     @Override
     @Transactional(readOnly = true)
     public InspectApply findById(Integer id) {
-        return inspectApplyDao.findOne(id);
+        InspectApply inspectApply = inspectApplyDao.findOne(id);
+        if (inspectApply != null) {
+            List<Attachment> attachments = attachmentService.queryAttachs(inspectApply.getId(), Attachment.AttachmentCategory.INSPECTAPPLY.getCode());
+            inspectApply.setAttachmentList(attachments);
+            inspectApply.getAttachmentList().size();
+        }
+        return inspectApply;
     }
 
     @Override
@@ -113,6 +119,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
      */
     @Transactional(rollbackFor = Exception.class)
     public boolean insert(InspectApply inspectApply) throws Exception {
+        String eruiToken = (String) ThreadLocalUtil.getObject();
         Purch purch = purchDao.findOne(inspectApply.getpId());
         if (purch == null || purch.getStatus() != Purch.StatusEnum.BEING.getCode()) {
             // 采购为空或采购已完成，则返回报检失败
@@ -133,8 +140,8 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         inspectApply.setHistory(false);
         inspectApply.setCreateTime(new Date());
         // 处理附件信息
-        List<Attachment> attachmentlist = attachmentService.handleParamAttachment(null, inspectApply.getAttachmentList(), inspectApply.getCreateUserId(), inspectApply.getCreateUserName());
-        inspectApply.setAttachmentList(attachmentlist);
+        //List<Attachment> attachmentlist = attachmentService.handleParamAttachment(null, inspectApply.getAttachmentList(), inspectApply.getCreateUserId(), inspectApply.getCreateUserName());
+        //inspectApply.setAttachmentList(attachmentlist);
         // 处理商品信息处理商品信息处理商品信息
         //  厂家发货且不检查
         boolean directInstockGoods = inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() &&
@@ -183,7 +190,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 }
                 goodsDao.save(goods);
                 //已报检
-                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 4));
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 4, eruiToken));
             }
             // 设置预报检商品数量
             purchGoods.setPreInspectNum(purchGoods.getPreInspectNum() + inspectNum);
@@ -202,11 +209,11 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 }
             }
         }
-        String lastApplyNo =null;
+        String lastApplyNo = null;
         String applyNo = null;
         for (Map.Entry<Integer, List<InspectApplyGoods>> mapIGoods : mapGoods.entrySet()) {
             InspectApply inspectApplyAdd = new InspectApply();
-            BeanUtils.copyProperties(inspectApply,inspectApplyAdd);
+            BeanUtils.copyProperties(inspectApply, inspectApplyAdd);
             // 设置报检单号
             if (lastApplyNo == null) {
                 lastApplyNo = inspectApplyDao.findLastApplyNo();
@@ -217,7 +224,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             inspectApplyAdd.setId(null);
             inspectApplyAdd.setInspectApplyNo(applyNo);
             //根据质检人把商品分批质检
-            for (InspectApplyGoods inspectApplyGoods:mapIGoods.getValue()) {
+            for (InspectApplyGoods inspectApplyGoods : mapIGoods.getValue()) {
                 inspectApplyGoods.setInspectApply(inspectApplyAdd);
             }
             inspectApplyAdd.setInspectApplyGoodsList(mapIGoods.getValue());
@@ -234,6 +241,10 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             }
             // 保存报检单信息
             InspectApply save = inspectApplyDao.save(inspectApplyAdd);
+            //取消第三方关联表 添加附件
+            if (inspectApply.getAttachmentList() != null && inspectApply.getAttachmentList().size() > 0) {
+                attachmentService.addAttachments(inspectApply.getAttachmentList(), save.getId(), Attachment.AttachmentCategory.INSPECTAPPLY.getCode());
+            }
             // 推送数据到入库质检中
             if (inspectApplyAdd.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && !directInstockGoods) {
                 InspectReport inspectReport = pushDataToInspectReport(inspectApplyAdd);
@@ -261,22 +272,22 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
                 //当有报检单提交的时候，通知办理入库质检
                 List<Project> projects = purch.getProjects();
-                if(projects.size() > 0){
+                if (projects.size() > 0) {
                     Set<String> projectNoSet = new HashSet<>(); //项目号
-                    for (Project project : projects){
+                    for (Project project : projects) {
                         String projectNo = project.getProjectNo();
-                        if(projectNo != null){
+                        if (projectNo != null) {
                             projectNoSet.add(projectNo);
                         }
                     }
-                    for (Project project : projects){
+                    for (Project project : projects) {
                         BackLog newBackLog = new BackLog();
                         newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTREPORT.getMsg());  //功能名称
                         newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTREPORT.getNum());    //功能访问路径标识
                         newBackLog.setReturnNo(save.getInspectApplyNo());  //返回单号    返回空，两个标签
                         String purchNo = purch.getPurchNo();//采购合同号
                         String join = StringUtils.join(projectNoSet, ",");
-                        newBackLog.setInformTheContent(join+" | "+purchNo);  //提示内容
+                        newBackLog.setInformTheContent(join + " | " + purchNo);  //提示内容
                         newBackLog.setHostId(inspectReport.getId());    //父ID，列表页id (入库质检id)
                         newBackLog.setUid(project.getQualityUid());   ////经办人id
                         backLogService.addBackLogByDelYn(newBackLog);
@@ -311,6 +322,16 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         if (doneFlag) {
             purch.setStatus(Purch.StatusEnum.DONE.getCode());
             purchDao.save(purch);
+            try {
+                // 删除办理报检单待办事项列表
+                //全部质检合格以后，删除   “办理报检单”  待办提示
+                BackLog backLog = new BackLog();
+                backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
+                backLog.setHostId(purch.getId());
+                backLogService.updateBackLogByDelYn(backLog);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -323,7 +344,8 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean save(InspectApply inspectApply) throws Exception {
-        InspectApply dbInspectApply = inspectApplyDao.findOne(inspectApply.getId());
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        InspectApply dbInspectApply = findById(inspectApply.getId());
         if (dbInspectApply == null || dbInspectApply.getStatus() != InspectApply.StatusEnum.SAVED.getCode()) {
             throw new Exception(String.format("%s%s%s", "报检信息不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Inspection information does not exist"));
         }
@@ -335,13 +357,13 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         dbInspectApply.setRemark(inspectApply.getRemark());
         dbInspectApply.setStatus(inspectApply.getStatus());
         dbInspectApply.setPubStatus(inspectApply.getStatus()); // 设置报检单的全局状态
-        // 处理附件信息
+        /*// 处理附件信息
         List<Attachment> attachmentlist = attachmentService.handleParamAttachment(
                 dbInspectApply.getAttachmentList(),
                 inspectApply.getAttachmentList(),
                 inspectApply.getCreateUserId(),
                 inspectApply.getCreateUserName());
-        dbInspectApply.setAttachmentList(attachmentlist);
+        dbInspectApply.setAttachmentList(attachmentlist);*/
         //  厂家发货且不检查
         boolean directInstockGoods = inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() &&
                 inspectApply.getDirect() && !inspectApply.getOutCheck();
@@ -389,7 +411,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 }
                 goodsDao.save(goods);
                 //已报检
-                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 4));
+                applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 4, eruiToken));
             }
             // 更新预报检数量
             purchGoods.setPreInspectNum(purchGoods.getPreInspectNum() + inspectNum - oldInspectNum);
@@ -427,6 +449,13 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         }
         // 保存报检单
         InspectApply save = inspectApplyDao.save(dbInspectApply);
+        // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
+        //deliverConsign1.setAttachmentList(deliverConsign1.getAttachmentList());
+        List<Attachment> attachmentList = inspectApply.getAttachmentList();
+        Map<Integer, Attachment> dbAttahmentsMap = dbInspectApply.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        if (attachmentList != null && attachmentList.size() > 0) {
+            attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbInspectApply.getId(), Attachment.AttachmentCategory.INSPECTAPPLY.getCode());
+        }
         // 完善提交后的后续操作
         if (dbInspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && !directInstockGoods) {
             // 推送数据到入库质检中
@@ -437,21 +466,21 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
             //当有报检单提交的时候，通知办理入库质检
             List<Project> projects = purch.getProjects();
-            if(projects.size() > 0){
+            if (projects.size() > 0) {
                 Set<String> projectNoSet = new HashSet<>(); //项目号
-                for (Project project : projects){
+                for (Project project : projects) {
                     String projectNo = project.getProjectNo();
-                    if(projectNo != null){
+                    if (projectNo != null) {
                         projectNoSet.add(projectNo);
                     }
                 }
-                for (Project project : projects){
+                for (Project project : projects) {
                     BackLog newBackLog = new BackLog();
                     newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSPECTREPORT.getMsg());  //功能名称
                     newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTREPORT.getNum());    //功能访问路径标识
                     newBackLog.setReturnNo(save.getInspectApplyNo());  //返回单号    报检单号
                     String purchNo = purch.getPurchNo();//采购合同号
-                    newBackLog.setInformTheContent(StringUtils.join(projectNoSet,",")+" | "+purchNo);  //提示内容
+                    newBackLog.setInformTheContent(StringUtils.join(projectNoSet, ",") + " | " + purchNo);  //提示内容
                     newBackLog.setHostId(inspectReport.getId());    //父ID，列表页id (入库质检id)
                     newBackLog.setUid(project.getQualityUid());   ////经办人id
                     backLogService.addBackLogByDelYn(newBackLog);
@@ -488,7 +517,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean againApply(InspectApply inspectApply) throws Exception {
-        InspectApply lastInspectApply = inspectApplyDao.findOne(inspectApply.getId());
+        InspectApply lastInspectApply = findDetail(inspectApply.getId());
         if (lastInspectApply == null) {
             throw new Exception(String.format("%s%s%s", "不存在的报检单", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "A nonexistent check list"));
         }
@@ -567,9 +596,15 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         //插入新报检单附件信息
         newInspectApply.setStatus(InspectApply.StatusEnum.SUBMITED.getCode());
         newInspectApply.setPubStatus(InspectApply.StatusEnum.SUBMITED.getCode());
-        List<Attachment> attachmentList = attachmentService.handleParamAttachment(null, inspectApply.getAttachmentList(), inspectApply.getCreateUserId(), inspectApply.getCreateUserName());
-        newInspectApply.setAttachmentList(attachmentList);
-
+        //List<Attachment> attachmentList = attachmentService.handleParamAttachment(null, inspectApply.getAttachmentList(), inspectApply.getCreateUserId(), inspectApply.getCreateUserName());
+        //newInspectApply.setAttachmentList(attachmentList);
+        // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
+        //deliverConsign1.setAttachmentList(deliverConsign1.getAttachmentList());
+        List<Attachment> attachmentList = inspectApply.getAttachmentList();
+        Map<Integer, Attachment> dbAttahmentsMap = lastInspectApply.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        if (attachmentList != null && attachmentList.size() > 0) {
+            attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, lastInspectApply.getId(), Attachment.AttachmentCategory.INSPECTAPPLY.getCode());
+        }
         newInspectApply.setInspectApplyGoodsList(goodsDataList);
 
         newInspectApply = inspectApplyDao.save(newInspectApply);
@@ -598,7 +633,13 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     public InspectApply findDetail(Integer id) {
         InspectApply inspectApply = inspectApplyDao.findOne(id);
         if (inspectApply != null) {
-            inspectApply.getAttachmentList().size();
+            if (inspectApply.getId() != null) {
+                List<Attachment> attachments = attachmentService.queryAttachs(inspectApply.getId(), Attachment.AttachmentCategory.INSPECTAPPLY.getCode());
+                if (attachments != null && attachments.size() > 0) {
+                    inspectApply.setAttachmentList(attachments);
+                }
+            }
+            inspectApply.getAttachmentList();
             inspectApply.getInspectApplyGoodsList().size();
         }
 
@@ -622,7 +663,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             report.setCheckTimes(1);
             List<InspectApplyGoods> inspectApplyGoodsList = inspectApply.getInspectApplyGoodsList();
             List<Project> projects = new ArrayList<>();
-            for (InspectApplyGoods iag:inspectApplyGoodsList){
+            for (InspectApplyGoods iag : inspectApplyGoodsList) {
                 projects.add(iag.getGoods().getProject());
             }
             if (projects != null && projects.size() > 0) {
@@ -661,7 +702,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         report.setInspectGoodsList(inspectApplyGoodsList);
         // 保存推送的质检信息并等待人工质检
         InspectReport save = inspectReportDao.save(report);
-        if(save != null){
+        if (save != null) {
             return save;
         }
 
@@ -909,7 +950,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     }
 
 
-    public void  instocksubmenu(Instock instock) throws Exception {
+    public void instocksubmenu(Instock instock) throws Exception {
 
         // 厂家直接发货添加 入库办理 事项
         //推送给分单人待办事项  办理分单
@@ -947,22 +988,22 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                         JSONObject ob = (JSONObject) data1.get(i);
                         listAll.add(ob.getInteger("id"));    //获取物流分单员id
                     }
-                }else {
-                    throw new  Exception("出库分单员待办事项推送失败");
+                } else {
+                    throw new Exception("出库分单员待办事项推送失败");
                 }
-            }catch (Exception e){
-                throw new  Exception("出库分单员待办事项推送失败");
+            } catch (Exception e) {
+                throw new Exception("出库分单员待办事项推送失败");
             }
         }
-        if(listAll.size() > 0){
-            for (Integer in : listAll){ //分单员有几个人推送几条
+        if (listAll.size() > 0) {
+            for (Integer in : listAll) { //分单员有几个人推送几条
                 BackLog newBackLog = new BackLog();
                 newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSTOCKSUBMENU.getMsg());  //功能名称
                 newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENU.getNum());    //功能访问路径标识
                 String inspectApplyNo = instock.getInspectApplyNo();  //报检单号
                 newBackLog.setReturnNo(inspectApplyNo);  //返回单号
                 String supplierName = instock.getSupplierName();  //供应商名称
-                newBackLog.setInformTheContent(StringUtils.join(projectNoSet,",")+" | "+supplierName);  //提示内容
+                newBackLog.setInformTheContent(StringUtils.join(projectNoSet, ",") + " | " + supplierName);  //提示内容
                 newBackLog.setHostId(instock.getId());    //父ID，列表页id
                 newBackLog.setUid(in);   ////经办人id
                 backLogService.addBackLogByDelYn(newBackLog);

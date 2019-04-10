@@ -2,11 +2,11 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
-import com.erui.order.entity.Goods;
-import com.erui.order.entity.Order;
-import com.erui.order.entity.Purch;
-import com.erui.order.entity.PurchGoods;
-import com.erui.order.service.ProjectService;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
+import com.erui.order.entity.*;
+import com.erui.order.requestVo.PurchParam;
+import com.erui.order.service.CheckLogService;
 import com.erui.order.service.PurchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.apache.commons.lang3.*;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,8 +36,6 @@ public class PurchController {
 
     @Autowired
     private PurchService purchService;
-    @Autowired
-    private ProjectService projectService;
 
 
     /**
@@ -70,7 +70,17 @@ public class PurchController {
      * @return
      */
     @RequestMapping(value = "list", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> list(@RequestBody Purch condition) {
+    public Result<Object> list(HttpServletRequest request, @RequestBody Purch condition) {
+        // 获取当前用户ID
+        Object userId = request.getSession().getAttribute("userid");
+        if (userId != null) {
+            String ui = String.valueOf(userId);
+            if (StringUtils.isNotBlank(ui) && StringUtils.isNumeric(ui)) {
+                // 填充条件的当前审核人，查询列表条件使用
+                condition.setAuditingUserId(Integer.parseInt(ui));
+            }
+        }
+
         int page = condition.getPage();
         if (page < 1) {
             return new Result<>(ResultStatusEnum.PAGE_ERROR);
@@ -105,7 +115,9 @@ public class PurchController {
      * @return
      */
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> save(@RequestBody Purch purch) {
+    public Result<Object> save(HttpServletRequest request, @RequestBody Purch purch) {
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
         boolean continueFlag = true;
         String errorMsg = null;
         // 状态检查
@@ -116,10 +128,10 @@ public class PurchController {
             errorMsg = "数据的状态不正确";
         }
         // 查看采购号是否存在
-        if (StringUtils.isBlank(purch.getPurchNo())) {
+       /* if (StringUtils.isBlank(purch.getPurchNo())) {
             continueFlag = false;
             errorMsg = "采购合同号不能为空";
-        }
+        }*/
 
 
         if (continueFlag) {
@@ -142,6 +154,45 @@ public class PurchController {
         return new Result<>(ResultStatusEnum.FAIL).setMsg(errorMsg);
     }
 
+    /**
+     * 审核项目
+     *
+     * @param purchParam type 审核类型：-1：驳回（驳回必须存在驳回原因参数） 其他或空：正常审核
+     * @param purchParam reason 驳回原因参数
+     * @param purchParam orderId 要审核或驳回的项目ID
+     * @return
+     */
+    @RequestMapping(value = "auditPurch", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> auditPurch(HttpServletRequest request, @RequestBody PurchParam purchParam) throws Exception {
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+        Integer purchId = purchParam.getId(); // 订单ID
+        String reason = purchParam.getAuditingReason(); // 驳回原因
+        String type = purchParam.getAuditingType(); // 驳回or审核
+        // 判断采购订单是否存在
+        Purch purch = purchService.findDetailInfo(purchId);
+        if (purch == null) {
+            return new Result<>(ResultStatusEnum.PROJECT_NOT_EXIST);
+        }
+        // 获取当前登录用户ID并比较是否是当前用户审核
+        Object userId = request.getSession().getAttribute("userid");
+        Object userName = request.getSession().getAttribute("realname");
+        Integer auditingUserId = purch.getAuditingUserId();
+        if (auditingUserId == null || !StringUtils.equals(String.valueOf(userId), auditingUserId.toString())) {
+            return new Result<>(ResultStatusEnum.NOT_NOW_AUDITOR);
+        }
+        // 判断是否是驳回并判断原因参数
+        boolean rejectFlag = "-1".equals(type);
+        if (rejectFlag && (StringUtils.isBlank(reason))) {
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR).setMsg("驳回原因和驳回步骤为必填信息");
+        }
+        // 判断通过，审核项目并返回是否审核成功
+        boolean flag = purchService.audit(purchId, String.valueOf(userId), String.valueOf(userName), purchParam);
+        if (flag) {
+            return new Result<>();
+        }
+        return new Result<>(ResultStatusEnum.FAIL);
+    }
 
     /**
      * 获取采购详情信息
@@ -194,9 +245,9 @@ public class PurchController {
             if (purchGoodsList.stream().anyMatch(purchGoods -> {
                 return purchGoods.getPreInspectNum() < purchGoods.getPurchaseNum();
             })) {
-                data.put("inspected",Boolean.FALSE);
+                data.put("inspected", Boolean.FALSE);
             } else {
-                data.put("inspected",Boolean.TRUE);
+                data.put("inspected", Boolean.TRUE);
             }
             if (!(Boolean) data.get("inspected")) {
                 List<Map<String, Object>> list = purchGoodsList.stream().filter(vo -> {
@@ -236,5 +287,6 @@ public class PurchController {
 
         return new Result<>(ResultStatusEnum.FAIL);
     }
+
 
 }

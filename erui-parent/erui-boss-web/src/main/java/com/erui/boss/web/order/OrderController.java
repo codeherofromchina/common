@@ -4,15 +4,19 @@ import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
+import com.erui.comm.util.constant.Constant;
+import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.OrderLog;
 import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderService;
+import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,6 +35,8 @@ public class OrderController {
     private final static Logger logger = LoggerFactory.getLogger(OrderController.class);
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private ApplicationContext applicationContext;
 
     /**
      * 获取单列表
@@ -43,6 +49,8 @@ public class OrderController {
         if (condition.getPage() < 1) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
         // 设置请求语言
         String lang = CookiesUtil.getLang(request);
         condition.setLang(lang);
@@ -72,7 +80,35 @@ public class OrderController {
         return new Result<>();
     }
 
-/*    */
+    /**
+     * 取消订单
+     *
+     * @return
+     */
+    @RequestMapping(value = "cancelOrder", method = RequestMethod.GET)
+    public Result<Object> cancelOrder(Integer id, String reason, HttpServletRequest request) throws Exception {
+        Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+        // 判断订单是否存在，
+        Order order = orderService.findById(id);
+        if (order == null) {
+            return new Result<>(ResultStatusEnum.PROJECT_NOT_EXIST);
+        }
+        // 获取当前登录用户ID并比较是否是当前用户审核
+        Object userId = request.getSession().getAttribute("userid");
+        Integer agentId = order.getAgentId();
+        if (agentId == null || !StringUtils.equals(String.valueOf(userId), agentId.toString())) {
+            return new Result<>(ResultStatusEnum.NOT_NOW_USER);
+        }
+        boolean flag;
+        flag = orderService.cancelorder(id, reason);
+        if (flag) {
+            return new Result<>();
+        }
+        return result;
+    }
+
 
     /**
      * 新增订单
@@ -373,7 +409,9 @@ public class OrderController {
      * @return
      */
     @RequestMapping(value = "orderFinish", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> orderFinish(@RequestBody Order order) {
+    public Result<Object> orderFinish(HttpServletRequest request, @RequestBody Order order) throws Exception {
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
         Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
         boolean flag;
         flag = orderService.orderFinish(order);

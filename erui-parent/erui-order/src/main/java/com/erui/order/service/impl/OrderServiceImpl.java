@@ -1,5 +1,6 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
@@ -9,12 +10,16 @@ import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
+import com.erui.order.OrderConf;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
+import com.erui.order.event.NotifyPointProjectEvent;
 import com.erui.order.event.OrderProgressEvent;
+import com.erui.order.event.TasksAddEvent;
 import com.erui.order.requestVo.*;
 import com.erui.order.service.*;
+import com.erui.order.util.SsoUtils;
 import com.erui.order.util.excel.ExcelUploadTypeEnum;
 import com.erui.order.util.excel.ImportDataResponse;
 import com.erui.order.util.exception.MyException;
@@ -35,6 +40,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -44,6 +51,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class OrderServiceImpl implements OrderService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceImpl.class);
     // 用户升级方法
     static final String CRM_URL_METHOD = "/buyer/autoUpgrade";
     static final BigDecimal STEP_ONE_PRICE = new BigDecimal("100000");
@@ -68,7 +76,8 @@ public class OrderServiceImpl implements OrderService {
     private CompanyService companyService;
     @Autowired
     private StatisticsService statisticsService;
-
+    @Autowired
+    private OrderConf orderConf;
     @Autowired
     private IogisticsDataService iogisticsDataService;
 
@@ -81,6 +90,10 @@ public class OrderServiceImpl implements OrderService {
     private CheckLogService checkLogService;
     @Autowired
     private CheckLogDao checkLogDao;
+    @Autowired
+    private AttachmentDao attachmentDao;
+    @Autowired
+    private AttachmentService attachmentService;
 
     @Value("#{orderProp[CRM_URL]}")
     private String crmUrl;  //CRM接口地址
@@ -93,6 +106,7 @@ public class OrderServiceImpl implements OrderService {
     private String sendSms;  //发短信接口
     @Value("#{orderProp[DING_SEND_SMS]}")
     private String dingSendSms;  //发钉钉通知接口
+
 
     @Autowired
     private ComplexOrderDao complexOrderDao;
@@ -127,6 +141,10 @@ public class OrderServiceImpl implements OrderService {
                 for (Goods goods : goodsList) {
                     goods.setPurchGoods(null);
                 }
+            }
+            List<Attachment> orderAttachment = attachmentDao.findByRelObjIdAndCategory(id, Attachment.AttachmentCategory.ORDER.getCode());
+            if (orderAttachment != null && orderAttachment.size() > 0) {
+                order.setAttachmentSet(orderAttachment);
             }
             order.getAttachmentSet().size();
             order.getOrderPayments().size();
@@ -178,17 +196,55 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
+
+    // 2019-01-30 增加需求，如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
+    private String[] getCountryHeaderByRole() {
+        String[] countryArr = null;
+        // 2019-01-30 增加需求，如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
+        String token = (String) ThreadLocalUtil.getObject();
+        JSONObject userInfo = SsoUtils.ssoUserInfo(orderConf.getSsoUser(), token);
+        JSONArray roloNos = null;
+        if (userInfo != null) {
+            roloNos = userInfo.getJSONArray("role_no");
+        }
+        if (roloNos != null && roloNos.size() > 0) {
+            boolean o34Exist = roloNos.stream().anyMatch(vo -> "O34".equals(vo));
+            if (o34Exist) {
+                JSONArray countryBns = userInfo.getJSONArray("country_bn");
+                countryArr = countryBns.toArray(new String[countryBns.size()]);
+            }
+        }
+        return countryArr;
+    }
+
     @Transactional
     @Override
     public Page<Order> findByPage(OrderListCondition condition) {
+        LOGGER.info("findByPage -> params : {}", condition);
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
+        // 2019-01-30 增加需求 如果登录用户存在o34角色（国家负责人角色）则用户只能查看他所在国家的订单内容
+        String[] countryArr = getCountryHeaderByRole();
+        LOGGER.info("findByPage -> countryArr : {}", Arrays.toString(countryArr));
         Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                List<Predicate> list = new ArrayList<>();
+                List<Predicate> list = new ArrayList<>(); // 相当于前台查询条件
+                List<Predicate> orList = new ArrayList<>(); // 后台默认增加的条件
                 // 根据销售同号模糊查询
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
+                }
+                //根据项目号
+                if (StringUtil.isNotBlank(condition.getProjectNo())) {
+                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
+                }
+                //根据合同交货日期查询
+                if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
+                    list.add(cb.like(root.get("deliveryDate").as(String.class), "%" + condition.getDeliveryDate() + "%"));
+                }
+                //根据crm客户代码查询
+                if (StringUtil.isNotBlank(condition.getCrmCode())) {
+                    list.add(cb.like(root.get("crmCode").as(String.class), "%" + condition.getCrmCode() + "%"));
                 }
                 // 根据订单审核状态
                 if (condition.getAuditingProcess() != null) {
@@ -218,14 +274,6 @@ public class OrderServiceImpl implements OrderService {
                     Predicate endTime = cb.lessThanOrEqualTo(root.get("signingDate").as(Date.class), endT);
                     list.add(endTime);
                 }
-                //根据合同交货日期查询
-                if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
-                    list.add(cb.like(root.get("deliveryDate").as(String.class), "%" + condition.getDeliveryDate() + "%"));
-                }
-                //根据crm客户代码查询
-                if (StringUtil.isNotBlank(condition.getCrmCode())) {
-                    list.add(cb.like(root.get("crmCode").as(String.class), "%" + condition.getCrmCode() + "%"));
-                }
                 //根据框架协议号查询
                 if (StringUtil.isNotBlank(condition.getFrameworkNo())) {
                     list.add(cb.like(root.get("frameworkNo").as(String.class), "%" + condition.getFrameworkNo() + "%"));
@@ -244,10 +292,6 @@ public class OrderServiceImpl implements OrderService {
                 //根据订单来源查询
                 if (StringUtil.isNotBlank(condition.getOrderSource())) {
                     list.add(cb.like(root.get("orderSource").as(String.class), "%" + condition.getOrderSource() + "%"));
-                }
-                //根据项目号
-                if (StringUtil.isNotBlank(condition.getProjectNo())) {
-                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
                 }
                 //根据流程进度
                 if (StringUtil.isNotBlank(condition.getProcessProgress())) {
@@ -270,10 +314,9 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.equal(root.get("businessUnitId").as(String.class), condition.getBusinessUnitId02()));
                 }
                 //根据区域所在国家查询
-               /* String[] country = null;
-                if (StringUtils.isNotBlank(condition.getCountry())) {
-                    country = condition.getCountry().split(",");
-                }*/
+                if (countryArr != null) {
+                    orList.add(root.get("country").in(countryArr));
+                }
                 //根据事业部
                 String[] bid = null;
                 if (StringUtils.isNotBlank(condition.getBusinessUnitId())) {
@@ -306,11 +349,12 @@ public class OrderServiceImpl implements OrderService {
                             Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
                             Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
                             if (audiRemark != null) {
-                                list.add(cb.or(and, createUserId, auditingUserId, perLiableRepayId, audiRemark));
+                                orList.add(cb.or(and, createUserId, auditingUserId, perLiableRepayId, audiRemark));
+                            } else {
+                                orList.add(cb.or(and, createUserId, auditingUserId, perLiableRepayId));
                             }
-                            list.add(cb.or(and, createUserId, auditingUserId, perLiableRepayId));
                         } else {
-                            list.add(cb.or(and, createUserId));
+                            orList.add(cb.or(and, createUserId));
                         }
                     } else if (businessUnitId != null && technicalId == null) {
                         if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
@@ -318,12 +362,12 @@ public class OrderServiceImpl implements OrderService {
                             Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
                             Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
                             if (audiRemark != null) {
-                                list.add(cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId, audiRemark));
+                                orList.add(cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId, audiRemark));
                             } else {
-                                list.add(cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId));
+                                orList.add(cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId));
                             }
                         } else {
-                            list.add(cb.or(businessUnitId, createUserId));
+                            orList.add(cb.or(businessUnitId, createUserId));
                         }
                     } else if (technicalId != null && businessUnitId == null) {
                         if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
@@ -331,12 +375,13 @@ public class OrderServiceImpl implements OrderService {
                             Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
                             Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
                             if (audiRemark != null) {
-                                list.add(cb.or(technicalId, createUserId, auditingUserId, perLiableRepayId, audiRemark));
+                                orList.add(cb.or(technicalId, createUserId, auditingUserId, perLiableRepayId, audiRemark));
                             } else {
-                                list.add(cb.or(technicalId, createUserId, auditingUserId, perLiableRepayId));
+                                orList.add(cb.or(technicalId, createUserId, auditingUserId, perLiableRepayId));
                             }
+                        } else {
+                            orList.add(cb.or(technicalId, createUserId));
                         }
-                        list.add(cb.or(technicalId, createUserId));
                     }
                 } else {
                     //根据市场经办人查询
@@ -346,14 +391,14 @@ public class OrderServiceImpl implements OrderService {
                             Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
                             Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
                             if (audiRemark != null) {
-                                list.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                                orList.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
                                         condition.getCreateUserId()), auditingUserId, perLiableRepayId, audiRemark));
                             } else {
-                                list.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                                orList.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
                                         condition.getCreateUserId()), auditingUserId, perLiableRepayId));
                             }
                         } else {
-                            list.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                            orList.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
                                     condition.getCreateUserId())));
                         }
                     } else if (condition.getAgentId() == null && condition.getCreateUserId() != null) {
@@ -362,13 +407,13 @@ public class OrderServiceImpl implements OrderService {
                             Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
                             Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
                             if (audiRemark != null) {
-                                list.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), auditingUserId, perLiableRepayId, audiRemark));
+                                orList.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), auditingUserId, perLiableRepayId, audiRemark));
                             } else {
-                                list.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), auditingUserId, perLiableRepayId));
+                                orList.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), auditingUserId, perLiableRepayId));
                             }
                         } else {
                             if (condition.getCreateUserId() != null) {
-                                list.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class),
+                                orList.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class),
                                         condition.getCreateUserId())));
                             }
                         }
@@ -386,8 +431,8 @@ public class OrderServiceImpl implements OrderService {
                     }*//*
                 }*/
                 list.add(cb.equal(root.get("deleteFlag"), false));
-                Predicate[] predicates = new Predicate[list.size()];
-                predicates = list.toArray(predicates);
+
+
                 /*Predicate and = cb.and(predicates);
                 // 审核人查询,和其他关系是or，所有写在最后
                 if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
@@ -399,6 +444,15 @@ public class OrderServiceImpl implements OrderService {
                 } else {
                     return and;
                 }*/
+                if (orList.size() > 0) {
+                    Predicate[] predicatesBacks = new Predicate[orList.size()];
+                    predicatesBacks = orList.toArray(predicatesBacks);
+                    Predicate or = cb.or(predicatesBacks);
+                    list.add(or);
+                }
+
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
                 return cb.and(predicates);
             }
         }, pageRequest);
@@ -451,7 +505,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<ComplexOrder> findByOutList(OutListCondition condition) {
-        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
+        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
         try {
             Page<ComplexOrder> pageList = complexOrderDao.findAll(new Specification<ComplexOrder>() {
                 @Override
@@ -532,6 +586,45 @@ public class OrderServiceImpl implements OrderService {
         orderDao.save(collect);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public boolean cancelorder(Integer id, String reason) throws Exception {
+        Order order = null;
+        if (id != null) {
+            order = orderDao.findOne(id);
+            //草稿状态或者未执行状态下可以取消
+            if (order.getStatus() == 1 || order.getStatus() == 2) {
+                order.setStatus(0);
+                order.setCancelReason(reason);
+                if (order.getProject() != null) {
+                    order.getProject().setProjectStatus("ORDERCANCEL");
+                }
+                if (order.getContractNo() == null) {
+                    order.setContractNo("");
+                }
+            } else {
+                throw new MyException(String.format("%s%s%s", "订单状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "status error"));
+            }
+            orderDao.save(order);
+            //删除当前订单下的所有待办通知
+            BackLog backLog = new BackLog();
+            backLog.setFunctionExplainId(999);    //功能访问路径标识
+            backLog.setHostId(order.getId());
+            backLogService.updateBackLogByDelYn(backLog);
+            //只给当前审核节点之前的员工发通知
+            //List<CheckLog> checkLogList = checkLogService.findPassed(id);
+            //给所有之前通过的节点发通知
+            List<CheckLog> checkLogList = checkLogService.findListByOrderIdAndType(id, 1);
+            List<CheckLog> dingList = checkLogList.stream().filter(vo -> vo.getType() <= 2 && !vo.getOperation().equals("-1")).collect(Collectors.toList());
+            //向通过审核人发送钉钉取消通知
+            for (CheckLog ck : dingList) {
+                sendDingtalk(order, ck.getAuditingUserId().toString(), true, 2);
+            }
+            return true;
+        }
+        return false;
+    }
+
     //确认检测销售合同号
     @Override
     public Integer checkContractNo(String contractNo, Integer id) {
@@ -584,12 +677,12 @@ public class OrderServiceImpl implements OrderService {
         if (rejectFlag) { // 如果是驳回，则
             // 直接记录日志，修改审核进度
             CheckLog checkLog = checkLogDao.findOne(addOrderVo.getCheckLogId());
-            auditingStatus_i = 3;//驳回状态
+            auditingStatus_i = 3; //驳回状态
             auditingProcess_i = checkLog.getAuditingProcess().toString(); //驳回给哪一步骤
-            auditingUserId_i = String.valueOf(checkLog.getAuditingUserId());//要驳回给谁
+            auditingUserId_i = String.valueOf(checkLog.getAuditingUserId()); //要驳回给谁
             auditorIds.append("," + auditingUserId_i + ",");
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
-            checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, order.getAuditingProcess().toString(), order.getAuditingUserId(), reason, "-1", 1);
+            checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, order.getAuditingProcess().toString(), order.getAuditingUserId(), reason, "-1", 1);
             if (auditingProcess_i.equals("0")) {
                 order.setStatus(1);
             }
@@ -598,56 +691,12 @@ public class OrderServiceImpl implements OrderService {
             CheckLog checkLog = checkLogService.findLogOne(order.getId());
             switch (curAuditProcess) {
                 case 0:
-                   /* auditingProcess_i = "1";
-                    auditingUserId_i = addOrderVo.getPerLiableRepayId().toString();
-                    auditorIds.append("," + auditingUserId_i + ",");
-                    addOrderVo.copyBaseInfoTo(order);
-                    if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != 6) {
-                        if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
-                            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                            order.setCountryLeader(addOrderVo.getCountryLeader());
-                        } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
-                            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                            order.setCountryLeader(addOrderVo.getCountryLeader());
-                            order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-                            order.setAreaLeader(addOrderVo.getAreaLeader());
-                        } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_THREE_PRICE.doubleValue()) {
-                            order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                            order.setCountryLeader(addOrderVo.getCountryLeader());
-                            order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-                            order.setAreaLeader(addOrderVo.getAreaLeader());
-                            order.setAreaVpId(addOrderVo.getAreaVpId());
-                            order.setAreaVp(addOrderVo.getAreaVp());
-                        }
-                    }
-                    order.setOrderPayments(addOrderVo.getContractDesc());
-                    order.setAttachmentSet(addOrderVo.getAttachDesc());
-                    if (order.getId() != null) {
-                        order.getProject().setExecCoName(order.getExecCoName());
-                        order.getProject().setBusinessUid(order.getTechnicalId());
-                        order.getProject().setExecCoName(order.getExecCoName());
-                        order.getProject().setBusinessUnitName(order.getBusinessUnitName());
-                        order.getProject().setSendDeptId(order.getBusinessUnitId());
-                        order.getProject().setRegion(order.getRegion());
-                        order.getProject().setCountry(order.getCountry());
-                        order.getProject().setTotalPriceUsd(order.getTotalPriceUsd());
-                        order.getProject().setDistributionDeptName(order.getDistributionDeptName());
-                        order.getProject().setBusinessName(order.getBusinessName());
-                        order.getProject().setCreateTime(new Date());
-                    }*/
                     break;
                 case 1:
-                    /* if (checkLog != null && "-1".equals(checkLog.getOperation())) {
-                        auditingProcess_i = checkLog.getNextAuditingProcess();
-                        auditingUserId_i = checkLog.getNextAuditingUserId();
-                        auditorIds.append("," + auditingUserId_i + ",");
-
-                    } else {
-                    }*/
                     //如果是国内订单 没有国家负责人 直接法务审核
                     if (order.getOrderCategory() == 6) {
                         auditingProcess_i = "8";
-                        auditingUserId_i = "28107";
+                        auditingUserId_i = "32567";
                         auditorIds.append("," + auditingUserId_i + ",");
                     } else {
                         auditingProcess_i = "2";
@@ -660,10 +709,10 @@ public class OrderServiceImpl implements OrderService {
                     //根据订单金额判断 填写审批人级别
                     //国家负责人审核完成交给法务审核
                     auditingProcess_i = "8";
-                    auditingUserId_i = "28107";
+                    auditingUserId_i = "32567";
                     auditorIds.append("," + auditingUserId_i + ",");
                     break;
-                case 8: // 法务审核 20181211法务审核由 31025 崔荣光修改为 赵明 28107
+                case 8: // 法务审核 20181211法务审核由 31025 崔荣光修改为 赵明 28107   2019-01-30  法务替换为 39564，魏新宝
                     Map<String, Integer> companyMap = new ImmutableMap.Builder<String, Integer>()
                             .put("Erui International USA, LLC", 1)
                             .put("Erui International (Canada) Co., Ltd.", 2)
@@ -788,7 +837,7 @@ public class OrderServiceImpl implements OrderService {
                     } else if (order.getFinancing() == 1) {
                         //若是融资项目 且订单金额小于10万美元 提交由融资专员审核
                         auditingProcess_i = "5"; // 融资审核
-                        auditingUserId_i = order.getFinancingCommissionerId().toString();//郭永涛
+                        auditingUserId_i = order.getFinancingCommissionerId().toString(); //郭永涛
                         auditorIds.append("," + auditingUserId_i + ",");
                     }
                     break;
@@ -797,7 +846,7 @@ public class OrderServiceImpl implements OrderService {
                     auditingProcess_i = "6";
                     //设置项目审核流程
                     order.getProject().setAuditingProcess(auditingProcess_i);
-                    auditingUserId_i = order.getTechnicalId().toString();//提交到商务技术经办人
+                    auditingUserId_i = order.getTechnicalId().toString(); //提交到商务技术经办人
                     auditorIds.append("," + auditingUserId_i + ",");
                     break;
                 //提交商品
@@ -808,13 +857,13 @@ public class OrderServiceImpl implements OrderService {
                     order.getProject().setAuditingStatus(1);
 
                     auditingStatus_i = 4; // 完成
-                    auditingProcess_i = "6";// 订单审核完成 无下一审核进度和审核人
+                    auditingProcess_i = "6"; // 订单审核完成 无下一审核进度和审核人
                     auditingUserId_i = null;
                     break;
                 default:
                     return false;
             }
-            checkLog_i = fullCheckLogInfo(order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 1);
+            checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, auditingProcess_i, auditingUserId_i, reason, "2", 1);
         }
         checkLogService.insert(checkLog_i);
         if (auditingProcess_i != null) {
@@ -823,11 +872,53 @@ public class OrderServiceImpl implements OrderService {
             order.setAuditingProcess(null);
         }
         order.setAuditingUserId(auditingUserId_i);
-        sendDingtalk(order, auditingUserId_i, rejectFlag);
+        sendDingtalk(order, auditingUserId_i, rejectFlag, 1);
         order.setAuditingStatus(auditingStatus_i);
         order.setAudiRemark(auditorIds.toString());
         orderDao.save(order);
+
+        auditBackLogHandle(order, rejectFlag, auditingUserId_i);
+
         return true;
+    }
+
+
+    public void auditBackLogHandle(Order order, boolean rejectFlag, String auditingUserId) {
+        try {
+            // 删除上一个待办
+            BackLog backLog2 = new BackLog();
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_AUDIT.getNum());
+            backLog2.setHostId(order.getId());
+            backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_AUDIT2.getNum());
+            backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT.getNum());
+            backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT2.getNum());
+            backLogService.updateBackLogByDelYn(backLog2);
+
+            if (StringUtils.isNotBlank(auditingUserId)) {
+                Integer[] userIdArr = Arrays.stream(auditingUserId.split(",")).map(vo -> Integer.parseInt(vo)).toArray(Integer[]::new);
+                // 推送待办事件
+                String region = order.getRegion();   //所属地区
+                Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+                String country = order.getCountry();  //国家
+                Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+                String infoContent = String.format("%s | %s", bnMapZhRegion.get(region), bnMapZhCountry.get(country));
+                String crmCode = order.getCrmCode();
+                Integer auditprocess = order.getAuditingProcess() == null ? -1 : order.getAuditingProcess();
+                BackLog.ProjectStatusEnum pse = rejectFlag ? (auditprocess == 0 ? BackLog.ProjectStatusEnum.ORDER_REJECT2 : BackLog.ProjectStatusEnum.ORDER_REJECT) : (auditprocess == 6 ? BackLog.ProjectStatusEnum.ORDER_AUDIT2 : BackLog.ProjectStatusEnum.ORDER_AUDIT);
+                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                        pse,
+                        crmCode,
+                        infoContent,
+                        order.getId(),
+                        userIdArr));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void reProject(CheckLog checkLog, Project project, Order order) {
@@ -838,10 +929,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     // 处理日志
-    private CheckLog fullCheckLogInfo(Integer orderId, Integer auditingProcess, Integer auditorId, String auditorName, String nextAuditingProcess, String nextAuditingUserId,
-                                      String auditingMsg, String operation, int type) {
+    @Override
+    public CheckLog fullCheckLogInfo(Integer orderId, String category, Integer joinId, Integer auditingProcess, Integer auditorId, String auditorName, String nextAuditingProcess, String nextAuditingUserId,
+                                     String auditingMsg, String operation, int type) {
         CheckLog checkLog = new CheckLog();
         checkLog.setOrderId(orderId);
+        checkLog.setCategory(category);
+        checkLog.setJoinId(joinId);
         checkLog.setCreateTime(new Date());
         checkLog.setAuditingProcess(auditingProcess);
         checkLog.setAuditingUserId(auditorId);
@@ -851,6 +945,9 @@ public class OrderServiceImpl implements OrderService {
         checkLog.setAuditingMsg(auditingMsg);
         checkLog.setOperation(operation);
         checkLog.setType(type);
+        CheckLog.AuditProcessingEnum ape = CheckLog.AuditProcessingEnum.findEnum(type, auditingProcess);
+        checkLog.setAuditSeq(ape.getAuditSeq());
+
         return checkLog;
 
 
@@ -859,7 +956,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
-        Order order = orderDao.findOne(addOrderVo.getId());
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        Order order = findByIdLang(addOrderVo.getId(), "zh");
         if ((order.getOverseasSales() != 2 && order.getOverseasSales() != 4) && (addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4)) {
             order.setContractNo("");
         } else if ((addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4) && !order.getSigningCo().equals(addOrderVo.getSigningCo())) {
@@ -871,8 +969,6 @@ public class OrderServiceImpl implements OrderService {
 
         }
         addOrderVo.copyBaseInfoTo(order);
-        // 处理附件信息
-        order.setAttachmentSet(addOrderVo.getAttachDesc());
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setDeleteFlag(false);
         //根据订单金额判断 填写审批人级别
@@ -908,16 +1004,26 @@ public class OrderServiceImpl implements OrderService {
                 order.setAuditingUserId(addOrderVo.getCountryLeaderId().toString());
                 order.setAuditingProcess(2);
             }*/
+
         }
         CheckLog checkLog_i = null; // 审核日志
         Order orderUpdate = orderDao.saveAndFlush(order);
+        // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
+        //order.setAttachmentSet(addOrderVo.getAttachDesc());
+        List<Attachment> attachmentList = addOrderVo.getAttachDesc();
+        Map<Integer, Attachment> dbAttahmentsMap = order.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+        attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, orderUpdate.getId(), Attachment.AttachmentCategory.ORDER.getCode());
+
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            checkLog_i = fullCheckLogInfo(order.getId(), 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
+            checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
            /* if (orderUpdate.getPerLiableRepayId() != null) {
             } else {
                 checkLog_i = fullCheckLogInfo(order.getId(), 0, orderUpdate.getCreateUserId(), orderUpdate.getCreateUserName(), orderUpdate.getAuditingProcess().toString(), orderUpdate.getCountryLeaderId().toString(), null, "1", 1);
             }*/
             checkLogService.insert(checkLog_i);
+            // 审核待办
+            auditBackLogHandle(orderUpdate, false, orderUpdate.getAuditingUserId());
+            sendDingtalk(order, order.getPerLiableRepayId().toString(), false, 1);
         }
         Date signingDate = null;
         if (orderUpdate.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
@@ -932,7 +1038,7 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
             addLog(OrderLog.LogTypeEnum.CREATEORDER, orderUpdate.getId(), null, null, signingDate);
-            applicationContext.publishEvent(new OrderProgressEvent(orderUpdate, 1));
+            applicationContext.publishEvent(new OrderProgressEvent(orderUpdate, 1, eruiToken));
             Project projectAdd = null;
             if (order.getProject() == null) {
                 projectAdd = new Project();
@@ -940,15 +1046,15 @@ public class OrderServiceImpl implements OrderService {
                 projectAdd = order.getProject();
             }
             projectAdd.setOrder(orderUpdate);
-            projectAdd.setExecCoName(orderUpdate.getExecCoName());
+            //projectAdd.setExecCoName(orderUpdate.getExecCoName());
             projectAdd.setBusinessUid(orderUpdate.getTechnicalId());
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
             projectAdd.setBusinessUnitName(orderUpdate.getBusinessUnitName());
             projectAdd.setSendDeptId(orderUpdate.getBusinessUnitId());
-            projectAdd.setRegion(orderUpdate.getRegion());
-            projectAdd.setCountry(orderUpdate.getCountry());
+            //projectAdd.setRegion(orderUpdate.getRegion());
+            //projectAdd.setCountry(orderUpdate.getCountry());
             projectAdd.setTotalPriceUsd(orderUpdate.getTotalPriceUsd());
-            projectAdd.setDistributionDeptName(orderUpdate.getDistributionDeptName());
+            //projectAdd.setDistributionDeptName(orderUpdate.getDistributionDeptName());
             projectAdd.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             projectAdd.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             projectAdd.setOrderCategory(orderUpdate.getOrderCategory());
@@ -975,7 +1081,6 @@ public class OrderServiceImpl implements OrderService {
             //projectAdd.setProjectProfit(projectProfit);
             projectProfitDao.save(projectProfit);
             // 调用CRM系统，触发CRM用户升级任务
-            String eruiToken = (String) ThreadLocalUtil.getObject();
             if (StringUtils.isNotBlank(eruiToken)) {
                 String jsonParam = "{\"crm_code\":\"" + order.getCrmCode() + "\"}";
                 Map<String, String> header = new HashMap<>();
@@ -985,35 +1090,18 @@ public class OrderServiceImpl implements OrderService {
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
                 logger.info("CRM返回信息：" + s);
             }
-            //销售订单通知：销售订单下达后通知商务技术经办人
-            sendSms(order);
-            //钉钉通知回款责任人审批
-            sendDingtalk(order, addOrderVo.getPerLiableRepayId().toString(),false);
             //项目提交的时候判断是否有驳回的信息  如果有删除  “驳回订单” 待办提示
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
             backLog.setHostId(order.getId());
             backLogService.updateBackLogByDelYn(backLog);
 
-            //订单提交 推送“待办”到项目
-            BackLog newBackLog = new BackLog();
-            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getMsg());  //功能名称
-            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
-            String contractNo = orderUpdate.getContractNo();  //销售合同号
-            newBackLog.setReturnNo(contractNo);  //返回单号
-            String region = orderUpdate.getRegion();//地区
-            Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
-            String country = orderUpdate.getCountry();//国家
-            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
-            newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
-            newBackLog.setHostId(orderUpdate.getId());    //父ID，列表页id    项目id
-            Integer technicalId = orderUpdate.getTechnicalId();   //商务技术经办人id
-            newBackLog.setUid(technicalId);   ////经办人id
-            backLogService.addBackLogByDelYn(newBackLog);
+            auditBackLogHandle(orderUpdate, false, orderUpdate.getAuditingUserId());
 
         }
         return order.getId();
     }
+
 
     private List<Goods> updateOrderGoods(AddOrderVo addOrderVo) throws Exception {
         Order order = orderDao.findOne(addOrderVo.getId());
@@ -1038,6 +1126,7 @@ public class OrderServiceImpl implements OrderService {
                 throw new MyException("同一sku不可以重复添加&&The same sku can not be added repeatedly");
             }
             goods.setSku(sku);
+            goods.setContractNo(order.getContractNo());
             goods.setMeteType(pGoods.getMeteType());
             goods.setMeteName(pGoods.getMeteName());
             goods.setNameEn(pGoods.getNameEn());
@@ -1071,11 +1160,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Integer addOrder(AddOrderVo addOrderVo) throws Exception {
+        String eruiToken = (String) ThreadLocalUtil.getObject();
         Order order = new Order();
         addOrderVo.copyBaseInfoTo(order);
         order.setCreateUserId(addOrderVo.getCreateUserId());
         order.setCreateUserName(addOrderVo.getCreateUserName());
-        order.setAttachmentSet(addOrderVo.getAttachDesc());
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setCreateTime(new Date());
         order.setDeleteFlag(false);
@@ -1105,12 +1194,20 @@ public class OrderServiceImpl implements OrderService {
             order.setAuditingProcess(1);
             order.setAuditingStatus(2);
             order.setAuditingUserId(addOrderVo.getPerLiableRepayId().toString());
+
         }
-        CheckLog checkLog_i = null;//审批流日志
+        CheckLog checkLog_i = null; //审批流日志
         Order order1 = orderDao.save(order);
+        //order.setAttachmentSet(addOrderVo.getAttachDesc());
+        //添加附件
+        if (addOrderVo.getAttachDesc() != null) {
+            attachmentService.addAttachments(addOrderVo.getAttachDesc(), order1.getId(), Attachment.AttachmentCategory.ORDER.getCode());
+        }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            checkLog_i = fullCheckLogInfo(order.getId(), 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
+            checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 0, order1.getCreateUserId(), order1.getCreateUserName(), order1.getAuditingProcess().toString(), order1.getPerLiableRepayId().toString(), addOrderVo.getAuditingReason(), "1", 1);
             checkLogService.insert(checkLog_i);
+            auditBackLogHandle(order1, false, addOrderVo.getPerLiableRepayId().toString());
+            sendDingtalk(order, order.getPerLiableRepayId().toString(), false, 1);
         }
         Date signingDate = null;
         if (order1.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
@@ -1118,7 +1215,7 @@ public class OrderServiceImpl implements OrderService {
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             //添加订单未执行事件
-            applicationContext.publishEvent(new OrderProgressEvent(order1, 1));
+            applicationContext.publishEvent(new OrderProgressEvent(order1, 1, eruiToken));
             List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeAsc(order1.getId());
             if (orderLog.size() > 0) {
                 Map<String, OrderLog> collect = orderLog.stream().collect(Collectors.toMap(vo -> vo.getLogType().toString(), vo -> vo));
@@ -1135,9 +1232,9 @@ public class OrderServiceImpl implements OrderService {
             project.setExecCoName(order1.getExecCoName());
             project.setBusinessUnitName(order1.getBusinessUnitName());
             project.setSendDeptId(order1.getBusinessUnitId());
-            project.setDistributionDeptName(order1.getDistributionDeptName());
-            project.setRegion(order1.getRegion());
-            project.setCountry(order1.getCountry());
+            //project.setDistributionDeptName(order1.getDistributionDeptName());
+            //project.setRegion(order1.getRegion());
+            //project.setCountry(order1.getCountry());
             project.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
             project.setPurchReqCreate(Project.PurchReqCreateEnum.NOT_CREATE.getCode());
             project.setTotalPriceUsd(order1.getTotalPriceUsd());
@@ -1161,7 +1258,6 @@ public class OrderServiceImpl implements OrderService {
             //projectProfit.setExchangeRate(order1.getExchangeRate());
             projectProfitDao.save(projectProfit);
             // 调用CRM系统，触发CRM用户升级任务
-            String eruiToken = (String) ThreadLocalUtil.getObject();
             if (StringUtils.isNotBlank(eruiToken)) {
                 String jsonParam = "{\"crm_code\":\"" + order.getCrmCode() + "\"}";
                 Map<String, String> header = new HashMap<>();
@@ -1171,31 +1267,14 @@ public class OrderServiceImpl implements OrderService {
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
                 logger.info("调用升级CRM用户接口，CRM返回信息：" + s);
             }
-            // 销售订单通知：销售订单下达后通知商务技术经办人
-            sendSms(order);
-            //钉钉通知回款责任人审批人
-            sendDingtalk(order, addOrderVo.getPerLiableRepayId().toString(),false);
             //项目提交的时候判断是否有驳回的信息  如果有删除  “项目驳回” 待办提示
             BackLog backLog = new BackLog();
             backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
             backLog.setHostId(order.getId());
             backLogService.updateBackLogByDelYn(backLog);
 
-            //订单提交 推送“待办”到项目
-            BackLog newBackLog = new BackLog();
-            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getMsg());  //功能名称
-            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
-            String contractNo = order1.getContractNo();  //销售合同号
-            newBackLog.setReturnNo(contractNo);  //返回单号
-            String region = order1.getRegion();//地区
-            Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
-            String country = order1.getCountry();//国家
-            Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
-            newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
-            newBackLog.setHostId(order.getId());    //父ID，列表页id    项目id
-            Integer technicalId = order1.getTechnicalId();   //商务技术经办人id
-            newBackLog.setUid(technicalId);   ////经办人id
-            backLogService.addBackLogByDelYn(newBackLog);
+            // 推送审核内容
+            auditBackLogHandle(order1, false, order1.getAuditingUserId());
 
         }
         return order1.getId();
@@ -1343,12 +1422,16 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public boolean orderFinish(Order order) {
+    public boolean orderFinish(Order order) throws Exception {
         Order order1 = orderDao.findOne(order.getId());
         if (order1 != null) {
             order1.setStatus(order.getStatus());
-            orderDao.save(order1);
+            Order orderUpdate = orderDao.save(order1);
             addLog(OrderLog.LogTypeEnum.DELIVERYDONE, order1.getId(), null, null, new Date());
+            if (Order.fromCode(orderUpdate.getStatus()) == Order.StatusEnum.DONE && orderUpdate.getPayStatus() == 3) {
+                String token = (String) ThreadLocalUtil.getObject();
+                applicationContext.publishEvent(new NotifyPointProjectEvent(applicationContext, orderUpdate.getId(), token));
+            }
             return true;
         }
         return false;
@@ -1405,7 +1488,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     //销售订单钉钉通知 审批人
-    public void sendDingtalk(Order order, String user, boolean rejectFlag) throws Exception {
+    public void sendDingtalk(Order order, String user, boolean rejectFlag, Integer type) throws Exception {
         //获取token
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         new Thread(new Runnable() {
@@ -1442,11 +1525,16 @@ public class OrderServiceImpl implements OrderService {
                     String sendTime02 = DateUtil.format(DateUtil.FULL_FORMAT_STR, sendTime);
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("type=userNo");
-                    if (!rejectFlag) {
-                        stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
-                                "" + sendTime02 + "");
-                    } else {
-                        stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审核未通过。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                    if (type == 1) {
+                        if (!rejectFlag) {
+                            stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审批。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                                    "" + sendTime02 + "");
+                        } else {
+                            stringBuffer.append("&message=您好！" + order.getAgentName() + "的订单，已申请销售合同审核未通过。CRM客户代码：" + order.getCrmCode() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                                    "" + sendTime02 + "");
+                        }
+                    } else if (type == 2) {
+                        stringBuffer.append("&message=【Erui】 您好！客户代码：" + order.getCrmCode() + "，该销售合同号：" + order.getContractNo() + "订单已取消。取消原因如下：" + order.getCancelReason() + "，感谢您对我们的支持与信任！" +
                                 "" + sendTime02 + "");
                     }
                     stringBuffer.append("&toUser=").append(userNo);
@@ -1516,9 +1604,6 @@ public class OrderServiceImpl implements OrderService {
             } else {
                 order.setDeliverConsignC(Boolean.FALSE);
             }
-           /* order.getGoodsList().size();
-            order.getAttachmentSet().size();
-            order.getOrderPayments().size();*/
             outOrderDetail = new OutOrderDetail();
             outOrderDetail.copyInfo(order);
             for (Goods goods : order.getGoodsList()) {
@@ -1540,17 +1625,37 @@ public class OrderServiceImpl implements OrderService {
         return resultMap;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public List<Order> findOrderExport(final OrderListCondition condition) {
-        Sort sort = new Sort(Sort.Direction.DESC, "id");
+        LOGGER.info("findOrderExport -> params : {}", condition);
+        // 2019-01-30 增加需求，如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
+        String[] countryArr = getCountryHeaderByRole();
+        LOGGER.info("findOrderExport -> countryArr : {}", Arrays.toString(countryArr));
         List<Order> pageList = orderDao.findAll(new Specification<Order>() {
             @Override
             public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                List<Predicate> list = new ArrayList<>();
+                List<Predicate> list = new ArrayList<>(); // 相当于前台查询条件
+                List<Predicate> orList = new ArrayList<>(); // 后台默认增加的条件
                 // 根据销售同号模糊查询
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
+                }
+                //根据项目号
+                if (StringUtil.isNotBlank(condition.getProjectNo())) {
+                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
+                }
+                //根据合同交货日期查询
+                if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
+                    list.add(cb.like(root.get("deliveryDate").as(String.class), "%" + condition.getDeliveryDate() + "%"));
+                }
+                //根据crm客户代码查询
+                if (StringUtil.isNotBlank(condition.getCrmCode())) {
+                    list.add(cb.like(root.get("crmCode").as(String.class), "%" + condition.getCrmCode() + "%"));
+                }
+                // 根据订单审核状态
+                if (condition.getAuditingProcess() != null) {
+                    list.add(cb.equal(root.get("auditingProcess").as(String.class), condition.getAuditingProcess()));
                 }
                 //根据Po号模糊查询
                 if (StringUtil.isNotBlank(condition.getPoNo())) {
@@ -1561,9 +1666,9 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.like(root.get("inquiryNo").as(String.class), "%" + condition.getInquiryNo() + "%"));
                 }
                 //根据订单签订时间查询
-               /* if (condition.getSigningDate() != null) {
+                /*if (condition.getSigningDate() != null) {
                     list.add(cb.equal(root.get("signingDate").as(Date.class), NewDateUtil.getDate(condition.getSigningDate())));
-                } */
+                }*/
                 //根据订单签订时间段查询 开始
                 if (condition.getStartTime() != null) {
                     Date startT = DateUtil.getOperationTime(condition.getStartTime(), 0, 0, 0);
@@ -1575,14 +1680,6 @@ public class OrderServiceImpl implements OrderService {
                     Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
                     Predicate endTime = cb.lessThanOrEqualTo(root.get("signingDate").as(Date.class), endT);
                     list.add(endTime);
-                }
-                //根据合同交货日期查询
-                if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
-                    list.add(cb.equal(root.get("deliveryDate").as(String.class), condition.getDeliveryDate()));
-                }
-                //根据crm客户代码查询
-                if (StringUtil.isNotBlank(condition.getCrmCode())) {
-                    list.add(cb.like(root.get("crmCode").as(String.class), "%" + condition.getCrmCode() + "%"));
                 }
                 //根据框架协议号查询
                 if (StringUtil.isNotBlank(condition.getFrameworkNo())) {
@@ -1611,10 +1708,6 @@ public class OrderServiceImpl implements OrderService {
                         list.add(cb.greaterThanOrEqualTo(root.get("processProgress").as(String.class), condition.getProcessProgress()));
                     }
                 }
-                //根据项目号
-                if (StringUtil.isNotBlank(condition.getProjectNo())) {
-                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
-                }
                 //根据是否已生成出口通知单
                 if (condition.getDeliverConsignHas() != null) {
                     list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
@@ -1628,11 +1721,10 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.equal(root.get("businessUnitId").as(String.class), condition.getBusinessUnitId02()));
                 }
                 //根据区域所在国家查询
-               /* String[] country = null;
-                if (StringUtils.isNotBlank(condition.getCountry())) {
-                    country = condition.getCountry().split(",");
-                }*/
-                //根据事业部搜索
+                if (countryArr != null) {
+                    orList.add(root.get("country").in(countryArr));
+                }
+                //根据事业部
                 String[] bid = null;
                 if (StringUtils.isNotBlank(condition.getBusinessUnitId())) {
                     bid = condition.getBusinessUnitId().split(",");
@@ -1656,54 +1748,119 @@ public class OrderServiceImpl implements OrderService {
                     }
                     Predicate and = cb.and(businessUnitId, technicalId);
                     if (businessUnitId != null && technicalId != null) {
-                        list.add(cb.or(and, createUserId));
+                        if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
+                            Predicate auditingUserId = cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId());
+                            Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
+                            Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
+                            if (audiRemark != null) {
+                                orList.add(cb.or(and, createUserId, auditingUserId, perLiableRepayId, audiRemark));
+                            } else {
+                                orList.add(cb.or(and, createUserId, auditingUserId, perLiableRepayId));
+                            }
+                        } else {
+                            orList.add(cb.or(and, createUserId));
+                        }
                     } else if (businessUnitId != null && technicalId == null) {
-                        list.add(cb.or(businessUnitId, createUserId));
+                        if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
+                            Predicate auditingUserId = cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId());
+                            Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
+                            Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
+                            if (audiRemark != null) {
+                                orList.add(cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId, audiRemark));
+                            } else {
+                                orList.add(cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId));
+                            }
+                        } else {
+                            orList.add(cb.or(businessUnitId, createUserId));
+                        }
                     } else if (technicalId != null && businessUnitId == null) {
-                        list.add(cb.or(technicalId, createUserId));
-                    }
-                } else if (condition.getType() == 2) {
-                    //根据市场经办人查询
-                    if (condition.getAgentId() != null || condition.getCreateUserId() != null) {
-                        list.add(cb.or(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId())));
+                        if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
+                            Predicate auditingUserId = cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId());
+                            Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
+                            Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
+                            if (audiRemark != null) {
+                                orList.add(cb.or(technicalId, createUserId, auditingUserId, perLiableRepayId, audiRemark));
+                            } else {
+                                orList.add(cb.or(technicalId, createUserId, auditingUserId, perLiableRepayId));
+                            }
+                        } else {
+                            orList.add(cb.or(technicalId, createUserId));
+                        }
                     }
                 } else {
                     //根据市场经办人查询
-                    if (condition.getAgentId() != null) {
-                        list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
+                    if (condition.getAgentId() != null && condition.getCreateUserId() != null) {
+                        if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
+                            Predicate auditingUserId = cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId());
+                            Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
+                            Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
+                            if (audiRemark != null) {
+                                orList.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                                        condition.getCreateUserId()), auditingUserId, perLiableRepayId, audiRemark));
+                            } else {
+                                orList.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                                        condition.getCreateUserId()), auditingUserId, perLiableRepayId));
+                            }
+                        } else {
+                            orList.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                                    condition.getCreateUserId())));
+                        }
+                    } else if (condition.getAgentId() == null && condition.getCreateUserId() != null) {
+                        if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
+                            Predicate auditingUserId = cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId());
+                            Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
+                            Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
+                            if (audiRemark != null) {
+                                orList.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), auditingUserId, perLiableRepayId, audiRemark));
+                            } else {
+                                orList.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), auditingUserId, perLiableRepayId));
+                            }
+                        } else {
+                            if (condition.getCreateUserId() != null) {
+                                orList.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class),
+                                        condition.getCreateUserId())));
+                            }
+                        }
                     }
-                  /*  if (country != null) {
-                        list.add(root.get("country").in(country));
-                    }*/
                 }
                 list.add(cb.equal(root.get("deleteFlag"), false));
+                if (orList.size() > 0) {
+                    Predicate[] predicatesBacks = new Predicate[orList.size()];
+                    predicatesBacks = orList.toArray(predicatesBacks);
+                    Predicate or = cb.or(predicatesBacks);
+                    list.add(or);
+                }
+
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
             }
-        }, sort);
-        try {
-            if (pageList.size() > 0) {
-                for (Order order : pageList) {
-                    order.setAttachmentSet(null);
-                    order.setOrderPayments(null);
-                    order.setOrderAccountDelivers(null);
-                    order.setOrderAccounts(null);
-                    if (order.getDeliverConsignC() && order.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
-                        boolean flag = order.getGoodsList().parallelStream().anyMatch(goods -> goods.getOutstockApplyNum() < goods.getContractGoodsNum());
-                        order.setDeliverConsignC(flag);
+        }, new Sort(Sort.Direction.DESC, "createTime"));
+        if (pageList != null && pageList.size() > 0) {
+            pageList.forEach(vo -> {
+                //vo.setAttachmentSet(null);
+                if (vo.getDeliverConsignC() && vo.getStatus() != null && vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
+                    boolean flag;
+                    if (vo.getGoodsList() != null || vo.getGoodsList().size() > 0) {
+                        flag = vo.getGoodsList().parallelStream().anyMatch(goods -> goods.getOutstockApplyNum() < goods.getContractGoodsNum());
                     } else {
-                        order.setDeliverConsignC(Boolean.FALSE);
+                        flag = false;
                     }
-                    if (iogisticsDataService.findStatusAndNumber(order.getId()) && order.getDeliverConsignC() == false) {
-                        order.setOrderFinish(Boolean.TRUE);
+                    if (flag) {
+                        vo.setDeliverConsignC(flag);
+                    } else {
+                        vo.setDeliverConsignC(Boolean.FALSE);
                     }
-                    order.setGoodsList(null);
                 }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+                if (vo.getDeliverConsignC() == false && iogisticsDataService.findStatusAndNumber(vo.getId())) {
+                    vo.setOrderFinish(Boolean.TRUE);
+                }
+            });
         }
+        if (pageList == null) {
+            pageList = new ArrayList<>();
+        }
+
         return pageList;
     }
 
@@ -1910,7 +2067,7 @@ public class OrderServiceImpl implements OrderService {
             oc.setAuditingStatus(4);
             if (Project.ProjectStatusEnum.fromCode(strArr[50]).getNum() > 2) {
                 oc.setProcessProgress("9");
-                oc.setStatus(4);
+                oc.setStatus(Order.StatusEnum.DONE.getCode());
             } else {
                 oc.setStatus(3);
             }
@@ -1934,13 +2091,13 @@ public class OrderServiceImpl implements OrderService {
             project.setContractNo(strArr[2]);
             //项目创建日期和开始日期
             if (strArr[41] != null) {
-                Date createDate = DateUtil.parseString2DateNoException(strArr[41], "yyyy-MM-dd");
+                Date createDate = DateUtil.parseString2DateNoException(strArr[41], "yyyy-MM-dd hh:mm:ss");
                 project.setCreateTime(createDate);
                 project.setStartDate(createDate);
             }
             project.setProjectName(strArr[42]);
             // 国家
-            project.setCountry(strArr[16]);
+            //project.setCountry(strArr[16]);
             //执行约定交付日期
             project.setDeliveryDate(strArr[43]);
             //合同总价
@@ -1975,14 +2132,15 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
             //执行分公司
-            if (strArr[14] != null) {
+            /*if (strArr[14] != null) {
                 project.setExecCoName(order.getExecCoName());
-            }
+            }*/
 
-            if (strArr[15] != null) {
+            /*if (strArr[15] != null) {
                 project.setRegion(strArr[15]);
+            } else {
                 project.setRegion("");
-            }
+            }*/
 
             //执行变更日期
             if (strArr[47] != null) {
@@ -2486,7 +2644,7 @@ public class OrderServiceImpl implements OrderService {
             }
             //项目开始日期
             if (StringUtils.isNotBlank(strArr[2])) {
-                project.setStartDate(DateUtil.parseString2DateNoException(strArr[2], "yyyy-MM-dd"));
+                project.setStartDate(DateUtil.parseString2DateNoException(strArr[2], "yyyy-MM-dd hh:mm:ss"));
             }
             //项目名称
             if (StringUtils.isNotBlank(strArr[3])) {
@@ -2599,6 +2757,7 @@ public class OrderServiceImpl implements OrderService {
         return response;
     }
 
+
     @Override
     public void addOrderContract(XSSFWorkbook workbook, Map<String, Object> results) {
         Order orderDec = (Order) results.get("orderDesc");
@@ -2622,22 +2781,30 @@ public class OrderServiceImpl implements OrderService {
         //销售合同号
         if (orderDec.getContractNo() != null) {
             String stringR2C6 = sheet1.getRow(2).getCell(9).getStringCellValue().replace("法律事务部取号", orderDec.getContractNo());
-            //销售合同号后 添加框架协议号20190108上线
-            if (orderDec.getFrameworkNo() != null) {
-                sheet1.getRow(3).getCell(2).setCellValue(stringR2C6 + "/框架协议号:" + orderDec.getFrameworkNo());
-            } else {
-                sheet1.getRow(2).getCell(9).setCellValue(stringR2C6);
-            }
+            sheet1.getRow(2).getCell(9).setCellValue(stringR2C6);
+        }
+        //销售合同号后 添加框架协议号20190108上线
+        if (StringUtils.isNotBlank(orderDec.getFrameworkNo())) {
+            sheet1.getRow(3).getCell(2).setCellValue("框架协议号:" + orderDec.getFrameworkNo());
         }
         //客户代码
         if (orderDec.getCrmCode() != null) {
-            String stringR3C1 = sheet1.getRow(3).getCell(2).getStringCellValue().replace("市场填写", orderDec.getCrmCode());
-            if (orderDec.getPoNo() != null) {
-                sheet1.getRow(3).getCell(2).setCellValue(stringR3C1 + "/PO" + orderDec.getPoNo());
-            } else {
-                sheet1.getRow(3).getCell(2).setCellValue(stringR3C1);
+            String a1 = sheet1.getRow(3).getCell(2).getStringCellValue();
+            if (StringUtils.isNotBlank(a1)) {
+                a1 += "/";
             }
+            a1 += "客户代码：" + orderDec.getCrmCode();
+            sheet1.getRow(3).getCell(2).setCellValue(a1);
         }
+        if (orderDec.getPoNo() != null) {
+            String a1 = sheet1.getRow(3).getCell(2).getStringCellValue();
+            if (StringUtils.isNotBlank(a1)) {
+                a1 += "/";
+            }
+            a1 += "PO：" + orderDec.getCrmCode();
+            sheet1.getRow(3).getCell(2).setCellValue(a1);
+        }
+
         //询单号
         if (orderDec.getInquiryNo() != null) {
             String stringR3C4 = sheet1.getRow(3).getCell(4).getStringCellValue().replace("询单号", orderDec.getInquiryNo());
@@ -2701,22 +2868,22 @@ public class OrderServiceImpl implements OrderService {
             StringBuilder stringBuilder = new StringBuilder();
             switch (orderDec.getPaymentModeBn()) {
                 case "1":
-                    stringBuilder.append("收款方式：信用证  质保金：" + orderDec.getQualityFunds() + ";");
+                    stringBuilder.append("收款方式：信用证  质保金：" + (orderDec.getQualityFunds() == null ? "-" : orderDec.getQualityFunds().toString()) + ";");
                     break;
                 case "2":
-                    stringBuilder.append("收款方式：托收  质保金：" + orderDec.getQualityFunds() + ";");
+                    stringBuilder.append("收款方式：托收  质保金：" + (orderDec.getQualityFunds() == null ? "-" : orderDec.getQualityFunds().toString()) + ";");
                     break;
                 case "3":
-                    stringBuilder.append("收款方式：电汇  质保金：" + orderDec.getQualityFunds() + ";");
+                    stringBuilder.append("收款方式：电汇  质保金：" + (orderDec.getQualityFunds() == null ? "-" : orderDec.getQualityFunds().toString()) + ";");
                     break;
                 case "4":
-                    stringBuilder.append("收款方式：信汇  质保金：" + orderDec.getQualityFunds() + ";");
+                    stringBuilder.append("收款方式：信汇  质保金：" + (orderDec.getQualityFunds() == null ? "-" : orderDec.getQualityFunds().toString()) + ";");
                     break;
                 case "5":
-                    stringBuilder.append("收款方式：票汇  质保金：" + orderDec.getQualityFunds() + ";");
+                    stringBuilder.append("收款方式：票汇  质保金：" + (orderDec.getQualityFunds() == null ? "-" : orderDec.getQualityFunds().toString()) + ";");
                     break;
                 case "6":
-                    stringBuilder.append("收款方式：现金  质保金：" + orderDec.getQualityFunds() + ";");
+                    stringBuilder.append("收款方式：现金  质保金：" + (orderDec.getQualityFunds() == null ? "-" : orderDec.getQualityFunds().toString()) + ";");
                     break;
                 default:
                     break;
@@ -2735,9 +2902,9 @@ public class OrderServiceImpl implements OrderService {
                         String stringR6C502 = sheet1.getRow(6).getCell(5).getStringCellValue().replace("        年      月      日", DateUtil.format(DateUtil.SHORT_FORMAT_STR, op.getReceiptDate()));
                         sheet1.getRow(6).getCell(5).setCellValue(stringR6C502);
                     }
-                    //[{"text":"请选择","value":0},{"text":"发货后","value":4},{"text":"货到后","value":5},
+                    //[{"text":"请选择","value":0},{"text":"发货后","value":4},{"text":"货到后","value":5},git
                     // {"text":"提单日后","value":6},{"text":"交货后","value":7},{"text":"验收后","value":8}]
-                    stringBuilder.append("预收货款：" + op.getMoney() + orderDec.getCurrencyBn() + " 收款日期：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, op.getReceiptDate()) + ";");
+                    stringBuilder.append("预收货款：" + (op.getMoney() == null ? "-" : (op.getMoney().toString() + orderDec.getCurrencyBn())) + " 收款日期：" + StringUtils.defaultIfBlank(DateUtil.format(DateUtil.SHORT_FORMAT_STR, op.getReceiptDate()), "-") + ";");
                 } else if (op.getType() == 4) {
                     stringBuilder.append("收款方式：发货后 " + op.getReceiptTime() + "天 " + getMoney + ";");
                 } else if (op.getType() == 5) {
@@ -2776,7 +2943,10 @@ public class OrderServiceImpl implements OrderService {
         }
         List<CheckLog> passed = new ArrayList<>();
         if (orderDec.getId() != null) {
-            passed = checkLogService.findPassed2(orderDec.getId());
+            passed = checkLogService.findListByOrderId(orderDec.getId());
+            if (passed == null) {
+                passed = new ArrayList<>();
+            }
         }
         for (CheckLog cl : passed) {
             //只有金额大于10万美元 且不是国内订单才有区域审核
@@ -2815,12 +2985,12 @@ public class OrderServiceImpl implements OrderService {
                 //区域vp审核取走时间  若为融资则是融资生成时间 否则为提交商品时间
                 if (orderDec.getFinancing() != null && orderDec.getFinancing() == 1) {
                     if (cl.getAuditingProcess() == 5) {
-                        String stringR16C4 = sheet1.getRow(16).getCell(10).getStringCellValue().replace("取走时间：审核流出时间", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
+                        String stringR16C4 = sheet1.getRow(16).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                         sheet1.getRow(16).getCell(10).setCellValue(stringR16C4);
                     }
                 } else {
                     if (cl.getAuditingProcess() == 6) {
-                        String stringR16C4 = sheet1.getRow(16).getCell(10).getStringCellValue().replace("取走时间：审核流出时间", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
+                        String stringR16C4 = sheet1.getRow(16).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                         sheet1.getRow(16).getCell(10).setCellValue(stringR16C4);
                     }
                 }
@@ -2883,6 +3053,13 @@ public class OrderServiceImpl implements OrderService {
             if (cl.getAuditingProcess() == 14) {
                 String stringR24C10 = sheet1.getRow(24).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(24).getCell(10).setCellValue(stringR24C10);
+
+                if (orderDec.getProject().getLogisticsAudit() != 2) {
+                    //事业部总监审核接收时间
+                    String stringR29C10 = sheet1.getRow(29).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
+                    sheet1.getRow(29).getCell(10).setCellValue(stringR29C10);
+                }
+
             }
             //法务
             if (cl.getAuditingProcess() == 8) {
@@ -2894,35 +3071,41 @@ public class OrderServiceImpl implements OrderService {
             }
 
             //物流审核接收时间
-            if (orderDec.getProject().getLogisticsAudit() == 1 && cl.getAuditingProcess() == 15) {
+            if (orderDec.getProject().getLogisticsAudit() == 2 && cl.getAuditingProcess() == 15) {
                 String stringR27C10 = sheet1.getRow(27).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(27).getCell(10).setCellValue(stringR27C10);
             }
             //物流审核取走时间
-            if (cl.getAuditingProcess() == 16) {
+            if (orderDec.getProject().getLogisticsAudit() == 2 && cl.getAuditingProcess() == 16) {
                 String stringR27C10 = sheet1.getRow(28).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(28).getCell(10).setCellValue(stringR27C10);
+
                 //事业部总监审核接收时间
                 String stringR29C10 = sheet1.getRow(29).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(29).getCell(10).setCellValue(stringR29C10);
+
+                if (orderDec.getTotalPriceUsd().compareTo(new BigDecimal(500000)) <= 0) {
+                    String stringR30C10 = sheet1.getRow(30).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
+                    sheet1.getRow(30).getCell(10).setCellValue(stringR30C10);
+                }
             }
+
+
             //事业部总监审核取走时间
             if (cl.getAuditingProcess() == 17) {
                 String stringR30C10 = sheet1.getRow(30).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 sheet1.getRow(30).getCell(10).setCellValue(stringR30C10);
-            } else {
-                String stringR29C10 = sheet1.getRow(29).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
-                sheet1.getRow(29).getCell(10).setCellValue(stringR29C10);
             }
             //事业部VP审核
-            if (cl.getAuditingProcess() == 17 && cl.getNextAuditingProcess() == null) {
-                String stringR33C1 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", "黄永霞                      ＞50万美金");
-                sheet1.getRow(31).getCell(2).setCellValue(stringR33C1);
-            }
-            //事业部总裁审核
-            if (cl.getAuditingProcess() == 18) {
-                String stringR33C1 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", "黄永霞，宋伟                      ＞50万美金");
-                sheet1.getRow(31).getCell(2).setCellValue(stringR33C1);
+            if (cl.getAuditingProcess() == 17) {
+                String auditingUserName = "" + cl.getAuditingUserName() + "                      ＞50万美金";
+                if ("18".equals(cl.getNextAuditingProcess()) && cl.getNextAuditingUserId() == null) {
+                    String stringR33C1 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", auditingUserName);
+                    sheet1.getRow(31).getCell(2).setCellValue(stringR33C1);
+                } else {
+                    String stringR33C102 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", "" + cl.getAuditingUserName() + "，宋伟                      ＞50万美金");
+                    sheet1.getRow(31).getCell(2).setCellValue(stringR33C102);
+                }
             }
             //事业部总裁审核接收时间
             if (cl.getAuditingProcess() == 18) {

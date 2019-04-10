@@ -139,10 +139,8 @@
 								(
 									SELECT inquiry_id ,  out_at  AS createAt
 									FROM erui_rfq.inquiry_check_log
-									<!-- WHERE  in_node='MARKET_APPROVING' OR out_node ='MARKET_CONFIRMING' and -->
-                                    WHERE out_node ='MARKET_CONFIRMING' and
-									out_at BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
-									GROUP BY inquiry_id)AS t5
+                                    WHERE out_node ='MARKET_CONFIRMING'
+									GROUP BY inquiry_id HAVING max(out_at) BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s"))AS t5
             WHERE
             t1.country_bn = t3.country_bn
             AND t1.deleted_flag = 'N'
@@ -194,17 +192,17 @@
                 LEFT JOIN
             erui_sys.org t2 ON t1.org_id = t2.id
                 AND t2.deleted_flag = 'N'
-                LEFT JOIN (
+                ,(
 									SELECT inquiry_id ,  MIN(out_at)  AS diff
 									FROM erui_rfq.inquiry_check_log
 									WHERE  in_node='DRAFT' OR out_node='BIZ_DISPATCHING'
 									GROUP BY inquiry_id
 									 HAVING  MIN(out_at)  BETWEEN  DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")  and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-									)AS t4 ON t1.id = t4.inquiry_id
+									)AS t4
         WHERE
                 t1.deleted_flag = 'N'
+                AND t1.id = t4.inquiry_id
                 AND t1.status != 'DRAFT'
-								AND t1.inquiry_source='BOSS'
 				) AS t5
         GROUP BY t5.`name`
     </select>
@@ -236,15 +234,16 @@
             AND t2.`deleted_flag` = 'N'
             LEFT OUTER JOIN erui_rfq.final_quote t3 ON t1.id = t3.inquiry_id
             AND t3.`deleted_flag` = 'N'
-        LEFT OUTER JOIN (SELECT inquiry_id ,  MAX(out_at)  AS diff
+            ,(SELECT inquiry_id ,  MAX(out_at)  AS diff
                                         FROM erui_rfq.inquiry_check_log
-                                        WHERE  in_node='BIZ_APPROVING' OR out_node='MARKET_APPROVING'
+                                        WHERE  out_node = 'MARKET_CONFIRMING'
                                         GROUP BY inquiry_id
                                         HAVING   MAX(out_at) BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
             and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
-                                        ) AS t4 ON t1.id=t4.inquiry_id
+                                        ) AS t4
             WHERE
                 t1.deleted_flag = 'N'
+                AND t1.id=t4.inquiry_id
             AND t1.quote_status IN ('QUOTED', 'COMPLETED')
         ) AS t5
     GROUP BY
@@ -254,53 +253,33 @@
     <!-- 根据时间查询各个事业部的报价用时 -->
     <select id="selectQuoteTimeWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
-            t5.name, SUM(IFNULL(t5.diff2, 0)) AS diff
+            org.`name`,
+            SUM((UNIX_TIMESTAMP(t1.out_at) - UNIX_TIMESTAMP(t1.into_at))) / 3600 AS diff
         FROM
             (SELECT
-                t1.id AS inqId,
-                    t4.diff AS createTime,
-                    t4.diff2,
-                    (CASE
-                        WHEN t2.name = '易瑞-电力电工（含钢丝绳索具）' THEN '易瑞-电力电工'
-                        WHEN
-                            t2.name = '油田设备事业部'
-                                OR t2.name = '油田设备事业部-石油钢管公司'
-                                OR t2.name = '油田设备事业部-通用设备公司'
-                        THEN
-                            '油田设备'
-                        WHEN
-                            t2.name = '康博瑞-商务技术'
-                                OR t2.name = '康博瑞-配件中心'
-                        THEN
-                            '康博瑞'
-                        ELSE t2.name
-                    END) AS name
+                inquiry.org_id,
+                    MAX(log1.out_at) AS out_at,
+                    MIN(log2.into_at) AS into_at
             FROM
-                erui_rfq.inquiry t1
-            LEFT OUTER JOIN erui_sys.org t2 ON t1.org_id = t2.id
-                AND t2.`deleted_flag` = 'N'
-            LEFT OUTER JOIN (SELECT
-                inquiry_id,
-                    MAX(out_at) AS diff,
-                    TIMESTAMPDIFF(HOUR, MIN(CASE in_node
-                        WHEN 'DRAFT' THEN into_at
-                        ELSE NULL
-                    END), MAX(CASE out_node
-                        WHEN 'MARKET_CONFIRMING' THEN out_at
-                        ELSE NULL
-                    END)) AS diff2
+                erui_rfq.inquiry inquiry, erui_rfq.inquiry_check_log log1, erui_rfq.inquiry_check_log log2, (SELECT
+                inquiry_id AS log_inquiry_id
             FROM
                 erui_rfq.inquiry_check_log
             WHERE
-                in_node = 'BIZ_APPROVING'
-                    OR out_node = 'MARKET_APPROVING'
-            GROUP BY inquiry_id) AS t4 ON t1.id = t4.inquiry_id
+                out_node = 'MARKET_CONFIRMING'
+            GROUP BY inquiry_id
+            HAVING MIN(out_at) BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")) AS t3
             WHERE
-                t1.deleted_flag = 'N'
-                    AND t1.quote_status IN ('QUOTED' , 'COMPLETED')) AS t5
+                t3.log_inquiry_id = inquiry.id
+                    AND inquiry.id = log1.inquiry_id
+                    AND inquiry.id = log2.inquiry_id
+                    AND log1.in_node = 'MARKET_APPROVING'
+                    AND log2.in_node = 'BIZ_DISPATCHING'
+            GROUP BY inquiry.id , inquiry.org_id) t1,
+            erui_sys.org AS org
         WHERE
-            t5.createTime BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
-        GROUP BY t5.`name`;
+            t1.org_id = org.id
+        GROUP BY org.`name`
     </select>
     <select id="selectOrderInfoWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
        SELECT t4.name  , COUNT(t4.oid) AS total_num ,SUM(IFNULL(t4.total_price, 0)) AS total_price

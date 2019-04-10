@@ -182,8 +182,6 @@
     </repositories>
 
 
-
-
     <build>
         <plugins>
             <plugin>
@@ -234,12 +232,25 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <package.environment>test</package.environment>
+                <package.environment>dev</package.environment>
             </properties>
             <dependencies>
                 <dependency>
                     <groupId>com.erui</groupId>
                     <artifactId>erui-sso-client-dev</artifactId>
+                    <version>1.0</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <package.environment>test</package.environment>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>com.erui</groupId>
+                    <artifactId>erui-sso-client-test</artifactId>
                     <version>1.0</version>
                 </dependency>
             </dependencies>
@@ -258,11 +269,37 @@
             </dependencies>
         </profile>
         <profile>
+            <id>master</id>
+            <properties>
+                <package.environment>zhengshi</package.environment>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>com.erui</groupId>
+                    <artifactId>erui-sso-client</artifactId>
+                    <version>1.0</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
             <id>production</id>
             <properties>
                 <package.environment>production</package.environment>
             </properties>
-           <dependencies>
+            <dependencies>
+                <dependency>
+                    <groupId>com.erui</groupId>
+                    <artifactId>erui-beta-sso-client</artifactId>
+                    <version>1.0</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>prepare</id>
+            <properties>
+                <package.environment>production</package.environment>
+            </properties>
+            <dependencies>
                 <dependency>
                     <groupId>com.erui</groupId>
                     <artifactId>erui-beta-sso-client</artifactId>

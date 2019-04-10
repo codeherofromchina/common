@@ -45,7 +45,7 @@ public class DeliverNotice {
     private int status; //看货通知单状态
 
 
-    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)  //看货通知单，出口发货通知单关联表
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)  //看货通知单，出口发货通知单关联表
     @JoinTable(name = "deliver_notice_consign",
             joinColumns = @JoinColumn(name = "deliver_notice_id"),
             inverseJoinColumns = @JoinColumn(name = "deliver_consign_id"))
@@ -64,7 +64,7 @@ public class DeliverNotice {
     @Column(name = "sender_name")
     private String senderName;
 
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "send_date") //下单日期
     private Date sendDate;
     @Column(name = "trade_terms")
@@ -80,13 +80,13 @@ public class DeliverNotice {
      * 紧急程度 COMMONLY:一般 URGENT:紧急 PARTICULAR:异常紧急
      */
     private String urgency;
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "delivery_date")
     private Date deliveryDate;
 
     private Integer numers;
 
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "create_time")
     private Date createTime;
 
@@ -96,7 +96,7 @@ public class DeliverNotice {
     @Column(name = "create_user_name")
     private String createUserName;
 
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "update_time")
     private Date updateTime;
     @Column(name = "prepare_req")
@@ -104,10 +104,12 @@ public class DeliverNotice {
     @Column(name = "package_req")
     private String packageReq;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name = "deliver_notice_attach",
-            joinColumns = @JoinColumn(name = "deliver_notice_id"),
-            inverseJoinColumns = @JoinColumn(name = "attach_id"))
+    /* @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+     @JoinTable(name = "deliver_notice_attach",
+             joinColumns = @JoinColumn(name = "deliver_notice_id"),
+             inverseJoinColumns = @JoinColumn(name = "attach_id"))*/
+    //DELIVERNOTICE
+    @Transient
     private Set<Attachment> attachmentSet = new HashSet<>();
 
 

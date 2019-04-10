@@ -181,11 +181,12 @@ public class Order {
     private BigDecimal receivableAccountRemaining;  //应收账款余额
 
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "order_attach",
-            joinColumns = @JoinColumn(name = "order_id"),
-            inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    /*  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+      @JoinTable(name = "order_attach",
+              joinColumns = @JoinColumn(name = "order_id"),
+              inverseJoinColumns = @JoinColumn(name = "attach_id"))
+      @JsonInclude(JsonInclude.Include.NON_DEFAULT)*/
+    @Transient
     private List<Attachment> attachmentSet = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -334,6 +335,16 @@ public class Order {
     //如果项目审核完成返回前端 值为 1
     @Transient
     private Integer proAuditStatus = 0;
+    @Column(name = "cancel_reason")
+    private String cancelReason;//订单取消原因
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
+    }
 
     public Integer getProAuditStatus() {
         return proAuditStatus;
@@ -1034,26 +1045,28 @@ public class Order {
 
     public String getPayStatusName() {
         // 1:未付款 2:部分付款 3:收款完成
+        String str = null;
         if (getPayStatus() == 1) {
-            return "未收款";
+            str = "未收款";
         } else if (getPayStatus() == 2) {
-            return "部分收款";
+            str = "部分收款";
         } else if (getPayStatus() == 3) {
-            return "收款完成";
+            str = "收款完成";
         }
-        return null;
+        return str;
     }
 
     public String getEnPayStatusName() {
         // 1:未付款 2:部分付款 3:收款完成
+        String str = null;
         if (getPayStatus() == 1) {
-            return "Uncollected";
+            str = "Uncollected";
         } else if (getPayStatus() == 2) {
-            return "Partly collected";
+            str = "Partly collected";
         } else if (getPayStatus() == 3) {
-            return "Totally collected";
+            str = "Totally collected";
         }
-        return null;
+        return str;
     }
 
     public void setPayStatus(Integer payStatus) {

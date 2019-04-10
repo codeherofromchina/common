@@ -1,11 +1,14 @@
 package com.erui.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
+import javax.persistence.Transient;
 import javax.validation.constraints.Size;
+import java.beans.*;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -39,6 +42,7 @@ public class Project {
     private String projectName;
 
     @Column(name = "start_date")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date startDate;
     //20180711因事业部订单导入需要修改为文本格式
     //@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
@@ -108,9 +112,10 @@ public class Project {
 
     @Column(name = "create_time")
     private Date createTime;
+    //删除字段 暂未删除
     @Column(name = "exec_co_name")
     private String execCoName;
-    //分销部名称
+    //分销部名称 删除
     @Column(name = "distribution_dept_name")
     private String distributionDeptName;
     //下发部门
@@ -130,7 +135,9 @@ public class Project {
     //合同总价（美元）
     @Column(name = "total_price_usd")
     private BigDecimal totalPriceUsd;
+    @Transient
     private String region;
+    //删除字段
     private String country;
     private String remarks;
     //流程进度
@@ -139,10 +146,10 @@ public class Project {
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private List<Goods> goodsList = new ArrayList<>();
-    //是否已生成出口通知单
+    //是否已生成出口通知单 删除字段
     @Column(name = "deliver_consign_has")
     private Integer deliverConsignHas;
-    //订单类别 1预投 2 售后 3 试用 4 现货（出库） 5 订单
+    //订单类别 1预投 2 售后 3 试用 4 现货（出库） 5 订单 6 国内订单
     @Column(name = "order_category")
     private Integer orderCategory;
 
@@ -212,11 +219,12 @@ public class Project {
     private Integer chairmanId;        //董事长审核人id
 
     private String chairman;           //董事长审核人
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name = "project_attach",
-            joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "attach_id"))
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    /* @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+     @JoinTable(name = "project_attach",
+             joinColumns = @JoinColumn(name = "project_id"),
+             inverseJoinColumns = @JoinColumn(name = "attach_id"))
+     @JsonInclude(JsonInclude.Include.NON_DEFAULT)*/
+    @Transient
     private List<Attachment> attachmentList = new ArrayList<>();
 
     public List<Attachment> getAttachmentList() {
@@ -783,7 +791,7 @@ public class Project {
         if (project.exeChgDate == null) {
             project.setExeChgDate(this.exeChgDate);
         }
-        //project.setRequirePurchaseDate(this.requirePurchaseDate);
+        project.setRequirePurchaseDate(this.requirePurchaseDate);
         project.setPurchaseUid(this.purchaseUid);
         project.setPurchaseName(this.purchaseName);
         project.setQualityUid(this.qualityUid);
@@ -903,7 +911,7 @@ public class Project {
         AUDIT("AUDIT", "未执行", 1), SUBMIT("SUBMIT", "未执行", 1), HASMANAGER("HASMANAGER", "有项目经理", 2),
         EXECUTING("EXECUTING", "正常执行", 3), DONE("DONE", "正常完成", 4), DELAYED_EXECUTION("DELAYED_EXECUTION", "延期执行", 5),
         DELAYED_COMPLETE("DELAYED_COMPLETE", "延期完成", 6), UNSHIPPED("UNSHIPPED", "正常待发运", 7),
-        DELAYED_UNSHIPPED("DELAYED_UNSHIPPED", "延期待发运", 8), PAUSE("PAUSE", "项目暂停", 9), CANCEL("CANCEL", "项目取消", 10), TURNDOWN("TURNDOWN", "驳回", 11);
+        DELAYED_UNSHIPPED("DELAYED_UNSHIPPED", "延期待发运", 8), PAUSE("PAUSE", "项目暂停", 9), CANCEL("CANCEL", "项目取消", 10), ORDERCANCEL("ORDERCANCEL", "订单取消", 11), TURNDOWN("TURNDOWN", "驳回", 12);
         private String code;
         private String msg;
 

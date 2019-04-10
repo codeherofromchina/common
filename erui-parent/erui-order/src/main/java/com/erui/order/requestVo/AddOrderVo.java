@@ -215,6 +215,7 @@ public class AddOrderVo {
     @Transient
     private Integer checkLogId;//要驳回日志Id
 
+
     //附件信息
     private List<Attachment> attachDesc = new ArrayList<>();
 
