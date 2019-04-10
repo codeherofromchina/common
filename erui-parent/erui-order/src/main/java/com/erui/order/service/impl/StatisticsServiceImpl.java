@@ -668,6 +668,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                     projectGoods.setCurrencyBn(p.getCurrencyBn());
                     projectGoods.setProCate(g.getMeteName());
                     projectGoodsStatistics.add(projectGoods);
+
                 }
             }
 
