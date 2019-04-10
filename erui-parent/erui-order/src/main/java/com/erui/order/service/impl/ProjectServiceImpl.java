@@ -50,6 +50,7 @@ public class ProjectServiceImpl implements ProjectService {
     static final BigDecimal STEP_ONE_AMOUNT = new BigDecimal("10000"); //判断金额是否小于等于1万美元，小于1万美元则审核结束，大于1万美元则事业部总经理审批
     static final BigDecimal STEP_TWO_AMOUNT = new BigDecimal("200000"); //判断金额是否小于等于20万美元，小于20万美元则审核结束，大于20万美元则总裁审批，或预投需要总经理审批
     static final BigDecimal STEP_THREE_AMOUNT = new BigDecimal("500000"); //判断金额是否小于50万美元，小于50万美元则审核结束，大于50万美元则董事长审批，或预投需要董事长审批
+    static final BigDecimal STEP_FOUR_AMOUNT = new BigDecimal("1000000"); //国内订单判断金额是否大于100万人民币，小于等于100万人民币则审核结束，大于100万人民币则董事长审批
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -1380,8 +1381,8 @@ public class ProjectServiceImpl implements ProjectService {
                         }
                         break;
                     case 207: // 总裁审批
-                        // 判断金额是否小于50万美元，小于50万美元则审核结束，大于50万美元则董事长审批，或预投需要董事长审批
-                        if (order.getTotalPriceUsd().compareTo(STEP_THREE_AMOUNT) >= 0 || orderCategory == 1) {
+                        // 判断金额是否小于50万美元，小于50万美元则审核结束，大于50万美元则董事长审批，或预投需要董事长审批，或国内订单并且金额大于100万人民币需要董事长审批
+                        if (order.getTotalPriceUsd().compareTo(STEP_THREE_AMOUNT) >= 0 || orderCategory == 1 || (orderCategory == 6 && order.getTotalPrice().compareTo(STEP_FOUR_AMOUNT) > 0)) {
                             // 到下一步事业部总经理审批
                             auditingProcess_i = "208"; // 总经理审核
                             auditingUserId_i = project.getChairmanId().toString();
