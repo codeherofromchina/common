@@ -334,7 +334,7 @@ public class PurchServiceImpl implements PurchService {
         purch.setAuditingStatus(auditingStatus_i);
         purch.setAuditingProcess(auditingProcess_i);
         purch.setAuditingUserId(auditingUserId_i);
-        if (auditingUserId_i != null) {
+        if (auditingUserId_i != null && !isComeMore) {
             for (String user : auditingUserId_i.split(",")) {
                 sendDingtalk(purch, user, rejectFlag);
             }

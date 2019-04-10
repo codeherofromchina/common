@@ -978,6 +978,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             auditorIds = new StringBuilder("");
         }
         boolean rejectFlag = "-1".equals(rDeliverConsign.getAuditingType());
+        boolean isComeMore = Boolean.FALSE;// 是否来自并行的审批，且并行还没走完。
         String reason = rDeliverConsign.getAuditingReason();
         // 获取当前审核进度
         String auditingProcess = deliverConsign.getAuditingProcess();
@@ -1022,10 +1023,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 case 32: //结算专员审核
                     String replace = StringUtils.strip(auditingUserId.replaceFirst(deliverConsign.getSettlementLeaderId().toString(), ""));
                     if ("".equals(replace)) { // 跟他并行审核的都已经审核完成
-                        auditingStatus_i = 4; // 完成
-                        auditingProcess_i = "999"; // 无下一审核进度和审核人
-                        auditingUserId_i = null;
+                        auditingProcess_i = String.format("%d,%d", "35", "36");
+                        auditingUserId_i = String.format("%d,%d", deliverConsign.getBookingOfficerId(), deliverConsign.getOperationSpecialistId());
                     } else {
+                        isComeMore = true;
                         String replaceProcess = auditingProcess.replace("32", "");
                         auditingProcess_i = StringUtils.strip(replaceProcess, ",");
                         auditingUserId_i = StringUtils.strip(replace, ",");
@@ -1034,27 +1035,47 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 case 33://事业部项目负责人审核
                     String replace2 = StringUtils.strip(auditingUserId.replaceFirst(deliverConsign.getBusinessLeaderId().toString(), ""));
                     if ("".equals(replace2)) { // 跟他并行审核的都已经审核完成
-                        auditingStatus_i = 4; // 完成
-                        auditingProcess_i = "999"; // 无下一审核进度和审核人
-                        auditingUserId_i = null;
+                        auditingProcess_i = String.format("%d,%d", "35", "36");
+                        auditingUserId_i = String.format("%d,%d", deliverConsign.getBookingOfficerId(), deliverConsign.getOperationSpecialistId());
                     } else {
+                        isComeMore = true;
                         String replaceProcess = auditingProcess.replace("33", "");
-                        String processRemove = replaceProcess.replace(",,", ",");
-                        auditingProcess_i = StringUtils.strip(processRemove, ",");
-                        String auditingUserRemove = replace2.replace(",,", ",");
-                        auditingUserId_i = StringUtils.strip(auditingUserRemove, ",");
+                        auditingProcess_i = StringUtils.strip(replaceProcess, ",");
+                        auditingUserId_i = StringUtils.strip(replace2, ",");
                     }
                     break;
                 case 34://物流负责人审核
                     String replace3 = StringUtils.strip(auditingUserId.replaceFirst(deliverConsign.getLogisticsLeaderId().toString(), ""));
                     if ("".equals(replace3)) { // 跟他并行审核的都已经审核完成
+                        auditingProcess_i = String.format("%d,%d", "35", "36");
+                        auditingUserId_i = String.format("%d,%d", deliverConsign.getBookingOfficerId(), deliverConsign.getOperationSpecialistId());
+                    } else {
+                        isComeMore = true;
+                        String replaceProcess = auditingProcess.replace("34", "");
+                        auditingProcess_i = StringUtils.strip(replaceProcess, ",");
+                        auditingUserId_i = StringUtils.strip(replace3, ",");
+                    }
+                    break;
+                case 35://订舱专员审核
+                    if (auditingProcess.indexOf("36") == -1) { // 跟他并行审核的操作专员已经审核完成
                         auditingStatus_i = 4; // 完成
                         auditingProcess_i = "999"; // 无下一审核进度和审核人
                         auditingUserId_i = null;
                     } else {
-                        String replaceProcess = auditingProcess.replace("34", "");
-                        auditingProcess_i = StringUtils.strip(replaceProcess, ",");
-                        auditingUserId_i = StringUtils.strip(replace3, ",");
+                        isComeMore = true;
+                        auditingProcess_i = "36";
+                        auditingUserId_i = deliverConsign.getOperationSpecialistId().toString();
+                    }
+                    break;
+                case 36://操作专员审核
+                    if (auditingProcess.indexOf("35") == -1) { // 跟他并行审核的订舱专员已经审核完成
+                        auditingStatus_i = 4; // 完成
+                        auditingProcess_i = "999"; // 无下一审核进度和审核人
+                        auditingUserId_i = null;
+                    } else {
+                        isComeMore = true;
+                        auditingProcess_i = "35";
+                        auditingUserId_i = deliverConsign.getBookingOfficerId().toString();
                     }
                     break;
                 default:
@@ -1069,21 +1090,17 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsign.setAudiRemark(auditorIds.toString());
         //当时并行审核时分别推送待办和钉钉
         if (auditingUserId_i != null) {
-            if ("32,33,34".equals(auditingProcess_i)) {
+            if ("32,33,34".equals(auditingProcess_i) || "35,36".equals(auditingProcess_i)) {
                 String[] split = auditingUserId_i.split(",");
                 for (int n = 0; n < split.length; n++) {
                     sendDingtalk(deliverConsign, split[n], rejectFlag);
                    // auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(split[n]));
                 }
-            } else {
+            } else if(!isComeMore){//并行未审核完，不需要重复发送
                 sendDingtalk(deliverConsign, auditingUserId_i.toString(), rejectFlag);
-                /*if (!StringUtils.isBlank(auditingUserId_i) && StringUtils.equals("31", auditingProcess_i)) {
-                    auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(auditingUserId_i));
-                } else {
-                    auditBackLogHandle(deliverConsign, rejectFlag, null);
-                }*/
             }
         }
+        auditBackLogHandle(deliverConsign, rejectFlag, auditingUserId_i, isComeMore);
         deliverConsignDao.save(deliverConsign);
         if (deliverConsign.getAuditingStatus() == 4 && deliverConsign.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             pushOutStock(deliverConsign);
@@ -1091,18 +1108,21 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         return true;
     }
 
-    private void auditBackLogHandle(DeliverConsign deliverConsign, boolean rejectFlag, Integer auditingUserId) {
+    private void auditBackLogHandle(DeliverConsign deliverConsign, boolean rejectFlag, String auditingUserId, boolean isComeMore) {
         try {
             // 删除上一个待办
             BackLog backLog2 = new BackLog();
-            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERCONSIGN_AUDIT.getNum());    //功能访问路径标识
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERCONSIGN_REJECT.getNum());    //功能访问路径标识
             backLog2.setHostId(deliverConsign.getId());
             backLogService.updateBackLogByDelYn(backLog2);
-            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERCONSIGN_REJECT.getNum());    //功能访问路径标识
-            backLogService.updateBackLogByDelYn(backLog2);
-
-            if (auditingUserId != null) {
-                // 推送待办事件
+            if (isComeMore) {
+                backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERCONSIGN_AUDIT.getNum());    //功能访问路径标识
+                backLogService.updateBackLogByDelYnNew(backLog2, auditingUserId);
+            } else {
+                backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERCONSIGN_AUDIT.getNum());    //功能访问路径标识
+                backLogService.updateBackLogByDelYn(backLog2);
+            }
+            if (auditingUserId != null && !isComeMore) {//并行未走完不用推送待办
                 String region = deliverConsign.getOrder().getRegion();   //所属地区
                 Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
                 String country = deliverConsign.getOrder().getCountry();  //国家
@@ -1111,14 +1131,18 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 Integer followId = deliverConsign.getId();
                 Integer hostId = deliverConsign.getOrder().getId();
                 String deliverConsignNo = deliverConsign.getDeliverConsignNo();
-                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
-                        rejectFlag ? BackLog.ProjectStatusEnum.DELIVERCONSIGN_REJECT : BackLog.ProjectStatusEnum.DELIVERCONSIGN_AUDIT,
-                        deliverConsignNo,
-                        infoContent,
-                        hostId,
-                        followId,
-                        "订单",
-                        auditingUserId));
+
+                for (String user : auditingUserId.split(",")) {
+                    // 推送待办事件
+                    applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                            rejectFlag ? BackLog.ProjectStatusEnum.DELIVERCONSIGN_REJECT : BackLog.ProjectStatusEnum.DELIVERCONSIGN_AUDIT,
+                            deliverConsignNo,
+                            infoContent,
+                            hostId,
+                            followId,
+                            "订舱",
+                            Integer.parseInt(auditingUserId)));
+                }
             }
 
             if (deliverConsign.getAuditingStatus() == 4 && "999".equals(deliverConsign.getAuditingProcess())) {
@@ -1135,7 +1159,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         infoContent,
                         hostId,
                         followId,
-                        "订单",
+                        "订舱",
                         userId));
             }
         } catch (Exception e) {
