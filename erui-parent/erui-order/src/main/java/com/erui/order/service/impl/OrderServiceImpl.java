@@ -505,7 +505,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<ComplexOrder> findByOutList(OutListCondition condition) {
-        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
+        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
         try {
             Page<ComplexOrder> pageList = complexOrderDao.findAll(new Specification<ComplexOrder>() {
                 @Override
