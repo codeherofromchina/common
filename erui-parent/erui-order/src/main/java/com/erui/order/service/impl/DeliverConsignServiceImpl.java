@@ -1020,6 +1020,23 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     auditingProcess_i = "32,33,34";
                     auditingUserId_i = deliverConsign.getSettlementLeaderId() + "," + deliverConsign.getBusinessLeaderId() + "," + deliverConsign.getLogisticsLeaderId();
                     break;
+                case 34://物流负责人审核
+                    // 由物流负责人指派订舱专员和操作专员
+                    deliverConsign.setBookingOfficer(rDeliverConsign.getBookingOfficer());
+                    deliverConsign.setBookingOfficerId(rDeliverConsign.getBookingOfficerId());
+                    deliverConsign.setOperationSpecialist(rDeliverConsign.getOperationSpecialist());
+                    deliverConsign.setOperationSpecialistId(rDeliverConsign.getOperationSpecialistId());
+                    String replace3 = StringUtils.strip(auditingUserId.replaceFirst(deliverConsign.getLogisticsLeaderId().toString(), ""));
+                    if ("".equals(replace3)) { // 跟他并行审核的都已经审核完成
+                        auditingProcess_i = "35,36";
+                        auditingUserId_i = String.format("%d,%d", deliverConsign.getBookingOfficerId(), deliverConsign.getOperationSpecialistId());
+                    } else {
+                        isComeMore = true;
+                        String replaceProcess = auditingProcess.replace("34", "");
+                        auditingProcess_i = StringUtils.strip(replaceProcess, ",");
+                        auditingUserId_i = StringUtils.strip(replace3, ",");
+                    }
+                    break;
                 case 32: //结算专员审核
                     String replace = StringUtils.strip(auditingUserId.replaceFirst(deliverConsign.getSettlementLeaderId().toString(), ""));
                     if ("".equals(replace)) { // 跟他并行审核的都已经审核完成
@@ -1042,23 +1059,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         String replaceProcess = auditingProcess.replace("33", "");
                         auditingProcess_i = StringUtils.strip(replaceProcess, ",");
                         auditingUserId_i = StringUtils.strip(replace2, ",");
-                    }
-                    break;
-                case 34://物流负责人审核
-                    // 由物流负责人指派订舱专员和操作专员
-                    deliverConsign.setBookingOfficer(rDeliverConsign.getBookingOfficer());
-                    deliverConsign.setBookingOfficerId(rDeliverConsign.getBookingOfficerId());
-                    deliverConsign.setOperationSpecialist(rDeliverConsign.getOperationSpecialist());
-                    deliverConsign.setOperationSpecialistId(rDeliverConsign.getOperationSpecialistId());
-                    String replace3 = StringUtils.strip(auditingUserId.replaceFirst(deliverConsign.getLogisticsLeaderId().toString(), ""));
-                    if ("".equals(replace3)) { // 跟他并行审核的都已经审核完成
-                        auditingProcess_i = "35,36";
-                        auditingUserId_i = String.format("%d,%d", deliverConsign.getBookingOfficerId(), deliverConsign.getOperationSpecialistId());
-                    } else {
-                        isComeMore = true;
-                        String replaceProcess = auditingProcess.replace("34", "");
-                        auditingProcess_i = StringUtils.strip(replaceProcess, ",");
-                        auditingUserId_i = StringUtils.strip(replace3, ",");
                     }
                     break;
                 case 35://订舱专员审核
