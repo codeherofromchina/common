@@ -1146,7 +1146,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                             hostId,
                             followId,
                             "订舱",
-                            Integer.parseInt(auditingUserId)));
+                            Integer.parseInt(user)));
                 }
             }
 
