@@ -1055,6 +1055,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         auditingProcess_i = StringUtils.strip(replaceProcess, ",");
                         auditingUserId_i = StringUtils.strip(replace3, ",");
                     }
+                    // 由物流负责人指派订舱专员和操作专员
+                    deliverConsign.setBookingOfficer(rDeliverConsign.getBookingOfficer());
+                    deliverConsign.setBookingOfficerId(rDeliverConsign.getBookingOfficerId());
+                    deliverConsign.setOperationSpecialist(rDeliverConsign.getOperationSpecialist());
+                    deliverConsign.setOperationSpecialistId(rDeliverConsign.getOperationSpecialistId());
                     break;
                 case 35://订舱专员审核
                     if (auditingProcess.indexOf("36") == -1) { // 跟他并行审核的操作专员已经审核完成
