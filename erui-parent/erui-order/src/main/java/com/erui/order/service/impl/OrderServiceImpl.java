@@ -505,7 +505,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<ComplexOrder> findByOutList(OutListCondition condition) {
-        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "id"));
+        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
         try {
             Page<ComplexOrder> pageList = complexOrderDao.findAll(new Specification<ComplexOrder>() {
                 @Override
@@ -1707,9 +1707,6 @@ public class OrderServiceImpl implements OrderService {
             } else {
                 order.setDeliverConsignC(Boolean.FALSE);
             }
-           /* order.getGoodsList().size();
-            order.getAttachmentSet().size();
-            order.getOrderPayments().size();*/
             outOrderDetail = new OutOrderDetail();
             outOrderDetail.copyInfo(order);
             for (Goods goods : order.getGoodsList()) {
