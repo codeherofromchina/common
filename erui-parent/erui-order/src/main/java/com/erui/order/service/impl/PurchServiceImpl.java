@@ -347,7 +347,7 @@ public class PurchServiceImpl implements PurchService {
         purch.setAudiRemark(auditorIds.toString());
         purchDao.save(purch);
 
-        auditBackLogHandle(purch, rejectFlag, auditingUserId_i, isComeMore);
+        auditBackLogHandle(purch, rejectFlag, auditingUserId_i, auditorId, isComeMore);
 
         return true;
     }
@@ -355,7 +355,7 @@ public class PurchServiceImpl implements PurchService {
     /**
      * @param isComeMore //true是同级处理  false不是同级处理或提交审核
      */
-    private void auditBackLogHandle(Purch purch, boolean rejectFlag, String auditingUserId, boolean isComeMore) {
+    private void auditBackLogHandle(Purch purch, boolean rejectFlag, String auditingUserId, String auditorId, boolean isComeMore) {
         try {
             // 删除上一个待办
             BackLog backLog2 = new BackLog();
@@ -364,7 +364,7 @@ public class PurchServiceImpl implements PurchService {
             backLogService.updateBackLogByDelYn(backLog2);
             if (isComeMore) {
                 backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCH_AUDIT.getNum());    //功能访问路径标识
-                backLogService.updateBackLogByDelYnNew(backLog2, auditingUserId);
+                backLogService.updateBackLogByDelYnNew(backLog2, auditorId);
             } else {
                 backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCH_AUDIT.getNum());    //功能访问路径标识
                 backLogService.updateBackLogByDelYn(backLog2);
@@ -914,7 +914,7 @@ public class PurchServiceImpl implements PurchService {
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
             checkLogService.insert(checkLog_i);
             // 待办
-            auditBackLogHandle(save, false, save.getAuditingUserId(), false);
+            auditBackLogHandle(save, false, save.getAuditingUserId(), "", false);
         }
         if (save.getStatus() == 2) {
             List<Project> projects = save.getProjects();
@@ -1234,7 +1234,7 @@ public class PurchServiceImpl implements PurchService {
             if (save.getPurchAuditerId() != null) {
                 sendDingtalk(purch, purch.getPurchAuditerId().toString(), false);
             }
-            auditBackLogHandle(dbPurch, false, dbPurch.getAuditingUserId(), false);
+            auditBackLogHandle(dbPurch, false, dbPurch.getAuditingUserId(), "", false);
         }
         if (save.getStatus() == 2) {
             List<Project> projects = save.getProjects();

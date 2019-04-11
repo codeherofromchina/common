@@ -282,7 +282,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             // 待办
             if (deliverConsign.getCountryLeaderId() != null) {
                 sendDingtalk(deliverConsign1, deliverConsignUpdate.getCountryLeaderId().toString(), false);
-                auditBackLogHandle(deliverConsign1, false, deliverConsign1.getCountryLeaderId().toString(), false);
+                auditBackLogHandle(deliverConsign1, false, deliverConsign1.getCountryLeaderId().toString(), "", false);
             }
         }
         List<Attachment> attachmentList = deliverConsign.getAttachmentSet();
@@ -440,7 +440,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             if (deliverConsign.getCountryLeaderId() != null) {
                 sendDingtalk(deliverConsign1, deliverConsign.getCountryLeaderId().toString(), false);
                 // 待办
-                auditBackLogHandle(deliverConsign1, false, deliverConsignAdd.getCountryLeaderId().toString(), false);
+                auditBackLogHandle(deliverConsign1, false, deliverConsignAdd.getCountryLeaderId().toString(), "", false);
             }
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign1.getId(), 30, order.getAgentId(), order.getAgentName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getCountryLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 4);
             checkLogService.insert(checkLog_i);
@@ -1019,23 +1019,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     auditingProcess_i = "32,33,34";
                     auditingUserId_i = deliverConsign.getSettlementLeaderId() + "," + deliverConsign.getBusinessLeaderId() + "," + deliverConsign.getLogisticsLeaderId();
                     break;
-                case 34://物流负责人审核
-                    // 由物流负责人指派订舱专员和操作专员
-                    deliverConsign.setBookingOfficer(rDeliverConsign.getBookingOfficer());
-                    deliverConsign.setBookingOfficerId(rDeliverConsign.getBookingOfficerId());
-                    deliverConsign.setOperationSpecialist(rDeliverConsign.getOperationSpecialist());
-                    deliverConsign.setOperationSpecialistId(rDeliverConsign.getOperationSpecialistId());
-                    String replace3 = StringUtils.strip(auditingUserId.replaceFirst(deliverConsign.getLogisticsLeaderId().toString(), ""));
-                    if ("".equals(replace3)) { // 跟他并行审核的都已经审核完成
-                        auditingProcess_i = "35,36";
-                        auditingUserId_i = String.format("%d,%d", deliverConsign.getBookingOfficerId(), deliverConsign.getOperationSpecialistId());
-                    } else {
-                        isComeMore = true;
-                        String replaceProcess = auditingProcess.replace("34", "");
-                        auditingProcess_i = StringUtils.strip(replaceProcess, ",");
-                        auditingUserId_i = StringUtils.strip(replace3, ",");
-                    }
-                    break;
                 case 32: //结算专员审核
                     String replace = StringUtils.strip(auditingUserId.replaceFirst(deliverConsign.getSettlementLeaderId().toString(), ""));
                     if ("".equals(replace)) { // 跟他并行审核的都已经审核完成
@@ -1058,6 +1041,23 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         String replaceProcess = auditingProcess.replace("33", "");
                         auditingProcess_i = StringUtils.strip(replaceProcess, ",");
                         auditingUserId_i = StringUtils.strip(replace2, ",");
+                    }
+                    break;
+                case 34://物流负责人审核
+                    // 由物流负责人指派订舱专员和操作专员
+                    deliverConsign.setBookingOfficer(rDeliverConsign.getBookingOfficer());
+                    deliverConsign.setBookingOfficerId(rDeliverConsign.getBookingOfficerId());
+                    deliverConsign.setOperationSpecialist(rDeliverConsign.getOperationSpecialist());
+                    deliverConsign.setOperationSpecialistId(rDeliverConsign.getOperationSpecialistId());
+                    String replace3 = StringUtils.strip(auditingUserId.replaceFirst(deliverConsign.getLogisticsLeaderId().toString(), ""));
+                    if ("".equals(replace3)) { // 跟他并行审核的都已经审核完成
+                        auditingProcess_i = "35,36";
+                        auditingUserId_i = String.format("%d,%d", deliverConsign.getBookingOfficerId(), deliverConsign.getOperationSpecialistId());
+                    } else {
+                        isComeMore = true;
+                        String replaceProcess = auditingProcess.replace("34", "");
+                        auditingProcess_i = StringUtils.strip(replaceProcess, ",");
+                        auditingUserId_i = StringUtils.strip(replace3, ",");
                     }
                     break;
                 case 35://订舱专员审核
@@ -1104,7 +1104,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 sendDingtalk(deliverConsign, auditingUserId_i.toString(), rejectFlag);
             }
         }
-        auditBackLogHandle(deliverConsign, rejectFlag, auditingUserId_i, isComeMore);
+        auditBackLogHandle(deliverConsign, rejectFlag, auditingUserId_i, auditorId, isComeMore);
         deliverConsignDao.save(deliverConsign);
         if (deliverConsign.getAuditingStatus() == 4 && deliverConsign.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             pushOutStock(deliverConsign);
@@ -1112,7 +1112,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         return true;
     }
 
-    private void auditBackLogHandle(DeliverConsign deliverConsign, boolean rejectFlag, String auditingUserId, boolean isComeMore) {
+    private void auditBackLogHandle(DeliverConsign deliverConsign, boolean rejectFlag, String auditingUserId, String auditorId, boolean isComeMore) {
         try {
             // 删除上一个待办
             BackLog backLog2 = new BackLog();
@@ -1121,7 +1121,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             backLogService.updateBackLogByDelYn(backLog2);
             if (isComeMore) {
                 backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERCONSIGN_AUDIT.getNum());    //功能访问路径标识
-                backLogService.updateBackLogByDelYnNew(backLog2, auditingUserId);
+                backLogService.updateBackLogByDelYnNew(backLog2, auditorId);
             } else {
                 backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERCONSIGN_AUDIT.getNum());    //功能访问路径标识
                 backLogService.updateBackLogByDelYn(backLog2);
