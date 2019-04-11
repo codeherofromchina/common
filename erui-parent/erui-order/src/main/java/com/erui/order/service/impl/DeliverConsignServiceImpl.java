@@ -281,9 +281,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             checkLogService.insert(checkLog_i);
             // 待办
             if (deliverConsign.getCountryLeaderId() != null) {
-                sendDingtalk(deliverConsign1, deliverConsign.getCountryLeaderId().toString(), false);
+                sendDingtalk(deliverConsign1, deliverConsignUpdate.getCountryLeaderId().toString(), false);
+                auditBackLogHandle(deliverConsign1, false, deliverConsign1.getCountryLeaderId().toString(), false);
             }
-            //auditBackLogHandle(deliverConsign1, false, deliverConsign1.getCountryLeaderId());
         }
         List<Attachment> attachmentList = deliverConsign.getAttachmentSet();
         Map<Integer, Attachment> dbAttahmentsMap = deliverConsignUpdate.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
@@ -439,11 +439,11 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             if (deliverConsign.getCountryLeaderId() != null) {
                 sendDingtalk(deliverConsign1, deliverConsign.getCountryLeaderId().toString(), false);
+                // 待办
+                auditBackLogHandle(deliverConsign1, false, deliverConsignAdd.getCountryLeaderId().toString(), false);
             }
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign1.getId(), 30, order.getAgentId(), order.getAgentName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getCountryLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 4);
             checkLogService.insert(checkLog_i);
-            // 待办
-            //auditBackLogHandle(deliverConsign1, false, deliverConsign1.getCountryLeaderId());
         }
         //出口通知单附件添加
         if (deliverConsign.getAttachmentSet() != null && deliverConsign.getAttachmentSet().size() > 0) {
@@ -1099,9 +1099,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 String[] split = auditingUserId_i.split(",");
                 for (int n = 0; n < split.length; n++) {
                     sendDingtalk(deliverConsign, split[n], rejectFlag);
-                   // auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(split[n]));
+                    // auditBackLogHandle(deliverConsign, rejectFlag, Integer.parseInt(split[n]));
                 }
-            } else if(!isComeMore){//并行未审核完，不需要重复发送
+            } else if (!isComeMore) {//并行未审核完，不需要重复发送
                 sendDingtalk(deliverConsign, auditingUserId_i.toString(), rejectFlag);
             }
         }
