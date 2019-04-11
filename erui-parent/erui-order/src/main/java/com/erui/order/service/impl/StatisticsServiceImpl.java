@@ -426,10 +426,10 @@ public class StatisticsServiceImpl implements StatisticsService {
                         /*Map<String, Integer> map = new HashMap<>();
                         for (int i = 0; i < proCateList.size(); i++) {
                             *//*
-                             * map.containsKey(Object findKey)
-                             * 方法介绍： 如果此映射包含指定键的映射关系，则返回 true。
-                             * 说明：map已经包含了findKey的映射关系 则返回true 否则返回false
-                             *//*
+                         * map.containsKey(Object findKey)
+                         * 方法介绍： 如果此映射包含指定键的映射关系，则返回 true。
+                         * 说明：map已经包含了findKey的映射关系 则返回true 否则返回false
+                         *//*
                             if (map.containsKey(proCateList.get(i))) {
                                 int tempCount = map.get(proCateList.get(i));
                                 map.put(proCateList.get(i), ++tempCount);
@@ -666,7 +666,9 @@ public class StatisticsServiceImpl implements StatisticsService {
                     projectGoods.setUnit(g.getUnit());
                     projectGoods.setTotalPrice(g.getPrice());
                     projectGoods.setCurrencyBn(p.getCurrencyBn());
+                    projectGoods.setProCate(g.getMeteName());
                     projectGoodsStatistics.add(projectGoods);
+
                 }
             }
 
@@ -704,7 +706,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         projectGoods.setPoNo(proStatistics.getPoNo());
         projectGoods.setContractNoOs(proStatistics.getContractNoOs());
         projectGoods.setLogiQuoteNo(proStatistics.getLogiQuoteNo());
-        projectGoods.setProCate(proStatistics.getProCate());
+        //projectGoods.setProCate(proStatistics.getProCate());
         projectGoods.setExecCoName(proStatistics.getExecCoName());
         projectGoods.setRegionZh(proStatistics.getRegionZh());
         projectGoods.setCrmCode(proStatistics.getCrmCode());

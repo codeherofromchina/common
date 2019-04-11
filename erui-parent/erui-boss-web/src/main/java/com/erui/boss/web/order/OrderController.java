@@ -219,7 +219,6 @@ public class OrderController {
         if (id != null) {
             return new Result<>(id);
         }
-
         return result;
 
     }*/
@@ -271,7 +270,7 @@ public class OrderController {
             } else if (addOrderVo.getGoodDesc().parallelStream().anyMatch(vo -> vo.getContractGoodsNum() == null)) {
                 result.setMsg("合同数量不能为空");
                 result.setEnMsg("Quantity must be filled in");
-            } else if (addOrderVo.getTotalPrice() == null || addOrderVo.getTotalPrice().compareTo(BigDecimal.ZERO) != 1) {
+            } else if (addOrderVo.getOrderCategory() != 2 && addOrderVo.getOrderCategory() != 3 &&(addOrderVo.getTotalPrice() == null || addOrderVo.getTotalPrice().compareTo(BigDecimal.ZERO) != 1)) {
                 result.setMsg("合同总价错误");
                 result.setEnMsg("Contract price error");
             } else if (addOrderVo.getTaxBearing() == null) {
@@ -328,7 +327,7 @@ public class OrderController {
         String reason = addOrderVo.getAuditingReason(); // 驳回原因
         String type = addOrderVo.getAuditingType(); // 驳回or审核
         // 判断订单是否存在，
-        Order order = orderService.findById(orderId);
+        Order order = orderService.findByIdLang(orderId, CookiesUtil.getLang(request));
         if (order == null) {
             return new Result<>(ResultStatusEnum.PROJECT_NOT_EXIST);
         }
@@ -336,7 +335,7 @@ public class OrderController {
         Object userId = request.getSession().getAttribute("userid");
         Object userName = request.getSession().getAttribute("realname");
         String auditingUserIds = order.getAuditingUserId();
-        if (auditingUserIds == null || !StringUtils.equals(String.valueOf(userId), auditingUserIds)) {
+        if (auditingUserIds == null || !equalsAny(String.valueOf(userId), auditingUserIds)) {
             return new Result<>(ResultStatusEnum.NOT_NOW_AUDITOR);
         }
         // 判断是否是驳回并判断原因参数
@@ -357,7 +356,6 @@ public class OrderController {
         }
         return new Result<>(ResultStatusEnum.FAIL);
     }
-
     /**
      * 获取订单详情
      *
@@ -437,5 +435,15 @@ public class OrderController {
             result.setData(i);
         }
         return result;
+    }
+
+    private boolean equalsAny(String src, String searchStr) {
+        String[] strings = searchStr.split(",");
+        for (String search : strings) {
+            if (StringUtils.equals(src, search)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -1103,7 +1103,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
             if (auditingUserId != null) {
                 // 推送待办事件
-                // 推送待办事件
                 String region = deliverConsign.getOrder().getRegion();   //所属地区
                 Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
                 String country = deliverConsign.getOrder().getCountry();  //国家
@@ -1206,7 +1205,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         //获取授信额度信息
         DeliverConsign deliverConsignByCreditData = null;
         try {
-            if (!StringUtils.isNotBlank(order.getCrmCode())) {
+            if (StringUtils.isNotBlank(order.getCrmCode())) {
                 deliverConsignByCreditData = queryCreditData(order);
             }
 

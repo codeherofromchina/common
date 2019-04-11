@@ -50,6 +50,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     private BackLogService backLogService;
     @Autowired
     private AttachmentDao attachmentDao;
+    @Autowired
+    private InstockServiceImpl getInstockServiceImpl;
 
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
@@ -106,6 +108,22 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
+    public boolean updatePurchaseUid(List<PurchRequisition> list) throws Exception {
+        for (PurchRequisition purchRequisition: list){
+            PurchRequisition purchRequisition1 = purchRequisitionDao.findOne(purchRequisition.getId());
+            purchRequisition1.setPurchaseUid(purchRequisition.getPurchaseUid());
+            purchRequisition1.setPurchaseName(purchRequisition.getPurchaseName());
+            purchRequisition1.setSinglePerson(purchRequisition.getSinglePerson());
+            purchRequisition1.setSinglePersonId(purchRequisition.getSinglePersonId());
+            purchRequisition1.setUpdateTime(new Date());
+            purchRequisitionDao.save(purchRequisition1);
+        }
+        return true;
+    }
+
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
     public boolean updatePurchRequisition(PurchRequisition purchRequisition) throws Exception {
         Project project = projectDao.findOne(purchRequisition.getProId());
         PurchRequisition prt = findById(purchRequisition.getId(), project.getOrder().getId());
@@ -152,8 +170,6 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         prt.setGoodsList(list);
         prt.setStatus(purchRequisition.getStatus());
         PurchRequisition purchRequisition1 = purchRequisitionDao.save(prt);
-        // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
-        //purchRequisition1.setAttachmentList(purchRequisition.getAttachmentList());
         List<Attachment> attachmentList = null;
         if (purchRequisition.getAttachmentSet() != null && purchRequisition.getAttachmentSet().size() > 0) {
             attachmentList = purchRequisition.getAttachmentSet();
@@ -238,6 +254,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionAdd.setFactorySend(purchRequisition.isFactorySend());
         purchRequisitionAdd.setRequirements(purchRequisition.getRequirements());
         purchRequisitionAdd.setRemarks(purchRequisition.getRemarks());
+
         // 处理附件信息
         //Set<Attachment> attachments = attachmentService.handleParamAttachment(null, purchRequisition.getAttachmentSet(), null, null);
         //purchRequisitionAdd.setAttachmentSet(purchRequisition.getAttachmentSet());
@@ -390,6 +407,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                 String purchStatus = condition.get("purchStatus");
                 if (StringUtils.isNotBlank(purchStatus) || StringUtils.isNumeric(purchStatus)) {
                     list.add(cb.equal(root.get("purchStatus").as(Integer.class), Integer.parseInt(purchStatus)));
+                }else{
+                    list.add(cb.notEqual(root.get("purchStatus").as(Integer.class), PurchRequisition.PurchStatusEnum.DONE.getCode()));
                 }
 
 
@@ -433,11 +452,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                 if (StringUtils.isNotBlank(businessName)) {
                     list.add(cb.like(projectPath.get("businessName").as(String.class), "%" + businessName + "%"));
                 }
-                // 采购经办人过滤
-                String purchaseUid = condition.get("purchaseUid");
-                if (StringUtils.isNotBlank(purchaseUid)) {
-                    list.add(cb.equal(projectPath.get("purchaseUid"), purchaseUid));
-                }
+                // 采购经办人过滤 获取未分配经办人的单子
+                list.add(cb.isNull(root.get("purchaseUid").as(String.class)));
 
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);

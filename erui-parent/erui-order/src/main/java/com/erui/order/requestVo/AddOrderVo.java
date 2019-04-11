@@ -200,6 +200,12 @@ public class AddOrderVo {
     private String areaVp;          //区域VP
 
     private Integer perLiableRepayId; //回款责任人
+    private Integer financingCommissionerId;//融资专员Id
+    private String financingCommissioner;//融资专员
+    private Integer settlementLeaderId;   //结算专员
+    private String settlementLeader;
+    private Integer legalAuditerId;//法务审核人id
+    private String legalAuditer;//法务审核人
     // 项目审核接口中使用，审核的原因字段
     @Transient
     private String auditingReason;
@@ -223,6 +229,54 @@ public class AddOrderVo {
     private List<PGoods> goodDesc = new ArrayList<>();
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
+
+    public Integer getFinancingCommissionerId() {
+        return financingCommissionerId;
+    }
+
+    public void setFinancingCommissionerId(Integer financingCommissionerId) {
+        this.financingCommissionerId = financingCommissionerId;
+    }
+
+    public String getFinancingCommissioner() {
+        return financingCommissioner;
+    }
+
+    public void setFinancingCommissioner(String financingCommissioner) {
+        this.financingCommissioner = financingCommissioner;
+    }
+
+    public Integer getSettlementLeaderId() {
+        return settlementLeaderId;
+    }
+
+    public void setSettlementLeaderId(Integer settlementLeaderId) {
+        this.settlementLeaderId = settlementLeaderId;
+    }
+
+    public Integer getLegalAuditerId() {
+        return legalAuditerId;
+    }
+
+    public void setLegalAuditerId(Integer legalAuditerId) {
+        this.legalAuditerId = legalAuditerId;
+    }
+
+    public String getSettlementLeader() {
+        return settlementLeader;
+    }
+
+    public void setSettlementLeader(String settlementLeader) {
+        this.settlementLeader = settlementLeader;
+    }
+
+    public String getLegalAuditer() {
+        return legalAuditer;
+    }
+
+    public void setLegalAuditer(String legalAuditer) {
+        this.legalAuditer = legalAuditer;
+    }
 
     public Integer getCheckLogId() {
         return checkLogId;
@@ -843,7 +897,7 @@ public class AddOrderVo {
         order.setPoNo(this.poNo);
         order.setContractNoOs(this.contractNoOs);
         order.setInquiryNo(this.inquiryNo);
-        //order.setLogiQuoteNo(this.logiQuoteNo);
+        order.setLogiQuoteNo(this.logiQuoteNo);
         order.setOrderType(this.orderType);
         order.setOrderSource(this.orderSource);
         order.setSigningDate(this.signingDate);
@@ -894,6 +948,13 @@ public class AddOrderVo {
         order.setOrderBelongs(this.orderBelongs);
         order.setOrderCategory(this.orderCategory);
         order.setOverseasSales(this.overseasSales);
+        order.setLegalAuditerId(this.legalAuditerId);
+        order.setLegalAuditer(this.legalAuditer);
+        order.setFinancingCommissionerId(this.financingCommissionerId);
+        order.setFinancingCommissioner(this.financingCommissioner);
+        order.setSettlementLeaderId(this.settlementLeaderId);
+        order.setSettlementLeader(this.settlementLeader);
+
     }
 
 

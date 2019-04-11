@@ -131,14 +131,14 @@ public class Purch {
     //auditing_status   审核状态
     @Column(name = "auditing_status")
     private Integer auditingStatus;
-    //auditing_process  审核流程
+    //auditing_process  审核流程，多个
     @Column(name = "auditing_process")
-    private Integer auditingProcess;
+    private String auditingProcess;
 
-    //auditing_user_id  审核人id
+    //auditing_user_id  审核人id，多个
     @Column(name = "auditing_user_id")
-    private Integer auditingUserId;
-    //auditing_user     审核人姓名
+    private String auditingUserId;
+    //auditing_user     审核人姓名，多个
     @Column(name = "auditing_user")
     private String auditingUser;
 
@@ -149,10 +149,10 @@ public class Purch {
     @Column(name = "purch_auditer")
     private String purchAuditer;
 
-    //business_auditer_id 商务技术审核人id
+    //business_auditer_id 事业部项目负责人审核人id
     @Column(name = "business_auditer_id")
     private Integer businessAuditerId;
-    //business_auditer   商务技术审核人姓名
+    //business_auditer   事业部项目负责人审核人姓名
     @Column(name = "business_auditer")
     private String businessAuditer;
 
@@ -172,10 +172,10 @@ public class Purch {
     private String financeAuditer;
 
 
-    //bu_vp_auditer_id  事业部vp审核人id
+    //bu_vp_auditer_id  供应链中心总经理审核人id
     @Column(name = "bu_vp_auditer_id")
     private Integer buVpAuditerId;
-    //bu_vp_auditer     事业部vp审核人姓名
+    //bu_vp_auditer     供应链中心总经理审核人姓名
     @Column(name = "bu_vp_auditer")
     private String buVpAuditer;
 
@@ -207,6 +207,7 @@ public class Purch {
     @Column(name = "supply_area")
     private String supplyArea;
 
+    // 合同版本：1标准版本 2非标版本
     @Column(name = "contract_version")
     private String contractVersion;
 
@@ -357,19 +358,19 @@ public class Purch {
         this.taxBearing = taxBearing;
     }
 
-    public Integer getAuditingProcess() {
+    public String getAuditingProcess() {
         return auditingProcess;
     }
 
-    public void setAuditingProcess(Integer auditingProcess) {
+    public void setAuditingProcess(String auditingProcess) {
         this.auditingProcess = auditingProcess;
     }
 
-    public Integer getAuditingUserId() {
+    public String getAuditingUserId() {
         return auditingUserId;
     }
 
-    public void setAuditingUserId(Integer auditingUserId) {
+    public void setAuditingUserId(String auditingUserId) {
         this.auditingUserId = auditingUserId;
     }
 

@@ -15,5 +15,7 @@ public interface BackLogService {
 
     void updateBackLogByDelYns(BackLog backLog1, BackLog backLog2) throws Exception;
 
+    void updateBackLogByDelYnNew(BackLog backLog, String auditingUserId) throws Exception;
+
 
 }
