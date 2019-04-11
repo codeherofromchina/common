@@ -530,21 +530,21 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             map.put("status", pr.getStatus()); // 采购申请状态 1:未编辑 2:待确认/已保存 3:已提交
             map.put("purchStatus", pr.getPurchStatus());
             map.put("purchDone", PurchRequisition.PurchStatusEnum.msgFromCode(pr.getPurchStatus()));
-//            if (pr.getGoodsList() != null && pr.getGoodsList().size() > 0) {
-//                int purchasedNum = 0;
-//                int contractNum = 0;
-//                for (Goods gs : pr.getGoodsList()) {
-//                    contractNum = +gs.getContractGoodsNum();
-//                    purchasedNum = +gs.getPurchasedNum();
-//                }
-//                if (purchasedNum != 0 && purchasedNum < contractNum) {
-//                    map.put("purchDone", "进行中");
-//                } else if (purchasedNum == 0) {
-//                    map.put("purchDone", "未进行");
-//                } else {
-//                    map.put("purchDone", "完成");
-//                }
-//            }
+      /*      if (pr.getGoodsList() != null && pr.getGoodsList().size() > 0) {
+                int purchasedNum = 0;
+                int contractNum = 0;
+                for (Goods gs : pr.getGoodsList()) {
+                    contractNum = +gs.getContractGoodsNum();
+                    purchasedNum = +gs.getPurchasedNum();
+                }
+                if (purchasedNum != 0 && purchasedNum < contractNum) {
+                    map.put("purchDone", "进行中");
+                } else if (purchasedNum == 0) {
+                    map.put("purchDone", "未进行");
+                } else {
+                    map.put("purchDone", "完成");
+                }
+            }*/
             dataList.add(map);
         }
 
