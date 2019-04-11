@@ -1117,7 +1117,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             // 删除上一个待办
             BackLog backLog2 = new BackLog();
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERCONSIGN_REJECT.getNum());    //功能访问路径标识
-            backLog2.setHostId(deliverConsign.getId());
+            backLog2.setHostId(deliverConsign.getOrder().getId());
             backLogService.updateBackLogByDelYn(backLog2);
             if (isComeMore) {
                 backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERCONSIGN_AUDIT.getNum());    //功能访问路径标识
