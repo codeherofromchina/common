@@ -992,7 +992,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             for (int n = 0; n < split.length; n++) {
                 if (auditorId.equals(split[n])) {
                     curAuditProcess = Integer.parseInt(split1[n]);
-                    break;
                 }
             }
         }
