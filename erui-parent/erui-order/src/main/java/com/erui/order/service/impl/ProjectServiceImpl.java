@@ -1353,7 +1353,7 @@ public class ProjectServiceImpl implements ProjectService {
                         auditingProcess_i = StringUtils.strip(auditingProcess_i, ",");
                         auditingUserId_i = StringUtils.strip(auditingUserId_i, ",");
                         if (StringUtils.isBlank(auditingUserId_i)) { // 并行审核人员审核完毕
-                            // 判断金额是否小于等于1万美元，小于1万美元则审核结束，大于1万美元则事业部总经理审批
+                            // 判断金额是否小于等于1万美元，小于1万美元则审核结束，大于1万美元则或国内订单事业部总经理审批
                             if (order.getTotalPriceUsd().compareTo(STEP_ONE_AMOUNT) > 0 || orderCategory == 6) {
                                 // 到下一步事业部总经理审批
                                 auditingProcess_i = "206"; // 总经理审核
@@ -1368,7 +1368,7 @@ public class ProjectServiceImpl implements ProjectService {
                         }
                         break;
                     case 206: // 事业部总经理审批
-                        // 判断金额是否小于等于20万美元，小于20万美元则审核结束，大于20万美元则总裁审批，或预投需要总经理审批
+                        // 判断金额是否小于等于20万美元，小于20万美元则审核结束，大于20万美元则总裁审批，或预投或国内订单需要总经理审批
                         if (order.getTotalPriceUsd().compareTo(STEP_TWO_AMOUNT) > 0 || orderCategory == 1 || orderCategory == 6) {
                             // 到下一步事业部总经理审批
                             auditingProcess_i = "207"; // 总裁审批
@@ -1381,8 +1381,8 @@ public class ProjectServiceImpl implements ProjectService {
                         }
                         break;
                     case 207: // 总裁审批
-                        // 判断金额是否小于50万美元，小于50万美元则审核结束，大于50万美元则董事长审批，或预投需要董事长审批，或国内订单并且金额大于100万人民币需要董事长审批
-                        if (order.getTotalPriceUsd().compareTo(STEP_THREE_AMOUNT) >= 0 || orderCategory == 1 || (orderCategory == 6 && order.getTotalPrice().compareTo(STEP_FOUR_AMOUNT) > 0)) {
+                        // 判断金额是否小于50万美元，小于50万美元则审核结束，大于50万美元则董事长审批，或预投需要董事长审批，或国内订单并且金额大于等于100万人民币需要董事长审批
+                        if (order.getTotalPriceUsd().compareTo(STEP_THREE_AMOUNT) >= 0 || orderCategory == 1 || (orderCategory == 6 && order.getTotalPrice().compareTo(STEP_FOUR_AMOUNT) >= 0)) {
                             // 到下一步事业部总经理审批
                             auditingProcess_i = "208"; // 总经理审核
                             auditingUserId_i = project.getChairmanId().toString();
