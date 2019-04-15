@@ -1354,7 +1354,7 @@ public class ProjectServiceImpl implements ProjectService {
                         auditingUserId_i = StringUtils.strip(auditingUserId_i, ",");
                         if (StringUtils.isBlank(auditingUserId_i)) { // 并行审核人员审核完毕
                             // 判断金额是否小于等于1万美元，小于1万美元则审核结束，大于1万美元则事业部总经理审批
-                            if (order.getTotalPriceUsd().compareTo(STEP_ONE_AMOUNT) > 0) {
+                            if (order.getTotalPriceUsd().compareTo(STEP_ONE_AMOUNT) > 0 || orderCategory == 6) {
                                 // 到下一步事业部总经理审批
                                 auditingProcess_i = "206"; // 总经理审核
                                 auditingUserId_i = project.getBuVpAuditerId().toString();
@@ -1369,9 +1369,9 @@ public class ProjectServiceImpl implements ProjectService {
                         break;
                     case 206: // 事业部总经理审批
                         // 判断金额是否小于等于20万美元，小于20万美元则审核结束，大于20万美元则总裁审批，或预投需要总经理审批
-                        if (order.getTotalPriceUsd().compareTo(STEP_TWO_AMOUNT) > 0 || orderCategory == 1) {
+                        if (order.getTotalPriceUsd().compareTo(STEP_TWO_AMOUNT) > 0 || orderCategory == 1 || orderCategory == 6) {
                             // 到下一步事业部总经理审批
-                            auditingProcess_i = "207"; // 总经理审核
+                            auditingProcess_i = "207"; // 总裁审批
                             auditingUserId_i = project.getCeoId().toString();
                             notifyUserList.add(project.getCeoId().toString());
                         } else {
