@@ -380,6 +380,30 @@ public class DeliverConsign {
     @Transient
     private String currencyBn;
 
+    /**
+     * 订舱专员Id
+     */
+    @Column(name = "booking_officer_id")
+    private Integer bookingOfficerId;
+
+    /**
+     * 订舱专员
+     */
+    @Column(name = "booking_officer")
+    private String bookingOfficer;
+
+    /**
+     * 操作专员Id
+     */
+    @Column(name = "operation_specialist_id")
+    private Integer operationSpecialistId;
+
+    /**
+     * 操作专员
+     */
+    @Column(name = "operation_specialist")
+    private String operationSpecialist;
+
 
     public List<DeliverConsignPayment> getDeliverConsignPayments() {
         return deliverConsignPayments;
@@ -944,5 +968,37 @@ public class DeliverConsign {
 
     public void setCurrencyBn(String currencyBn) {
         this.currencyBn = currencyBn;
+    }
+
+    public Integer getBookingOfficerId() {
+        return bookingOfficerId;
+    }
+
+    public void setBookingOfficerId(Integer bookingOfficerId) {
+        this.bookingOfficerId = bookingOfficerId;
+    }
+
+    public String getBookingOfficer() {
+        return bookingOfficer;
+    }
+
+    public void setBookingOfficer(String bookingOfficer) {
+        this.bookingOfficer = bookingOfficer;
+    }
+
+    public Integer getOperationSpecialistId() {
+        return operationSpecialistId;
+    }
+
+    public void setOperationSpecialistId(Integer operationSpecialistId) {
+        this.operationSpecialistId = operationSpecialistId;
+    }
+
+    public String getOperationSpecialist() {
+        return operationSpecialist;
+    }
+
+    public void setOperationSpecialist(String operationSpecialist) {
+        this.operationSpecialist = operationSpecialist;
     }
 }
