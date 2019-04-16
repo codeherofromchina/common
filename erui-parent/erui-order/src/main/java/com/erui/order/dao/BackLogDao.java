@@ -12,6 +12,8 @@ public interface BackLogDao extends JpaRepository<BackLog, Serializable>, JpaSpe
 
     List<BackLog> findByFunctionExplainIdAndHostIdAndDelYn(Integer functionExplainId, Integer hostId, int i);
 
+    List<BackLog> findByFunctionExplainIdAndFollowIdAndDelYn(Integer functionExplainId, Integer followId, int i);
+
     List<BackLog> findByFunctionExplainIdAndHostIdAndFollowIdAndUidAndDelYnAndInformTheContent(Integer functionExplainId, Integer hostId, Integer followId, Integer uid, int i, String informTheContent);
 
     List<BackLog> findByFunctionExplainIdAndHostIdAndUidAndDelYnAndInformTheContent(Integer functionExplainId, Integer hostId, Integer uid, int i, String informTheContent);

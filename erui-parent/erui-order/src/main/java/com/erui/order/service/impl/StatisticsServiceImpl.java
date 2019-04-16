@@ -172,7 +172,6 @@ public class StatisticsServiceImpl implements StatisticsService {
         HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "销售业绩统计");
         return workbook;
     }
-
     @Override
     public Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics condition, Set<String> countries, int pageNum, int pageSize) {
         LOGGER.info("查询商品统计基本信息");

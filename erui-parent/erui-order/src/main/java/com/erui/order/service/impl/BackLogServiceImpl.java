@@ -127,7 +127,11 @@ public class BackLogServiceImpl implements BackLogService {
             if (backLog.getFunctionExplainId() == 999) {
                 backLogList = backLogDao.findByHostIdAndDelYn(backLog.getHostId(), 1);
             } else {
-                backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndDelYn(backLog.getFunctionExplainId(), backLog.getHostId(), 1);
+                if(backLog.getFollowId() != null){
+                    backLogList = backLogDao.findByFunctionExplainIdAndFollowIdAndDelYn(backLog.getFunctionExplainId(), backLog.getFollowId(), 1);
+                }else{
+                    backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndDelYn(backLog.getFunctionExplainId(), backLog.getHostId(), 1);
+                }
             }
         } catch (Exception e) {
             logger.error("逻辑删除 - 查询待办事项失败：" + e);
@@ -201,34 +205,33 @@ public class BackLogServiceImpl implements BackLogService {
      * 待办事项逻辑删除
      *
      * @param backLog
-     * @param auditingUserId 当前审核人id
+     * @param auditorId 当前审核人id
      * @return
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void updateBackLogByDelYnNew(BackLog backLog, String auditingUserId) throws Exception {
+    public void updateBackLogByDelYnNew(BackLog backLog, String auditorId) throws Exception {
         List<BackLog> backLogList = null;
-        List<BackLog> removeBackLogList = null;
         try {
-            backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndDelYn(backLog.getFunctionExplainId(), backLog.getHostId(), 1);
+            if(backLog.getFollowId() != null){
+                backLogList = backLogDao.findByFunctionExplainIdAndFollowIdAndDelYn(backLog.getFunctionExplainId(), backLog.getFollowId(), 1);
+            }else{
+                backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndDelYn(backLog.getFunctionExplainId(), backLog.getHostId(), 1);
+            }
         } catch (Exception e) {
             logger.error("逻辑删除 - 查询待办事项失败：" + e);
             throw new Exception(e);
         }
         if (backLogList.size() > 0) {
-            removeBackLogList = new ArrayList<BackLog>();
             for (BackLog backLog1 : backLogList) {
-                if(auditingUserId.indexOf(backLog1.getUid()+"") >= 0){
-                    removeBackLogList.add(backLog1);
-                }else{
+                if(auditorId.indexOf(backLog1.getUid().toString()) >= 0){
                     backLog1.setDelYn(0);
                     backLog1.setDeleteTime(new Date());
+                    break;
                 }
             }
             try {
                 //同级未全部审核完成，之前已经存在待办，未审核所以不删除待办。
-                if(removeBackLogList != null && removeBackLogList.size() >0)
-                    backLogList.removeAll(removeBackLogList);
                 backLogDao.save(backLogList);
             } catch (Exception e) {
                 logger.error("逻辑删除 - 修改待办事项失败：" + e);

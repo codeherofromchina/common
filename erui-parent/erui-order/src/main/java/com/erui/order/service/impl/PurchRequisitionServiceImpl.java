@@ -9,6 +9,7 @@ import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
+import com.erui.order.event.TasksAddEvent;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.BackLogService;
 import com.erui.order.service.PurchRequisitionService;
@@ -18,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -35,7 +37,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 
     private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
-
+    @Autowired
+    private ApplicationContext applicationContext;
     @Autowired
     private PurchRequisitionDao purchRequisitionDao;
     @Autowired
@@ -50,8 +53,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     private BackLogService backLogService;
     @Autowired
     private AttachmentDao attachmentDao;
-    @Autowired
-    private InstockServiceImpl getInstockServiceImpl;
+    @Value("#{orderProp[DING_SEND_SMS]}")
+    private String dingSendSms;  //发钉钉通知接口
 
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
@@ -109,7 +112,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updatePurchaseUid(List<PurchRequisition> list) throws Exception {
-        for (PurchRequisition purchRequisition: list){
+        for (PurchRequisition purchRequisition : list) {
             PurchRequisition purchRequisition1 = purchRequisitionDao.findOne(purchRequisition.getId());
             purchRequisition1.setPurchaseUid(purchRequisition.getPurchaseUid());
             purchRequisition1.setPurchaseName(purchRequisition.getPurchaseName());
@@ -117,10 +120,58 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             purchRequisition1.setSinglePersonId(purchRequisition.getSinglePersonId());
             purchRequisition1.setUpdateTime(new Date());
             purchRequisitionDao.save(purchRequisition1);
+            sendDingtalk(purchRequisition1, purchRequisition1.getPurchaseUid().toString(), false);
         }
         return true;
     }
 
+    //钉钉通知 审批人
+    private void sendDingtalk(PurchRequisition purchRequisition, String user, boolean rejectFlag) {
+        //获取token
+        final String eruiToken = (String) ThreadLocalUtil.getObject();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                logger.info("发送短信的用户token:" + eruiToken);
+                // 根据id获取商务经办人信息
+                String jsonParam = "{\"id\":\"" + user + "\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+                header.put("Content-Type", "application/json");
+                header.put("accept", "*/*");
+                String userInfo = HttpRequest.sendPost(memberInformation, jsonParam, header);
+                logger.info("人员详情返回信息：" + userInfo);
+                //钉钉通知接口头信息
+                Map<String, String> header2 = new HashMap<>();
+                header2.put("Cookie", eruiToken);
+                header2.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+                JSONObject jsonObject = JSONObject.parseObject(userInfo);
+                Integer code = jsonObject.getInteger("code");
+                String userNo = null;
+                String userName = null;  //商务经办人手机号
+                if (code == 1) {
+                    JSONObject data = jsonObject.getJSONObject("data");
+                    //获取通知者姓名员工编号
+                    //userName = data.getString("name");
+                    userNo = data.getString("user_no");
+                    Long startTime = System.currentTimeMillis();
+                    Date sendTime = new Date(startTime);
+                    String sendTime02 = DateUtil.format(DateUtil.FULL_FORMAT_STR, sendTime);
+                    //发送钉钉通知
+                    StringBuffer stringBuffer = new StringBuffer();
+                    stringBuffer.append("toUser=").append(userNo);
+                    if (!rejectFlag) {
+                        stringBuffer.append("&message=您好！项目号:" + purchRequisition.getProjectNo() + "已申请采购。请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                                "" + sendTime02 + "");
+                    }
+                    stringBuffer.append("&type=userNo");
+                    String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);
+                    logger.info("发送钉钉通知返回状态" + s1);
+                }
+            }
+        }).start();
+
+    }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -326,7 +377,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     }
 
 
-    //采购申请通知：采购申请单下达后通知采购经办人
+    // 采购申请通知：采购申请单下达后通知采购经办人
     public void sendSms(Project project1) throws Exception {
 
         //获取token
@@ -407,7 +458,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                 String purchStatus = condition.get("purchStatus");
                 if (StringUtils.isNotBlank(purchStatus) || StringUtils.isNumeric(purchStatus)) {
                     list.add(cb.equal(root.get("purchStatus").as(Integer.class), Integer.parseInt(purchStatus)));
-                }else{
+                } else {
                     list.add(cb.notEqual(root.get("purchStatus").as(Integer.class), PurchRequisition.PurchStatusEnum.DONE.getCode()));
                 }
 
@@ -477,21 +528,21 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             map.put("status", pr.getStatus()); // 采购申请状态 1:未编辑 2:待确认/已保存 3:已提交
             map.put("purchStatus", pr.getPurchStatus());
             map.put("purchDone", PurchRequisition.PurchStatusEnum.msgFromCode(pr.getPurchStatus()));
-//            if (pr.getGoodsList() != null && pr.getGoodsList().size() > 0) {
-//                int purchasedNum = 0;
-//                int contractNum = 0;
-//                for (Goods gs : pr.getGoodsList()) {
-//                    contractNum = +gs.getContractGoodsNum();
-//                    purchasedNum = +gs.getPurchasedNum();
-//                }
-//                if (purchasedNum != 0 && purchasedNum < contractNum) {
-//                    map.put("purchDone", "进行中");
-//                } else if (purchasedNum == 0) {
-//                    map.put("purchDone", "未进行");
-//                } else {
-//                    map.put("purchDone", "完成");
-//                }
-//            }
+      /*      if (pr.getGoodsList() != null && pr.getGoodsList().size() > 0) {
+                int purchasedNum = 0;
+                int contractNum = 0;
+                for (Goods gs : pr.getGoodsList()) {
+                    contractNum = +gs.getContractGoodsNum();
+                    purchasedNum = +gs.getPurchasedNum();
+                }
+                if (purchasedNum != 0 && purchasedNum < contractNum) {
+                    map.put("purchDone", "进行中");
+                } else if (purchasedNum == 0) {
+                    map.put("purchDone", "未进行");
+                } else {
+                    map.put("purchDone", "完成");
+                }
+            }*/
             dataList.add(map);
         }
 
