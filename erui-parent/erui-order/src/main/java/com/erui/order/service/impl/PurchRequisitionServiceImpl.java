@@ -379,7 +379,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     }
 
 
-    //采购申请通知：采购申请单下达后通知采购经办人
+    // 采购申请通知：采购申请单下达后通知采购经办人
     public void sendSms(Project project1) throws Exception {
 
         //获取token
