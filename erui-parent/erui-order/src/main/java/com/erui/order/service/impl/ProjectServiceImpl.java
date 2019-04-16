@@ -158,9 +158,7 @@ public class ProjectServiceImpl implements ProjectService {
             backLog2.setHostId(projectUpdate.getId());
             backLogService.updateBackLogByDelYns(backLog, backLog2);
 
-
             //订单中推送“项目驳回”待办信息
-
             //获取推送人信息
             Set<Integer> userIdS = new HashSet<>();
             Integer agentId = order.getAgentId();   //市场经办人id
