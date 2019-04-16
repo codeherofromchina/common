@@ -127,7 +127,11 @@ public class BackLogServiceImpl implements BackLogService {
             if (backLog.getFunctionExplainId() == 999) {
                 backLogList = backLogDao.findByHostIdAndDelYn(backLog.getHostId(), 1);
             } else {
-                backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndDelYn(backLog.getFunctionExplainId(), backLog.getHostId(), 1);
+                if(backLog.getFollowId() != null){
+                    backLogList = backLogDao.findByFunctionExplainIdAndFollowIdAndDelYn(backLog.getFunctionExplainId(), backLog.getFollowId(), 1);
+                }else{
+                    backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndDelYn(backLog.getFunctionExplainId(), backLog.getHostId(), 1);
+                }
             }
         } catch (Exception e) {
             logger.error("逻辑删除 - 查询待办事项失败：" + e);
@@ -209,7 +213,11 @@ public class BackLogServiceImpl implements BackLogService {
     public void updateBackLogByDelYnNew(BackLog backLog, String auditorId) throws Exception {
         List<BackLog> backLogList = null;
         try {
-            backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndDelYn(backLog.getFunctionExplainId(), backLog.getHostId(), 1);
+            if(backLog.getFollowId() != null){
+                backLogList = backLogDao.findByFunctionExplainIdAndFollowIdAndDelYn(backLog.getFunctionExplainId(), backLog.getFollowId(), 1);
+            }else{
+                backLogList = backLogDao.findByFunctionExplainIdAndHostIdAndDelYn(backLog.getFunctionExplainId(), backLog.getHostId(), 1);
+            }
         } catch (Exception e) {
             logger.error("逻辑删除 - 查询待办事项失败：" + e);
             throw new Exception(e);
