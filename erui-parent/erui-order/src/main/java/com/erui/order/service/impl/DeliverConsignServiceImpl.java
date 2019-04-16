@@ -1117,7 +1117,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             // 删除上一个待办
             BackLog backLog2 = new BackLog();
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERCONSIGN_REJECT.getNum());    //功能访问路径标识
-            backLog2.setHostId(deliverConsign.getId());
+            backLog2.setHostId(deliverConsign.getOrder().getId());
+            backLog2.setFollowId(deliverConsign.getId());
             backLogService.updateBackLogByDelYn(backLog2);
             if (isComeMore) {
                 backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERCONSIGN_AUDIT.getNum());    //功能访问路径标识
@@ -1133,7 +1134,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
                 String infoContent = String.format("%s | %s", bnMapZhRegion.get(region), bnMapZhCountry.get(country));
                 Integer followId = deliverConsign.getId();
-                Integer hostId = deliverConsign.getId();
+                Integer hostId = deliverConsign.getOrder().getId();
                 String deliverConsignNo = deliverConsign.getDeliverConsignNo();
 
                 for (String user : auditingUserId.split(",")) {
@@ -1149,23 +1150,23 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 }
             }
 
-            if (deliverConsign.getAuditingStatus() == 4 && "999".equals(deliverConsign.getAuditingProcess())) {
-                // 推动
-                String returnNo = deliverConsign.getDeliverConsignNo(); // 返回单号
-                String infoContent = deliverConsign.getCreateUserName();  //提示内容
-                Integer followId = deliverConsign.getId();
-                Integer hostId = deliverConsign.getOrder().getId();
-                Integer userId = deliverConsign.getCreateUserId(); //经办人id
-                // 推送增加待办事件，通知采购经办人办理报检单
-                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
-                        BackLog.ProjectStatusEnum.INSTOCKSUBMENUDELIVER,
-                        returnNo,
-                        infoContent,
-                        hostId,
-                        followId,
-                        "订舱",
-                        userId));
-            }
+//            if (deliverConsign.getAuditingStatus() == 4 && "999".equals(deliverConsign.getAuditingProcess())) {
+//                // 推动
+//                String returnNo = deliverConsign.getDeliverConsignNo(); // 返回单号
+//                String infoContent = deliverConsign.getCreateUserName();  //提示内容
+//                Integer followId = deliverConsign.getId();
+//                Integer hostId = deliverConsign.getOrder().getId();
+//                Integer userId = deliverConsign.getCreateUserId(); //经办人id
+//                // 推送增加待办事件，通知采购经办人办理报检单
+//                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+//                        BackLog.ProjectStatusEnum.INSTOCKSUBMENUDELIVER,
+//                        returnNo,
+//                        infoContent,
+//                        hostId,
+//                        followId,
+//                        "订舱",
+//                        userId));
+//            }
         } catch (Exception e) {
             e.printStackTrace();
         }
