@@ -24,6 +24,7 @@ import com.erui.order.util.excel.ExcelUploadTypeEnum;
 import com.erui.order.util.excel.ImportDataResponse;
 import com.erui.order.util.exception.MyException;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -3047,9 +3048,18 @@ public class OrderServiceImpl implements OrderService {
             sheet1.getRow(14).getCell(2).setCellValue(stringR14C2);
         }
         boolean isNewAuditing = Boolean.FALSE; // 是否是新的审批流程
-        List<CheckLog> passed = new ArrayList<>();
+        List<CheckLog> passed = null;
+        List<CheckLog> resultCheckLogs = null;
         if (orderDec.getId() != null) {
-            passed = checkLogService.findListByOrderId(orderDec.getId());
+            resultCheckLogs = checkLogService.findListByOrderId(orderDec.getId());
+            Map<String, CheckLog> map = new LinkedMap<>();
+            for (CheckLog cLog : resultCheckLogs) {
+                if (map.containsKey(cLog.getAuditingProcess() + "_" + cLog.getType())) {
+                    map.remove(cLog.getAuditingProcess() + "_" + cLog.getType());
+                }
+                map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
+            }
+            passed = map.values().stream().collect(Collectors.toList());
             if (passed == null) {
                 passed = new ArrayList<>();
             } else if (passed.size() > 0) {
@@ -3252,7 +3262,6 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //事业部总经理审核取走时间
                 if (cl.getAuditingProcess() == 207) {
-                    sheet1.getRow(30).getCell(10).setCellValue("");
                     String stringR30C10 = sheet1.getRow(30).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                     sheet1.getRow(30).getCell(10).setCellValue(stringR30C10);
                 }
@@ -3265,13 +3274,11 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //事业部总裁审核接收时间
                 if (cl.getAuditingProcess() == 207) {
-                    sheet1.getRow(31).getCell(10).setCellValue("");
                     String stringR32C10 = sheet1.getRow(31).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                     sheet1.getRow(31).getCell(10).setCellValue(stringR32C10);
                 }
                 //事业部总裁审核取走时间
                 if (cl.getAuditingProcess() == 208) {
-                    sheet1.getRow(32).getCell(10).setCellValue("");
                     String stringR32C10 = sheet1.getRow(32).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                     sheet1.getRow(32).getCell(10).setCellValue(stringR32C10);
                 }
@@ -3282,13 +3289,11 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //董事长审核接收时间
                 if (cl.getAuditingProcess() == 208) {
-                    sheet1.getRow(33).getCell(10).setCellValue("");
                     String stringR32C10 = sheet1.getRow(33).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                     sheet1.getRow(33).getCell(10).setCellValue(stringR32C10);
                 }
                 //董事长审核取走时间
                 if (cl.getAuditingProcess() == 208) {
-                    sheet1.getRow(34).getCell(10).setCellValue("");
                     String stringR32C10 = sheet1.getRow(34).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                     sheet1.getRow(34).getCell(10).setCellValue(stringR32C10);
                 }
