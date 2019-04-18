@@ -3418,7 +3418,6 @@ public class OrderServiceImpl implements OrderService {
                     String stringR25C10 = sheet1.getRow(25).getCell(10).getStringCellValue().replace("接收时间", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                     sheet1.getRow(25).getCell(10).setCellValue(stringR25C10);
                 }
-
                 //物流审核接收时间
                 if (orderDec.getProject().getLogisticsAudit() == 2 && cl.getAuditingProcess() == 15) {
                     String stringR27C10 = sheet1.getRow(27).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
