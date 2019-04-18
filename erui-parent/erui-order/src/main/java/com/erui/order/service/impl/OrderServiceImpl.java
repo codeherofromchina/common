@@ -3285,6 +3285,7 @@ public class OrderServiceImpl implements OrderService {
                     sheet1.getRow(34).getCell(10).setCellValue(stringR32C10);
                 }
             }
+
             if (orderDec.getProject() != null) {
                 //是否物流审核 1:不需要  2：需要
                 if (orderDec.getProject().getLogisticsAuditer() != null) {
