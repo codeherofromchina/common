@@ -3155,11 +3155,13 @@ public class OrderServiceImpl implements OrderService {
                     if (!cshell19) {
                         StringBuilder audiName = new StringBuilder();
                         if (cl.getAuditingUserName() != null) {
-                            audiName.append(cl.getAuditingUserName()).append(",");
-                        } else if (orderDec.getProject().getQualityName() != null) {
-                            audiName.append(orderDec.getProject().getQualityName()).append(",");
-                        } else if (orderDec.getProject().getPurchaseName() != null) {
-                            audiName.append(orderDec.getProject().getPurchaseName());
+                            audiName.append(cl.getAuditingUserName());
+                        }
+                        if (orderDec.getProject().getQualityName() != null) {
+                            audiName.append(",").append(orderDec.getProject().getQualityName());
+                        }
+                        if (orderDec.getProject().getPurchaseName() != null) {
+                            audiName.append(",").append(orderDec.getProject().getPurchaseName());
                         }
                         String stringR23C1 = sheet1.getRow(19).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + audiName);
                         sheet1.getRow(19).getCell(1).setCellValue(stringR23C1);
