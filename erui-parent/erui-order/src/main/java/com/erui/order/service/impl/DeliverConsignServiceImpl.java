@@ -1221,7 +1221,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 }
             }
         }).start();
-
     }
 
     public JSONObject disposeAdvanceMoney(Order order, DeliverConsign deliverConsign1) throws Exception {

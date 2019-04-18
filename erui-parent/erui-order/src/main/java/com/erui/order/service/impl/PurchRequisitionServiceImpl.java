@@ -221,8 +221,6 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         prt.setGoodsList(list);
         prt.setStatus(purchRequisition.getStatus());
         PurchRequisition purchRequisition1 = purchRequisitionDao.save(prt);
-        // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
-        //purchRequisition1.setAttachmentList(purchRequisition.getAttachmentList());
         List<Attachment> attachmentList = null;
         if (purchRequisition.getAttachmentSet() != null && purchRequisition.getAttachmentSet().size() > 0) {
             attachmentList = purchRequisition.getAttachmentSet();
