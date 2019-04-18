@@ -269,6 +269,19 @@
             </dependencies>
         </profile>
         <profile>
+            <id>bpm</id>
+            <properties>
+                <package.environment>bpm</package.environment>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>com.erui</groupId>
+                    <artifactId>erui-sso-client-bpm</artifactId>
+                    <version>1.0</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
             <id>zhengshi</id>
             <properties>
                 <package.environment>zhengshi</package.environment>
