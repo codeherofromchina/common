@@ -3153,7 +3153,6 @@ public class OrderServiceImpl implements OrderService {
                         sheet1.getRow(17).getCell(1).setCellFormula(null);
                         String stringR18C10 = sheet1.getRow(17).getCell(1).getStringCellValue().replace("时间：", "时间： " + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                         sheet1.getRow(17).getCell(1).setCellValue(stringR18C10);
-                        sheet1.getRow(17).getCell(10).setCellValue("");
                         String stringR17C10 = sheet1.getRow(17).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                         sheet1.getRow(17).getCell(10).setCellValue(stringR17C10);
                     }
@@ -3176,7 +3175,6 @@ public class OrderServiceImpl implements OrderService {
                         cshell19 = true;
                     }
                     if (orderDec.getFinancing() != null && orderDec.getFinancing() == 1) {
-                        sheet1.getRow(18).getCell(10).setCellValue("");
                         String stringR18C10 = sheet1.getRow(18).getCell(10).getStringCellValue().replace("取走时间：", "取走时间： " + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                         sheet1.getRow(18).getCell(10).setCellValue(stringR18C10);
                     }
@@ -3185,7 +3183,6 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //商务技术取走时间
                 if (cl.getAuditingProcess() == 202 || cl.getAuditingProcess() == 204 || cl.getAuditingProcess() == 205) {
-                    sheet1.getRow(20).getCell(10).setCellValue("");
                     sheet1.getRow(20).getCell(10).setCellValue("取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 }
 
