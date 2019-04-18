@@ -68,6 +68,14 @@ public class ParamsUtils {
         return params;
     }
 
+
+    public static void main(String[] args) {
+
+
+
+
+    }
+
     public static Map<String, Object> getChainParams(Map<String, Object> params) {
         //查询环比数据
         if (String.valueOf(params.get("paramStatus")).equals("current")) {

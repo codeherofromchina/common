@@ -77,7 +77,8 @@ public class SalesmanNumsController {
      */
     @ResponseBody
     @RequestMapping(value = "del", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> del(@RequestBody List<Integer> ids) {
+    public Result<Object> del(@RequestBody Map<String,List<Integer>> params) {
+        List<Integer> ids = params.get("ids");
         Result<Object> result = new Result<>();
         if (ids == null || ids.size() == 0) {
             result.setStatus(ResultStatusEnum.MISS_PARAM_ERROR);
