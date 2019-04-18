@@ -3302,7 +3302,6 @@ public class OrderServiceImpl implements OrderService {
                     String stringR27C1 = sheet1.getRow(27).getCell(1).getStringCellValue().replace("□ 否", sheet1.getRow(3).getCell(11).getStringCellValue() + " 否");
                     sheet1.getRow(27).getCell(1).setCellValue(stringR27C1);
                 }
-
             }
         } else {
             for (CheckLog cl : passed) {
