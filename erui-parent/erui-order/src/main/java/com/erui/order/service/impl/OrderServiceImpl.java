@@ -2905,7 +2905,7 @@ public class OrderServiceImpl implements OrderService {
             if (StringUtils.isNotBlank(a1)) {
                 a1 += "/";
             }
-            a1 += "PO：" + orderDec.getCrmCode();
+            a1 += "PO：" + orderDec.getPoNo();
             sheet1.getRow(3).getCell(2).setCellValue(a1);
         }
 
@@ -3000,8 +3000,10 @@ public class OrderServiceImpl implements OrderService {
                 }
                 String getMoney = "收款金额：" + op.getMoney() + orderDec.getCurrencyBn() + receiptDate;
                 if (op.getType() == 1) {
-                    String stringR6C5 = sheet1.getRow(6).getCell(5).getStringCellValue().replace("□ 是", sheet1.getRow(3).getCell(11).getStringCellValue() + " 是");
-                    sheet1.getRow(6).getCell(5).setCellValue(stringR6C5);
+                    if (op.getMoney() != null && op.getMoney().doubleValue() > 0) {
+                        String stringR6C5 = sheet1.getRow(6).getCell(5).getStringCellValue().replace("□ 是", sheet1.getRow(3).getCell(11).getStringCellValue() + " 是");
+                        sheet1.getRow(6).getCell(5).setCellValue(stringR6C5);
+                    }
                     if (op.getReceiptDate() != null) {
                         String stringR6C502 = sheet1.getRow(6).getCell(5).getStringCellValue().replace("        年      月      日", DateUtil.format(DateUtil.SHORT_FORMAT_STR, op.getReceiptDate()));
                         sheet1.getRow(6).getCell(5).setCellValue(stringR6C502);
@@ -3236,7 +3238,7 @@ public class OrderServiceImpl implements OrderService {
                 //事业部总经理
                 if (cl.getAuditingProcess() == 206 && !cshell29) {
                     //String stringR29C2 = sheet1.getRow(29).getCell(2).getStringCellValue().replace("                                              ≤20万美金", cl.getAuditingUserName() + "                    ≤20万美金");
-                    sheet1.getRow(29).getCell(2).setCellValue(cl.getAuditingUserName() );
+                    sheet1.getRow(29).getCell(2).setCellValue(cl.getAuditingUserName());
                     cshell29 = true;
                 }
                 //事业部总经理审核取走时间
@@ -3447,13 +3449,13 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //事业部VP审核
                 if (cl.getAuditingProcess() == 17) {
-                    String auditingUserName = "" + cl.getAuditingUserName() + "                      ＞50万美金";
+                    String auditingUserName = cl.getAuditingUserName();
                     if ("18".equals(cl.getNextAuditingProcess()) && cl.getNextAuditingUserId() == null) {
-                        String stringR33C1 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", auditingUserName);
-                        sheet1.getRow(31).getCell(2).setCellValue(stringR33C1);
+                        //String stringR33C1 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", auditingUserName);
+                        sheet1.getRow(31).getCell(2).setCellValue(auditingUserName);
                     } else {
-                        String stringR33C102 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", "" + cl.getAuditingUserName() + "，宋伟                      ＞50万美金");
-                        sheet1.getRow(31).getCell(2).setCellValue(stringR33C102);
+                        //String stringR33C102 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", "" + cl.getAuditingUserName() + "，宋伟                      ＞50万美金");
+                        sheet1.getRow(31).getCell(2).setCellValue("宋伟");
                     }
                 }
                 //事业部总裁审核接收时间
