@@ -3224,7 +3224,6 @@ public class OrderServiceImpl implements OrderService {
                     sheet1.getRow(27).getCell(10).setCellValue(stringR27C10);
                     String stringR26C10 = sheet1.getRow(26).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + cl.getAuditingUserName());
                     sheet1.getRow(26).getCell(1).setCellValue(stringR26C10);
-
                 }
                 //物流审核取走时间
                 if (cl.getAuditingProcess() == 206) {
