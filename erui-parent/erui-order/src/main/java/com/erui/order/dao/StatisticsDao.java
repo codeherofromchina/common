@@ -67,7 +67,7 @@ public interface StatisticsDao extends JpaRepository<Purch, Serializable> {
      * 按照地区和国家查询询单的基本统计信息
      * @return
      */
-    @Query(value = "select inquiry_area,inquiry_unit,count(1) as totalNum,sum(ifnull(quotation_price,0)) as totalAmount from erui_rfq.v_inquiry_count where rollin_time >= :startDate and rollin_time < :endDate group by inquiry_unit,inquiry_area", nativeQuery = true)
+    @Query(value = "select inquiry_area,inquiry_unit,count(1) as totalNum,sum(ifnull(quotation_price,0)) as totalAmount from erui_rfq.v_inquiry_count2 where rollin_time >= :startDate and rollin_time < :endDate group by inquiry_unit,inquiry_area", nativeQuery = true)
     List<Object> inquiryStatisInfo(@Param("startDate") Date startDate,@Param("endDate") Date endDate);
 
 
