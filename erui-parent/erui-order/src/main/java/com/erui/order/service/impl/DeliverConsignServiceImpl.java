@@ -464,13 +464,14 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     public List<DeliverConsign> findByOrderId(Integer orderId) {
         List<DeliverConsign> deliverConsignList = deliverConsignDao.findByOrderId(orderId);
         for (DeliverConsign deliverConsign : deliverConsignList) {
+            deliverConsign.getId();
+            deliverConsign.getCoId();
+            deliverConsign.getDeliverConsignNo();
+            deliverConsign.getWriteDate();
+            deliverConsign.getStatus();
+            deliverConsign.getDeptId();
+            deliverConsign.getCreateUserId();
             deliverConsign.setoId(orderId);
-            deliverConsign.setAgentName(deliverConsign.getOrder().getAgentName());
-            deliverConsign.setDeliverConsignGoodsSet(null);
-            deliverConsign.setDeliverConsignPayments(null);
-            deliverConsign.setDeliverConsignBookingSpace(null);
-            deliverConsign.setDeliverConsignBookingSpace(null);
-            deliverConsign.setDeliverDetail(null);
             List<Goods> goodsList = deliverConsign.getOrder().getGoodsList();
             if (goodsList.size() > 0) {
                 for (Goods goods : goodsList) {

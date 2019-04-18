@@ -149,6 +149,15 @@ public class DeliverConsignController {
     public Result<List<DeliverConsign>> queryExportList(@RequestBody Map<String, Integer> map) {
         if (map.get("orderId") != null) {
             List<DeliverConsign> deliverList = deliverConsignService.findByOrderId(map.get("orderId"));
+            if (deliverList != null && deliverList.size() > 0) {
+                for (DeliverConsign deliverConsign : deliverList) {
+                    deliverConsign.setDeliverConsignGoodsSet(null);
+                    deliverConsign.setDeliverConsignPayments(null);
+                    deliverConsign.setDeliverConsignBookingSpace(null);
+                    deliverConsign.setDeliverDetail(null);
+                }
+
+            }
             return new Result<>(deliverList);
         }
         return new Result<>(ResultStatusEnum.DATA_NULL);
