@@ -18,6 +18,8 @@ public class DateUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(DateUtil.class);
     public static final String FULL_FORMAT_STR2 = "yyyy/MM/dd HH:mm:ss";
     public static final String FULL_FORMAT_STR = "yyyy-MM-dd HH:mm:ss";
+    public static final String DAY_START_TIME = "yyyy-MM-dd 00:00:00";
+    public static final String DAY_END_TIME = "yyyy-MM-dd 23:59:59";
     public static final String SHORT_FORMAT_STR = "yyyy-MM-dd";
     public static final String SHORT_FORMAT_DOT_STR = "yyyy.MM.dd";
     public static final String SHORT_SLASH_FORMAT_STR = "yyyy/MM/dd";
@@ -789,5 +791,11 @@ public class DateUtil {
         Date rangeEndDate = parseStringToDate("2018-01-03 23:59:59", FULL_FORMAT_STR);
         int i = inRangeDateDayNum(startDate, endDate, rangeStartDate, rangeEndDate);
         System.out.println(i);
+
+
+        Date d = new Date();
+        String format = format(DAY_END_TIME, d);
+        System.out.println(format);
+
     }
 }
