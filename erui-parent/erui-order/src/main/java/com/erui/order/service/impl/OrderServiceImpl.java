@@ -3164,9 +3164,11 @@ public class OrderServiceImpl implements OrderService {
                         if (cl.getAuditingUserName() != null) {
                             audiName.append(cl.getAuditingUserName());
                         }
+                        //质检经人
                         if (orderDec.getProject().getQualityName() != null) {
                             audiName.append(",").append(orderDec.getProject().getQualityName());
                         }
+                        //采购经办人
                         if (orderDec.getProject().getPurchaseName() != null) {
                             audiName.append(",").append(orderDec.getProject().getPurchaseName());
                         }
