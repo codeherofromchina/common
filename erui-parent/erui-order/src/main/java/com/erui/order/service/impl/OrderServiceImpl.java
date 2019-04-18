@@ -2868,10 +2868,10 @@ public class OrderServiceImpl implements OrderService {
         // 获取第二个sheet页
         Sheet sheet1 = workbook.getSheetAt(0);
         //替换 填写签约主体公司
-        if (orderDec.getSigningCo() != null) {
+    /*    if (orderDec.getSigningCo() != null) {
             String stringCell0 = sheet1.getRow(0).getCell(0).getStringCellValue().replace("填写签约主体公司", Order.COM.getByEn(orderDec.getSigningCo()).getMsg());
             sheet1.getRow(0).getCell(0).setCellValue(stringCell0);
-        }
+        }*/
         if (orderDec.getExecCoId() != null) {
             Company company = companyService.findByIdLazy(orderDec.getExecCoId());
             String stringRC2 = sheet1.getRow(2).getCell(2).getStringCellValue().replace("执行分公司", company.getName());
@@ -3052,18 +3052,18 @@ public class OrderServiceImpl implements OrderService {
             passed = checkLogService.findListByOrderId(orderDec.getId());
             if (passed == null) {
                 passed = new ArrayList<>();
-            }else if(passed.size() > 0) {
+            } else if (passed.size() > 0) {
                 Date dateTime = DateUtil.parseString2DateNoException("2019-03-29 21:00:00", DateUtil.FULL_FORMAT_STR);
                 isNewAuditing = passed.get(0).getCreateTime().after(dateTime);
             }
         }
-        if(isNewAuditing){//判断是否是新的审批流程
-            String stringR33C1 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", "                                                        ＞20万美金");
+        if (isNewAuditing) {//判断是否是新的审批流程
+         /*   String stringR33C1 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", "                                                        ＞20万美金");
             sheet1.getRow(31).getCell(2).setCellValue(stringR33C1);
             String stringR15C21 = sheet1.getRow(15).getCell(2).getStringCellValue().replace("金额在10万美金以上的", "金额在3万美金以上的");
             sheet1.getRow(15).getCell(2).setCellValue(stringR15C21);
             String stringR29C21 = sheet1.getRow(29).getCell(2).getStringCellValue().replace("                                              ≤50万美金", "                                              ≤20万美金");
-            sheet1.getRow(29).getCell(2).setCellValue(stringR29C21);
+            sheet1.getRow(29).getCell(2).setCellValue(stringR29C21);*/
 
             boolean cshell19 = Boolean.FALSE;//
             boolean cshell21 = Boolean.FALSE;
@@ -3071,6 +3071,7 @@ public class OrderServiceImpl implements OrderService {
             boolean cshell25 = Boolean.FALSE;
             boolean cshell29 = Boolean.FALSE;
             boolean cshell31 = Boolean.FALSE;
+            boolean cshell33 = Boolean.FALSE;
             for (CheckLog cl : passed) {
                 //只有订单金额大于3万小于20万或是预投才有地区总经理审核
                 if (orderDec.getOrderCategory() == 1 || orderDec.getTotalPriceUsd().doubleValue() > STEP_ONE_PRICE.doubleValue()) {
@@ -3146,7 +3147,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //商务技术
                 if (cl.getAuditingProcess() == 201) {
-                    if(!cshell19){
+                    if (!cshell19) {
                         String stringR23C1 = sheet1.getRow(19).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + cl.getAuditingUserName());
                         sheet1.getRow(19).getCell(1).setCellValue(stringR23C1);
                         cshell19 = true;
@@ -3158,7 +3159,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //商务技术
                 if (cl.getAuditingProcess() == 201) {
-                    if(!cshell21) {
+                    if (!cshell21) {
                         String stringR23C1 = sheet1.getRow(21).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + cl.getAuditingUserName());
                         sheet1.getRow(21).getCell(1).setCellValue(stringR23C1);
                         cshell21 = true;
@@ -3180,7 +3181,7 @@ public class OrderServiceImpl implements OrderService {
                 //财务或国际结算
                 if (cl.getAuditingProcess() == 106) {
                     //国际结算审核人
-                    if(!cshell23) {
+                    if (!cshell23) {
                         String stringR23C1 = sheet1.getRow(23).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + cl.getAuditingUserName());
                         sheet1.getRow(23).getCell(1).setCellValue(stringR23C1);
                         cshell23 = true;
@@ -3197,7 +3198,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //法务审核
                 if (cl.getAuditingProcess() == 105) {
-                    if(!cshell25) {
+                    if (!cshell25) {
                         String stringR23C1 = sheet1.getRow(25).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + cl.getAuditingUserName());
                         sheet1.getRow(25).getCell(1).setCellValue(stringR23C1);
                         cshell25 = true;
@@ -3232,22 +3233,22 @@ public class OrderServiceImpl implements OrderService {
                         sheet1.getRow(30).getCell(10).setCellValue(stringR30C10);
                     }
                 }
-                //事业部总监审核
+                //事业部总经理
                 if (cl.getAuditingProcess() == 206 && !cshell29) {
-                    String stringR29C2 = sheet1.getRow(29).getCell(2).getStringCellValue().replace("                                              ≤20万美金", cl.getAuditingUserName() + "                    ≤20万美金");
-                    sheet1.getRow(29).getCell(2).setCellValue(stringR29C2);
+                    //String stringR29C2 = sheet1.getRow(29).getCell(2).getStringCellValue().replace("                                              ≤20万美金", cl.getAuditingUserName() + "                    ≤20万美金");
+                    sheet1.getRow(29).getCell(2).setCellValue(cl.getAuditingUserName() );
                     cshell29 = true;
                 }
-                //事业部总监审核取走时间
+                //事业部总经理审核取走时间
                 if (cl.getAuditingProcess() == 207) {
                     String stringR30C10 = sheet1.getRow(30).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                     sheet1.getRow(30).getCell(10).setCellValue(stringR30C10);
                 }
                 //事业部总裁
                 if (cl.getAuditingProcess() == 207 && !cshell31) {
-                    String auditingUserName = "" + cl.getAuditingUserName() + "                      ＞20万美金";
-                    String stringR33C11 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞20万美金", auditingUserName);
-                    sheet1.getRow(31).getCell(2).setCellValue(stringR33C11);
+                    //String auditingUserName = "" + cl.getAuditingUserName() + "                      ＞20万美金";
+                    //String stringR33C11 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞20万美金", auditingUserName);
+                    sheet1.getRow(31).getCell(2).setCellValue(cl.getAuditingUserName());
                     cshell31 = true;
                 }
                 //事业部总裁审核接收时间
@@ -3259,6 +3260,21 @@ public class OrderServiceImpl implements OrderService {
                 if (cl.getAuditingProcess() == 208) {
                     String stringR32C10 = sheet1.getRow(32).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                     sheet1.getRow(32).getCell(10).setCellValue(stringR32C10);
+                }
+                //董事长
+                if (cl.getAuditingProcess() == 208 && !cshell33) {
+                    sheet1.getRow(33).getCell(2).setCellValue(cl.getAuditingUserName());
+                    cshell33 = true;
+                }
+                //董事长审核接收时间
+                if (cl.getAuditingProcess() == 208) {
+                    String stringR32C10 = sheet1.getRow(33).getCell(10).getStringCellValue().replace("接收时间：", "接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
+                    sheet1.getRow(33).getCell(10).setCellValue(stringR32C10);
+                }
+                //董事长审核取走时间
+                if (cl.getAuditingProcess() == 208) {
+                    String stringR32C10 = sheet1.getRow(32).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
+                    sheet1.getRow(34).getCell(10).setCellValue(stringR32C10);
                 }
             }
             //国际金融
@@ -3280,7 +3296,7 @@ public class OrderServiceImpl implements OrderService {
                 }
 
             }
-        }else{
+        } else {
             for (CheckLog cl : passed) {
                 //只有金额大于10万美元 且不是国内订单才有区域审核
                 if (orderDec.getOrderCategory() != 6 && STEP_ONE_PRICE.doubleValue() <= orderDec.getTotalPriceUsd().doubleValue()) {
@@ -3489,8 +3505,8 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //事业部总监审核
                 if (orderDec.getProject().getBuAuditer() != null) {
-                    String stringR29C2 = sheet1.getRow(29).getCell(2).getStringCellValue().replace("                                              ≤50万美金", orderDec.getProject().getBuAuditer() + "                    ≤50万美金");
-                    sheet1.getRow(29).getCell(2).setCellValue(stringR29C2);
+                    //String stringR29C2 = sheet1.getRow(29).getCell(2).getStringCellValue().replace("                                              ≤50万美金", orderDec.getProject().getBuAuditer() + "                    ≤50万美金");
+                    sheet1.getRow(29).getCell(2).setCellValue(orderDec.getProject().getBuAuditer());
                 }
 
             }
