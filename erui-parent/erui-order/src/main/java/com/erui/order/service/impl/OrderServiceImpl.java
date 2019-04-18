@@ -3202,7 +3202,6 @@ public class OrderServiceImpl implements OrderService {
                     sheet1.getRow(23).getCell(10).setCellFormula(null);
                     sheet1.getRow(23).getCell(10).setCellValue("接收时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                 }
-
                 //财务或国际结算取走时间
                 if (cl.getAuditingProcess() == 201) {
                     sheet1.getRow(24).getCell(10).setCellFormula(null);
