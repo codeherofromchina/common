@@ -35,8 +35,6 @@ public class OrderController {
     private final static Logger logger = LoggerFactory.getLogger(OrderController.class);
     @Autowired
     private OrderService orderService;
-    @Autowired
-    private ApplicationContext applicationContext;
 
     /**
      * 获取单列表
