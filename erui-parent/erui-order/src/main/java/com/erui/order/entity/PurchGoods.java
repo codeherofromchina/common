@@ -37,6 +37,14 @@ public class PurchGoods {
     @JsonIgnore
     private Purch purch;
 
+    /**
+     * 采购合同
+     */
+    @ManyToOne
+    @JoinColumn(name = "purch_contract_id")
+    @JsonIgnore
+    private PurchContract purchContract;
+
     // 务必没有修改goods权限的能力
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "goods_id")
@@ -260,5 +268,13 @@ public class PurchGoods {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public PurchContract getPurchContract() {
+        return purchContract;
+    }
+
+    public void setPurchContract(PurchContract purchContract) {
+        this.purchContract = purchContract;
     }
 }
