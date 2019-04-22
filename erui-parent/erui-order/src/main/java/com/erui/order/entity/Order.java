@@ -342,6 +342,9 @@ public class Order {
     private Integer legalAuditerId;//法务审核人id
     @Column(name = "legal_auditer")
     private String legalAuditer;//法务审核人
+    // 流程实例ID
+    @Column(name="process_id")
+    private String processId;
 
 
     //如果项目审核完成返回前端 值为 1
@@ -886,6 +889,14 @@ public class Order {
     public void setSigningCo(String signingCo) {
         this.signingCo = signingCo;
 
+    }
+
+    public String getProcessId() {
+        return processId;
+    }
+
+    public void setProcessId(String processId) {
+        this.processId = processId;
     }
 
     public Integer getAgentId() {
