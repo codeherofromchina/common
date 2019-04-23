@@ -12,6 +12,7 @@ import com.erui.order.entity.*;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.requestVo.AddOrderV2Vo;
 import com.erui.order.requestVo.OrderListCondition;
+import com.erui.order.requestVo.OrderV2ListRequest;
 import com.erui.order.requestVo.PGoods;
 import com.erui.order.service.*;
 import com.erui.order.util.BpmUtils;
@@ -227,10 +228,11 @@ public class OrderV2ServiceImpl implements OrderV2Service {
         //审核日志 钉钉通知 和待办
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 初始化订单提交后的后续工作
-            // 调用业务流，开启业务审核流程系统 // 非国内订单审批流程 TODO 这里的用户编号待获取
-            JSONObject processResp = BpmUtils.startProcessInstanceByKey("process_order", "017340", eruiToken, "order:" + orderUpdate.getId());
+            // 调用业务流，开启业务审核流程系统 // 非国内订单审批流程
+            Map<String,Object> bpmInitVar = new HashMap<>();
+            bpmInitVar.put("order_amount", addOrderVo.getTotalPriceUsd().doubleValue());
+            JSONObject processResp = BpmUtils.startProcessInstanceByKey("process_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
             orderUpdate.setProcessId(processResp.getJSONObject("response").getString("instanceId"));
-
 
             List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeAsc(orderUpdate.getId());
             if (orderLog.size() > 0) {
@@ -396,8 +398,10 @@ public class OrderV2ServiceImpl implements OrderV2Service {
 
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 初始化订单提交后的后续工作
-            // 调用业务流，开启业务审核流程系统 // 非国内订单审批流程 TODO 这里的用户编号待获取
-            JSONObject processResp = BpmUtils.startProcessInstanceByKey("process_order", "017340", eruiToken, "order:" + order1.getId());
+            // 调用业务流，开启业务审核流程系统 // 非国内订单审批流程
+            Map<String,Object> bpmInitVar = new HashMap<>();
+            bpmInitVar.put("order_amount", addOrderVo.getTotalPriceUsd().doubleValue());
+            JSONObject processResp = BpmUtils.startProcessInstanceByKey("process_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
             order1.setProcessId(processResp.getJSONObject("response").getString("instanceId"));
             //添加订单未执行事件，设置订单流程进度信息
             applicationContext.publishEvent(new OrderProgressEvent(order1, 1, eruiToken));
@@ -483,7 +487,7 @@ public class OrderV2ServiceImpl implements OrderV2Service {
 
     @Transactional
     @Override
-    public Page<Order> findByPage(OrderListCondition condition) {
+    public Page<Order> findByPage(OrderV2ListRequest condition) {
         LOGGER.info("findByPage -> params : {}", condition);
         PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
         // 2019-01-30 增加需求 如果登录用户存在o34角色（国家负责人角色）则用户只能查看他所在国家的订单内容

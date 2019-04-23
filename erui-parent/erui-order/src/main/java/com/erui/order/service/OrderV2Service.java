@@ -61,7 +61,7 @@ public interface OrderV2Service {
      * @param condition
      * @return
      */
-    Page<Order> findByPage(OrderListCondition condition);
+    Page<Order> findByPage(OrderV2ListRequest condition);
 
     /**
      * 查询所有订单的审核节点

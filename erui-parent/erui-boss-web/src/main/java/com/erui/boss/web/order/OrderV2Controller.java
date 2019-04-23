@@ -6,12 +6,13 @@ import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.order.entity.Order;
 import com.erui.order.requestVo.AddOrderV2Vo;
-import com.erui.order.requestVo.OrderListCondition;
+import com.erui.order.requestVo.OrderV2ListRequest;
 import com.erui.order.service.OrderV2Service;
-import com.google.gson.JsonArray;
+import com.erui.report.service.BpmTaskRuntimeService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +36,8 @@ public class OrderV2Controller {
     private final static Logger logger = LoggerFactory.getLogger(OrderV2Controller.class);
     @Resource(name = "orderV2ServiceImpl")
     private OrderV2Service orderService;
+    @Autowired
+    private BpmTaskRuntimeService bpmTaskRuntimeService;
 
     /**
      * 订单审核流程中的所有流程节点
@@ -58,7 +61,7 @@ public class OrderV2Controller {
      * @return
      */
     @RequestMapping(value = "orderManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> orderManage(@RequestBody OrderListCondition condition, HttpServletRequest request) {
+    public Result<Object> orderManage(@RequestBody OrderV2ListRequest condition, HttpServletRequest request) {
         //页数不能小于1
         if (condition.getPage() < 1) {
             return new Result<>(ResultStatusEnum.FAIL);
@@ -69,7 +72,12 @@ public class OrderV2Controller {
         String lang = CookiesUtil.getLang(request);
         condition.setLang(lang);
 
-        Integer auditingProcess = condition.getAuditingProcess();
+        String auditingProcess = condition.getAuditingProcess();
+        List<Long> orderIds = null;
+        if (StringUtils.isNotBlank(auditingProcess)) {
+            // 获取所有节点
+            orderIds  = bpmTaskRuntimeService.findBizObjIdList(auditingProcess, "order");
+        }
 
 
         Page<Order> orderPage = orderService.findByPage(condition);

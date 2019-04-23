@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.OrderConf;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,12 +54,27 @@ public class BpmUtils {
      *
      * @param definitionKey
      */
-    public static JSONObject startProcessInstanceByKey(String definitionKey, String callerId, String token, String businessKey) throws Exception {
+    public static JSONObject startProcessInstanceByKey(String definitionKey, String callerId, String token, String businessKey, Map<String, Object> initVar) throws Exception {
         JSONObject params = new JSONObject();
         params.put("tenantId", tenantId);
-        params.put("callerId", callerId);
+        if (StringUtils.isBlank(callerId) && StringUtils.isNotBlank(token) && token.length() >= 6) {
+            callerId = token.substring(token.length() - 6);
+        }
+        params.put("callerId", StringUtils.isNoneBlank(callerId));
         params.put("definitionKey", definitionKey);
         params.put("bizKey", businessKey);
+        if (initVar != null && initVar.size() > 0) {
+            // 添加流程实例启动变量
+            List<Map<String, Object>> variables = new ArrayList<>();
+            for (Map.Entry<String, Object> entry : initVar.entrySet()) {
+                Map<String, Object> var = new HashMap<>();
+                var.put("name", entry.getKey());
+                var.put("value", entry.getValue());
+                var.put("scope", "GLOBAL");
+                variables.add(var);
+            }
+            params.put("variables", variables);
+        }
 
         Map<String, String> header = new HashMap<>();
         header.put("Content-Type", "application/json");
