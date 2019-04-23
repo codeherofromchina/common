@@ -71,8 +71,13 @@ public class PurchContractController {
      */
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> save(HttpServletRequest request, @RequestBody PurchContract purchContract) {
-        String eruiToken = CookiesUtil.getEruiToken(request);
-        ThreadLocalUtil.setObject(eruiToken);
+        // 获取当前用户ID
+        Object userId = request.getSession().getAttribute("userid");
+        // 获取当前用户Name
+        Object userName = request.getSession().getAttribute("realname");
+        if(userId != null && userId.toString().length() > 0) purchContract.setCreateUserId(Integer.parseInt(userId.toString()));
+        if(userName != null) purchContract.setCreateUserName(userName.toString());
+        if(purchContract.getVersion() == null) purchContract.setVersion(201904);
         boolean continueFlag = true;
         String errorMsg = null;
         // 状态检查

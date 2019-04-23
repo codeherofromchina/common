@@ -484,9 +484,5 @@ public class PurchContract {
         this.setCountry(purchContract.getCountry()); // 国家
         this.setRegion(purchContract.getRegion()); // 所属地区
         this.setVersion(purchContract.getVersion()); // 合同版本
-        this.setCreateUserId(purchContract.getCreateUserId()); // 创建人id
-        this.setCreateUserName(purchContract.getCreateUserName()); // 创建人
-        this.setCreateTime(purchContract.getCreateTime()); // 创建时间
-        this.setUpdateTime(purchContract.getUpdateTime()); // 修改时间
     }
 }

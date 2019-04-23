@@ -140,13 +140,6 @@ public class PurchContractServiceImpl implements PurchContractService {
         for (PurchContractGoods pg : purchContract.getPurchContractGoodsList()) {
             Integer pgId = pg.getId();
             if (pgId == null) { // 新增加的采购商品信息
-                // 检查是否传入采购数量或者替换商品
-                Integer purchaseNum = pg.getPurchaseNum(); // 获取采购数量
-                PurchContractGoods tSon = pg.getSon(); // 获取替换商品
-                if ((purchaseNum == null || purchaseNum <= 0) && tSon == null) {
-                    // 传入的商品没有数量，表示不采购此商品
-                    continue;
-                }
                 // 获取要采购的商品
                 Goods goods = goodsDao.findOne(pg.getgId());
                 if (goods == null || goods.getExchanged()) {
@@ -161,12 +154,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                     throw new Exception(String.format("%s%s%s", "项目采购已完成，不能再次采购", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project procurement has been completed and can not be repurchased"));
                 }
                 projectSet.add(project);
-                // 查看是否存在替换商品
-//                PurchContractGoods son = handleAddNewPurchContractGoods(project, dbPurchContract, goods, pg);
-//                purchContractGoodsList.add(pg);
-//                if (son != null) {
-//                    purchContractGoodsList.add(son);
-//                }
                 Integer intPurchaseNum = pg.getPurchaseNum();
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
                 goodsDao.save(goods);
@@ -210,23 +197,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                 PurchContractGoods purchContractGoods = dbPurchContractGoodsMap.remove(pgId);
                 existId.add(pgId);
                 Project project = purchContractGoods.getProject();
-
-//                boolean hasSon = false;
-//                if (purchContractGoods.getExchanged()) {
-//                    // 是替换商品，查看父商品是否存在
-//                    PurchContractGoods parentPurchContractGoods = purchContractGoods.getParent();
-//                    Integer pId = parentPurchContractGoods.getId();
-//                    if (!existId.contains(pId)) {
-//                        // 查找替换前的商品先处理
-//                        PurchContractGoods paramParentPurchContractGoods = purchContract.getPurchContractGoodsList().parallelStream().filter(vo -> vo.getId().intValue() == pId).findFirst().get();
-//                        if (paramParentPurchContractGoods == null) {
-//                            throw new Exception(String.format("%s%s%s", "父采购商品信息不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The parent purchase commodity information does not exist"));
-//                        }
-//                    }
-//                } else {
-//                    // 不是替换商品，查看是否添加了替换商品
-//                    hasSon = pg.getSon() != null;
-//                }
                 // 正常添加
                 projectSet.add(project);
                 int oldPurchaseNum = purchContractGoods.getPurchaseNum();
@@ -255,12 +225,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                 int purchaseNum = purchContractGoods.getPurchaseNum();
                 // 从数据库查询一次商品做修改
                 Goods goods = goodsDao.findOne(purchContractGoods.getGoods().getId());
-//                if (hasSon) {
-//                    // 处理替换商品
-//                    PurchContractGoods son = pg.getSon();
-//                    handleExchangedPurchContractGoods(project, goods, dbPurchContract, purchContractGoods, son);
-//                    purchContractGoodsList.add(son);
-//                }
                 // 提交则修改商品的已采购数量
                 if (purchContract.getStatus() == PurchContract.StatusEnum.BEING.getCode()) {
                     goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
@@ -373,11 +337,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                 throw new Exception(String.format("%s%s%s", "项目采购已完成，不能再次采购", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project procurement has been completed and can not be repurchased"));
             }
             projectSet.add(project);
-//            PurchContractGoods son = handleAddNewPurchContractGoods(project, purchContract, goods, purchContractGoods);
-//            purchContractGoodsList.add(purchContractGoods);
-//            if (son != null) {
-//                purchContractGoodsList.add(son);
-//            }
             int intPurchaseNum = purchContractGoods.getPurchaseNum();
             if (purchContract.getStatus() == PurchContract.StatusEnum.BEING.getCode()) {
                 // 如果是提交则设置商品的已采购数量并更新
