@@ -72,14 +72,6 @@ public class OrderV2Controller {
         String lang = CookiesUtil.getLang(request);
         condition.setLang(lang);
 
-        String auditingProcess = condition.getAuditingProcess();
-        List<Long> orderIds = null;
-        if (StringUtils.isNotBlank(auditingProcess)) {
-            // 获取所有节点
-            orderIds  = bpmTaskRuntimeService.findBizObjIdList(auditingProcess, "order");
-        }
-
-
         Page<Order> orderPage = orderService.findByPage(condition);
         if (orderPage.hasContent()) {
             orderPage.getContent().forEach(vo -> {
