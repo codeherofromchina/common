@@ -54,6 +54,9 @@ public class PurchContractController {
             purchContractPage.getContent().forEach(vo -> {
                 vo.setAttachments(null);
                 vo.setPurchGoodsList(null);
+                vo.setPurchContractSignatoriesList(null);
+                vo.setPurchContractSimple(null);
+                vo.setPurchContractStandard(null);
             });
         }
         return new Result<>(purchContractPage);

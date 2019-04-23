@@ -307,9 +307,6 @@ public class PurchContractServiceImpl implements PurchContractService {
         Map<Integer, Attachment> dbAttahmentsMap = dbPurchContract.getAttachments().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
         attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbPurchContract.getId(), Attachment.AttachmentCategory.PURCH.getCode());
 
-        // 检查项目是否已经采购完成
-        List<Integer> projectIdList = projectSet.parallelStream().map(Project::getId).collect(Collectors.toList());
-        checkProjectPurchDone(projectIdList);
         return true;
     }
 
@@ -372,9 +369,6 @@ public class PurchContractServiceImpl implements PurchContractService {
         if (purchContract.getAttachments() != null && purchContract.getAttachments().size() > 0) {
             attachmentService.addAttachments(purchContract.getAttachments(), save.getId(), Attachment.AttachmentCategory.PURCHCONTRACT.getCode());
         }
-        // 检查项目是否已经采购完成
-        List<Integer> projectIds = projectSet.parallelStream().map(Project::getId).collect(Collectors.toList());
-        checkProjectPurchDone(projectIds);
         return true;
     }
 
@@ -541,14 +535,5 @@ public class PurchContractServiceImpl implements PurchContractService {
         son.setInspectNum(0);
         son.setPreInspectNum(0);
         son.setCreateTime(new Date());
-    }
-
-    /**
-     * 检查采购项目的采购数量是否已完毕
-     *
-     * @param projectIds 项目ID列表
-     */
-    private void checkProjectPurchDone(List<Integer> projectIds) throws Exception {
-        applicationContext.publishEvent(new PurchDoneCheckEvent(this, projectIds, projectDao, backLogService, orderDao, purchRequisitionDao));
     }
 }
