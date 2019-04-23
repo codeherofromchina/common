@@ -128,12 +128,10 @@ public class PurchController {
             errorMsg = "数据的状态不正确";
         }
         // 查看采购号是否存在
-       /* if (StringUtils.isBlank(purch.getPurchNo())) {
+        if (StringUtils.isBlank(purch.getPurchNo())) {
             continueFlag = false;
             errorMsg = "采购合同号不能为空";
-        }*/
-
-
+        }
         if (continueFlag) {
             try {
                 boolean flag = false;
@@ -178,7 +176,7 @@ public class PurchController {
         Object userId = request.getSession().getAttribute("userid");
         Object userName = request.getSession().getAttribute("realname");
         String auditingUserId = purch.getAuditingUserId();
-        if (auditingUserId == null || auditingUserId.indexOf(String.valueOf(userId)) ==-1) {
+        if (auditingUserId == null || auditingUserId.indexOf(String.valueOf(userId)) == -1) {
             return new Result<>(ResultStatusEnum.NOT_NOW_AUDITOR);
         }
         // 判断是否是驳回并判断原因参数

@@ -643,39 +643,43 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
     private void commonSetReceiptDate(Integer type, IReceiverDate receiverDate, IogisticsData iogisticsData) {
         switch (type) {
             case 4: //发货后   取值 离厂日期
-                Date leaveFactory = iogisticsData.getLeaveFactory();    //离厂日期
-                if (leaveFactory != null) {
-                    receiverDate.setReceiptDate(leaveFactory);
+                if (iogisticsData.getLeaveFactory() != null) {
+                    receiverDate.setReceiptDate(iogisticsData.getLeaveFactory());
                 }
                 break;
             case 5:  //货到后      取值   预计抵达日期
-                Date arrivalPortTime = iogisticsData.getArrivalPortTime();  //预计抵达日期
-                if (arrivalPortTime != null) {
-                    receiverDate.setReceiptDate(arrivalPortTime);
+                if (iogisticsData.getArrivalPortTime() != null) {
+                    receiverDate.setReceiptDate(iogisticsData.getArrivalPortTime());
                 }
                 break;
             case 6: //提单日后   取值  实际离港日期
-                Date leavePortTime = iogisticsData.getLeavePortTime();  //实际离港日期
-                if (leavePortTime != null) {
-                    receiverDate.setReceiptDate(leavePortTime);
+                if (iogisticsData.getLeavePortTime() != null) {
+                    receiverDate.setReceiptDate(iogisticsData.getLeavePortTime());
                 }
                 break;
             case 7:   //交货后   取值  预计抵达日期
-                Date arrivalPortTime2 = iogisticsData.getArrivalPortTime();  //预计抵达日期
-                if (arrivalPortTime2 != null) {
-                    receiverDate.setReceiptDate(arrivalPortTime2);
+                if (iogisticsData.getArrivalPortTime() != null) {
+                    receiverDate.setReceiptDate(iogisticsData.getArrivalPortTime());
                 }
                 break;
             case 8:     //验收后   取值  预计抵达日期
-                Date arrivalPortTime3 = iogisticsData.getArrivalPortTime();  //预计抵达日期
-                if (arrivalPortTime3 != null) {
-                    receiverDate.setReceiptDate(arrivalPortTime3);
+                if (iogisticsData.getArrivalPortTime() != null) {
+                    receiverDate.setReceiptDate(iogisticsData.getArrivalPortTime());
                 }
                 break;
             case 9:     //工厂交货后   取值  离厂日期
-                Date leaveFactory2 = iogisticsData.getLeaveFactory();  //离厂日期
-                if (leaveFactory2 != null) {
-                    receiverDate.setReceiptDate(leaveFactory2);
+                if (iogisticsData.getLeaveFactory() != null) {
+                    receiverDate.setReceiptDate(iogisticsData.getLeaveFactory());
+                }
+                break;
+            case 10://装船后（新增加内容，取物流跟踪“实际离港日期”）
+                if (iogisticsData.getLeavePortTime() != null) {
+                    receiverDate.setReceiptDate(iogisticsData.getLeavePortTime());
+                }
+                break;
+            case 11://到港后（新增加内容，取物流跟踪“预计抵达日期”）
+                if (iogisticsData.getArrivalPortTime() != null) {
+                    receiverDate.setReceiptDate(iogisticsData.getArrivalPortTime());
                 }
                 break;
         }
