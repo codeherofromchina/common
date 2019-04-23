@@ -47,10 +47,6 @@ import java.util.stream.Collectors;
 @Transactional
 public class OrderV2ServiceImpl implements OrderV2Service {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderV2ServiceImpl.class);
-    // 用户升级方法
-    static final BigDecimal STEP_ONE_PRICE = new BigDecimal("30000");
-    static final BigDecimal STEP_TWO_PRICE = new BigDecimal("200000");
-    private static Logger logger = LoggerFactory.getLogger(OrderV2ServiceImpl.class);
     @Autowired
     private ApplicationContext applicationContext;
     @Autowired
@@ -158,7 +154,7 @@ public class OrderV2ServiceImpl implements OrderV2Service {
                 order.setCreditAvailable(BigDecimal.valueOf(0.00)); //可用授信额度
             }
         } catch (Exception e) {
-            logger.info("CRM返回信息：" + e);
+            LOGGER.info("CRM返回信息：" + e);
             order.setLineOfCredit(BigDecimal.valueOf(0.00)); //授信额度
             order.setCreditAvailable(BigDecimal.valueOf(0.00)); //可用授信额度
         }
@@ -229,7 +225,7 @@ public class OrderV2ServiceImpl implements OrderV2Service {
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 初始化订单提交后的后续工作
             // 调用业务流，开启业务审核流程系统 // 非国内订单审批流程
-            Map<String,Object> bpmInitVar = new HashMap<>();
+            Map<String, Object> bpmInitVar = new HashMap<>();
             bpmInitVar.put("order_amount", addOrderVo.getTotalPriceUsd().doubleValue());
             JSONObject processResp = BpmUtils.startProcessInstanceByKey("process_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
             orderUpdate.setProcessId(processResp.getJSONObject("response").getString("instanceId"));
@@ -399,7 +395,7 @@ public class OrderV2ServiceImpl implements OrderV2Service {
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 初始化订单提交后的后续工作
             // 调用业务流，开启业务审核流程系统 // 非国内订单审批流程
-            Map<String,Object> bpmInitVar = new HashMap<>();
+            Map<String, Object> bpmInitVar = new HashMap<>();
             bpmInitVar.put("order_amount", addOrderVo.getTotalPriceUsd().doubleValue());
             JSONObject processResp = BpmUtils.startProcessInstanceByKey("process_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
             order1.setProcessId(processResp.getJSONObject("response").getString("instanceId"));
@@ -478,8 +474,8 @@ public class OrderV2ServiceImpl implements OrderV2Service {
             }
 
         } catch (Exception ex) {
-            logger.error("日志记录失败 {}", orderLog.toString());
-            logger.error("错误", ex);
+            LOGGER.error("日志记录失败 {}", orderLog.toString());
+            LOGGER.error("错误", ex);
             ex.printStackTrace();
         }
     }
@@ -515,8 +511,13 @@ public class OrderV2ServiceImpl implements OrderV2Service {
                     list.add(cb.like(root.get("crmCode").as(String.class), "%" + condition.getCrmCode() + "%"));
                 }
                 // 根据订单审核状态
-                if (condition.getAuditingProcess() != null) {
-                    list.add(cb.equal(root.get("auditingProcess").as(String.class), condition.getAuditingProcess()));
+                if (StringUtils.isNotBlank(condition.getAuditingProcess())) {
+                    if ("999".equals(condition.getAuditingProcess())) {
+                        // 999 定位审核完成的查询
+                        list.add(cb.equal(root.get("auditingStatus").as(Integer.class), Order.AuditingStatusEnum.THROUGH.getStatus()));
+                    } else {
+                        list.add(cb.like(root.get("auditingProcess").as(String.class), "%" + condition.getAuditingProcess() + "%"));
+                    }
                 }
                 //根据Po号模糊查询
                 if (StringUtil.isNotBlank(condition.getPoNo())) {
@@ -718,7 +719,6 @@ public class OrderV2ServiceImpl implements OrderV2Service {
     }
 
 
-
     // 2019-01-30 增加需求，如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
     private String[] getCountryHeaderByRole() {
         String[] countryArr = null;
@@ -746,6 +746,46 @@ public class OrderV2ServiceImpl implements OrderV2Service {
         JSONArray jsonArray = BpmUtils.processDefinitionUsertasks("process_order", eruiToken, "017340");
 
         return jsonArray;
+    }
+
+
+    @Override
+    public void updateAuditProcessDone(String processInstanceId, String taskDefinitionKey) {
+        Order order = orderDao.findByProcessId(processInstanceId);
+
+        String auditingProcess = order.getAuditingProcess();
+        if (StringUtils.isNotBlank(auditingProcess)) {
+            if (auditingProcess.equals(taskDefinitionKey)) {
+                auditingProcess = null;
+                order.setAuditingStatus(Order.AuditingStatusEnum.THROUGH.getStatus());
+            } else {
+                auditingProcess = auditingProcess.replace(taskDefinitionKey, "");
+                while (auditingProcess.indexOf(",,") != -1) {
+                    auditingProcess = auditingProcess.replace(",,", ",");
+                }
+                auditingProcess = StringUtils.strip(auditingProcess);
+            }
+            order.setAuditingProcess(auditingProcess);
+
+        } else {
+            order.setAuditingStatus(Order.AuditingStatusEnum.THROUGH.getStatus());
+        }
+        orderDao.save(order);
+    }
+
+    @Override
+    public void updateAuditProcessDoing(String processInstanceId, String taskDefinitionKey) {
+        Order order = orderDao.findByProcessId(processInstanceId);
+        order.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
+
+        String auditingProcess = order.getAuditingProcess();
+        if (StringUtils.isNotBlank(auditingProcess)) {
+            auditingProcess = auditingProcess + "," + taskDefinitionKey;
+        } else {
+            auditingProcess = taskDefinitionKey;
+        }
+        order.setAuditingProcess(auditingProcess);
+        orderDao.save(order);
     }
 }
 

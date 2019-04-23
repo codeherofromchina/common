@@ -3,6 +3,7 @@ package com.erui.boss.web.order;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.order.OrderConf;
+import com.erui.order.service.OrderV2Service;
 import com.erui.report.model.BpmTaskRuntime;
 import com.erui.report.service.BpmTaskRuntimeService;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +25,8 @@ public class BpmNotifyController {
     private OrderConf orderConf;
     @Autowired
     private BpmTaskRuntimeService bpmTaskRuntimeService;
+    @Autowired
+    private OrderV2Service orderV2Service;
 
     /**
      * 任务完成通知，删除流程进度
@@ -41,9 +44,13 @@ public class BpmNotifyController {
         // 检查参数
         String processInstanceId = params.get("processInstanceId");
         String taskId = params.get("taskId");
+        String taskDefinitionKey = params.get("taskDefinitionKey");
         if (StringUtils.isAnyBlank(processInstanceId, taskId)) {
             result.setStatus(ResultStatusEnum.PARAM_ERROR);
         }
+
+
+        orderV2Service.updateAuditProcessDone(processInstanceId,taskDefinitionKey);
 
         bpmTaskRuntimeService.delBpmTaskRuntime(processInstanceId, taskId);
 
