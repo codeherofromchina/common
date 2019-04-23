@@ -53,8 +53,6 @@ public interface OrderV2Service {
      */
     Integer addOrder(AddOrderV2Vo addOrderVo) throws Exception;
 
-
-
     /**
      * 根据条件分页查询订单列表
      *
