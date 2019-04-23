@@ -2,32 +2,23 @@ package com.erui.order.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.ChineseAndEnglish;
-import com.erui.comm.util.CookiesUtil;
-import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
-import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.OrderConf;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
-import com.erui.order.event.NotifyPointProjectEvent;
 import com.erui.order.event.OrderProgressEvent;
-import com.erui.order.event.TasksAddEvent;
-import com.erui.order.requestVo.*;
+import com.erui.order.requestVo.AddOrderV2Vo;
+import com.erui.order.requestVo.OrderListCondition;
+import com.erui.order.requestVo.PGoods;
 import com.erui.order.service.*;
 import com.erui.order.util.BpmUtils;
 import com.erui.order.util.CrmUtils;
 import com.erui.order.util.SsoUtils;
-import com.erui.order.util.excel.ExcelUploadTypeEnum;
-import com.erui.order.util.excel.ImportDataResponse;
 import com.erui.order.util.exception.MyException;
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -743,4 +734,15 @@ public class OrderV2ServiceImpl implements OrderV2Service {
         }
         return countryArr;
     }
+
+
+    @Override
+    public List<Object> findAllAuditProcess() throws Exception {
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        JSONArray jsonArray = BpmUtils.processDefinitionUsertasks("process_order", eruiToken, "017340");
+
+        return jsonArray;
+    }
 }
+
+

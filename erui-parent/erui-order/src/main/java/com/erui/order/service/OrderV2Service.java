@@ -62,4 +62,11 @@ public interface OrderV2Service {
      * @return
      */
     Page<Order> findByPage(OrderListCondition condition);
+
+    /**
+     * 查询所有订单的审核节点
+     * @return
+     * @throws Exception
+     */
+    List findAllAuditProcess() throws Exception;
 }

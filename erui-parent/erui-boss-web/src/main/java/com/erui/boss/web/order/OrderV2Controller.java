@@ -8,6 +8,7 @@ import com.erui.order.entity.Order;
 import com.erui.order.requestVo.AddOrderV2Vo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderV2Service;
+import com.google.gson.JsonArray;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.math.BigDecimal;
+import java.util.List;
 
 
 /**
@@ -34,6 +36,21 @@ public class OrderV2Controller {
     @Resource(name = "orderV2ServiceImpl")
     private OrderV2Service orderService;
 
+    /**
+     * 订单审核流程中的所有流程节点
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "processSelectList", produces = {"application/json;charset=utf-8"})
+    public Result<Object> processSelectList(HttpServletRequest request) throws Exception {
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+        List allAuditProcess = orderService.findAllAuditProcess();
+        Result result = new Result();
+        result.setData(allAuditProcess);
+        return result;
+    }
 
     /**
      * 获取单列表
@@ -53,8 +70,6 @@ public class OrderV2Controller {
         condition.setLang(lang);
 
         Integer auditingProcess = condition.getAuditingProcess();
-
-
 
 
         Page<Order> orderPage = orderService.findByPage(condition);
