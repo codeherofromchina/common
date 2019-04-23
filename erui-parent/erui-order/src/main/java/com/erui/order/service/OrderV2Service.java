@@ -55,12 +55,11 @@ public interface OrderV2Service {
 
 
 
-
     /**
-     * 审核订单
-     * @param auditOrderRequestVo
-     * @param userId
-     * @param userName
+     * 根据条件分页查询订单列表
+     *
+     * @param condition
+     * @return
      */
-    void audit(AuditOrderRequestVo auditOrderRequestVo, Integer userId, String userName) throws Exception;
+    Page<Order> findByPage(OrderListCondition condition);
 }

@@ -490,26 +490,257 @@ public class OrderV2ServiceImpl implements OrderV2Service {
     }
 
 
-    /**
-     * 审核任务
-     *
-     * @param auditOrderRequestVo
-     * @param userId
-     * @param userName
-     */
+    @Transactional
     @Override
-    public void audit(AuditOrderRequestVo auditOrderRequestVo, Integer userId, String userName) throws Exception {
-        // TODO 这里还有一个问题是变量如何添加
+    public Page<Order> findByPage(OrderListCondition condition) {
+        LOGGER.info("findByPage -> params : {}", condition);
+        PageRequest pageRequest = new PageRequest(condition.getPage() - 1, condition.getRows(), new Sort(Sort.Direction.DESC, "createTime"));
+        // 2019-01-30 增加需求 如果登录用户存在o34角色（国家负责人角色）则用户只能查看他所在国家的订单内容
+        String[] countryArr = getCountryHeaderByRole();
+        LOGGER.info("findByPage -> countryArr : {}", Arrays.toString(countryArr));
+        Page<Order> pageList = orderDao.findAll(new Specification<Order>() {
+            @Override
+            public Predicate toPredicate(Root<Order> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<>(); // 相当于前台查询条件
+                List<Predicate> orList = new ArrayList<>(); // 后台默认增加的条件
+                // 根据销售同号模糊查询
+                if (StringUtil.isNotBlank(condition.getContractNo())) {
+                    list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
+                }
+                //根据项目号
+                if (StringUtil.isNotBlank(condition.getProjectNo())) {
+                    list.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
+                }
+                //根据合同交货日期查询
+                if (StringUtil.isNotBlank(condition.getDeliveryDate())) {
+                    list.add(cb.like(root.get("deliveryDate").as(String.class), "%" + condition.getDeliveryDate() + "%"));
+                }
+                //根据crm客户代码查询
+                if (StringUtil.isNotBlank(condition.getCrmCode())) {
+                    list.add(cb.like(root.get("crmCode").as(String.class), "%" + condition.getCrmCode() + "%"));
+                }
+                // 根据订单审核状态
+                if (condition.getAuditingProcess() != null) {
+                    list.add(cb.equal(root.get("auditingProcess").as(String.class), condition.getAuditingProcess()));
+                }
+                //根据Po号模糊查询
+                if (StringUtil.isNotBlank(condition.getPoNo())) {
+                    list.add(cb.like(root.get("poNo").as(String.class), "%" + condition.getPoNo() + "%"));
+                }
+                //根据询单号查询
+                if (StringUtil.isNotBlank(condition.getInquiryNo())) {
+                    list.add(cb.like(root.get("inquiryNo").as(String.class), "%" + condition.getInquiryNo() + "%"));
+                }
+                //根据订单签订时间段查询 开始
+                if (condition.getStartTime() != null) {
+                    Date startT = DateUtil.getOperationTime(condition.getStartTime(), 0, 0, 0);
+                    Predicate startTime = cb.greaterThanOrEqualTo(root.get("signingDate").as(Date.class), startT);
+                    list.add(startTime);
+                }
+                //根据订单签订时间段查询 结束
+                if (condition.getEndTime() != null) {
+                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
+                    Predicate endTime = cb.lessThanOrEqualTo(root.get("signingDate").as(Date.class), endT);
+                    list.add(endTime);
+                }
+                //根据框架协议号查询
+                if (StringUtil.isNotBlank(condition.getFrameworkNo())) {
+                    list.add(cb.like(root.get("frameworkNo").as(String.class), "%" + condition.getFrameworkNo() + "%"));
+                }
+                //根据订单类型
+                if (condition.getOrderType() != null) {
+                    list.add(cb.equal(root.get("orderType").as(Integer.class), condition.getOrderType()));
+                }
+                //根据汇款状态
+                if (condition.getPayStatus() != null) {
+                    list.add(cb.equal(root.get("payStatus").as(Integer.class), condition.getPayStatus()));
+                }
+                if (condition.getStatus() != null) {
+                    list.add(cb.equal(root.get("status").as(Integer.class), condition.getStatus()));
+                }
+                //根据订单来源查询
+                if (StringUtil.isNotBlank(condition.getOrderSource())) {
+                    list.add(cb.like(root.get("orderSource").as(String.class), "%" + condition.getOrderSource() + "%"));
+                }
+                //根据流程进度
+                if (StringUtil.isNotBlank(condition.getProcessProgress())) {
+                    if (StringUtils.equals("1", condition.getProcessProgress())) {
+                        list.add(cb.equal(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                    } else {
+                        list.add(cb.greaterThanOrEqualTo(root.get("processProgress").as(String.class), condition.getProcessProgress()));
+                    }
+                }
+                //根据是否已生成出口通知单
+                if (condition.getDeliverConsignHas() != null) {
+                    list.add(cb.equal(root.get("deliverConsignHas").as(Integer.class), condition.getDeliverConsignHas()));
+                }
+                //商务技术经办人
+                if (condition.getTechnicalId02() != null) {
+                    list.add(cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId02()));
+                }
+                //事业部
+                if (StringUtils.isNotBlank(condition.getBusinessUnitId02())) {
+                    list.add(cb.equal(root.get("businessUnitId").as(String.class), condition.getBusinessUnitId02()));
+                }
+                //根据区域所在国家查询
+                if (countryArr != null) {
+                    orList.add(root.get("country").in(countryArr));
+                }
+                //根据事业部
+                String[] bid = null;
+                if (StringUtils.isNotBlank(condition.getBusinessUnitId())) {
+                    bid = condition.getBusinessUnitId().split(",");
+                }
+                if (condition.getType() == 1) {
+                    Predicate createUserId = null;
+                    if (condition.getCreateUserId() != null) {
+                        createUserId = cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId());
+                    }
+                    Predicate businessUnitId = null;
+                    if (bid != null) {
+                        businessUnitId = root.get("businessUnitId").in(bid);
+                    }
+                    Predicate technicalId = null;
+                    if (condition.getTechnicalId() != null) {
+                        technicalId = cb.equal(root.get("technicalId").as(Integer.class), condition.getTechnicalId());
+                    }
+                    //根据市场经办人查询
+                    if (condition.getAgentId() != null) {
+                        list.add(cb.equal(root.get("agentId").as(String.class), condition.getAgentId()));
+                    }
+                    Predicate and = cb.and(businessUnitId, technicalId);
+                    if (businessUnitId != null && technicalId != null) {
+                        if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
+                            Predicate auditingUserId = cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId());
+                            Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
+                            Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
+                            if (audiRemark != null) {
+                                orList.add(cb.or(and, createUserId, auditingUserId, perLiableRepayId, audiRemark));
+                            } else {
+                                orList.add(cb.or(and, createUserId, auditingUserId, perLiableRepayId));
+                            }
+                        } else {
+                            orList.add(cb.or(and, createUserId));
+                        }
+                    } else if (businessUnitId != null && technicalId == null) {
+                        if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
+                            Predicate auditingUserId = cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId());
+                            Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
+                            Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
+                            if (audiRemark != null) {
+                                orList.add(cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId, audiRemark));
+                            } else {
+                                orList.add(cb.or(businessUnitId, createUserId, auditingUserId, perLiableRepayId));
+                            }
+                        } else {
+                            orList.add(cb.or(businessUnitId, createUserId));
+                        }
+                    } else if (technicalId != null && businessUnitId == null) {
+                        if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
+                            Predicate auditingUserId = cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId());
+                            Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
+                            Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
+                            if (audiRemark != null) {
+                                orList.add(cb.or(technicalId, createUserId, auditingUserId, perLiableRepayId, audiRemark));
+                            } else {
+                                orList.add(cb.or(technicalId, createUserId, auditingUserId, perLiableRepayId));
+                            }
+                        } else {
+                            orList.add(cb.or(technicalId, createUserId));
+                        }
+                    }
+                } else {
+                    //根据市场经办人查询
+                    if (condition.getAgentId() != null && condition.getCreateUserId() != null) {
+                        if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
+                            Predicate auditingUserId = cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId());
+                            Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
+                            Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
+                            if (audiRemark != null) {
+                                orList.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                                        condition.getCreateUserId()), auditingUserId, perLiableRepayId, audiRemark));
+                            } else {
+                                orList.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                                        condition.getCreateUserId()), auditingUserId, perLiableRepayId));
+                            }
+                        } else {
+                            orList.add(cb.or(cb.equal(root.get("agentId").as(Integer.class), condition.getAgentId()), cb.equal(root.get("createUserId").as(Integer.class),
+                                    condition.getCreateUserId())));
+                        }
+                    } else if (condition.getAgentId() == null && condition.getCreateUserId() != null) {
+                        if (StringUtils.isNotBlank(condition.getAuditingUserId()) && condition.getPerLiableRepayId() != null) {
+                            Predicate auditingUserId = cb.equal(root.get("auditingUserId").as(String.class), condition.getAuditingUserId());
+                            Predicate audiRemark = cb.like(root.get("audiRemark").as(String.class), "%" + condition.getCreateUserId() + "%");
+                            Predicate perLiableRepayId = cb.equal(root.get("perLiableRepayId").as(Integer.class), condition.getPerLiableRepayId());
+                            if (audiRemark != null) {
+                                orList.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), auditingUserId, perLiableRepayId, audiRemark));
+                            } else {
+                                orList.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class), condition.getCreateUserId()), auditingUserId, perLiableRepayId));
+                            }
+                        } else {
+                            if (condition.getCreateUserId() != null) {
+                                orList.add(cb.or(cb.equal(root.get("createUserId").as(Integer.class),
+                                        condition.getCreateUserId())));
+                            }
+                        }
+                    }
+                }
+                list.add(cb.equal(root.get("deleteFlag"), false));
 
-        String token = (String) ThreadLocalUtil.getObject();
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("audit_status", auditOrderRequestVo.isReject() ? "REJECTED" : "APPROVED");
-        if (StringUtils.isNotBlank(auditOrderRequestVo.getRejectNode())) {
-            variables.put("audit_forward_to", auditOrderRequestVo.getRejectNode());
+                if (orList.size() > 0) {
+                    Predicate[] predicatesBacks = new Predicate[orList.size()];
+                    predicatesBacks = orList.toArray(predicatesBacks);
+                    Predicate or = cb.or(predicatesBacks);
+                    list.add(or);
+                }
+
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return cb.and(predicates);
+            }
+        }, pageRequest);
+        if (pageList.hasContent()) {
+            pageList.getContent().forEach(vo -> {
+                if (vo.getDeliverConsignC() && vo.getStatus() != null && vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
+                    boolean flag;
+                    if (vo.getGoodsList() != null || vo.getGoodsList().size() > 0) {
+                        flag = vo.getGoodsList().parallelStream().anyMatch(goods -> goods.getOutstockApplyNum() < goods.getContractGoodsNum());
+                    } else {
+                        flag = false;
+                    }
+                    if (flag) {
+                        vo.setDeliverConsignC(flag);
+                    } else {
+                        vo.setDeliverConsignC(Boolean.FALSE);
+                    }
+                }
+                if (vo.getDeliverConsignC() == false && iogisticsDataService.findStatusAndNumber(vo.getId())) {
+                    vo.setOrderFinish(Boolean.TRUE);
+                }
+            });
         }
-        JSONObject bpmResp = BpmUtils.completeTask(auditOrderRequestVo.getTaskId(), token, userName, variables, auditOrderRequestVo.getReason());
+        return pageList;
+    }
 
-        // TODO 这里判断流程是否审核完成
 
+
+    // 2019-01-30 增加需求，如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
+    private String[] getCountryHeaderByRole() {
+        String[] countryArr = null;
+        // 2019-01-30 增加需求，如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
+        String token = (String) ThreadLocalUtil.getObject();
+        JSONObject userInfo = SsoUtils.ssoUserInfo(orderConf.getSsoUser(), token);
+        JSONArray roloNos = null;
+        if (userInfo != null) {
+            roloNos = userInfo.getJSONArray("role_no");
+        }
+        if (roloNos != null && roloNos.size() > 0) {
+            boolean o34Exist = roloNos.stream().anyMatch(vo -> "O34".equals(vo));
+            if (o34Exist) {
+                JSONArray countryBns = userInfo.getJSONArray("country_bn");
+                countryArr = countryBns.toArray(new String[countryBns.size()]);
+            }
+        }
+        return countryArr;
     }
 }

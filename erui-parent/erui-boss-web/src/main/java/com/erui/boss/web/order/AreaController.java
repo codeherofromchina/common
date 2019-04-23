@@ -4,7 +4,6 @@ import com.erui.boss.web.util.Result;
 import com.erui.order.entity.Area;
 import com.erui.order.service.AreaService;
 import com.erui.order.service.PurchService;
-import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -56,7 +56,7 @@ public class AreaController {
     @RequestMapping(value = "a1")
     @Transactional
     public Result<Object> a1() {
-        Map<String, Object> map1 = new HashedMap();
+        Map<String, Object> map1 = new HashMap();
         map1.put("abc", str);
         map1.put("abc2", "shuaiguo222222222");
         return new Result<>(map1);

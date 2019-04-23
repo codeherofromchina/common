@@ -83,9 +83,26 @@ public class BpmUtils {
         throw new Exception("完成任务失败");
     }
 
+    public static JSONObject processLogs(String processId, String token, String userId) throws Exception {
+        JSONObject params = new JSONObject();
+        params.put("tenantId", tenantId);
+        params.put("callerId", userId);
 
-    public static void main(String[] args) throws Exception {
-        System.setProperty("catalina.home"," /Users/wangxiaodan");
+        Map<String, String> header = new HashMap<>();
+        header.put("Content-Type", "application/json");
+        header.put("Cookie", "eruitoken=" + token);
+
+        String resp = HttpRequest.sendPost(bpmUrl + "/process/instance/" + processId + "/runtime", params.toJSONString(), header);
+        LOGGER.info("完成流程任务返回内容为：{}", resp);
+        JSONObject respJson = JSONObject.parseObject(resp);
+        if (respJson != null && respJson.getInteger("code") == 0) {
+            return respJson;
+        }
+        throw new Exception("完成任务失败");
+    }
+
+
+    public static void main2(String[] args) throws Exception {
         bpmUrl = "http://bpm.eruidev.com";
         Map<String, Object> localVariables = new HashMap<>();
         localVariables.put("audit_status","APPROVED");
@@ -94,5 +111,12 @@ public class BpmUtils {
         System.out.println(resp);
 
 
+    }
+
+
+    public static void main(String[] args) throws Exception {
+        bpmUrl = "http://bpm.eruidev.com";
+        JSONObject resp = processLogs("c1e035e1-56b0-11e9-8b8c-72d8a874a2b8", "", "017340");
+        System.out.println(resp);
     }
 }

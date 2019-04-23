@@ -6,12 +6,12 @@ import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.order.entity.Order;
 import com.erui.order.requestVo.AddOrderV2Vo;
-import com.erui.order.requestVo.AddOrderVo;
-import com.erui.order.requestVo.AuditOrderRequestVo;
+import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderV2Service;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -34,6 +34,41 @@ public class OrderV2Controller {
     @Resource(name = "orderV2ServiceImpl")
     private OrderV2Service orderService;
 
+
+    /**
+     * 获取单列表
+     *
+     * @return
+     */
+    @RequestMapping(value = "orderManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> orderManage(@RequestBody OrderListCondition condition, HttpServletRequest request) {
+        //页数不能小于1
+        if (condition.getPage() < 1) {
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+        // 设置请求语言
+        String lang = CookiesUtil.getLang(request);
+        condition.setLang(lang);
+
+        Integer auditingProcess = condition.getAuditingProcess();
+
+
+
+
+        Page<Order> orderPage = orderService.findByPage(condition);
+        if (orderPage.hasContent()) {
+            orderPage.getContent().forEach(vo -> {
+                vo.setAttachmentSet(null);
+                vo.setOrderPayments(null);
+                vo.setGoodsList(null);
+                vo.setOrderAccountDelivers(null);
+                vo.setOrderAccounts(null);
+            });
+        }
+        return new Result<>(orderPage);
+    }
 
     @RequestMapping(value = "addOrder", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> addOrder(@RequestBody @Valid AddOrderV2Vo addOrderVo, HttpServletRequest request) throws Exception {
@@ -128,42 +163,4 @@ public class OrderV2Controller {
         return result;
     }
 
-
-    /**
-     * 审核项目
-     *
-     * @param auditOrderRequestVo 订单驳回请求对象
-     * @return
-     */
-    @RequestMapping(value = "auditOrder", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> auditOrder(HttpServletRequest request, @RequestBody AuditOrderRequestVo auditOrderRequestVo) throws Exception {
-        String eruiToken = CookiesUtil.getEruiToken(request);
-        ThreadLocalUtil.setObject(eruiToken);
-
-
-        Integer orderId = auditOrderRequestVo.getOrderId(); // 订单ID
-        String reason = auditOrderRequestVo.getReason(); // 驳回原因
-        boolean rejectFlag = auditOrderRequestVo.isReject(); // 驳回or审核
-        // 判断订单是否存在，
-        Order order = orderService.findByIdLang(orderId, CookiesUtil.getLang(request));
-        if (order == null) {
-            return new Result<>(ResultStatusEnum.PROJECT_NOT_EXIST);
-        }
-        // 判断是否是驳回并判断原因参数
-        if (rejectFlag && StringUtils.isBlank(reason)) {
-            return new Result<>(ResultStatusEnum.VALUE_NULL);
-        }
-
-
-        // 获取当前登录用户ID并比较是否是当前用户审核
-        String userId = (String) request.getSession().getAttribute("userid");
-        String userName = (String) request.getSession().getAttribute("realname");
-        Integer userIdInt = null;
-        if (StringUtils.isNumeric(userId)) {
-            userIdInt = Integer.parseInt(userId);
-        }
-        // 判断通过，审核项目并返回是否审核成功
-        orderService.audit(auditOrderRequestVo, userIdInt, userName);
-        return new Result<>();
-    }
 }

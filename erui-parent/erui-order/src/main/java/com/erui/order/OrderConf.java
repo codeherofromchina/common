@@ -37,6 +37,9 @@ public class OrderConf implements InitializingBean {
     @Value("#{orderProp[ACTIVITI_URL]}")
     private String activitiUrl; // 业务流系统地址
 
+    @Value("#{orderProp[BPM_KEY]}")
+    private String bpmKey;
+
     public String getCrmUrl() {
         return crmUrl;
     }
@@ -107,6 +110,14 @@ public class OrderConf implements InitializingBean {
 
     public void setActivitiUrl(String activitiUrl) {
         this.activitiUrl = activitiUrl;
+    }
+
+    public String getBpmKey() {
+        return bpmKey;
+    }
+
+    public void setBpmKey(String bpmKey) {
+        this.bpmKey = bpmKey;
     }
 
     @Override
