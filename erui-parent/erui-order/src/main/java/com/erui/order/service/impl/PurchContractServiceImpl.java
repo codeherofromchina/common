@@ -41,15 +41,11 @@ public class PurchContractServiceImpl implements PurchContractService {
     @Autowired
     private GoodsDao goodsDao;
     @Autowired
-    private ApplicationContext applicationContext;
+    private PurchContractSimpleDao purchContractSimpleDao;
     @Autowired
-    private ProjectDao projectDao;
+    private PurchContractStandardDao purchContractStandardDao;
     @Autowired
-    private OrderDao orderDao;
-    @Autowired
-    private BackLogService backLogService;
-    @Autowired
-    private PurchRequisitionDao purchRequisitionDao;
+    private PurchContractSignatoriesDao purchContractSignatoriesDao;
     @Autowired
     private AttachmentService attachmentService;
     @Autowired
@@ -100,7 +96,6 @@ public class PurchContractServiceImpl implements PurchContractService {
 
     @Transactional(rollbackFor = Exception.class)
     public boolean update(PurchContract purchContract) throws Exception {
-        String eruiToken = (String) ThreadLocalUtil.getObject();
         PurchContract dbPurchContract = findDetailInfo(purchContract.getId());
         // 之前的采购必须不能为空且未提交状态
         if (dbPurchContract == null || dbPurchContract.getStatus() == PurchContract.StatusEnum.DELETE.getCode()) {
@@ -365,6 +360,18 @@ public class PurchContractServiceImpl implements PurchContractService {
         }
         purchContract.setPurchGoodsList(purchGoodsList);
         PurchContract save = purchContractDao.save(purchContract);
+        // 添加简易合同信息
+        if(purchContract.getPurchContractSimple() != null){
+            PurchContractSimple purchContractSimple = purchContract.getPurchContractSimple();
+            purchContractSimple.setPurchContract(save);
+            purchContractSimpleDao.save(purchContractSimple);
+        }
+        // 添加标准合同信息
+        if(purchContract.getPurchContractStandard() != null){
+            PurchContractStandard purchContractStandard = purchContract.getPurchContractStandard();
+            purchContractStandard.setPurchContract(save);
+            purchContractStandardDao.save(purchContractStandard);
+        }
         // 添加附件
         if (purchContract.getAttachments() != null && purchContract.getAttachments().size() > 0) {
             attachmentService.addAttachments(purchContract.getAttachments(), save.getId(), Attachment.AttachmentCategory.PURCHCONTRACT.getCode());
