@@ -850,7 +850,7 @@ public class PurchServiceImpl implements PurchService {
                 throw new Exception(String.format("%s%s%s", "商品不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Goods do not exist"));
             }
             Project project = goods.getProject();
-            // 必须是已创建采购申请单并未完成采购的项目
+            // 必须是已创建采购申请单并未完成采购的项目 修改为 必须是已经创建采购合同并且为完成采购的项目
             if (Project.PurchReqCreateEnum.valueOfCode(project.getPurchReqCreate()) != Project.PurchReqCreateEnum.SUBMITED) {
                 throw new Exception(String.format("%s%s%s", "项目必须提交采购申请", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The project must submit a purchase application"));
 
