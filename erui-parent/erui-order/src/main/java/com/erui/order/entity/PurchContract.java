@@ -2,7 +2,6 @@ package com.erui.order.entity;
 
 import com.erui.comm.NewDateUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -23,6 +22,11 @@ public class PurchContract {
 	 */
 	@Column(name = "purch_contract_no")
 	private String purchContractNo;
+
+    /**
+     * 项目ID
+     */
+    private String projectId;
 
 	/**
 	 * 合同类型 1:简易合同 2:标准合同 3:非标合同
@@ -60,7 +64,7 @@ public class PurchContract {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "purch_contract_id")
     @OrderBy("id asc")
-    private List<PurchGoods> purchGoodsList = new ArrayList<>();
+    private List<PurchContractGoods> purchContractGoodsList = new ArrayList<>();
 
 	/**
 	 * 状态 1:待确认 2:未执行 3:已执行 4:已完成 5:已删除
@@ -279,12 +283,12 @@ public class PurchContract {
         this.attachments = attachments;
     }
 
-    public List<PurchGoods> getPurchGoodsList() {
-        return purchGoodsList;
+    public List<PurchContractGoods> getPurchContractGoodsList() {
+        return purchContractGoodsList;
     }
 
-    public void setPurchGoodsList(List<PurchGoods> purchGoodsList) {
-        this.purchGoodsList = purchGoodsList;
+    public void setPurchContractGoodsList(List<PurchContractGoods> purchContractGoodsList) {
+        this.purchContractGoodsList = purchContractGoodsList;
     }
 
     public Integer getStatus() {
@@ -453,6 +457,14 @@ public class PurchContract {
 
     public void setRows(int rows) {
         this.rows = rows;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 
     public void setBaseInfo(PurchContract purchContract) {
