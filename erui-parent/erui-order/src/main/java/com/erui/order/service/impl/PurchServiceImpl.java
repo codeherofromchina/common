@@ -818,8 +818,8 @@ public class PurchServiceImpl implements PurchService {
         if (count != null && count > 1) {
             throw new Exception(String.format("%s%s%s", "采购合同号重复", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Repeat purchase contract number"));
         }
-        // 设置基础数据 自动生成采购合同号
-        purch.setPurchNo(StringUtil.genPurchNo(lastedByPurchNo));
+        // 设置基础数据 StringUtil.genPurchNo(lastedByPurchNo) 采购合同号修改为由采购合同带出
+        purch.setPurchNo(purch.getPurchNo());
         purch.setSigningDate(NewDateUtil.getDate(purch.getSigningDate()));
         purch.setArrivalDate(NewDateUtil.getDate(purch.getArrivalDate()));
         purch.setCreateTime(now);
@@ -835,7 +835,6 @@ public class PurchServiceImpl implements PurchService {
         // 处理商品信息
         List<PurchGoods> purchGoodsList = new ArrayList<>();
         Set<Project> projectSet = new HashSet<>();
-        //List<Goods> updateGoods = new ArrayList<>();
         for (PurchGoods purchGoods : purch.getPurchGoodsList()) {
             // 检查是否传入采购数量或者替换商品
             Integer purchaseNum = purchGoods.getPurchaseNum(); // 获取采购数量
@@ -1250,8 +1249,6 @@ public class PurchServiceImpl implements PurchService {
             }
 
         }
-
-
         // 检查项目是否已经采购完成
         List<Integer> projectIdList = projectSet.parallelStream().map(Project::getId).collect(Collectors.toList());
         checkProjectPurchDone(projectIdList);
