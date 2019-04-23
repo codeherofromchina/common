@@ -401,6 +401,8 @@ public class OrderV2ServiceImpl implements OrderV2Service {
             // 调用业务流，开启业务审核流程系统 // 非国内订单审批流程
             Map<String,Object> bpmInitVar = new HashMap<>();
             bpmInitVar.put("order_amount", addOrderVo.getTotalPriceUsd().doubleValue());
+            bpmInitVar.put("financing_approval","Y");
+            bpmInitVar.put("logistics_approval","N");
             JSONObject processResp = BpmUtils.startProcessInstanceByKey("process_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
             order1.setProcessId(processResp.getJSONObject("response").getString("instanceId"));
             //添加订单未执行事件，设置订单流程进度信息
