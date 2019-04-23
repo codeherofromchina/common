@@ -18,8 +18,7 @@ import java.util.Map;
  */
 public class BpmUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(BpmUtils.class);
-//    private static String bpmUrl = OrderConf.getInstance().getActivitiUrl();
-private static String bpmUrl = "";
+    private static String bpmUrl = OrderConf.getInstance().getActivitiUrl();
     private static final String tenantId = "erui"; // 租户名称
 
 
