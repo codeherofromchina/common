@@ -26,6 +26,7 @@ public class PurchContract {
     /**
      * 项目ID
      */
+    @Transient
     private String projectId;
 
 	/**
