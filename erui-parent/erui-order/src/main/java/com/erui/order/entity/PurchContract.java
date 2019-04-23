@@ -108,7 +108,7 @@ public class PurchContract {
 	 * 税点%,0到100数字
 	 */
 	@Column(name = "tax_point")
-	private Double taxPoint;
+	private BigDecimal taxPoint;
 
 	/**
 	 * 采购总金额（大写）
@@ -343,11 +343,11 @@ public class PurchContract {
         this.agentName = agentName;
     }
 
-    public Double getTaxPoint() {
+    public BigDecimal getTaxPoint() {
         return taxPoint;
     }
 
-    public void setTaxPoint(Double taxPoint) {
+    public void setTaxPoint(BigDecimal taxPoint) {
         this.taxPoint = taxPoint;
     }
 
