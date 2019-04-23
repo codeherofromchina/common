@@ -316,6 +316,18 @@ public class PurchContractServiceImpl implements PurchContractService {
         }
 
         PurchContract save = purchContractDao.save(dbPurchContract);
+        // 添加简易合同信息
+        if(purchContract.getPurchContractSimple() != null){
+            PurchContractSimple purchContractSimple = purchContract.getPurchContractSimple();
+            purchContractSimple.setPurchContract(save);
+            purchContractSimpleDao.save(purchContractSimple);
+        }
+        // 添加标准合同信息
+        if(purchContract.getPurchContractStandard() != null){
+            PurchContractStandard purchContractStandard = purchContract.getPurchContractStandard();
+            purchContractStandard.setPurchContract(save);
+            purchContractStandardDao.save(purchContractStandard);
+        }
         // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
         List<Attachment> attachmentList = new ArrayList<>();
         if (purchContract.getAttachments() != null) {
