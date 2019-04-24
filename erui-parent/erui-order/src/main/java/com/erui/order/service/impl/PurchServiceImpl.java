@@ -821,19 +821,14 @@ public class PurchServiceImpl implements PurchService {
             throw new Exception(String.format("%s%s%s", "采购合同号重复", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Repeat purchase contract number"));
         }
         // 设置基础数据 StringUtil.genPurchNo(lastedByPurchNo) 采购合同号修改为由采购合同带出
-        purch.setPurchNo(purch.getPurchNo());
         purch.setSigningDate(NewDateUtil.getDate(purch.getSigningDate()));
         purch.setArrivalDate(NewDateUtil.getDate(purch.getArrivalDate()));
         purch.setCreateTime(now);
-
         // 处理结算方式,新增，所以讲所有id设置为null，并添加新增时间
         purch.getPurchPaymentList().parallelStream().forEach(vo -> {
             vo.setId(null);
             vo.setCreateTime(now);
         });
-        // 处理附件信息
-        //List<Attachment> attachments = attachmentService.handleParamAttachment(null, purch.getAttachments(), purch.getCreateUserId(), purch.getCreateUserName());
-        //purch.setAttachments(attachments);
         // 处理商品信息
         List<PurchGoods> purchGoodsList = new ArrayList<>();
         Set<Project> projectSet = new HashSet<>();
