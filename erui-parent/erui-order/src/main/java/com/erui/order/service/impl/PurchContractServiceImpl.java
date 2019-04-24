@@ -101,10 +101,12 @@ public class PurchContractServiceImpl implements PurchContractService {
 
         if(dbPurchContract.getPurchContractSimple() != null){//简易合同
             purchContract.getPurchContractSimple().setId(dbPurchContract.getPurchContractSimple().getId());
+            purchContract.getPurchContractSimple().setUpdateTime(now);
             dbPurchContract.setPurchContractSimple(purchContract.getPurchContractSimple());
         }
         if(dbPurchContract.getPurchContractStandard() != null){//标准合同
             purchContract.getPurchContractStandard().setId(dbPurchContract.getPurchContractStandard().getId());
+            purchContract.getPurchContractStandard().setUpdateTime(now);
             dbPurchContract.setPurchContractStandard(purchContract.getPurchContractStandard());
         }
         if(dbPurchContract.getPurchContractSignatoriesList() != null && purchContract.getPurchContractSignatoriesList() != null){//合同双方信息
@@ -112,6 +114,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                 for(PurchContractSignatories pcs : purchContract.getPurchContractSignatoriesList()){
                     if(dbpcs.getType() == pcs.getType()){
                         pcs.setId(dbpcs.getId());
+                        pcs.setUpdateTime(now);
                     }
                 }
             }
@@ -122,8 +125,14 @@ public class PurchContractServiceImpl implements PurchContractService {
                 for(PurchContractGoods pgs : purchContract.getPurchContractGoodsList()){
                     if(dbpgs.getGoods().getId() == pgs.getgId()){
                         pgs.setId(dbpgs.getId());
+                        pgs.setUpdateTime(now);
+                    }else{
+                        if(pgs.getCreateTime() == null){
+                            pgs.setCreateTime(now);
+                        }
                     }
                 }
+                dbpgs.setUpdateTime(now);
             }
         }
 
@@ -352,6 +361,10 @@ public class PurchContractServiceImpl implements PurchContractService {
         purchContract.setPurchContractNo(StringUtil.genPurchNo(lastedByPurchNo));
         purchContract.setSigningDate(NewDateUtil.getDate(purchContract.getSigningDate()));
         purchContract.setCreateTime(now);
+        // 处理采购合同双方信息
+        for (PurchContractSignatories purchContractSignatories : purchContract.getPurchContractSignatoriesList()) {
+            purchContractSignatories.setCreateTime(now);
+        }
         // 处理商品信息
         List<PurchContractGoods> purchContractGoodsList = new ArrayList<>();
         Set<Project> projectSet = new HashSet<>();
@@ -396,12 +409,14 @@ public class PurchContractServiceImpl implements PurchContractService {
         if(purchContract.getPurchContractSimple() != null){
             PurchContractSimple purchContractSimple = purchContract.getPurchContractSimple();
             purchContractSimple.setPurchContract(save);
+            purchContractSimple.setCreateTime(now);
             purchContractSimpleDao.save(purchContractSimple);
         }
         // 添加标准合同信息
         if(purchContract.getPurchContractStandard() != null){
             PurchContractStandard purchContractStandard = purchContract.getPurchContractStandard();
             purchContractStandard.setPurchContract(save);
+            purchContractStandard.setCreateTime(now);
             purchContractStandardDao.save(purchContractStandard);
         }
         // 添加附件
@@ -428,7 +443,10 @@ public class PurchContractServiceImpl implements PurchContractService {
                 if (purchContractGoodsList.size() > 0) {
                     for (PurchContractGoods purchContractGoods : purchContractGoodsList) {
                         purchContract.setProjectId(purchContractGoods.getProject().getId().toString());
-                        break;
+                        purchContractGoods.setgId(purchContractGoods.getGoods().getId());
+                        purchContractGoods.setPcId(purchContract.getId());
+                        purchContractGoods.setPcgId(purchContractGoods.getId());
+
                     }
                 }
                 return  purchContract;
@@ -444,51 +462,51 @@ public class PurchContractServiceImpl implements PurchContractService {
         PageRequest pageRequest = new PageRequest(pageNum - 1, pageSizeString, new Sort(Sort.Direction.DESC, "id"));
         Page<Map<String, Object>> result = null;
         Page<PurchContract> pageList = purchContractDao.findAll(new Specification<PurchContract>() {
-                @Override
-                public Predicate toPredicate(Root<PurchContract> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                    List<Predicate> list = new ArrayList<>();
-                    // 根据合同号过滤
-                    if(purchContractNo != null){
-                        list.add(cb.like(root.get("purchContractNo").as(String.class), "%" + purchContractNo + "%"));
-                    }
-                    // 根据供应商过滤条件
-                    if(supplierId != null){
-                        list.add(cb.equal(root.get("supplierId").as(Integer.class), supplierId));
-                    }
-                    // 根据合同类型查询
-                    if(type != null){
-                        list.add(cb.equal(root.get("type").as(Integer.class), type));
-                    }
-                    // 根据采购经办人查询
-                    if(agentId != null){
-                        list.add(cb.equal(root.get("agentId").as(Integer.class), agentId));
-                    }
-
-                    // 根据采购状态过滤条件
-                    Predicate status01 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.BEING.getCode());
-                    Predicate status02 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.EXECUTED.getCode());
-                    list.add(cb.or(status01, status02));
-
-                    // 根据商品未采购完成的
-                    Join<PurchContract, PurchContractGoods> goodsJoin = root.join("purchContractGoodsList");
-                    list.add(cb.lt(goodsJoin.get("prePurchContractNum").as(Integer.class), goodsJoin.get("purchaseNum").as(Integer.class)));
-
-                    Predicate[] predicates = new Predicate[list.size()];
-                    predicates = list.toArray(predicates);
-                    return cb.and(predicates);
+            @Override
+            public Predicate toPredicate(Root<PurchContract> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                List<Predicate> list = new ArrayList<>();
+                // 根据合同号过滤
+                if(purchContractNo != null){
+                    list.add(cb.like(root.get("purchContractNo").as(String.class), "%" + purchContractNo + "%"));
                 }
-            }, pageRequest);
+                // 根据供应商过滤条件
+                if(supplierId != null){
+                    list.add(cb.equal(root.get("supplierId").as(Integer.class), supplierId));
+                }
+                // 根据合同类型查询
+                if(type != null){
+                    list.add(cb.equal(root.get("type").as(Integer.class), type));
+                }
+                // 根据采购经办人查询
+                if(agentId != null){
+                    list.add(cb.equal(root.get("agentId").as(Integer.class), agentId));
+                }
 
-            List<Map<String, Object>> list = new ArrayList<>();
-            for (PurchContract purchContract : pageList) {
-                Map<String, Object> map = new HashMap<>();
-                map.put("id", purchContract.getId());
-                map.put("purchContractNo", purchContract.getPurchContractNo());
-                map.put("supplierName", purchContract.getSupplierName());
-                map.put("type", purchContract.getType());
-                list.add(map);
+                // 根据采购状态过滤条件
+                Predicate status01 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.BEING.getCode());
+                Predicate status02 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.EXECUTED.getCode());
+                list.add(cb.or(status01, status02));
+
+                // 根据商品未采购完成的
+                Join<PurchContract, PurchContractGoods> goodsJoin = root.join("purchContractGoodsList");
+                list.add(cb.lt(goodsJoin.get("prePurchContractNum").as(Integer.class), goodsJoin.get("purchaseNum").as(Integer.class)));
+
+                Predicate[] predicates = new Predicate[list.size()];
+                predicates = list.toArray(predicates);
+                return cb.and(predicates);
             }
-            result = new PageImpl<Map<String, Object>>(list, pageRequest, pageList.getTotalElements());
+        }, pageRequest);
+
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (PurchContract purchContract : pageList) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", purchContract.getId());
+            map.put("purchContractNo", purchContract.getPurchContractNo());
+            map.put("supplierName", purchContract.getSupplierName());
+            map.put("type", purchContract.getType());
+            list.add(map);
+        }
+        result = new PageImpl<Map<String, Object>>(list, pageRequest, pageList.getTotalElements());
 
         return result;
     }
