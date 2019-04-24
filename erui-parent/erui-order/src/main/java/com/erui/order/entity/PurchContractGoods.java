@@ -86,7 +86,7 @@ public class PurchContractGoods {
     /**
      * 预采购数量
      */
-    @Column(name = "pre_purch_contractNum")
+    @Column(name = "pre_purch_contract_num")
     private Integer PrePurchContractNum;
 
     /**
