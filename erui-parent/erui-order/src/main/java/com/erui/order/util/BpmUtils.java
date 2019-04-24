@@ -109,6 +109,7 @@ public class BpmUtils {
                 var.put("scope", "LOCAL");
                 var.put("name", entry.getKey());
                 var.put("value", entry.getValue());
+                variables.add(var);
             }
         }
         JSONObject params = new JSONObject();
@@ -159,7 +160,6 @@ public class BpmUtils {
         bpmUrl = "http://bpm.eruidev.com";
         Map<String, Object> localVariables = new HashMap<>();
         localVariables.put("audit_status", "APPROVED");
-        localVariables.put("order_amount", 1000000);
         JSONObject resp = completeTask("5a0b5c50-6417-11e9-b7ac-0242c0a80102", "", "017340", localVariables, "同意");
         System.out.println(resp);
 
