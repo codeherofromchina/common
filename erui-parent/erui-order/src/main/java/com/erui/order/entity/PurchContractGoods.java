@@ -100,13 +100,13 @@ public class PurchContractGoods {
      * 预采购数量
      */
     @Column(name = "pre_purch_contract_num")
-    private Integer prePurchContractNum;
+    private Integer prePurchContractNum = 0;
 
     /**
-     * 预采购数量
+     * 已采购数量
      */
     @Column(name = "purchased_num")
-    private Integer PurchasedNum;
+    private Integer PurchasedNum = 0;
 
     /**
      * 不含税单价
