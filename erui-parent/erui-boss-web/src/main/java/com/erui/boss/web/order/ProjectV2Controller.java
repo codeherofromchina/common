@@ -82,7 +82,7 @@ public class ProjectV2Controller {
             Order order = proStatus.getOrder();
             if (!"task_pm".equals(order.getAuditingProcess())) {
                 // 订单未在项目负责人审批，则项目办理失败
-                return new Result<>(ResultStatusEnum.ORDER_AUDIT_NOT_DONE_ERROR);
+                return new Result<>(ResultStatusEnum.PROJECT_NOT_EXIST);
             }
 
             if (projectV2Service.updateProject(project)) {
