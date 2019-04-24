@@ -133,8 +133,9 @@ public class PurchContractController {
      * @return
      */
     @RequestMapping(value = "purchAbleList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> purchAbleList(@RequestBody Map<String, String> params) {
-        String purchaseUid = StringUtils.isNumeric(params.get("purchaseUid"))?params.get("purchaseUid"):null;
+    public Result<Object> purchAbleList(HttpServletRequest request, @RequestBody Map<String, String> params) {
+        // 获取当前用户ID
+        Object userid = request.getSession().getAttribute("userid");
         String purchContractNo = StringUtils.isNumeric(params.get("purchContractNo"))? params.get("purchContractNo"):null;
         Integer supplierId = StringUtils.isNumeric(params.get("supplierId"))? Integer.parseInt(params.get("supplierId")):null;
         Integer type = StringUtils.isNumeric(params.get("type"))? Integer.parseInt(params.get("type")):null;
@@ -155,7 +156,7 @@ public class PurchContractController {
         String errMsg = null;
         try {
             // 分页查询可采购合同
-            Page<Map<String, Object>> purchContractPage = purchContractService.purchAbleByPage(purchaseUid, pageNum, pageSize, purchContractNo, supplierId, type);
+            Page<Map<String, Object>> purchContractPage = purchContractService.purchAbleByPage(userid.toString(), pageNum, pageSize, purchContractNo, supplierId, type);
 
             return new Result<>(purchContractPage);
         } catch (Exception e) {
