@@ -843,7 +843,7 @@ public class PurchServiceImpl implements PurchService {
             // 获取要采购的商品
             Goods goods = goodsDao.findOne(purchGoods.getgId());
             //获取采购合同商品
-            PurchContractGoods purchContractGoods = purchContractGoodsDao.findOne(purchGoods.getcId());
+            PurchContractGoods purchContractGoods = purchContractGoodsDao.findOne(purchGoods.getPcgId());
             if (goods == null || goods.getExchanged()) {
                 // 给定的商品不存在或者是被替换的商品，则错误
                 throw new Exception(String.format("%s%s%s", "商品不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Goods do not exist"));
@@ -857,7 +857,7 @@ public class PurchServiceImpl implements PurchService {
                 throw new Exception(String.format("%s%s%s", "项目必须提交采购申请", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The project must submit a purchase application"));
 
             }
-            if (purchContract.getStatus() == 2) {
+            if (purchContract.getStatus() != 2) {
                 throw new Exception(String.format("%s%s%s", "采购合同必须为执行中状态", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The purchContract must submit"));
             }
             if (project.getPurchDone()) {
@@ -1012,7 +1012,7 @@ public class PurchServiceImpl implements PurchService {
         // 处理参数中的采购商品信息
         for (PurchGoods pg : purch.getPurchGoodsList()) {
             Integer pgId = pg.getId();
-            Integer cId = pg.getcId();
+            Integer cId = pg.getPcgId();
             if (pgId == null && cId == null) { // 新增加的采购商品信息
                 // 检查是否传入采购数量或者替换商品
                 Integer purchaseNum = pg.getPurchaseNum(); // 获取采购数量
@@ -1024,7 +1024,7 @@ public class PurchServiceImpl implements PurchService {
                 // 获取要采购的商品
                 Goods goods = goodsDao.findOne(pg.getgId());
                 // 获取要采购合同的商品
-                PurchContractGoods purchContractGoods = purchContractGoodsDao.findOne(pg.getcId());
+                PurchContractGoods purchContractGoods = purchContractGoodsDao.findOne(pg.getPcgId());
                 if (goods == null || goods.getExchanged()) {
                     throw new Exception(String.format("%s%s%s", "商品不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Goods do not exist"));
                 }
@@ -1054,6 +1054,8 @@ public class PurchServiceImpl implements PurchService {
                 if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                     // 更新已采购数量
                     goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
+                    // 更新采购合同已预采购数量
+                    purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + intPurchaseNum);
                     // 设置商品的项目跟踪信息
                     setGoodsTraceData(goods, purch);
                     if (!goods.getOrder().getOrderCategory().equals(6)) {
@@ -1153,7 +1155,7 @@ public class PurchServiceImpl implements PurchService {
                 // 从数据库查询一次商品做修改
                 Goods goods = goodsDao.findOne(purchGoods.getGoods().getId());
                 // 从数据库查询一次商品做修改
-                PurchContractGoods purchContractGoods = purchContractGoodsDao.findOne(purchGoods.getcId());
+                PurchContractGoods purchContractGoods = purchContractGoodsDao.findOne(purchGoods.getPcgId());
                 if (hasSon) {
                     // 处理替换商品
                     PurchGoods son = pg.getSon();
@@ -1163,7 +1165,10 @@ public class PurchServiceImpl implements PurchService {
                 // 提交则修改商品的已采购数量
                 if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                     goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
+                    //设置采购已采购商品数量
                     purchContractGoods.setPurchasedNum(purchContractGoods.getPurchasedNum() + purchaseNum);
+                    //设置采购合同预采购商品数量
+                    purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
                     // 设置商品的项目跟踪信息
                     setGoodsTraceData(goods, purch);
                     if (!goods.getOrder().getOrderCategory().equals(6)) {
