@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import javax.persistence.*;
 
@@ -67,8 +68,13 @@ public class PurchContractGoods {
     @JsonIgnore
     private PurchContractGoods parent;
 
+    // 务必没有修改PurchGoods权限的能力
+    @OneToMany(mappedBy = "purchContractGoods", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<PurchGoods> purchGoods;
+
     /**
-     * 项目号
+     * 项目号 8534444
      */
     @Column(name = "project_no")
     private String projectNo;
@@ -151,6 +157,14 @@ public class PurchContractGoods {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "create_time")
     private Date createTime;
+
+    public List<PurchGoods> getPurchGoods() {
+        return purchGoods;
+    }
+
+    public void setPurchGoods(List<PurchGoods> purchGoods) {
+        this.purchGoods = purchGoods;
+    }
 
     public Integer getId() {
         return id;

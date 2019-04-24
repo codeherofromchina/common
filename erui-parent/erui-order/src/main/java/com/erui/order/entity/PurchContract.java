@@ -2,6 +2,7 @@ package com.erui.order.entity;
 
 import com.erui.comm.NewDateUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -13,15 +14,15 @@ import java.util.List;
 @Table(name = "purch_contract")
 public class PurchContract {
 
-	@Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+    private Integer id;
 
-	/**
-	 * 采购合同号
-	 */
-	@Column(name = "purch_contract_no")
-	private String purchContractNo;
+    /**
+     * 采购合同号
+     */
+    @Column(name = "purch_contract_no")
+    private String purchContractNo;
 
     /**
      * 项目ID
@@ -29,10 +30,10 @@ public class PurchContract {
     @Transient
     private String projectId;
 
-	/**
-	 * 合同类型 1:简易合同 2:标准合同 3:非标合同
-	 */
-	private Integer type;
+    /**
+     * 合同类型 1:简易合同 2:标准合同 3:非标合同
+     */
+    private Integer type;
     /**
      * 简易合同
      */
@@ -67,118 +68,118 @@ public class PurchContract {
     @OrderBy("id asc")
     private List<PurchContractGoods> purchContractGoodsList = new ArrayList<>();
 
-	/**
-	 * 状态 1:待确认 2:未执行 3:已执行 4:已完成 5:已删除
-	 */
-	private Integer status;
+    /**
+     * 状态 1:待确认 2:未执行 3:已执行 4:已完成 5:已删除
+     */
+    private Integer status;
 
-	/**
-	 * 合同签订日期
-	 */
-	@JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
-	@Column(name = "signing_date")
-	private Date signingDate;
+    /**
+     * 合同签订日期
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @Column(name = "signing_date")
+    private Date signingDate;
 
-	/**
-	 * 供货商ID
-	 */
-	@Column(name = "supplier_id")
-	private Integer supplierId;
+    /**
+     * 供货商ID
+     */
+    @Column(name = "supplier_id")
+    private Integer supplierId;
 
-	/**
-	 * 供货商名称
-	 */
-	@Column(name = "supplier_name")
-	private String supplierName;
+    /**
+     * 供货商名称
+     */
+    @Column(name = "supplier_name")
+    private String supplierName;
 
-	/**
-	 * 合同签订地点
-	 */
-	@Column(name = "signing_place")
-	private String signingPlace;
+    /**
+     * 合同签订地点
+     */
+    @Column(name = "signing_place")
+    private String signingPlace;
 
-	/**
-	 * 采购经办人
-	 */
-	@Column(name = "agent_id")
-	private Integer agentId;
+    /**
+     * 采购经办人
+     */
+    @Column(name = "agent_id")
+    private Integer agentId;
 
-	/**
-	 * 采购经办人名称
-	 */
-	@Column(name = "agent_name")
-	private String agentName;
+    /**
+     * 采购经办人名称
+     */
+    @Column(name = "agent_name")
+    private String agentName;
 
-	/**
-	 * 税点%,0到100数字
-	 */
-	@Column(name = "tax_point")
-	private BigDecimal taxPoint;
+    /**
+     * 税点%,0到100数字
+     */
+    @Column(name = "tax_point")
+    private BigDecimal taxPoint;
 
-	/**
-	 * 采购总金额（大写）
-	 */
-	@Column(name = "capitalized_price")
-	private String capitalizedPrice;
+    /**
+     * 采购总金额（大写）
+     */
+    @Column(name = "capitalized_price")
+    private String capitalizedPrice;
 
-	/**
-	 * 采购总金额（小写）
-	 */
-	@Column(name = "lowercase_price")
-	private BigDecimal lowercasePrice;
+    /**
+     * 采购总金额（小写）
+     */
+    @Column(name = "lowercase_price")
+    private BigDecimal lowercasePrice;
 
-	/**
-	 * 商品备注
-	 */
-	@Column(name = "goods_remarks")
-	private String goodsRemarks;
+    /**
+     * 商品备注
+     */
+    @Column(name = "goods_remarks")
+    private String goodsRemarks;
 
-	/**
-	 * 货币类型（币种）
-	 */
-	@Column(name = "currency_bn")
-	private String currencyBn;
+    /**
+     * 货币类型（币种）
+     */
+    @Column(name = "currency_bn")
+    private String currencyBn;
 
-	/**
-	 * 国家
-	 */
-	private String country;
+    /**
+     * 国家
+     */
+    private String country;
 
-	/**
-	 * 所属地区
-	 */
-	private String region;
+    /**
+     * 所属地区
+     */
+    private String region;
 
-	/**
-	 * 合同版本,如201904
-	 */
-	private Integer version;
+    /**
+     * 合同版本,如201904
+     */
+    private Integer version;
 
-	/**
-	 * 创建人id
-	 */
-	@Column(name = "create_user_id")
-	private Integer createUserId;
+    /**
+     * 创建人id
+     */
+    @Column(name = "create_user_id")
+    private Integer createUserId;
 
-	/**
-	 * 创建人
-	 */
-	@Column(name = "create_user_name")
-	private String createUserName;
+    /**
+     * 创建人
+     */
+    @Column(name = "create_user_name")
+    private String createUserName;
 
-	/**
-	 * 修改时间
-	 */
-	@JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
-	@Column(name = "update_time")
-	private Date updateTime;
+    /**
+     * 修改时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @Column(name = "update_time")
+    private Date updateTime;
 
-	/**
-	 * 创建时间
-	 */
-	@JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
-	@Column(name = "create_time")
-	private Date createTime;
+    /**
+     * 创建时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @Column(name = "create_time")
+    private Date createTime;
 
     // 分页信息参数
     @Transient

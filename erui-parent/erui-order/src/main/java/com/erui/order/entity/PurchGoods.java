@@ -60,6 +60,11 @@ public class PurchGoods {
     @Transient
     private Integer pcgId;
 
+    // 务必没有修改goods权限的能力
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "purch_contract_goods_id")
+    private PurchContractGoods purchContractGoods;
+
     private Boolean exchanged;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -106,6 +111,14 @@ public class PurchGoods {
 
     @Column(name = "create_time")
     private Date createTime;
+
+    public PurchContractGoods getPurchContractGoods() {
+        return purchContractGoods;
+    }
+
+    public void setPurchContractGoods(PurchContractGoods purchContractGoods) {
+        this.purchContractGoods = purchContractGoods;
+    }
 
     public Integer getId() {
         return id;

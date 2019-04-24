@@ -107,6 +107,8 @@ public class PurchServiceImpl implements PurchService {
             if (purchGoodsList.size() > 0) {
                 for (PurchGoods purchGoods : purchGoodsList) {
                     purchGoods.getGoods().setPurchGoods(null);
+                    purchGoods.getPurchContractGoods().setPurchGoods(null);
+                    purchGoods.getPurchContractGoods().setGoods(null);
                 }
             }
             List<String> projectNoList = new ArrayList<>();
