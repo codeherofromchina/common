@@ -133,10 +133,13 @@ public class BpmUtils {
         throw new Exception("完成任务失败");
     }
 
-    public static JSONObject processLogs(String processId, String token, String userId) throws Exception {
+    public static JSONObject processLogs(String processId, String token, String callerId) throws Exception {
         JSONObject params = new JSONObject();
         params.put("tenantId", tenantId);
-        params.put("callerId", userId);
+        if (StringUtils.isBlank(callerId) && StringUtils.isNotBlank(token) && token.length() >= 6) {
+            callerId = token.substring(token.length() - 6);
+        }
+        params.put("callerId", callerId);
 
         Map<String, String> header = new HashMap<>();
         header.put("Content-Type", "application/json");
@@ -146,7 +149,7 @@ public class BpmUtils {
         LOGGER.info("完成流程任务返回内容为：{}", resp);
         JSONObject respJson = JSONObject.parseObject(resp);
         if (respJson != null && respJson.getInteger("code") == 0) {
-            return respJson;
+            return respJson.getJSONObject("response");
         }
         throw new Exception("流程日志获取失败");
     }
