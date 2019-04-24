@@ -170,6 +170,8 @@ public class PurchContractServiceImpl implements PurchContractService {
                 projectSet.add(project);
                 // 查看是否存在替换商品
                 PurchContractGoods son = handleAddNewPurchContractGoods(project, dbPurchContract, goods, pg);
+                pg.setCreateTime(now);
+                pg.setUpdateTime(now);
                 purchContractGoodsList.add(pg);
                 if (son != null) {
                     purchContractGoodsList.add(son);
@@ -241,6 +243,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                 purchContractGoods.setPurchasePrice(pg.getPurchasePrice()); // 采购单价
                 purchContractGoods.setPurchaseTotalPrice(pg.getPurchaseTotalPrice()); //  采购总金额
                 purchContractGoods.setPurchaseRemark(pg.getPurchaseRemark()); // 采购说明
+                purchContractGoods.setUpdateTime(now);
                 // 计算含税价格和不含税单价以及总价款
                 String currencyBn = purchContract.getCurrencyBn();
                 if (purchContractGoods.getPurchaseNum() > 0) {
