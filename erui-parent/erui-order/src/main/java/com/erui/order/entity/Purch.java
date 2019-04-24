@@ -917,14 +917,14 @@ public class Purch {
         this.setSupplierName(purch.getSupplierName());
         this.setTotalPrice(purch.getTotalPrice());
         this.setCurrencyBn(purch.getCurrencyBn());
-        this.setPayType(purch.getPayType());
-        this.setOtherPayTypeMsg(purch.getOtherPayTypeMsg());
-        this.setProductedDate(purch.getProductedDate()); // 工厂生产完成时间
-        this.setPayFactoryDate(purch.getPayFactoryDate()); // 给工厂付款时间
-        this.setPayDepositDate(purch.getPayDepositDate()); //质保金支付时间
-        this.setPayDepositExpired(purch.getPayDepositExpired()); // 质保金到期时间
-        this.setInvoiceNo(purch.getInvoiceNo()); // 发票号
-        this.setAccountDate(purch.getAccountDate()); // 挂账时间
+        //this.setPayType(purch.getPayType());
+        //this.setOtherPayTypeMsg(purch.getOtherPayTypeMsg());
+        //this.setProductedDate(purch.getProductedDate()); // 工厂生产完成时间
+        //this.setPayFactoryDate(purch.getPayFactoryDate()); // 给工厂付款时间
+        //this.setPayDepositDate(purch.getPayDepositDate()); //质保金支付时间
+        //this.setPayDepositExpired(purch.getPayDepositExpired()); // 质保金到期时间
+        //this.setInvoiceNo(purch.getInvoiceNo()); // 发票号
+        //this.setAccountDate(purch.getAccountDate()); // 挂账时间
         this.setRemarks(purch.getRemarks()); // 备注
 
         this.setPurchAuditerId(purch.getPurchAuditerId());
