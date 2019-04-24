@@ -129,7 +129,7 @@ public class PurchContractController {
     /**
      * 可以采购的项目列表
      *
-     * @param params {purchaseUid:"采购经办人", purchContractNo:"采购合同号", supplierId:"供货商ID", type:"合同类型"}
+     * @param params {purchContractNo:"采购合同号", supplierId:"供货商ID", type:"合同类型"}
      * @return
      */
     @RequestMapping(value = "purchAbleList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})

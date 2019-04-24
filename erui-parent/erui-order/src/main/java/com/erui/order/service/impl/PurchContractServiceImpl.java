@@ -439,7 +439,7 @@ public class PurchContractServiceImpl implements PurchContractService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Map<String, Object>> purchAbleByPage(String purchaseUid, int pageNum, int pageSizeString, String purchContractNo, Integer supplierId, Integer type) throws Exception {
+    public Page<Map<String, Object>> purchAbleByPage(String agentId, int pageNum, int pageSizeString, String purchContractNo, Integer supplierId, Integer type) throws Exception {
 
         PageRequest pageRequest = new PageRequest(pageNum - 1, pageSizeString, new Sort(Sort.Direction.DESC, "id"));
         Page<Map<String, Object>> result = null;
@@ -460,8 +460,8 @@ public class PurchContractServiceImpl implements PurchContractService {
                         list.add(cb.equal(root.get("type").as(Integer.class), type));
                     }
                     // 根据采购经办人查询
-                    if(purchaseUid != null){
-                        list.add(cb.equal(root.get("agentId").as(Integer.class), purchaseUid));
+                    if(agentId != null){
+                        list.add(cb.equal(root.get("agentId").as(Integer.class), agentId));
                     }
 
                     // 根据采购状态过滤条件

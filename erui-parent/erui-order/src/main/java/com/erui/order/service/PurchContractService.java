@@ -41,7 +41,7 @@ public interface PurchContractService {
     /**
      * 获取可采购的合同列表
      *
-     * @param purchaseUid 采购经办人
+     * @param agentId 采购经办人
      * @param pageNum
      * @param pageSizeString
      * @param purchContractNo 采购合同号
@@ -51,6 +51,6 @@ public interface PurchContractService {
      * @return
      * @throws Exception
      */
-    Page<Map<String, Object>> purchAbleByPage(String purchaseUid, int pageNum, int pageSizeString, String purchContractNo, Integer supplierId, Integer type) throws Exception;
+    Page<Map<String, Object>> purchAbleByPage(String agentId, int pageNum, int pageSizeString, String purchContractNo, Integer supplierId, Integer type) throws Exception;
 
 }
