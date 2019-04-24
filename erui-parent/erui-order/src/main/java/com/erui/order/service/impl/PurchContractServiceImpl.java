@@ -7,6 +7,7 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.PurchContractService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -442,14 +443,17 @@ public class PurchContractServiceImpl implements PurchContractService {
                     }
                 }
                 List<PurchContractGoods> purchContractGoodsList = purchContract.getPurchContractGoodsList();
+                Set<String> projectIdSet = new HashSet<>();
                 if (purchContractGoodsList.size() > 0) {
                     for (PurchContractGoods purchContractGoods : purchContractGoodsList) {
-                        purchContract.setProjectId(purchContractGoods.getProject().getId().toString());
+                        projectIdSet.add(purchContractGoods.getProject().getId().toString());
                         purchContractGoods.setgId(purchContractGoods.getGoods().getId());
                         purchContractGoods.setPcId(purchContract.getId());
                         purchContractGoods.setPcgId(purchContractGoods.getId());
 
                     }
+                    List<String> projectIdList = new ArrayList<>(projectIdSet);
+                    purchContract.setProjectId(StringUtils.join(projectIdList, ","));
                 }
                 return  purchContract;
             }
