@@ -132,6 +132,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                         }
                     }
                 }
+                dbpgs.setUpdateTime(now);
             }
         }
 
