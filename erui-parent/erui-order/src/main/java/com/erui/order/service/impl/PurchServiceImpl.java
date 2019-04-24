@@ -815,11 +815,11 @@ public class PurchServiceImpl implements PurchService {
     public boolean insert(Purch purch) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
         Date now = new Date();
-        String lastedByPurchNo = purchDao.findLastedByPurchNo();
+        /*String lastedByPurchNo = purchDao.findLastedByPurchNo();
         Long count = purchDao.findCountByPurchNo(lastedByPurchNo);
         if (count != null && count > 1) {
             throw new Exception(String.format("%s%s%s", "采购合同号重复", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Repeat purchase contract number"));
-        }
+        }*/
         // 设置基础数据 StringUtil.genPurchNo(lastedByPurchNo) 采购合同号修改为由采购合同带出
         purch.setSigningDate(NewDateUtil.getDate(purch.getSigningDate()));
         purch.setArrivalDate(NewDateUtil.getDate(purch.getArrivalDate()));
