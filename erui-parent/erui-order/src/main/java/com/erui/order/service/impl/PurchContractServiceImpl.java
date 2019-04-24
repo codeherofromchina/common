@@ -7,8 +7,6 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.PurchContractService;
-import com.erui.order.util.exception.MyException;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -467,7 +465,9 @@ public class PurchContractServiceImpl implements PurchContractService {
                     }
 
                     // 根据采购状态过滤条件
-                    list.add(cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.BEING.getCode()));
+                    Predicate status01 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.BEING.getCode());
+                    Predicate status02 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.EXECUTED.getCode());
+                    list.add(cb.or(status01, status02));
 
                     // 根据商品未采购完成的
                     Join<PurchContract, PurchContractGoods> goodsJoin = root.join("purchContractGoodsList");
