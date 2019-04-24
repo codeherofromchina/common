@@ -54,6 +54,11 @@ public class PurchGoods {
      */
     @Transient
     private Integer gId;
+    /**
+     * 采购合同商品ID
+     */
+    @Transient
+    private Integer cId;
 
     private Boolean exchanged;
 
@@ -164,6 +169,14 @@ public class PurchGoods {
 
     public void setgId(Integer gId) {
         this.gId = gId;
+    }
+
+    public Integer getcId() {
+        return cId;
+    }
+
+    public void setcId(Integer cId) {
+        this.cId = cId;
     }
 
     public Boolean getExchanged() {

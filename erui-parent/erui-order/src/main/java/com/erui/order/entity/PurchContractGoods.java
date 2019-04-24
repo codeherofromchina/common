@@ -1,6 +1,7 @@
 package com.erui.order.entity;
 
 import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -83,6 +84,18 @@ public class PurchContractGoods {
     private Integer purchaseNum;
 
     /**
+     * 预采购数量
+     */
+    @Column(name = "pre_purch_contractNum")
+    private Integer PrePurchContractNum;
+
+    /**
+     * 预采购数量
+     */
+    @Column(name = "purchased_num")
+    private Integer PurchasedNum;
+
+    /**
      * 不含税单价
      */
     @Column(name = "non_tax_price")
@@ -115,14 +128,14 @@ public class PurchContractGoods {
     /**
      * 修改时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "update_time")
     private Date updateTime;
 
     /**
      * 创建时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "create_time")
     private Date createTime;
 
@@ -212,6 +225,22 @@ public class PurchContractGoods {
 
     public void setPurchaseNum(Integer purchaseNum) {
         this.purchaseNum = purchaseNum;
+    }
+
+    public Integer getPrePurchContractNum() {
+        return PrePurchContractNum;
+    }
+
+    public void setPrePurchContractNum(Integer prePurchContractNum) {
+        PrePurchContractNum = prePurchContractNum;
+    }
+
+    public Integer getPurchasedNum() {
+        return PurchasedNum;
+    }
+
+    public void setPurchasedNum(Integer purchasedNum) {
+        PurchasedNum = purchasedNum;
     }
 
     public BigDecimal getNonTaxPrice() {
