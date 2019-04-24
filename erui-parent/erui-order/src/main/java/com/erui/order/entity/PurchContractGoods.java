@@ -37,6 +37,18 @@ public class PurchContractGoods {
     private Integer gId;
 
     /**
+     * 采购合同ID
+     */
+    @Transient
+    private Integer pcId;
+
+    /**
+     * 采购合同商品ID
+     */
+    @Transient
+    private Integer pcgId;
+
+    /**
      * 替换的商品
      */
     @Transient
@@ -305,5 +317,21 @@ public class PurchContractGoods {
 
     public void setParent(PurchContractGoods parent) {
         this.parent = parent;
+    }
+
+    public Integer getPcId() {
+        return pcId;
+    }
+
+    public void setPcId(Integer pcId) {
+        this.pcId = pcId;
+    }
+
+    public Integer getPcgId() {
+        return pcgId;
+    }
+
+    public void setPcgId(Integer pcgId) {
+        this.pcgId = pcgId;
     }
 }
