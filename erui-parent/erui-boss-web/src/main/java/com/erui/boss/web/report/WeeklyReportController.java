@@ -333,7 +333,7 @@ public class WeeklyReportController {
             return null;
         }
         //获取历史数据
-        params.put("onshelf_at_start", "2018-01-01 00:00:00");
+        params.put("onshelf_at_start", "2019-01-01 00:00:00");
         params.put("onshelf_at_end", params.get("endTime").toString());
         List<Map<String, Object>> spuHistoryList = sendPutToES(params, eruiToken, esproductUrl);
         if (spuHistoryList == null) {
