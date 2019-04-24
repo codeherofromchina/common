@@ -170,6 +170,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                 projectSet.add(project);
                 // 查看是否存在替换商品
                 PurchContractGoods son = handleAddNewPurchContractGoods(project, dbPurchContract, goods, pg);
+                pg.setCreateTime(now);
                 purchContractGoodsList.add(pg);
                 if (son != null) {
                     purchContractGoodsList.add(son);
@@ -385,6 +386,7 @@ public class PurchContractServiceImpl implements PurchContractService {
             }
             projectSet.add(project);
             PurchContractGoods son = handleAddNewPurchContractGoods(project, purchContract, goods, purchContractGoods);
+            purchContractGoods.setCreateTime(now);
             purchContractGoodsList.add(purchContractGoods);
             if (son != null) {
                 purchContractGoodsList.add(son);
@@ -556,7 +558,7 @@ public class PurchContractServiceImpl implements PurchContractService {
             // 总价款
             newPurchContractGoods.setTotalPrice(newPurchContractGoods.getPurchasePrice().multiply(new BigDecimal(newPurchContractGoods.getPurchaseNum().intValue())));
         }
-        newPurchContractGoods.setCreateTime(new Date());
+        newPurchContractGoods.setUpdateTime(new Date());
 
         // 查看是否存在替换商品
         PurchContractGoods son = newPurchContractGoods.getSon();
@@ -642,6 +644,6 @@ public class PurchContractServiceImpl implements PurchContractService {
         }
         // 总价款
         son.setTotalPrice(purchasePrice.multiply(new BigDecimal(purchaseNum.intValue())));
-        son.setCreateTime(new Date());
+        son.setUpdateTime(new Date());
     }
 }
