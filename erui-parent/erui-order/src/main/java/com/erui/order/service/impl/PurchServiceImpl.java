@@ -1013,7 +1013,7 @@ public class PurchServiceImpl implements PurchService {
         for (PurchGoods pg : purch.getPurchGoodsList()) {
             Integer pgId = pg.getId();
             Integer cId = pg.getPcgId();
-            if (pgId == null && cId == null) { // 新增加的采购商品信息
+            if (pgId == null) { // 新增加的采购商品信息
                 // 检查是否传入采购数量或者替换商品
                 Integer purchaseNum = pg.getPurchaseNum(); // 获取采购数量
                 PurchGoods tSon = pg.getSon(); // 获取替换商品
@@ -1036,7 +1036,7 @@ public class PurchServiceImpl implements PurchService {
                 if (Project.PurchReqCreateEnum.valueOfCode(project.getPurchReqCreate()) != Project.PurchReqCreateEnum.SUBMITED) {
                     throw new Exception(String.format("%s%s%s", "项目必须提交采购申请", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The project must submit a purchase application"));
                 }
-                if (purchContract.getStatus() == 2) {
+                if (purchContract.getStatus() != 2) {
                     throw new Exception(String.format("%s%s%s", "采购合同必须为执行中状态", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The purchContract must submit"));
                 }
                 if (project.getPurchDone()) {
