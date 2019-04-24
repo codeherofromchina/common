@@ -2,8 +2,6 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
-import com.erui.comm.ThreadLocalUtil;
-import com.erui.comm.util.CookiesUtil;
 import com.erui.order.entity.PurchContract;
 import com.erui.order.service.PurchContractService;
 import org.apache.commons.lang3.StringUtils;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 @RestController
 @RequestMapping("order/purchContract")
@@ -125,6 +124,47 @@ public class PurchContractController {
         }
 
         return new Result<>(ResultStatusEnum.FAIL);
+    }
+
+    /**
+     * 可以采购的项目列表
+     *
+     * @param params {purchContractNo:"采购合同号", supplierId:"供货商ID", type:"合同类型"}
+     * @return
+     */
+    @RequestMapping(value = "purchAbleList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> purchAbleList(HttpServletRequest request, @RequestBody Map<String, String> params) {
+        // 获取当前用户ID
+        Object userid = request.getSession().getAttribute("userid");
+        String purchContractNo = StringUtils.isNumeric(params.get("purchContractNo"))? params.get("purchContractNo"):null;
+        Integer supplierId = StringUtils.isNumeric(params.get("supplierId"))? Integer.parseInt(params.get("supplierId")):null;
+        Integer type = StringUtils.isNumeric(params.get("type"))? Integer.parseInt(params.get("type")):null;
+        // 初始化页码信息
+        int pageNum = 1;
+        int pageSize = 10;
+        String pageNumStr = params.get("pageNum");
+        String pageSizeStr = params.get("pageSize");
+        if (StringUtils.isNumeric(pageNumStr) && StringUtils.isNumeric(pageSizeStr)) {
+            try {
+                pageNum = Integer.parseInt(pageNumStr);
+                pageSize = Integer.parseInt(pageSizeStr);
+            } catch (NumberFormatException ex) {
+                logger.error("页面转换错误", ex);
+            }
+        }
+
+        String errMsg = null;
+        try {
+            // 分页查询可采购合同
+            Page<Map<String, Object>> purchContractPage = purchContractService.purchAbleByPage(userid.toString(), pageNum, pageSize, purchContractNo, supplierId, type);
+
+            return new Result<>(purchContractPage);
+        } catch (Exception e) {
+            errMsg = e.getMessage();
+            e.printStackTrace();
+        }
+
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(errMsg);
     }
 
 }

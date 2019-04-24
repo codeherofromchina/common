@@ -86,8 +86,8 @@ public class PurchContractGoods {
     /**
      * 预采购数量
      */
-    @Column(name = "pre_purch_contractNum")
-    private Integer PrePurchContractNum;
+    @Column(name = "pre_purch_contract_num")
+    private Integer prePurchContractNum;
 
     /**
      * 预采购数量
@@ -228,11 +228,11 @@ public class PurchContractGoods {
     }
 
     public Integer getPrePurchContractNum() {
-        return PrePurchContractNum;
+        return prePurchContractNum;
     }
 
     public void setPrePurchContractNum(Integer prePurchContractNum) {
-        PrePurchContractNum = prePurchContractNum;
+        prePurchContractNum = prePurchContractNum;
     }
 
     public Integer getPurchasedNum() {
