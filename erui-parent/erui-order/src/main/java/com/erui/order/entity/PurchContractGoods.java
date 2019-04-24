@@ -52,6 +52,7 @@ public class PurchContractGoods {
      * 替换的商品
      */
     @Transient
+    @JsonIgnore
     private PurchContractGoods son;
 
     /**
