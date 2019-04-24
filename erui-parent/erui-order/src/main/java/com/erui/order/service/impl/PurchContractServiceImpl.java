@@ -120,6 +120,7 @@ public class PurchContractServiceImpl implements PurchContractService {
             }
             dbPurchContract.setPurchContractSignatoriesList(purchContract.getPurchContractSignatoriesList());
         }
+        List<PurchContractGoods> list = new ArrayList<>();
         if(dbPurchContract.getPurchContractGoodsList() != null && purchContract.getPurchContractGoodsList() != null){//合同商品信息
             for(PurchContractGoods dbpgs : dbPurchContract.getPurchContractGoodsList()){
                 for(PurchContractGoods pgs : purchContract.getPurchContractGoodsList()){
@@ -131,9 +132,11 @@ public class PurchContractServiceImpl implements PurchContractService {
                             pgs.setCreateTime(now);
                         }
                     }
+                    list.add(pgs);
                 }
                 dbpgs.setUpdateTime(now);
             }
+            purchContract.setPurchContractGoodsList(list);
         }
 
         dbPurchContract.setUpdateTime(now);
@@ -170,8 +173,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                 projectSet.add(project);
                 // 查看是否存在替换商品
                 PurchContractGoods son = handleAddNewPurchContractGoods(project, dbPurchContract, goods, pg);
-                pg.setCreateTime(now);
-                pg.setUpdateTime(now);
                 purchContractGoodsList.add(pg);
                 if (son != null) {
                     purchContractGoodsList.add(son);
@@ -243,7 +244,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                 purchContractGoods.setPurchasePrice(pg.getPurchasePrice()); // 采购单价
                 purchContractGoods.setPurchaseTotalPrice(pg.getPurchaseTotalPrice()); //  采购总金额
                 purchContractGoods.setPurchaseRemark(pg.getPurchaseRemark()); // 采购说明
-                purchContractGoods.setUpdateTime(now);
                 // 计算含税价格和不含税单价以及总价款
                 String currencyBn = purchContract.getCurrencyBn();
                 if (purchContractGoods.getPurchaseNum() > 0) {
@@ -278,23 +278,19 @@ public class PurchContractServiceImpl implements PurchContractService {
                 // 判断采购是否超限,预采购数量大于合同数量，则错误
                 if (goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum > goods.getContractGoodsNum()) {
                     throw new Exception(String.format("%s%s%s", "采购数量超过合同数量【sku :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Quantity of purchase exceeds the number of contracts [SKU: " + goods.getSku() + "]"));
-
                 }
                 if (purchaseNum > 0 && (purchContractGoods.getPurchasePrice() == null || purchContractGoods.getPurchasePrice().compareTo(BigDecimal.ZERO) != 1)) {
                     throw new Exception(String.format("%s%s%s", "要采购的商品单价错误【sku :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unit price error to be purchased [SKU: " + goods.getSku() + "]"));
-
                 }
 
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum);
                 goodsDao.save(goods);
             } else {
                 throw new Exception(String.format("%s%s%s", "不存在的采购商品信息", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Non existent procurement of commodity information"));
-
             }
         }
         if (purchContractGoodsList.size() == 0) {
             throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
-
         }
         dbPurchContract.setPurchContractGoodsList(purchContractGoodsList);
 
