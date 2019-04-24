@@ -791,7 +791,6 @@ public class OrderV2ServiceImpl implements OrderV2Service {
             order.setAuditingStatus(Order.AuditingStatusEnum.THROUGH.getStatus());
         }
         orderDao.save(order);
-
         projectV2Service.updateAuditProcessDone(order.getId(), taskDefinitionKey);
     }
 
