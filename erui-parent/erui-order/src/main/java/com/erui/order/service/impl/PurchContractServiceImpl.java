@@ -124,13 +124,8 @@ public class PurchContractServiceImpl implements PurchContractService {
         if(dbPurchContract.getPurchContractGoodsList() != null && purchContract.getPurchContractGoodsList() != null){//合同商品信息
             for(PurchContractGoods dbpgs : dbPurchContract.getPurchContractGoodsList()){
                 for(PurchContractGoods pgs : purchContract.getPurchContractGoodsList()){
-                    if(dbpgs.getGoods().getId() == pgs.getgId()){
+                    if(dbpgs.getGoods().getId() - pgs.getgId() == 0){
                         pgs.setId(dbpgs.getId());
-                        pgs.setUpdateTime(now);
-                    }else{
-                        if(pgs.getCreateTime() == null){
-                            pgs.setCreateTime(now);
-                        }
                     }
                 }
                 dbpgs.setUpdateTime(now);
