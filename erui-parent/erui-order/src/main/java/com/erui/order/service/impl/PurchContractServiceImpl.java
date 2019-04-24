@@ -101,10 +101,12 @@ public class PurchContractServiceImpl implements PurchContractService {
 
         if(dbPurchContract.getPurchContractSimple() != null){//简易合同
             purchContract.getPurchContractSimple().setId(dbPurchContract.getPurchContractSimple().getId());
+            purchContract.getPurchContractSimple().setUpdateTime(now);
             dbPurchContract.setPurchContractSimple(purchContract.getPurchContractSimple());
         }
         if(dbPurchContract.getPurchContractStandard() != null){//标准合同
             purchContract.getPurchContractStandard().setId(dbPurchContract.getPurchContractStandard().getId());
+            purchContract.getPurchContractStandard().setUpdateTime(now);
             dbPurchContract.setPurchContractStandard(purchContract.getPurchContractStandard());
         }
         if(dbPurchContract.getPurchContractSignatoriesList() != null && purchContract.getPurchContractSignatoriesList() != null){//合同双方信息
@@ -112,6 +114,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                 for(PurchContractSignatories pcs : purchContract.getPurchContractSignatoriesList()){
                     if(dbpcs.getType() == pcs.getType()){
                         pcs.setId(dbpcs.getId());
+                        pcs.setUpdateTime(now);
                     }
                 }
             }
@@ -122,6 +125,11 @@ public class PurchContractServiceImpl implements PurchContractService {
                 for(PurchContractGoods pgs : purchContract.getPurchContractGoodsList()){
                     if(dbpgs.getGoods().getId() == pgs.getgId()){
                         pgs.setId(dbpgs.getId());
+                        pgs.setUpdateTime(now);
+                    }else{
+                        if(pgs.getCreateTime() == null){
+                            pgs.setCreateTime(now);
+                        }
                     }
                 }
             }
@@ -352,6 +360,10 @@ public class PurchContractServiceImpl implements PurchContractService {
         purchContract.setPurchContractNo(StringUtil.genPurchNo(lastedByPurchNo));
         purchContract.setSigningDate(NewDateUtil.getDate(purchContract.getSigningDate()));
         purchContract.setCreateTime(now);
+        // 处理采购合同双方信息
+        for (PurchContractSignatories purchContractSignatories : purchContract.getPurchContractSignatoriesList()) {
+            purchContractSignatories.setCreateTime(now);
+        }
         // 处理商品信息
         List<PurchContractGoods> purchContractGoodsList = new ArrayList<>();
         Set<Project> projectSet = new HashSet<>();
@@ -396,12 +408,14 @@ public class PurchContractServiceImpl implements PurchContractService {
         if(purchContract.getPurchContractSimple() != null){
             PurchContractSimple purchContractSimple = purchContract.getPurchContractSimple();
             purchContractSimple.setPurchContract(save);
+            purchContractSimple.setCreateTime(now);
             purchContractSimpleDao.save(purchContractSimple);
         }
         // 添加标准合同信息
         if(purchContract.getPurchContractStandard() != null){
             PurchContractStandard purchContractStandard = purchContract.getPurchContractStandard();
             purchContractStandard.setPurchContract(save);
+            purchContractStandard.setCreateTime(now);
             purchContractStandardDao.save(purchContractStandard);
         }
         // 添加附件
