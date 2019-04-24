@@ -28,13 +28,16 @@ public class BpmUtils {
      *
      * @param definitionKey
      * @param token
-     * @param user
+     * @param callerId
      * @return
      */
-    public static JSONArray processDefinitionUsertasks(String definitionKey, String token, String user) throws Exception {
+    public static JSONArray processDefinitionUsertasks(String definitionKey, String token, String callerId) throws Exception {
         JSONObject params = new JSONObject();
         params.put("tenantId", tenantId);
-        params.put("callerId", user);
+        if (StringUtils.isBlank(callerId) && StringUtils.isNotBlank(token) && token.length() >= 6) {
+            callerId = token.substring(token.length() - 6);
+        }
+        params.put("callerId", callerId);
 
         Map<String, String> header = new HashMap<>();
         header.put("Content-Type", "application/json");
@@ -94,11 +97,11 @@ public class BpmUtils {
      *
      * @param taskId
      * @param token
-     * @param userId
+     * @param callerId
      * @param localVariables
      * @return
      */
-    public static JSONObject completeTask(String taskId, String token, String userId, Map<String, Object> localVariables, String comment) throws Exception {
+    public static JSONObject completeTask(String taskId, String token, String callerId, Map<String, Object> localVariables, String comment) throws Exception {
         List<Map<String, Object>> variables = new ArrayList<>();
         if (localVariables != null && localVariables.size() > 0) {
             for (Map.Entry<String, Object> entry : localVariables.entrySet()) {
@@ -110,8 +113,11 @@ public class BpmUtils {
         }
         JSONObject params = new JSONObject();
         params.put("tenantId", tenantId);
-        params.put("callerId", userId);
-        params.put("assigneeId", userId);
+        if (StringUtils.isBlank(callerId) && StringUtils.isNotBlank(token) && token.length() >= 6) {
+            callerId = token.substring(token.length() - 6);
+        }
+        params.put("callerId", callerId);
+        params.put("assigneeId", callerId);
         params.put("variables", variables);
         params.put("opinion", comment);
         Map<String, String> header = new HashMap<>();

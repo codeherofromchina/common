@@ -82,5 +82,5 @@ public interface OrderV2Service {
      * @param processInstanceId
      * @param taskDefinitionKey
      */
-    void updateAuditProcessDoing(String processInstanceId, String taskDefinitionKey);
+    void updateAuditProcessDoing(String processInstanceId, String taskDefinitionKey, String taskId);
 }

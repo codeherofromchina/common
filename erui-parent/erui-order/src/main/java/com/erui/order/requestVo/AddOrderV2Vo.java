@@ -153,6 +153,7 @@ public class AddOrderV2Vo {
     private Integer createUserId;
     private String createUserName;
     // --------------------不要传入的信息字段结束---------------------
+    private String taskId; // 流程内完善订单，传入taskId,只参数用，和数据库的taskid无关
 
     public Integer getId() {
         return id;
@@ -618,6 +619,14 @@ public class AddOrderV2Vo {
 
     public void setCreateUserName(String createUserName) {
         this.createUserName = createUserName;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 
     public void copyBaseInfoTo(Order order) {

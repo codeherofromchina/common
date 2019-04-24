@@ -49,9 +49,7 @@ public class BpmNotifyController {
             result.setStatus(ResultStatusEnum.PARAM_ERROR);
         }
 
-
         orderV2Service.updateAuditProcessDone(processInstanceId,taskDefinitionKey);
-
         bpmTaskRuntimeService.delBpmTaskRuntime(processInstanceId, taskId);
 
         return result;
@@ -68,6 +66,7 @@ public class BpmNotifyController {
             return null;
         }
 
+        orderV2Service.updateAuditProcessDoing(bpmTaskRuntime.getPiId(),bpmTaskRuntime.getActId(),bpmTaskRuntime.getTaskId());
         bpmTaskRuntimeService.addBpmTaskRuntime(bpmTaskRuntime);
 
         return new Result();

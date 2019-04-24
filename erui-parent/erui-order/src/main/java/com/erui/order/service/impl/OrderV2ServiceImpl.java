@@ -77,6 +77,8 @@ public class OrderV2ServiceImpl implements OrderV2Service {
     private AttachmentDao attachmentDao;
     @Autowired
     private AttachmentService attachmentService;
+    @Autowired
+    private ProjectV2Service projectV2Service;
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
@@ -224,16 +226,24 @@ public class OrderV2ServiceImpl implements OrderV2Service {
         //审核日志 钉钉通知 和待办
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 初始化订单提交后的后续工作
-            // 调用业务流，开启业务审核流程系统 // 非国内订单审批流程
-            Map<String, Object> bpmInitVar = new HashMap<>();
-            bpmInitVar.put("order_amount", addOrderVo.getTotalPriceUsd().doubleValue());
-            String financing_approval = "N";
-            if (addOrderVo.getFinancing() != null && addOrderVo.getFinancing() == 1) {
-                financing_approval = "Y";
+            if (StringUtils.isBlank(addOrderVo.getTaskId())) {
+                // 调用业务流，开启业务审核流程系统 // 非国内订单审批流程
+                Map<String, Object> bpmInitVar = new HashMap<>();
+                bpmInitVar.put("order_amount", addOrderVo.getTotalPriceUsd().doubleValue());
+                String financing_approval = "N";
+                if (addOrderVo.getFinancing() != null && addOrderVo.getFinancing() == 1) {
+                    financing_approval = "Y";
+                }
+                bpmInitVar.put("financing_approval", financing_approval);
+                JSONObject processResp = BpmUtils.startProcessInstanceByKey("process_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                orderUpdate.setProcessId(processResp.getJSONObject("response").getString("instanceId"));
+            } else {
+                Map<String, Object> bpmVar = new HashMap<>();
+                bpmVar.put("audit_status", "APPROVED");
+                // 完善订单节点，完成任务
+                BpmUtils.completeTask(addOrderVo.getTaskId(), eruiToken, null, bpmVar, "同意");
+
             }
-            bpmInitVar.put("financing_approval", financing_approval);
-            JSONObject processResp = BpmUtils.startProcessInstanceByKey("process_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
-            orderUpdate.setProcessId(processResp.getJSONObject("response").getString("instanceId"));
 
             List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeAsc(orderUpdate.getId());
             if (orderLog.size() > 0) {
@@ -776,12 +786,15 @@ public class OrderV2ServiceImpl implements OrderV2Service {
             order.setAuditingStatus(Order.AuditingStatusEnum.THROUGH.getStatus());
         }
         orderDao.save(order);
+
+        projectV2Service.updateAuditProcessDone(order.getId(), taskDefinitionKey);
     }
 
     @Override
-    public void updateAuditProcessDoing(String processInstanceId, String taskDefinitionKey) {
+    public void updateAuditProcessDoing(String processInstanceId, String taskDefinitionKey, String taskId) {
         Order order = orderDao.findByProcessId(processInstanceId);
         order.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
+        order.setTaskId(taskId);
 
         String auditingProcess = order.getAuditingProcess();
         if (StringUtils.isNotBlank(auditingProcess)) {
@@ -791,6 +804,9 @@ public class OrderV2ServiceImpl implements OrderV2Service {
         }
         order.setAuditingProcess(auditingProcess);
         orderDao.save(order);
+
+
+        projectV2Service.updateAuditProcessDoing(order.getId(), taskDefinitionKey);
     }
 }
 
