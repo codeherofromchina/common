@@ -17,7 +17,7 @@
         FROM erui_buyer.buyer AS buyers
         LEFT JOIN erui_operation.market_area_country AS areasBn on  buyers.country_bn=areasBn.country_bn
         LEFT JOIN erui_operation.market_area AS areasZh  ON areasBn.market_area_bn=areasZh.bn AND areasZh.lang='zh'
-        WHERE buyers.deleted_flag='N'
+        WHERE buyers.deleted_flag='N' AND buyers.`status` = 'PASS'
         ) as a
         WHERE source IN ('后台','门户') AND bstatus &lt;&gt; 'REJECTED'
         and  createdAt BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
