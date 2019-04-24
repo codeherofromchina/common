@@ -469,11 +469,6 @@ public class PurchContract {
     }
 
     public void setBaseInfo(PurchContract purchContract) {
-        this.setPurchContractNo(purchContract.getPurchContractNo()); // 采购合同号
-        this.setType(purchContract.getType()); // 合同类型 1:简易合同 2:标准合同 3:非标合同
-        this.setPurchContractStandard(purchContract.getPurchContractStandard()); // 简易合同
-        this.setPurchContractSimple(purchContract.getPurchContractSimple()); // 标准合同
-        this.setPurchContractSignatoriesList(purchContract.getPurchContractSignatoriesList()); // 采购合同买卖双方信息
         this.setStatus(purchContract.getStatus()); // 状态
         this.setSigningDate(NewDateUtil.getDate(purchContract.getSigningDate())); //采购合同签订日期
         this.setSigningPlace(purchContract.getSigningPlace()); //采购合同签订地点
@@ -489,9 +484,5 @@ public class PurchContract {
         this.setCountry(purchContract.getCountry()); // 国家
         this.setRegion(purchContract.getRegion()); // 所属地区
         this.setVersion(purchContract.getVersion()); // 合同版本
-        this.setCreateUserId(purchContract.getCreateUserId()); // 创建人id
-        this.setCreateUserName(purchContract.getCreateUserName()); // 创建人
-        this.setCreateTime(purchContract.getCreateTime()); // 创建时间
-        this.setUpdateTime(purchContract.getUpdateTime()); // 修改时间
     }
 }

@@ -68,11 +68,11 @@ public class PurchContractServiceImpl implements PurchContractService {
                 if (condition.getSupplierId() != null) {
                     list.add(cb.equal(root.get("supplierId").as(Integer.class), condition.getSupplierId()));
                 }
-                //根据供应商过滤条件
-                if (condition.getSupplierId() != null) {
-                    list.add(cb.equal(root.get("supplierId").as(Integer.class), condition.getSupplierId()));
+                //根据合同类型过滤条件
+                if (condition.getType() != null) {
+                    list.add(cb.equal(root.get("type").as(Integer.class), condition.getType()));
                 }
-
+                //根据采购状态过滤条件
                 PurchContract.StatusEnum statusEnum = PurchContract.StatusEnum.fromCode(condition.getStatus());
                 if (statusEnum != null) {
                     list.add(cb.equal(root.get("status").as(Integer.class), statusEnum.getCode()));
@@ -100,6 +100,35 @@ public class PurchContractServiceImpl implements PurchContractService {
         final Date now = new Date();
         // 设置基本信息
         dbPurchContract.setBaseInfo(purchContract);
+
+        if(dbPurchContract.getPurchContractSimple() != null){//简易合同
+            purchContract.getPurchContractSimple().setId(dbPurchContract.getPurchContractSimple().getId());
+            dbPurchContract.setPurchContractSimple(purchContract.getPurchContractSimple());
+        }
+        if(dbPurchContract.getPurchContractStandard() != null){//标准合同
+            purchContract.getPurchContractStandard().setId(dbPurchContract.getPurchContractStandard().getId());
+            dbPurchContract.setPurchContractStandard(purchContract.getPurchContractStandard());
+        }
+        if(dbPurchContract.getPurchContractSignatoriesList() != null && purchContract.getPurchContractSignatoriesList() != null){//合同双方信息
+            for(PurchContractSignatories dbpcs : dbPurchContract.getPurchContractSignatoriesList()){
+                for(PurchContractSignatories pcs : purchContract.getPurchContractSignatoriesList()){
+                    if(dbpcs.getType() == pcs.getType()){
+                        pcs.setId(dbpcs.getId());
+                    }
+                }
+            }
+            dbPurchContract.setPurchContractSignatoriesList(purchContract.getPurchContractSignatoriesList());
+        }
+        if(dbPurchContract.getPurchContractGoodsList() != null && purchContract.getPurchContractGoodsList() != null){//合同商品信息
+            for(PurchContractGoods dbpgs : dbPurchContract.getPurchContractGoodsList()){
+                for(PurchContractGoods pgs : purchContract.getPurchContractGoodsList()){
+                    if(dbpgs.getGoods().getId() == pgs.getgId()){
+                        pgs.setId(dbpgs.getId());
+                    }
+                }
+            }
+        }
+
         dbPurchContract.setUpdateTime(now);
         // 处理商品
         List<PurchContractGoods> purchContractGoodsList = new ArrayList<>(); // 声明最终采购商品容器
@@ -287,6 +316,18 @@ public class PurchContractServiceImpl implements PurchContractService {
         }
 
         PurchContract save = purchContractDao.save(dbPurchContract);
+        // 添加简易合同信息
+        if(purchContract.getPurchContractSimple() != null){
+            PurchContractSimple purchContractSimple = purchContract.getPurchContractSimple();
+            purchContractSimple.setPurchContract(save);
+            purchContractSimpleDao.save(purchContractSimple);
+        }
+        // 添加标准合同信息
+        if(purchContract.getPurchContractStandard() != null){
+            PurchContractStandard purchContractStandard = purchContract.getPurchContractStandard();
+            purchContractStandard.setPurchContract(save);
+            purchContractStandardDao.save(purchContractStandard);
+        }
         // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
         List<Attachment> attachmentList = new ArrayList<>();
         if (purchContract.getAttachments() != null) {
