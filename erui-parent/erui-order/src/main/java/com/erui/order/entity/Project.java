@@ -28,6 +28,8 @@ public class Project {
     private Order order;
     @Transient
     private Integer oId;
+    @Transient
+    private String taskId; // 任务ID
     @OneToOne(mappedBy = "project", fetch = FetchType.LAZY)
     private PurchRequisition purchRequisition;
 
@@ -482,6 +484,14 @@ public class Project {
 
     public void setoId(Integer oId) {
         this.oId = oId;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 
     public PurchRequisition getPurchRequisition() {

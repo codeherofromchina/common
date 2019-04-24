@@ -176,7 +176,7 @@ public class ProjectV2ServiceImpl implements ProjectV2Service {
                     // 完成项目的任务
                     Map<String, Object> localVariables = new HashMap<>();
                     localVariables.put("audit_status","APPROVED");
-                    BpmUtils.completeTask(order.getTaskId(),eruiToken,eruiToken.substring(eruiToken.length()-6),localVariables, "同意");
+                    BpmUtils.completeTask(project.getTaskId(), eruiToken, null, localVariables, "同意");
                 }
             } else {
                 // 其他分支，错误
