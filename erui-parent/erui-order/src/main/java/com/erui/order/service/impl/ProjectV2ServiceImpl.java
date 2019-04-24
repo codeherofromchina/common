@@ -1606,7 +1606,7 @@ public class ProjectV2ServiceImpl implements ProjectV2Service {
                 while (auditingProcess.indexOf(",,") != -1) {
                     auditingProcess = auditingProcess.replace(",,", ",");
                 }
-                auditingProcess = StringUtils.strip(auditingProcess);
+                auditingProcess = StringUtils.strip(auditingProcess, ",");
             }
             project.setAuditingProcess(auditingProcess);
 

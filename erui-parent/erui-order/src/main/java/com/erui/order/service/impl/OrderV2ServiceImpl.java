@@ -783,7 +783,7 @@ public class OrderV2ServiceImpl implements OrderV2Service {
                 while (auditingProcess.indexOf(",,") != -1) {
                     auditingProcess = auditingProcess.replace(",,", ",");
                 }
-                auditingProcess = StringUtils.strip(auditingProcess);
+                auditingProcess = StringUtils.strip(auditingProcess, ",");
             }
             order.setAuditingProcess(auditingProcess);
 

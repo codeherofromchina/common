@@ -48,10 +48,8 @@ public class BpmNotifyController {
         if (StringUtils.isAnyBlank(processInstanceId, taskId)) {
             result.setStatus(ResultStatusEnum.PARAM_ERROR);
         }
-
         orderV2Service.updateAuditProcessDone(processInstanceId,taskDefinitionKey);
         bpmTaskRuntimeService.delBpmTaskRuntime(processInstanceId, taskId);
-
         return result;
     }
 
