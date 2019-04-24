@@ -1299,9 +1299,12 @@ public class PurchServiceImpl implements PurchService {
         newPurchGoods.setGoods(goods);
         Integer purchaseNum = newPurchGoods.getPurchaseNum();
         purchaseNum = purchaseNum != null && purchaseNum > 0 ? purchaseNum : 0;
+        Integer prePurchaseNum = purchContractGoods.getPrePurchContractNum();
+        //预采购合同数量
+        prePurchaseNum = prePurchaseNum != null && prePurchaseNum > 0 ? prePurchaseNum : 0;
         newPurchGoods.setPurchaseNum(purchaseNum);
         // 判断采购是否超限,预采购数量大于采购合同数量，则错误
-        if (purchContractGoods.getPrePurchContractNum() + purchaseNum > purchContractGoods.getPurchaseNum()) {
+        if (prePurchaseNum + purchaseNum > purchContractGoods.getPurchaseNum()) {
             throw new Exception(String.format("%s%s%s", "采购数量超过合同数量【sk" +
                     "u :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Quantity of purchase exceeds the number of contracts [SKU: " + goods.getSku() + "]"));
 
