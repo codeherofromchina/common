@@ -1169,7 +1169,7 @@ public class PurchServiceImpl implements PurchService {
                 }
                 purchGoodsList.add(purchGoods);
 
-                int purchaseNum = purchGoods.getPurchaseNum();
+                int purchaseNum = pg.getPurchaseNum();
                 // 从数据库查询一次商品做修改
                 Goods goods = goodsDao.findOne(purchGoods.getGoods().getId());
                 // 从数据库查询一次商品做修改
