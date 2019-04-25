@@ -40,18 +40,25 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
     @Autowired
     private InspectApplyDao inspectApplyDao;
+
     @Autowired
     private InspectApplyGoodsDao inspectApplyGoodsDao;
+
     @Autowired
     private PurchDao purchDao;
+
     @Autowired
     private PurchGoodsDao purchGoodsDao;
+
     @Autowired
     private GoodsDao goodsDao;
+
     @Autowired
     private AttachmentService attachmentService;
+
     @Autowired
     private InspectReportDao inspectReportDao;
+
     @Autowired
     private InspectApplyTmpAttachDao inspectApplyTmpAttachDao;
 
@@ -62,10 +69,10 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     private InspectReportServiceImpl inspectReportServiceImpl;
 
     @Autowired
-    private BackLogDao backLogDao;
+    private BackLogService backLogService;
 
     @Autowired
-    private BackLogService backLogService;
+    private PurchContractDao purchContractDao;
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
@@ -312,9 +319,17 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     public void checkPurchHasDone(Purch purch) {
         List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
         boolean doneFlag = true;
+        boolean purchContractStatus = true;
         for (PurchGoods pg : purchGoodsList) {
             if (pg.getGoodNum() < pg.getPurchaseNum()) {
                 doneFlag = false;
+                break;
+            }
+        }
+        //当已采购数量不小于采购合同数量时采购完成 采购合同完成
+        for (PurchGoods pg : purchGoodsList) {
+            if (pg.getPurchContractGoods().getPurchaseNum() < pg.getPurchContractGoods().getPurchasedNum()) {
+                purchContractStatus = false;
                 break;
             }
         }
@@ -330,6 +345,13 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 backLogService.updateBackLogByDelYn(backLog);
             } catch (Exception ex) {
                 ex.printStackTrace();
+            }
+        }
+        if (purchContractStatus) {
+            if (purch.getPurchContractId() != null) {
+                PurchContract purchContract = purchContractDao.findOne(purch.getPurchContractId());
+                purchContract.setStatus(4);
+                purchContractDao.save(purchContract);
             }
         }
     }

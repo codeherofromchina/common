@@ -362,6 +362,7 @@ public class PurchServiceImpl implements PurchService {
             }
         }
         if (auditingStatus_i == 4 && "999".equals(auditingProcess_i)) {
+            //当是国内订单审完成时时采购完成
             if (purch.getProjects().size() > 0 && purch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
                 purch.setStatus(Purch.StatusEnum.DONE.getCode()); // TODO 这里是何意？
             }
@@ -878,7 +879,7 @@ public class PurchServiceImpl implements PurchService {
 
             }
             if (purchContract.getStatus() != 2) {
-                throw new Exception(String.format("%s%s%s", "采购合同必须为执行中状态", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The purchContract must submit"));
+                throw new Exception(String.format("%s%s%s", "采购合同必须为未执行状态", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The purchContract must unsubmit"));
             }
             if (project.getPurchDone()) {
                 throw new Exception(String.format("%s%s%s", "项目采购已完成，不能再次采购", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project procurement has been completed and can not be repurchased"));
@@ -902,6 +903,8 @@ public class PurchServiceImpl implements PurchService {
                 if (!goods.getOrder().getOrderCategory().equals(6)) {
                     applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3, eruiToken));
                 }
+                //当采购订单提交时采购合同更新为执行中
+                purchContract.setStatus(3);
             }
             // 增加采购合同预采购数量
             //goods.setPrePurchContractNum(goods.getPrePurchContractNum() + intPurchaseNum);
@@ -1047,11 +1050,11 @@ public class PurchServiceImpl implements PurchService {
                 Goods goods = goodsDao.findOne(pg.getgId());
                 // 获取要采购合同的商品
                 PurchContractGoods purchContractGoods = purchContractGoodsDao.findOne(pg.getPcgId());
+                //获取采购合同
+                PurchContract purchContract = purchContractGoods.getPurchContract();
                 if (goods == null || goods.getExchanged()) {
                     throw new Exception(String.format("%s%s%s", "商品不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Goods do not exist"));
                 }
-                //获取采购合同
-                PurchContract purchContract = purchContractGoods.getPurchContract();
                 //获取项目
                 Project project = goods.getProject();
                 // 必须是已创建采购申请单并未完成采购的项目
@@ -1180,6 +1183,8 @@ public class PurchServiceImpl implements PurchService {
                 Goods goods = goodsDao.findOne(purchGoods.getGoods().getId());
                 // 从数据库查询一次商品做修改
                 PurchContractGoods purchContractGoods = purchContractGoodsDao.findOne(cId);
+                //采购合同
+                PurchContract purchContract = purchContractGoods.getPurchContract();
                 if (hasSon) {
                     // 处理替换商品
                     PurchGoods son = pg.getSon();
@@ -1198,6 +1203,7 @@ public class PurchServiceImpl implements PurchService {
                     if (!goods.getOrder().getOrderCategory().equals(6)) {
                         applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3, eruiToken));
                     }
+                    purchContract.setStatus(3);
                 }
                 // 判断采购是否超限,预采购数量大于合同数量，则错误
                /* if (goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum > goods.getContractGoodsNum()) {
