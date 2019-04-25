@@ -106,6 +106,8 @@ public class PurchServiceImpl implements PurchService {
             List<PurchGoods> purchGoodsList = puch.getPurchGoodsList();
             if (purchGoodsList.size() > 0) {
                 for (PurchGoods purchGoods : purchGoodsList) {
+                    purchGoods.setgId(purchGoods.getGoods().getId());
+                    purchGoods.setPcgId(purchGoods.getPurchContractGoods().getId());
                     purchGoods.getGoods().setPurchGoods(null);
                     purchGoods.getPurchContractGoods().setPurchGoods(null);
                     purchGoods.getPurchContractGoods().setGoods(null);
@@ -867,6 +869,8 @@ public class PurchServiceImpl implements PurchService {
             }
             projectSet.add(project);
             PurchGoods son = handleAddNewPurchGoods(project, purch, goods, purchGoods, purchContractGoods);
+            purchGoods.setPurchContractGoods(purchContractGoods);
+            purchGoods.setPurchContract(purchContractGoods.getPurchContract());
             purchGoodsList.add(purchGoods);
             if (son != null) {
                 purchGoodsList.add(son);
@@ -1047,6 +1051,8 @@ public class PurchServiceImpl implements PurchService {
                 projectSet.add(project);
                 // 查看是否存在替换商品
                 PurchGoods son = handleAddNewPurchGoods(project, dbPurch, goods, pg, purchContractGoods);
+                pg.setPurchContractGoods(purchContractGoods);
+                pg.setPurchContract(purchContractGoods.getPurchContract());
                 purchGoodsList.add(pg);
                 if (son != null) {
                     purchGoodsList.add(son);
@@ -1299,6 +1305,8 @@ public class PurchServiceImpl implements PurchService {
         newPurchGoods.setProjectNo(projectNo);
         newPurchGoods.setPurch(purch);
         newPurchGoods.setGoods(goods);
+        newPurchGoods.setPurchContract(purchContractGoods.getPurchContract());
+        newPurchGoods.setPurchContractGoods(purchContractGoods);
         Integer purchaseNum = newPurchGoods.getPurchaseNum();
         purchaseNum = purchaseNum != null && purchaseNum > 0 ? purchaseNum : 0;
         Integer prePurchaseNum = purchContractGoods.getPrePurchContractNum();
