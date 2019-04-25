@@ -1,12 +1,15 @@
 package com.erui.report.model;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 
 import java.util.Date;
 import java.util.List;
 
 public class SalesmanNums {
     private Integer id;
+
+//    private String month;
 
     private Date startPrescription;
 
@@ -129,5 +132,12 @@ public class SalesmanNums {
 
     public void setArea_country(List<String> area_country) {
         this.area_country = area_country;
+    }
+
+    public String getMonth() {
+        if (startPrescription != null) {
+            return DateFormatUtils.format(startPrescription,"yyyy-MM");
+        }
+        return null;
     }
 }

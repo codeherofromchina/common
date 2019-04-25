@@ -66,6 +66,7 @@ public class SalesmanNumsController {
                     Map<String, Object> countryInfoMap = commonService.findCountryInfoByBn(salesmanNums.getCountryBn());
                     if (countryInfoMap == null || countryInfoMap.size() == 0) {
                         result.setStatus(ResultStatusEnum.FAIL).setMsg("国家信息不存在");
+                        return result;
                     }
                     salesmanNums.setCountryBn((String) countryInfoMap.get("countryBn"));
                     salesmanNums.setCountryName((String) countryInfoMap.get("countryName"));
@@ -129,12 +130,13 @@ public class SalesmanNumsController {
         }
         salesmanNums.setCreateUserName(realname);
 
-        if (StringUtils.isBlank(salesmanNums.getCountryBn())) {
+        List<String> area_country = salesmanNums.getArea_country();
+        if (area_country == null || area_country.size() != 2 || StringUtils.isBlank(area_country.get(1))) {
             result.setStatus(ResultStatusEnum.FAIL).setMsg("国家参数错误");
             return result;
         }
         // 完善国家信息
-        Map<String, Object> countryInfoMap = commonService.findCountryInfoByBn(salesmanNums.getCountryBn());
+        Map<String, Object> countryInfoMap = commonService.findCountryInfoByBn(area_country.get(1));
         if (countryInfoMap == null || countryInfoMap.size() == 0) {
             result.setStatus(ResultStatusEnum.FAIL).setMsg("国家信息不存在");
             return result;

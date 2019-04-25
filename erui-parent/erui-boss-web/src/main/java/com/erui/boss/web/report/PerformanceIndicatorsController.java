@@ -60,6 +60,7 @@ public class PerformanceIndicatorsController {
                 result.setStatus(ResultStatusEnum.FAIL).setMsg("事业部不存在");
                 return result;
             }
+            performanceIndicators.setCountryBn(null);
             performanceIndicators.setOrgName((String) orgInfoMap.get("orgName"));
         } else if (ptype != null && ptype == 2) {
             if (StringUtils.isBlank(performanceIndicators.getCountryBn())) {
@@ -95,7 +96,8 @@ public class PerformanceIndicatorsController {
      */
     @ResponseBody
     @RequestMapping(value = "del", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> del(@RequestBody List<Integer> ids) {
+    public Result<Object> del(@RequestBody Map<String,List<Integer>> params) {
+        List<Integer> ids = params.get("ids");
         Result<Object> result = new Result<>();
         if (ids == null || ids.size() == 0) {
             result.setStatus(ResultStatusEnum.MISS_PARAM_ERROR);
@@ -140,14 +142,16 @@ public class PerformanceIndicatorsController {
                 result.setStatus(ResultStatusEnum.FAIL).setMsg("事业部不存在");
                 return result;
             }
+            performanceIndicators.setCountryBn(null);
             performanceIndicators.setOrgName((String) orgInfoMap.get("orgName"));
         } else if (ptype != null && ptype == 2) {
-            if (StringUtils.isBlank(performanceIndicators.getCountryBn())) {
+            List<String> area_country = performanceIndicators.getArea_country();
+            if (area_country == null || area_country.size() != 2 || StringUtils.isBlank(area_country.get(1))) {
                 result.setStatus(ResultStatusEnum.FAIL).setMsg("国家参数错误");
                 return result;
             }
             // 完善国家信息
-            Map<String, Object> countryInfoMap = commonService.findCountryInfoByBn(performanceIndicators.getCountryBn());
+            Map<String, Object> countryInfoMap = commonService.findCountryInfoByBn(area_country.get(1));
             if (countryInfoMap == null || countryInfoMap.size() == 0) {
                 result.setStatus(ResultStatusEnum.FAIL).setMsg("国家信息不存在");
                 return result;
