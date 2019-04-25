@@ -2,6 +2,8 @@ package com.erui.report.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -37,6 +39,8 @@ public class PerformanceIndicators {
     private String createUserName;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createTime;
+
+
 
     /**
      * 前端新增时传入的国家地区参数，后台从此参数中解析出地区和国家
@@ -174,5 +178,13 @@ public class PerformanceIndicators {
 
     public void setArea_country(List<String> area_country) {
         this.area_country = area_country;
+    }
+
+
+    public String getMonth() {
+        if (startPrescription != null) {
+            return DateFormatUtils.format(startPrescription,"yyyy-MM");
+        }
+        return null;
     }
 }
