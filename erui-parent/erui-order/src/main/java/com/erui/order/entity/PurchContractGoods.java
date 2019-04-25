@@ -112,7 +112,7 @@ public class PurchContractGoods {
      * 已采购数量
      */
     @Column(name = "purchased_num")
-    private Integer PurchasedNum = 0;
+    private Integer purchasedNum = 0;
 
     /**
      * 不含税单价
@@ -259,15 +259,15 @@ public class PurchContractGoods {
     }
 
     public void setPrePurchContractNum(Integer prePurchContractNum) {
-        prePurchContractNum = prePurchContractNum;
+        this.prePurchContractNum = prePurchContractNum;
     }
 
     public Integer getPurchasedNum() {
-        return PurchasedNum;
+        return purchasedNum;
     }
 
     public void setPurchasedNum(Integer purchasedNum) {
-        PurchasedNum = purchasedNum;
+        this.purchasedNum = purchasedNum;
     }
 
     public BigDecimal getNonTaxPrice() {
