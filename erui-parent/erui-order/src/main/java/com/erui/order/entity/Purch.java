@@ -24,6 +24,11 @@ public class Purch {
     @Column(name = "purch_no")
     private String purchNo;
 
+    /**
+     * 采购合同id
+     */
+    @Column(name = "purch_contract_id")
+    private Integer purchContractId;
     // 采购经办人ID
     @Column(name = "agent_id")
     private Integer agentId;
@@ -261,6 +266,15 @@ public class Purch {
     @JoinColumn(name = "purch_id")
     @OrderBy("id asc")
     private List<PurchGoods> purchGoodsList = new ArrayList<>();
+
+
+    public Integer getPurchContractId() {
+        return purchContractId;
+    }
+
+    public void setPurchContractId(Integer purchContractId) {
+        this.purchContractId = purchContractId;
+    }
 
     public Integer getChairmanBoardId() {
         return chairmanBoardId;

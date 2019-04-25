@@ -82,7 +82,17 @@ public class PurchServiceImpl implements PurchService {
 
     @Override
     public Purch findBaseInfo(Integer id) {
-        return purchDao.findOne(id);
+        if (id != null && id > 0) {
+            Purch puch = purchDao.findOne(id);
+            puch.getPurchPaymentList().size(); /// 获取合同结算类型信息
+            List<Attachment> attachments = attachmentDao.findByRelObjIdAndCategory(puch.getId(), Attachment.AttachmentCategory.PURCH.getCode());
+            if (attachments != null && attachments.size() > 0) {
+                puch.setAttachments(attachments);
+                puch.getAttachments().size(); // 获取采购的附件信息
+            }
+            return puch;
+        }
+        return null;
     }
 
 
@@ -212,7 +222,7 @@ public class PurchServiceImpl implements PurchService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean audit(Integer purchId, String auditorId, String auditorName, PurchParam paramPurch) {
-        Purch purch = findDetailInfo(purchId);
+        Purch purch = findBaseInfo(purchId);
         //@param rejectFlag true:驳回项目   false:审核项目
         StringBuilder auditorIds = null;
         if (purch.getAudiRemark() != null) {
@@ -971,7 +981,7 @@ public class PurchServiceImpl implements PurchService {
     @Transactional(rollbackFor = Exception.class)
     public boolean update(Purch purch) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        Purch dbPurch = findDetailInfo(purch.getId());
+        Purch dbPurch = findBaseInfo(purch.getId());
         // 之前的采购必须不能为空且未提交状态
         if (dbPurch == null || dbPurch.getDeleteFlag()) {
             throw new Exception(String.format("%s%s%s", "采购信息不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Procurement information does not exist"));
@@ -982,7 +992,7 @@ public class PurchServiceImpl implements PurchService {
         // 设置基本信息
         dbPurch.setBaseInfo(purch);
         dbPurch.setUpdateTime(now);
-
+        dbPurch.setPurchContractId(purch.getPurchContractId());
         // 处理结算方式
         Map<Integer, PurchPayment> collect = dbPurch.getPurchPaymentList().parallelStream().collect(Collectors.toMap(PurchPayment::getId, vo -> vo));
         List<PurchPayment> paymentList = purch.getPurchPaymentList().parallelStream().filter(vo -> {
@@ -1163,7 +1173,7 @@ public class PurchServiceImpl implements PurchService {
                 // 从数据库查询一次商品做修改
                 Goods goods = goodsDao.findOne(purchGoods.getGoods().getId());
                 // 从数据库查询一次商品做修改
-                PurchContractGoods purchContractGoods = purchContractGoodsDao.findOne(purchGoods.getPcgId());
+                PurchContractGoods purchContractGoods = purchContractGoodsDao.findOne(cId);
                 if (hasSon) {
                     // 处理替换商品
                     PurchGoods son = pg.getSon();
