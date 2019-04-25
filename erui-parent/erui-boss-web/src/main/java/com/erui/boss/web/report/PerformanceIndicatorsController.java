@@ -3,6 +3,7 @@ package com.erui.boss.web.report;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.report.model.PerformanceIndicators;
+import com.erui.report.service.CommonService;
 import com.erui.report.service.PerformanceIndicatorsService;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +28,8 @@ import java.util.Map;
 public class PerformanceIndicatorsController {
     @Autowired
     private PerformanceIndicatorsService performanceIndicatorsService;
+    @Autowired
+    private CommonService commonService;
 
     /**
      * 增加业绩指标
@@ -50,20 +53,32 @@ public class PerformanceIndicatorsController {
             if (performanceIndicators.getOrgId() == null) {
                 result.setStatus(ResultStatusEnum.FAIL).setMsg("事业部参数错误");
             }
+            // 完善事业部名称信息
+            Map<String, Object> orgInfoMap = commonService.findOrgInfoById(performanceIndicators.getOrgId());
+            if (orgInfoMap == null || orgInfoMap.size() == 0) {
+                result.setStatus(ResultStatusEnum.FAIL).setMsg("事业部不存在");
+            }
+            performanceIndicators.setOrgName((String) orgInfoMap.get("orgName"));
         } else if (ptype != null && ptype == 2) {
             if (StringUtils.isBlank(performanceIndicators.getCountryBn())) {
                 result.setStatus(ResultStatusEnum.FAIL).setMsg("国家参数错误");
             }
+            // 完善国家信息
+            Map<String, Object> countryInfoMap = commonService.findCountryInfoByBn(performanceIndicators.getCountryBn());
+            if (StringUtils.isBlank(performanceIndicators.getCountryBn())) {
+                result.setStatus(ResultStatusEnum.FAIL).setMsg("国家信息不存在");
+            }
+            performanceIndicators.setCountryBn((String) countryInfoMap.get("countryBn"));
+            performanceIndicators.setCountryName((String) countryInfoMap.get("countryName"));
+            performanceIndicators.setAreaBn((String) countryInfoMap.get("areaBn"));
+            performanceIndicators.setAreaName((String) countryInfoMap.get("areaName"));
         } else {
             result.setStatus(ResultStatusEnum.FAIL).setMsg("指标类型错误");
         }
 
-
         int flag = performanceIndicatorsService.add(performanceIndicators);
-        if (1 == flag) {
+        if (flag != 0) {
             result.setStatus(ResultStatusEnum.FAIL);
-        } else if (2 == flag) {
-            result.setStatus(ResultStatusEnum.DATA_REPEAT_ERROR);
         }
         return result;
     }
@@ -114,20 +129,30 @@ public class PerformanceIndicatorsController {
             if (performanceIndicators.getOrgId() == null) {
                 result.setStatus(ResultStatusEnum.FAIL).setMsg("事业部参数错误");
             }
+            Map<String, Object> orgInfoMap = commonService.findOrgInfoById(performanceIndicators.getOrgId());
+            if (orgInfoMap == null || orgInfoMap.size() == 0) {
+                result.setStatus(ResultStatusEnum.FAIL).setMsg("事业部不存在");
+            }
+            performanceIndicators.setOrgName((String) orgInfoMap.get("orgName"));
         } else if (ptype != null && ptype == 2) {
             if (StringUtils.isBlank(performanceIndicators.getCountryBn())) {
                 result.setStatus(ResultStatusEnum.FAIL).setMsg("国家参数错误");
             }
+            // 完善国家信息
+            Map<String, Object> countryInfoMap = commonService.findCountryInfoByBn(performanceIndicators.getCountryBn());
+            if (StringUtils.isBlank(performanceIndicators.getCountryBn())) {
+                result.setStatus(ResultStatusEnum.FAIL).setMsg("国家信息不存在");
+            }
+            performanceIndicators.setCountryBn((String) countryInfoMap.get("countryBn"));
+            performanceIndicators.setCountryName((String) countryInfoMap.get("countryName"));
+            performanceIndicators.setAreaBn((String) countryInfoMap.get("areaBn"));
+            performanceIndicators.setAreaName((String) countryInfoMap.get("areaName"));
         } else {
             result.setStatus(ResultStatusEnum.FAIL).setMsg("指标类型错误");
         }
         int flag = performanceIndicatorsService.update(performanceIndicators);
-        if (1 == flag) {
+        if ( flag != 0 ) {
             result.setStatus(ResultStatusEnum.FAIL);
-        } else if (2 == flag) {
-            result.setStatus(ResultStatusEnum.DATA_REPEAT_ERROR);
-        } else if ( 3 == flag) {
-            result.setStatus(ResultStatusEnum.DATA_NULL);
         }
         return result;
     }
@@ -162,6 +187,20 @@ public class PerformanceIndicatorsController {
         }
         params.put("pageNum", pageNum);
         params.put("pageSize", pageSize);
+        // 如果是地区国家查找，则设置参数
+        String ptype = (String) params.get("ptype");
+        if (StringUtils.equals("2", ptype)) {
+            List<String> areaCountry = (List<String>)params.get("area_country");
+            if (areaCountry != null) {
+                if (areaCountry.size() > 0) {
+                    params.put("areaBn",areaCountry.get(0));
+                }
+                if (areaCountry.size() > 1) {
+                    params.put("countryBn",areaCountry.get(1));
+                }
+            }
+        }
+
         Result<Object> result = new Result<>();
         PageInfo<PerformanceIndicators> pageInfo = performanceIndicatorsService.list(params);
         result.setData(pageInfo);

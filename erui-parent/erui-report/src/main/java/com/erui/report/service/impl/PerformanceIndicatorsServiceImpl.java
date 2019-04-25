@@ -26,24 +26,10 @@ import java.util.Map;
 public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceIndicatorsMapper> implements PerformanceIndicatorsService {
     @Autowired
     private PerformanceIndicatorsMapper performanceIndicatorsMapper;
-    @Autowired
-    private CommonService commonService;
 
     @Override
     public int add(PerformanceIndicators performanceIndicators) {
         // 完善指标类型的其余信息
-        Integer ptype = performanceIndicators.getPtype();
-        if (1 == ptype) {
-            // 完善事业部名称信息
-            Map<String, Object> orgInfoMap = commonService.findOrgInfoById(performanceIndicators.getOrgId());
-            performanceIndicators.setOrgName((String) orgInfoMap.get("orgName"));
-        } else if (2 == ptype) {
-            // 完善国家信息
-            Map<String, Object> countryInfoMap = commonService.findCountryInfoByBn(performanceIndicators.getCountryBn());
-            performanceIndicators.setCountryName((String) countryInfoMap.get("countryName"));
-            performanceIndicators.setAreaBn((String) countryInfoMap.get("areaBn"));
-            performanceIndicators.setAreaName((String) countryInfoMap.get("areaName"));
-        }
         performanceIndicators.setCreateTime(new Date());
         int insert = performanceIndicatorsMapper.insert(performanceIndicators);
         return insert > 0 ? 0 : 1;
@@ -62,19 +48,6 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
 
     @Override
     public int update(PerformanceIndicators performanceIndicators) {
-        Integer ptype = performanceIndicators.getPtype();
-        // 更新指标类型的其余信息
-        if (1 == ptype) {
-            // 完善事业部名称信息
-            Map<String, Object> orgInfoMap = commonService.findOrgInfoById(performanceIndicators.getOrgId());
-            performanceIndicators.setOrgName((String) orgInfoMap.get("orgName"));
-        } else if (2 == ptype) {
-            // 完善国家信息
-            Map<String, Object> countryInfoMap = commonService.findCountryInfoByBn(performanceIndicators.getCountryBn());
-            performanceIndicators.setCountryName((String) countryInfoMap.get("countryName"));
-            performanceIndicators.setAreaBn((String) countryInfoMap.get("areaBn"));
-            performanceIndicators.setAreaName((String) countryInfoMap.get("areaName"));
-        }
         performanceIndicators.setCreateTime(new Date());
         int insert = performanceIndicatorsMapper.updateByPrimaryKey(performanceIndicators);
         return insert > 0 ? 0 : 1;
@@ -102,6 +75,10 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
         String countryBn = (String) params.get("countryBn"); // 国家名称
         if (StringUtils.isNotBlank(countryBn)) {
             criteria.andCountryBnEqualTo(countryBn);
+        }
+        String areaBn = (String) params.get("areaBn"); // 地区名称
+        if (StringUtils.isNotBlank(areaBn)) {
+            criteria.andAreaBnEqualTo(areaBn);
         }
         String orgId = String.valueOf(params.get("orgId")); // 事业部ID
         if (StringUtils.isNotBlank(orgId) && StringUtils.isNumeric(orgId)) {
