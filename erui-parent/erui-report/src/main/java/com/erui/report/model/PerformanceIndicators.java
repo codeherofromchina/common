@@ -1,9 +1,11 @@
 package com.erui.report.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 public class PerformanceIndicators {
     private Integer id;
@@ -35,6 +37,11 @@ public class PerformanceIndicators {
     private String createUserName;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date createTime;
+
+    /**
+     * 前端新增时传入的国家地区参数，后台从此参数中解析出地区和国家
+     */
+    private List<String> area_country;
 
     public Integer getId() {
         return id;
@@ -117,6 +124,11 @@ public class PerformanceIndicators {
     }
 
     public String getCountryBn() {
+        if (StringUtils.isBlank(countryBn)) {
+            if (area_country !=null && area_country.size() == 2 && StringUtils.isNotBlank(area_country.get(1))) {
+                return area_country.get(1);
+            }
+        }
         return countryBn;
     }
 
@@ -154,5 +166,13 @@ public class PerformanceIndicators {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public List<String> getArea_country() {
+        return area_country;
+    }
+
+    public void setArea_country(List<String> area_country) {
+        this.area_country = area_country;
     }
 }

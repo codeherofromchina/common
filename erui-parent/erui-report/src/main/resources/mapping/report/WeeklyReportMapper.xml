@@ -17,7 +17,7 @@
         FROM erui_buyer.buyer AS buyers
         LEFT JOIN erui_operation.market_area_country AS areasBn on  buyers.country_bn=areasBn.country_bn
         LEFT JOIN erui_operation.market_area AS areasZh  ON areasBn.market_area_bn=areasZh.bn AND areasZh.lang='zh'
-        WHERE buyers.deleted_flag='N'
+        WHERE buyers.deleted_flag='N' AND buyers.`status` = 'PASS'
         ) as a
         WHERE source IN ('后台','门户') AND bstatus &lt;&gt; 'REJECTED'
         and  createdAt BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
@@ -38,7 +38,7 @@
         FROM erui_buyer.buyer AS buyers
         LEFT JOIN erui_operation.market_area_country AS areasBn on  buyers.country_bn=areasBn.country_bn
         LEFT JOIN erui_operation.market_area AS areasZh  ON areasBn.market_area_bn=areasZh.bn AND areasZh.lang='zh'
-        WHERE buyers.deleted_flag='N' AND buyers.buyer_code IN (SELECT crm_code FROM erui_order.`order` WHERE crm_code IS NOT NULL AND crm_code &lt;&gt; '' AND order_belongs=1)
+        WHERE buyers.deleted_flag='N' AND buyers.buyer_code IN (SELECT crm_code FROM erui_order.`order` WHERE order_category != 1 AND order_category != 3 AND order_belongs=1 AND crm_code &lt;&gt; '' AND crm_code IS NOT NULL)
         ) as a
         WHERE level IN ('普通会员','高级会员')   and  level_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
         and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
@@ -69,7 +69,7 @@
         (
         SELECT crm_code crmCode , order_belongs
         FROM erui_order.`order`
-        WHERE crm_code IS NOT NULL AND crm_code &lt;&gt; '' AND order_belongs IS NOT NULL AND order_belongs &lt;&gt; ''
+        WHERE order_category != 1 AND order_category != 3 AND crm_code IS NOT NULL AND crm_code &lt;&gt; '' AND order_belongs IS NOT NULL AND order_belongs &lt;&gt; ''
         GROUP BY crm_code,order_belongs
         ) AS t group by t.crmCode
 
@@ -165,6 +165,7 @@
             FROM erui_order.order t1, erui_operation.market_area t2 , erui_order.project t3
             WHERE t1.region = t2.bn  AND t3.order_id=t1.id
                 AND t2.lang = 'zh'
+                AND t1.order_category != 1 AND t1.order_category != 3
                 AND  t1.status>2
                 AND t1.delete_flag=0
                 AND t3.start_date BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
@@ -174,7 +175,6 @@
 
     <!-- 根据时间查询各个事业部的询单数量信息 -->
     <select id="selectInquiryCountWhereTimeGroupByOrg" parameterType="java.util.Map" resultType="java.util.Map">
-
        SELECT t5.name  , COUNT(t5.inqId) AS total
         FROM (
 					SELECT
@@ -300,7 +300,7 @@
                  erui_sys.org t2 ON t1.business_unit_id = t2.id
                 LEFT OUTER JOIN
                 erui_order.project t3 ON t1.id=t3.order_id
-                 WHERE t1.status>2 AND t1.delete_flag=0
+                 WHERE t1.status>2 AND t1.delete_flag=0 AND t1.order_category != 1 AND t1.order_category != 3
                  and  t3.start_date BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
             ) AS t4  GROUP BY t4.name
     </select>
@@ -442,7 +442,7 @@
             resultType="java.lang.Integer">
          select count(1) as total FROM erui_order.order t1 , erui_order.project t3
           where t3.order_id=t1.id  AND  t1.status>2
-                AND t1.delete_flag=0
+                AND t1.delete_flag=0 AND t1.order_category != 1 AND t1.order_category != 3
            AND t3.start_date BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s")
     </select>
 
