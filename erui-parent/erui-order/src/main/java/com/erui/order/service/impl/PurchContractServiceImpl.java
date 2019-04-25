@@ -458,31 +458,86 @@ public class PurchContractServiceImpl implements PurchContractService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Map<String, Object>> purchAbleByPage(String agentId, int pageNum, int pageSizeString, String purchContractNo, Integer supplierId, Integer type) throws Exception {
+    public Page<Map<String, Object>> purchAbleByPage(String agentId, int pageNum, int pageSizeString, String purchContractNo, Integer supplierId, String supplierName, Integer type) throws Exception {
+
+        List<Integer> purchContractIds = findAllPurchAblePurchContract(Integer.parseInt(agentId));
 
         PageRequest pageRequest = new PageRequest(pageNum - 1, pageSizeString, new Sort(Sort.Direction.DESC, "id"));
         Page<Map<String, Object>> result = null;
-        Page<PurchContract> pageList = purchContractDao.findAll(new Specification<PurchContract>() {
+        if(purchContractIds.size() > 0){
+            Page<PurchContract> pageList = purchContractDao.findAll(new Specification<PurchContract>() {
+                @Override
+                public Predicate toPredicate(Root<PurchContract> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
+                    List<Predicate> list = new ArrayList<>();
+                    // 根据合同号过滤
+                    if(purchContractNo != null){
+                        list.add(cb.like(root.get("purchContractNo").as(String.class), "%" + purchContractNo + "%"));
+                    }
+                    // 根据供应商ID过滤条件
+                    if(supplierId != null){
+                        list.add(cb.equal(root.get("supplierId").as(Integer.class), supplierId));
+                    }
+                    // 根据供应商名称过滤条件
+                    if(supplierName != null){
+                        list.add(cb.like(root.get("supplierName").as(String.class), "%" + supplierName + "%"));
+                    }
+                    // 根据合同类型查询
+                    if(type != null){
+                        list.add(cb.equal(root.get("type").as(Integer.class), type));
+                    }
+                    // 根据采购经办人查询
+                    if(agentId != null){
+                        list.add(cb.equal(root.get("agentId").as(Integer.class), agentId));
+                    }
+
+                    // 根据采购状态过滤条件
+                    Predicate status01 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.BEING.getCode());
+                    Predicate status02 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.EXECUTED.getCode());
+                    list.add(cb.or(status01, status02));
+
+                    // 根据商品未采购完成的
+                    list.add(root.get("id").in(purchContractIds.toArray(new Integer[purchContractIds.size()])));
+
+                    Predicate[] predicates = new Predicate[list.size()];
+                    predicates = list.toArray(predicates);
+                    return cb.and(predicates);
+                }
+            }, pageRequest);
+            List<Map<String, Object>> list = new ArrayList<>();
+            for (PurchContract purchContract : pageList) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", purchContract.getId());
+                map.put("purchContractNo", purchContract.getPurchContractNo());
+                map.put("supplierName", purchContract.getSupplierName());
+                map.put("lowercasePrice", purchContract.getLowercasePrice());
+                map.put("capitalizedPrice", purchContract.getCapitalizedPrice());
+                map.put("type", purchContract.getType());
+                list.add(map);
+            }
+            result = new PageImpl<Map<String, Object>>(list, pageRequest, pageList.getTotalElements());
+        } else {
+            result = new PageImpl<Map<String, Object>>(new ArrayList<>(), pageRequest, 0);
+        }
+
+        return result;
+    }
+
+
+    /**
+     * 查询所有可采购合同的id列表
+     *
+     * @param agentId
+     * @return
+     */
+    private List<Integer> findAllPurchAblePurchContract(Integer agentId) {
+        List<PurchContract> list = purchContractDao.findAll(new Specification<PurchContract>() {
             @Override
             public Predicate toPredicate(Root<PurchContract> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
                 List<Predicate> list = new ArrayList<>();
-                // 根据合同号过滤
-                if(purchContractNo != null){
-                    list.add(cb.like(root.get("purchContractNo").as(String.class), "%" + purchContractNo + "%"));
-                }
-                // 根据供应商过滤条件
-                if(supplierId != null){
-                    list.add(cb.equal(root.get("supplierId").as(Integer.class), supplierId));
-                }
-                // 根据合同类型查询
-                if(type != null){
-                    list.add(cb.equal(root.get("type").as(Integer.class), type));
-                }
                 // 根据采购经办人查询
                 if(agentId != null){
                     list.add(cb.equal(root.get("agentId").as(Integer.class), agentId));
                 }
-
                 // 根据采购状态过滤条件
                 Predicate status01 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.BEING.getCode());
                 Predicate status02 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.EXECUTED.getCode());
@@ -496,20 +551,9 @@ public class PurchContractServiceImpl implements PurchContractService {
                 predicates = list.toArray(predicates);
                 return cb.and(predicates);
             }
-        }, pageRequest);
+        });
 
-        List<Map<String, Object>> list = new ArrayList<>();
-        for (PurchContract purchContract : pageList) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", purchContract.getId());
-            map.put("purchContractNo", purchContract.getPurchContractNo());
-            map.put("supplierName", purchContract.getSupplierName());
-            map.put("type", purchContract.getType());
-            list.add(map);
-        }
-        result = new PageImpl<Map<String, Object>>(list, pageRequest, pageList.getTotalElements());
-
-        return result;
+        return list.parallelStream().map(po -> po.getId()).collect(Collectors.toList());
     }
 
     // 处理新增采购信息，如果采购信息有替换的商品，则返回处理后的替换信息

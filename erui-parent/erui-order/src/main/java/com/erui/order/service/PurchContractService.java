@@ -46,11 +46,12 @@ public interface PurchContractService {
      * @param pageSizeString
      * @param purchContractNo 采购合同号
      * @param supplierId 供货商ID
+     * @param supplierName 供货商名称
      * @param type 合同类型 1:简易合同 2:标准合同 3:非标合同
      * @param
      * @return
      * @throws Exception
      */
-    Page<Map<String, Object>> purchAbleByPage(String agentId, int pageNum, int pageSizeString, String purchContractNo, Integer supplierId, Integer type) throws Exception;
+    Page<Map<String, Object>> purchAbleByPage(String agentId, int pageNum, int pageSizeString, String purchContractNo, Integer supplierId, String supplierName, Integer type) throws Exception;
 
 }
