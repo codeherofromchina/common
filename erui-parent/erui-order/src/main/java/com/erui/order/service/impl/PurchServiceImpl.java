@@ -90,6 +90,12 @@ public class PurchServiceImpl implements PurchService {
                 puch.setAttachments(attachments);
                 puch.getAttachments().size(); // 获取采购的附件信息
             }
+            List<PurchGoods> purchGoodsList = puch.getPurchGoodsList();
+            if (purchGoodsList.size() > 0) {
+                for (PurchGoods purchGoods : purchGoodsList) {
+                    purchGoods.getGoods().setPurchGoods(null);
+                }
+            }
             return puch;
         }
         return null;

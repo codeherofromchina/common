@@ -168,7 +168,7 @@ public class PurchController {
         String reason = purchParam.getAuditingReason(); // 驳回原因
         String type = purchParam.getAuditingType(); // 驳回or审核
         // 判断采购订单是否存在
-        Purch purch = purchService.findDetailInfo(purchId);
+        Purch purch = purchService.findBaseInfo(purchId);
         if (purch == null) {
             return new Result<>(ResultStatusEnum.PROJECT_NOT_EXIST);
         }
