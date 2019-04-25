@@ -1,8 +1,9 @@
 package com.erui.report.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
+import java.util.List;
 
 public class SalesmanNums {
     private Integer id;
@@ -15,13 +16,19 @@ public class SalesmanNums {
 
     private String countryName;
 
+    private String areaBn;
+
+    private String areaName;
+
     private Integer num;
 
     private Integer createUserId;
 
     private String createUserName;
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
+
     private Date createTime;
+
+    private List<String> area_country;
 
     public Integer getId() {
         return id;
@@ -48,6 +55,11 @@ public class SalesmanNums {
     }
 
     public String getCountryBn() {
+        if (StringUtils.isBlank(countryBn)) {
+            if (area_country != null && area_country.size() == 2 && StringUtils.isNotBlank(area_country.get(1))) {
+                return area_country.get(1);
+            }
+        }
         return countryBn;
     }
 
@@ -61,6 +73,22 @@ public class SalesmanNums {
 
     public void setCountryName(String countryName) {
         this.countryName = countryName;
+    }
+
+    public String getAreaBn() {
+        return areaBn;
+    }
+
+    public void setAreaBn(String areaBn) {
+        this.areaBn = areaBn;
+    }
+
+    public String getAreaName() {
+        return areaName;
+    }
+
+    public void setAreaName(String areaName) {
+        this.areaName = areaName;
     }
 
     public Integer getNum() {
@@ -93,5 +121,13 @@ public class SalesmanNums {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public List<String> getArea_country() {
+        return area_country;
+    }
+
+    public void setArea_country(List<String> area_country) {
+        this.area_country = area_country;
     }
 }

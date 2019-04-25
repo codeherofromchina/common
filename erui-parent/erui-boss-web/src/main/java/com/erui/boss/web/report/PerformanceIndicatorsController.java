@@ -52,21 +52,25 @@ public class PerformanceIndicatorsController {
         if (ptype != null && ptype == 1) {
             if (performanceIndicators.getOrgId() == null) {
                 result.setStatus(ResultStatusEnum.FAIL).setMsg("事业部参数错误");
+                return result;
             }
             // 完善事业部名称信息
             Map<String, Object> orgInfoMap = commonService.findOrgInfoById(performanceIndicators.getOrgId());
             if (orgInfoMap == null || orgInfoMap.size() == 0) {
                 result.setStatus(ResultStatusEnum.FAIL).setMsg("事业部不存在");
+                return result;
             }
             performanceIndicators.setOrgName((String) orgInfoMap.get("orgName"));
         } else if (ptype != null && ptype == 2) {
             if (StringUtils.isBlank(performanceIndicators.getCountryBn())) {
                 result.setStatus(ResultStatusEnum.FAIL).setMsg("国家参数错误");
+                return result;
             }
             // 完善国家信息
             Map<String, Object> countryInfoMap = commonService.findCountryInfoByBn(performanceIndicators.getCountryBn());
-            if (StringUtils.isBlank(performanceIndicators.getCountryBn())) {
+            if (countryInfoMap == null || countryInfoMap.size() == 0) {
                 result.setStatus(ResultStatusEnum.FAIL).setMsg("国家信息不存在");
+                return result;
             }
             performanceIndicators.setCountryBn((String) countryInfoMap.get("countryBn"));
             performanceIndicators.setCountryName((String) countryInfoMap.get("countryName"));
@@ -74,6 +78,7 @@ public class PerformanceIndicatorsController {
             performanceIndicators.setAreaName((String) countryInfoMap.get("areaName"));
         } else {
             result.setStatus(ResultStatusEnum.FAIL).setMsg("指标类型错误");
+            return result;
         }
 
         int flag = performanceIndicatorsService.add(performanceIndicators);
@@ -128,20 +133,24 @@ public class PerformanceIndicatorsController {
         if (ptype != null && ptype == 1) {
             if (performanceIndicators.getOrgId() == null) {
                 result.setStatus(ResultStatusEnum.FAIL).setMsg("事业部参数错误");
+                return result;
             }
             Map<String, Object> orgInfoMap = commonService.findOrgInfoById(performanceIndicators.getOrgId());
             if (orgInfoMap == null || orgInfoMap.size() == 0) {
                 result.setStatus(ResultStatusEnum.FAIL).setMsg("事业部不存在");
+                return result;
             }
             performanceIndicators.setOrgName((String) orgInfoMap.get("orgName"));
         } else if (ptype != null && ptype == 2) {
             if (StringUtils.isBlank(performanceIndicators.getCountryBn())) {
                 result.setStatus(ResultStatusEnum.FAIL).setMsg("国家参数错误");
+                return result;
             }
             // 完善国家信息
             Map<String, Object> countryInfoMap = commonService.findCountryInfoByBn(performanceIndicators.getCountryBn());
-            if (StringUtils.isBlank(performanceIndicators.getCountryBn())) {
+            if (countryInfoMap == null || countryInfoMap.size() == 0) {
                 result.setStatus(ResultStatusEnum.FAIL).setMsg("国家信息不存在");
+                return result;
             }
             performanceIndicators.setCountryBn((String) countryInfoMap.get("countryBn"));
             performanceIndicators.setCountryName((String) countryInfoMap.get("countryName"));
@@ -149,6 +158,7 @@ public class PerformanceIndicatorsController {
             performanceIndicators.setAreaName((String) countryInfoMap.get("areaName"));
         } else {
             result.setStatus(ResultStatusEnum.FAIL).setMsg("指标类型错误");
+            return result;
         }
         int flag = performanceIndicatorsService.update(performanceIndicators);
         if ( flag != 0 ) {

@@ -125,7 +125,7 @@ public class PerformanceIndicators {
 
     public String getCountryBn() {
         if (StringUtils.isBlank(countryBn)) {
-            if (area_country !=null && area_country.size() == 2) {
+            if (area_country !=null && area_country.size() == 2 && StringUtils.isNotBlank(area_country.get(1))) {
                 return area_country.get(1);
             }
         }

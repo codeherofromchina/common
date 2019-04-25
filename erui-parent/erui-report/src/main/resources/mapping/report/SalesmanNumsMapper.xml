@@ -7,6 +7,8 @@
     <result column="end_prescription" property="endPrescription" jdbcType="DATE" />
     <result column="country_bn" property="countryBn" jdbcType="VARCHAR" />
     <result column="country_name" property="countryName" jdbcType="VARCHAR" />
+    <result column="area_bn" property="areaBn" jdbcType="VARCHAR" />
+    <result column="area_name" property="areaName" jdbcType="VARCHAR" />
     <result column="num" property="num" jdbcType="INTEGER" />
     <result column="create_user_id" property="createUserId" jdbcType="INTEGER" />
     <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
@@ -71,8 +73,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, start_prescription, end_prescription, country_bn, country_name, num, create_user_id, 
-    create_user_name, create_time
+    id, start_prescription, end_prescription, country_bn, country_name, area_bn, area_name, 
+    num, create_user_id, create_user_name, create_time
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.report.model.SalesmanNumsExample" >
     select
@@ -106,13 +108,13 @@
   </delete>
   <insert id="insert" parameterType="com.erui.report.model.SalesmanNums" >
     insert into salesman_nums (id, start_prescription, end_prescription, 
-      country_bn, country_name, num, 
-      create_user_id, create_user_name, create_time
-      )
+      country_bn, country_name, area_bn, 
+      area_name, num, create_user_id, 
+      create_user_name, create_time)
     values (#{id,jdbcType=INTEGER}, #{startPrescription,jdbcType=DATE}, #{endPrescription,jdbcType=DATE}, 
-      #{countryBn,jdbcType=VARCHAR}, #{countryName,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, 
-      #{createUserId,jdbcType=INTEGER}, #{createUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}
-      )
+      #{countryBn,jdbcType=VARCHAR}, #{countryName,jdbcType=VARCHAR}, #{areaBn,jdbcType=VARCHAR}, 
+      #{areaName,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, #{createUserId,jdbcType=INTEGER}, 
+      #{createUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.report.model.SalesmanNums" >
     insert into salesman_nums
@@ -131,6 +133,12 @@
       </if>
       <if test="countryName != null" >
         country_name,
+      </if>
+      <if test="areaBn != null" >
+        area_bn,
+      </if>
+      <if test="areaName != null" >
+        area_name,
       </if>
       <if test="num != null" >
         num,
@@ -160,6 +168,12 @@
       </if>
       <if test="countryName != null" >
         #{countryName,jdbcType=VARCHAR},
+      </if>
+      <if test="areaBn != null" >
+        #{areaBn,jdbcType=VARCHAR},
+      </if>
+      <if test="areaName != null" >
+        #{areaName,jdbcType=VARCHAR},
       </if>
       <if test="num != null" >
         #{num,jdbcType=INTEGER},
@@ -199,6 +213,12 @@
       <if test="record.countryName != null" >
         country_name = #{record.countryName,jdbcType=VARCHAR},
       </if>
+      <if test="record.areaBn != null" >
+        area_bn = #{record.areaBn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.areaName != null" >
+        area_name = #{record.areaName,jdbcType=VARCHAR},
+      </if>
       <if test="record.num != null" >
         num = #{record.num,jdbcType=INTEGER},
       </if>
@@ -223,6 +243,8 @@
       end_prescription = #{record.endPrescription,jdbcType=DATE},
       country_bn = #{record.countryBn,jdbcType=VARCHAR},
       country_name = #{record.countryName,jdbcType=VARCHAR},
+      area_bn = #{record.areaBn,jdbcType=VARCHAR},
+      area_name = #{record.areaName,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=INTEGER},
       create_user_id = #{record.createUserId,jdbcType=INTEGER},
       create_user_name = #{record.createUserName,jdbcType=VARCHAR},
@@ -246,6 +268,12 @@
       <if test="countryName != null" >
         country_name = #{countryName,jdbcType=VARCHAR},
       </if>
+      <if test="areaBn != null" >
+        area_bn = #{areaBn,jdbcType=VARCHAR},
+      </if>
+      <if test="areaName != null" >
+        area_name = #{areaName,jdbcType=VARCHAR},
+      </if>
       <if test="num != null" >
         num = #{num,jdbcType=INTEGER},
       </if>
@@ -267,13 +295,14 @@
       end_prescription = #{endPrescription,jdbcType=DATE},
       country_bn = #{countryBn,jdbcType=VARCHAR},
       country_name = #{countryName,jdbcType=VARCHAR},
+      area_bn = #{areaBn,jdbcType=VARCHAR},
+      area_name = #{areaName,jdbcType=VARCHAR},
       num = #{num,jdbcType=INTEGER},
       create_user_id = #{createUserId,jdbcType=INTEGER},
       create_user_name = #{createUserName,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
   </update>
-
 
   <!-- 根据给定参数的开始时间和结束时间查询销售人员数量、国家、地区等信息 -->
   <select id="selectNumsWhereTime" parameterType="java.util.Map" resultType="java.util.Map">

@@ -3,6 +3,7 @@ package com.erui.boss.web.report;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.report.model.SalesmanNums;
+import com.erui.report.service.CommonService;
 import com.erui.report.service.SalesmanNumsService;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +27,8 @@ import java.util.Map;
 @RequestMapping("/report/salesmanNums")
 public class SalesmanNumsController {
 
-
+    @Autowired
+    private CommonService commonService;
     @Autowired
     private SalesmanNumsService salesmanNumsService;
 
@@ -54,11 +56,26 @@ public class SalesmanNumsController {
                 vo.setCreateUserName(realname);
             });
             try {
+
+                for (SalesmanNums salesmanNums : salesmanNumsList) {
+                    if (StringUtils.isBlank(salesmanNums.getCountryBn())) {
+                        result.setStatus(ResultStatusEnum.FAIL).setMsg("国家参数错误");
+                        return result;
+                    }
+                    // 完善国家信息
+                    Map<String, Object> countryInfoMap = commonService.findCountryInfoByBn(salesmanNums.getCountryBn());
+                    if (countryInfoMap == null || countryInfoMap.size() == 0) {
+                        result.setStatus(ResultStatusEnum.FAIL).setMsg("国家信息不存在");
+                    }
+                    salesmanNums.setCountryBn((String) countryInfoMap.get("countryBn"));
+                    salesmanNums.setCountryName((String) countryInfoMap.get("countryName"));
+                    salesmanNums.setAreaBn((String) countryInfoMap.get("areaBn"));
+                    salesmanNums.setAreaName((String) countryInfoMap.get("areaName"));
+                }
+
                 int flag = salesmanNumsService.add(salesmanNumsList);
-                if (1 == flag) {
+                if (0 != flag) {
                     result.setStatus(ResultStatusEnum.FAIL);
-                } else if (2 == flag) {
-                    result.setStatus(ResultStatusEnum.DATA_REPEAT_ERROR);
                 }
             }catch (Exception ex) {
                 ex.printStackTrace();
@@ -111,13 +128,26 @@ public class SalesmanNumsController {
             salesmanNums.setCreateUserId(Integer.parseInt(userid));
         }
         salesmanNums.setCreateUserName(realname);
+
+        if (StringUtils.isBlank(salesmanNums.getCountryBn())) {
+            result.setStatus(ResultStatusEnum.FAIL).setMsg("国家参数错误");
+            return result;
+        }
+        // 完善国家信息
+        Map<String, Object> countryInfoMap = commonService.findCountryInfoByBn(salesmanNums.getCountryBn());
+        if (countryInfoMap == null || countryInfoMap.size() == 0) {
+            result.setStatus(ResultStatusEnum.FAIL).setMsg("国家信息不存在");
+            return result;
+        }
+        salesmanNums.setCountryBn((String) countryInfoMap.get("countryBn"));
+        salesmanNums.setCountryName((String) countryInfoMap.get("countryName"));
+        salesmanNums.setAreaBn((String) countryInfoMap.get("areaBn"));
+        salesmanNums.setAreaName((String) countryInfoMap.get("areaName"));
+
+
         int flag = salesmanNumsService.update(salesmanNums);
-        if (1 == flag) {
+        if (0 != flag) {
             result.setStatus(ResultStatusEnum.FAIL);
-        } else if (2 == flag) {
-            result.setStatus(ResultStatusEnum.DATA_REPEAT_ERROR);
-        } else if ( 3 == flag) {
-            result.setStatus(ResultStatusEnum.DATA_NULL);
         }
         return result;
     }
@@ -153,6 +183,16 @@ public class SalesmanNumsController {
         }
         params.put("pageNum", pageNum);
         params.put("pageSize", pageSize);
+
+        List<String> areaCountry = (List<String>) params.get("area_country");
+        if (areaCountry != null) {
+            if (areaCountry.size() > 0 && StringUtils.isNotBlank(areaCountry.get(0))) {
+                params.put("areaBn",areaCountry.get(0));
+            }
+            if (areaCountry.size() > 1 && StringUtils.isNotBlank(areaCountry.get(1))) {
+                params.put("countryBn",areaCountry.get(1));
+            }
+        }
         PageInfo<SalesmanNums> pageInfo = salesmanNumsService.list(params);
         result.setData(pageInfo);
         return result;
