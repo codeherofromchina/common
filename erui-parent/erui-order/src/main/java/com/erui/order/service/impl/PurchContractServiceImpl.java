@@ -458,7 +458,7 @@ public class PurchContractServiceImpl implements PurchContractService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Map<String, Object>> purchAbleByPage(String agentId, int pageNum, int pageSizeString, String purchContractNo, Integer supplierId, Integer type) throws Exception {
+    public Page<Map<String, Object>> purchAbleByPage(String agentId, int pageNum, int pageSizeString, String purchContractNo, Integer supplierId, String supplierName, Integer type) throws Exception {
 
         List<Integer> purchContractIds = findAllPurchAblePurchContract(Integer.parseInt(agentId));
 
@@ -473,9 +473,13 @@ public class PurchContractServiceImpl implements PurchContractService {
                     if(purchContractNo != null){
                         list.add(cb.like(root.get("purchContractNo").as(String.class), "%" + purchContractNo + "%"));
                     }
-                    // 根据供应商过滤条件
+                    // 根据供应商ID过滤条件
                     if(supplierId != null){
                         list.add(cb.equal(root.get("supplierId").as(Integer.class), supplierId));
+                    }
+                    // 根据供应商名称过滤条件
+                    if(supplierName != null){
+                        list.add(cb.like(root.get("supplierName").as(String.class), "%" + supplierName + "%"));
                     }
                     // 根据合同类型查询
                     if(type != null){

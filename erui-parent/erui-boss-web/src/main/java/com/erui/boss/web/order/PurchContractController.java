@@ -129,7 +129,7 @@ public class PurchContractController {
     /**
      * 可以采购的项目列表
      *
-     * @param params {purchContractNo:"采购合同号", supplierId:"供货商ID", type:"合同类型"}
+     * @param params {purchContractNo:"采购合同号", supplierId:"供货商ID", supplierName:"供货商名称", type:"合同类型"}
      * @return
      */
     @RequestMapping(value = "purchAbleList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
@@ -138,6 +138,7 @@ public class PurchContractController {
         Object userid = request.getSession().getAttribute("userid");
         String purchContractNo = StringUtils.isNumeric(params.get("purchContractNo"))? params.get("purchContractNo"):null;
         Integer supplierId = StringUtils.isNumeric(params.get("supplierId"))? Integer.parseInt(params.get("supplierId")):null;
+        String supplierName = StringUtils.isNumeric(params.get("supplierName"))? params.get("supplierName"):null;
         Integer type = StringUtils.isNumeric(params.get("type"))? Integer.parseInt(params.get("type")):null;
         // 初始化页码信息
         int pageNum = 1;
@@ -156,7 +157,7 @@ public class PurchContractController {
         String errMsg = null;
         try {
             // 分页查询可采购合同
-            Page<Map<String, Object>> purchContractPage = purchContractService.purchAbleByPage(userid.toString(), pageNum, pageSize, purchContractNo, supplierId, type);
+            Page<Map<String, Object>> purchContractPage = purchContractService.purchAbleByPage(userid.toString(), pageNum, pageSize, purchContractNo, supplierId, supplierName, type);
 
             return new Result<>(purchContractPage);
         } catch (Exception e) {
