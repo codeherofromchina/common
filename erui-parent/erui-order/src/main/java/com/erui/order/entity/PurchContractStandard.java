@@ -23,10 +23,16 @@ public class PurchContractStandard {
     private PurchContract purchContract;
 
 	/**
-	 * 第二条、质量标准及要求__
+	 * 基础信息、用于买受人__，且出卖人
 	 */
-	@Column(name = "standard_and_require")
-	private String standardAndRequire;
+	@Column(name = "used_for_buyer")
+	private String usedForBuyer;
+
+    /**
+     * 第二条、质量标准及要求__
+     */
+    @Column(name = "standard_and_require")
+    private String standardAndRequire;
 
 	/**
 	 * 第四条、产品包装标准、包装费用与包装物回收__
@@ -388,5 +394,13 @@ public class PurchContractStandard {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public String getUsedForBuyer() {
+        return usedForBuyer;
+    }
+
+    public void setUsedForBuyer(String usedForBuyer) {
+        this.usedForBuyer = usedForBuyer;
     }
 }
