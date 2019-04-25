@@ -338,7 +338,7 @@ public class PurchContractServiceImpl implements PurchContractService {
             attachmentList = purchContract.getAttachments();
         }
         Map<Integer, Attachment> dbAttahmentsMap = dbPurchContract.getAttachments().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
-        attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbPurchContract.getId(), Attachment.AttachmentCategory.PURCH.getCode());
+        attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbPurchContract.getId(), Attachment.AttachmentCategory.PURCHCONTRACT.getCode());
 
         return true;
     }
