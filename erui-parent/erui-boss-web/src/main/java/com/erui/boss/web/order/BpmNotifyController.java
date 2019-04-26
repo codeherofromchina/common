@@ -38,7 +38,7 @@ public class BpmNotifyController {
         // 验证安全性
         if (!validate(params.get("key"))) {
             // 如果秘钥不正确，什么也不返回
-            return null;
+            return new Result<>(ResultStatusEnum.FAIL);
         }
         Result<Object> result = new Result<>();
         // 检查参数
@@ -61,7 +61,7 @@ public class BpmNotifyController {
         // 验证安全性
         if (!validate(bpmTaskRuntime.getKey())) {
             // 如果秘钥不正确，什么也不返回
-            return null;
+            return new Result<>(ResultStatusEnum.FAIL);
         }
 
         orderV2Service.updateAuditProcessDoing(bpmTaskRuntime.getPiId(),bpmTaskRuntime.getActId(),bpmTaskRuntime.getTaskId());
