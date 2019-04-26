@@ -89,6 +89,8 @@ public class WeeklyReportController {
         data.put("quoteInfo", quoteInfoData); // 报价数量/金额数据信息
         data.put("orderInfo", orderInfoData); // 订单数量/金额数据信息
 
+
+
         return new Result<>(data);
     }
 
