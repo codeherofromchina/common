@@ -444,21 +444,13 @@ public class PurchServiceImpl implements PurchService {
     public void updateSupplierStatus(Integer purchId, String status) {
         //获取token
         final String eruiToken = (String) ThreadLocalUtil.getObject();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String jsonParam = "{\"purch_id\":\"" + purchId + "\",\"status\":\"" + status + "\"}";
-                Map<String, String> header = new HashMap<>();
-                header.put("Cookie", eruiToken);
-                header.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
-                //发送钉钉通知
-                StringBuffer stringBuffer = new StringBuffer();
-                stringBuffer.append("purch_id=").append(purchId);
-                stringBuffer.append("&status=status");
-                String s1 = HttpRequest.sendPost(dingSendSms, jsonParam, header);
-                logger.info("发送钉钉通知返回状态" + s1);
-            }
-        }).start();
+        String jsonParam = "{\"purch_id\":\"" + purchId + "\",\"status\":\"" + status + "\"}";
+        Map<String, String> header = new HashMap<>();
+        header.put("Cookie", "eruitoken=9264d783bddd7ad2ba7571421314873e_018410");
+        header.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+        //发送钉钉通知
+        String s1 = HttpRequest.sendPost(supplierStatus, jsonParam, header);
+        logger.info("修改供应商状态返回状态" + s1);
     }
 
     //钉钉通知 审批人
