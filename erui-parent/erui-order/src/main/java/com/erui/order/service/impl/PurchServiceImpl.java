@@ -903,7 +903,7 @@ public class PurchServiceImpl implements PurchService {
                 throw new Exception(String.format("%s%s%s", "项目必须提交采购申请", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The project must submit a purchase application"));
 
             }
-            if (purchContract.getStatus() != 2 || purchContract.getStatus() != 3) {
+            if (purchContract.getStatus() != 2 && purchContract.getStatus() != 3) {
                 throw new Exception(String.format("%s%s%s", "采购合同必须为未执行或执行中状态", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The purchContract must unsubmit"));
             }
             if (project.getPurchDone()) {
@@ -1086,7 +1086,7 @@ public class PurchServiceImpl implements PurchService {
                 if (Project.PurchReqCreateEnum.valueOfCode(project.getPurchReqCreate()) != Project.PurchReqCreateEnum.SUBMITED) {
                     throw new Exception(String.format("%s%s%s", "项目必须提交采购申请", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The project must submit a purchase application"));
                 }
-                if (purchContract.getStatus() != 2 || purchContract.getStatus() != 3) {
+                if (purchContract.getStatus() != 2 && purchContract.getStatus() != 3) {
                     throw new Exception(String.format("%s%s%s", "采购合同必须为未执行或执行中状态", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The purchContract must submit"));
                 }
                 if (project.getPurchDone()) {
