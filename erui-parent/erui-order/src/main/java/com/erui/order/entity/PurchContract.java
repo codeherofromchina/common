@@ -2,7 +2,6 @@ package com.erui.order.entity;
 
 import com.erui.comm.NewDateUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -79,6 +78,13 @@ public class PurchContract {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "signing_date")
     private Date signingDate;
+
+    /**
+     * 合同约定到货日期
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @Transient
+    private Date agreedArrivalDate;
 
     /**
      * 供货商ID
@@ -467,6 +473,14 @@ public class PurchContract {
 
     public void setProjectId(String projectId) {
         this.projectId = projectId;
+    }
+
+    public Date getAgreedArrivalDate() {
+        return agreedArrivalDate;
+    }
+
+    public void setAgreedArrivalDate(Date agreedArrivalDate) {
+        this.agreedArrivalDate = agreedArrivalDate;
     }
 
     public void setBaseInfo(PurchContract purchContract) {
