@@ -437,6 +437,12 @@ public class PurchContractServiceImpl implements PurchContractService {
                         purchContract.getAttachments().size();
                     }
                 }
+                if(purchContract.getType() == 1){ // 合同约定到货日期
+                    purchContract.setAgreedArrivalDate(purchContract.getPurchContractSimple().getShippingDate());
+                }
+                if(purchContract.getType() == 2){ // 合同约定到货日期
+                    purchContract.setAgreedArrivalDate(purchContract.getPurchContractStandard().getDeliveryDate());
+                }
                 List<PurchContractGoods> purchContractGoodsList = purchContract.getPurchContractGoodsList();
                 Set<String> projectIdSet = new HashSet<>();
                 if (purchContractGoodsList.size() > 0) {
