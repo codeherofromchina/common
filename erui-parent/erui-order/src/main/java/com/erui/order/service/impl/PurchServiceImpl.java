@@ -903,8 +903,8 @@ public class PurchServiceImpl implements PurchService {
                 throw new Exception(String.format("%s%s%s", "项目必须提交采购申请", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The project must submit a purchase application"));
 
             }
-            if (purchContract.getStatus() != 2) {
-                throw new Exception(String.format("%s%s%s", "采购合同必须为未执行状态", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The purchContract must unsubmit"));
+            if (purchContract.getStatus() != 2 || purchContract.getStatus() != 3) {
+                throw new Exception(String.format("%s%s%s", "采购合同必须为未执行或执行中状态", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The purchContract must unsubmit"));
             }
             if (project.getPurchDone()) {
                 throw new Exception(String.format("%s%s%s", "项目采购已完成，不能再次采购", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project procurement has been completed and can not be repurchased"));
@@ -933,7 +933,7 @@ public class PurchServiceImpl implements PurchService {
             }
             // 增加采购合同预采购数量
             //goods.setPrePurchContractNum(goods.getPrePurchContractNum() + intPurchaseNum);
-            purchContractGoods.setPrePurchContractNum(goods.getPrePurchContractNum() + intPurchaseNum);
+            purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + intPurchaseNum);
             // 直接更新商品，放置循环中存在多次修改同一个商品错误
             purchContractGoodsDao.save(purchContractGoods);
             goodsDao.save(goods);
@@ -1086,8 +1086,8 @@ public class PurchServiceImpl implements PurchService {
                 if (Project.PurchReqCreateEnum.valueOfCode(project.getPurchReqCreate()) != Project.PurchReqCreateEnum.SUBMITED) {
                     throw new Exception(String.format("%s%s%s", "项目必须提交采购申请", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The project must submit a purchase application"));
                 }
-                if (purchContract.getStatus() != 2) {
-                    throw new Exception(String.format("%s%s%s", "采购合同必须为执行中状态", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The purchContract must submit"));
+                if (purchContract.getStatus() != 2 || purchContract.getStatus() != 3) {
+                    throw new Exception(String.format("%s%s%s", "采购合同必须为未执行或执行中状态", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The purchContract must submit"));
                 }
                 if (project.getPurchDone()) {
                     throw new Exception(String.format("%s%s%s", "项目采购已完成，不能再次采购", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project procurement has been completed and can not be repurchased"));
