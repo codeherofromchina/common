@@ -87,7 +87,7 @@ public class BpmUtils {
         LOGGER.info("启动流程实例返回内容为：{}", resp);
         JSONObject respJson = JSONObject.parseObject(resp);
         if (respJson != null && respJson.getInteger("code") == 0) {
-            return respJson;
+            return respJson.getJSONObject("response");
         }
         throw new Exception("业务流程启动失败");
     }

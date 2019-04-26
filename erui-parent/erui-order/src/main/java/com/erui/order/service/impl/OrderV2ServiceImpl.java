@@ -409,16 +409,38 @@ public class OrderV2ServiceImpl implements OrderV2Service {
 
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
             // 初始化订单提交后的后续工作
-            // 调用业务流，开启业务审核流程系统 // 非国内订单审批流程
+            // 调用业务流，开启业务审核流程系统
+            JSONObject processResp = null;
             Map<String, Object> bpmInitVar = new HashMap<>();
-            bpmInitVar.put("order_amount", addOrderVo.getTotalPriceUsd().doubleValue());
+            bpmInitVar.put("order_amount", addOrderVo.getTotalPriceUsd().doubleValue()); // 订单金额
+            // 国内订单
             String financing_approval = "N";
             if (addOrderVo.getFinancing() != null && addOrderVo.getFinancing() == 1) {
+                // 判断是否需要融资审批
                 financing_approval = "Y";
             }
             bpmInitVar.put("financing_approval", financing_approval);
-            JSONObject processResp = BpmUtils.startProcessInstanceByKey("process_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
-            order1.setProcessId(processResp.getJSONObject("response").getString("instanceId"));
+            bpmInitVar.put("logistics_approval", "Y"); // 是否需要物流审批，现在是都需要物流审批
+            switch (addOrderVo.getOrderCategory()) {
+                case 1:
+                    // 预投订单
+                    processResp = BpmUtils.startProcessInstanceByKey("process_preorder", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                case 3:
+                    // 试用订单
+                    processResp = BpmUtils.startProcessInstanceByKey("process_trialorder", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                case 4:
+                    // 现货订单
+                    processResp = BpmUtils.startProcessInstanceByKey("process_spotorder", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                case 6:
+                    // 国内订单
+                    processResp = BpmUtils.startProcessInstanceByKey("process_domesticorder", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                default:
+                    // 非国内订单审批流程 process_order
+                    processResp = BpmUtils.startProcessInstanceByKey("process_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+            }
+            // 设置订单和业务流标示关联
+            order1.setProcessId(processResp.getString("instanceId"));
+
             //添加订单未执行事件，设置订单流程进度信息
             applicationContext.publishEvent(new OrderProgressEvent(order1, 1, eruiToken));
             // 记录订单日志信息

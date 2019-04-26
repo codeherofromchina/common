@@ -261,6 +261,11 @@ public class Purch {
     @JoinColumn(name = "purch_id")
     @OrderBy("id asc")
     private List<PurchGoods> purchGoodsList = new ArrayList<>();
+    // 流程实例ID
+    @Column(name="process_id")
+    private String processId;
+    @Column(name="task_id")
+    private String taskId;
 
     public Integer getChairmanBoardId() {
         return chairmanBoardId;
@@ -818,6 +823,21 @@ public class Purch {
         this.purchGoodsList = purchGoodsList;
     }
 
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public String getProcessId() {
+        return processId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+
+    public void setProcessId(String processId) {
+        this.processId = processId;
+    }
 
     /**
      * 采购状态枚举

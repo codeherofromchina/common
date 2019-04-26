@@ -95,6 +95,9 @@ public class OrderV2Controller {
             if (addOrderVo.getOrderType() == null) {
                 result.setMsg("订单类型不能为空");
                 result.setEnMsg("Order type must be filled in");
+            } else if (addOrderVo.getOrderCategory() == null){
+                result.setMsg("订单类别不能为空");
+                result.setEnMsg("Order category cannot be empty");
             } else if (addOrderVo.getSigningDate() == null && addOrderVo.getOrderCategory() != 1 && addOrderVo.getOrderCategory() != 3) {
                 result.setMsg("订单签约日期不能为空");
                 result.setEnMsg("Order contract date must be filled in");
