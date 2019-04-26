@@ -64,6 +64,9 @@ public class InspectReportServiceImpl implements InspectReportService {
     private PurchGoodsDao purchGoodsDao;
 
     @Autowired
+    private PurchServiceImpl purchServiceImpl;
+
+    @Autowired
     private BackLogService backLogService;
 
     @Autowired
@@ -463,13 +466,17 @@ public class InspectReportServiceImpl implements InspectReportService {
             if (doneFlag) {
                 purch.setStatus(Purch.StatusEnum.DONE.getCode());
                 purchDao.save(purch);
-
+                //当全部采购完成时设置供应商状态为COMPLETED
+                purchServiceImpl.updateSupplierStatus(purch.getId(), "COMPLETED");
                 //全部质检合格以后，删除   “办理报检单”  待办提示
                 BackLog backLog = new BackLog();
                 backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
                 backLog.setHostId(purch.getId());
                 backLogService.updateBackLogByDelYn(backLog);
 
+            } else {
+                //当部分采购时设置供应商状态为PART_RECEIPT
+                purchServiceImpl.updateSupplierStatus(purch.getId(), "PART_RECEIPT");
             }
             //采购合同商品采购完成
             if (purchContractStatus) {

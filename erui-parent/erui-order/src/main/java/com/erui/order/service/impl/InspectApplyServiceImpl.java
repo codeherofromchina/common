@@ -69,6 +69,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     private InspectReportServiceImpl inspectReportServiceImpl;
 
     @Autowired
+    private PurchServiceImpl purchServiceImpl;
+
+    @Autowired
     private BackLogService backLogService;
 
     @Autowired
@@ -336,6 +339,8 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         if (doneFlag) {
             purch.setStatus(Purch.StatusEnum.DONE.getCode());
             purchDao.save(purch);
+            //当全部采购完成时设置供应商状态为COMPLETED
+            purchServiceImpl.updateSupplierStatus(purch.getId(), "COMPLETED");
             try {
                 // 删除办理报检单待办事项列表
                 //全部质检合格以后，删除   “办理报检单”  待办提示
@@ -346,6 +351,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+        } else {
+            //当部分采购时设置供应商状态为PART_RECEIPT
+            purchServiceImpl.updateSupplierStatus(purch.getId(), "PART_RECEIPT");
         }
         if (purchContractStatus) {
             if (purch.getPurchContractId() != null) {

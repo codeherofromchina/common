@@ -79,6 +79,8 @@ public class PurchServiceImpl implements PurchService {
     private String memberInformation;  //查询人员信息调用接口
     @Value("#{orderProp[DING_SEND_SMS]}")
     private String dingSendSms;  //发钉钉通知接口
+    @Value("#{orderProp[SUPPLIER_STATUS]}")
+    private String supplierStatus;  //采购商状态变更
 
     @Override
     public Purch findBaseInfo(Integer id) {
@@ -362,6 +364,8 @@ public class PurchServiceImpl implements PurchService {
             }
         }
         if (auditingStatus_i == 4 && "999".equals(auditingProcess_i)) {
+            //审批完成时调取采购供应商接口
+            updateSupplierStatus(purch.getId(), "DRAFT");
             //当是国内订单审完成时时采购完成
             if (purch.getProjects().size() > 0 && purch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
                 purch.setStatus(Purch.StatusEnum.DONE.getCode()); // TODO 这里是何意？
@@ -434,6 +438,27 @@ public class PurchServiceImpl implements PurchService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    //钉钉通知 审批人
+    public void updateSupplierStatus(Integer purchId, String status) {
+        //获取token
+        final String eruiToken = (String) ThreadLocalUtil.getObject();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String jsonParam = "{\"purch_id\":\"" + purchId + "\",\"status\":\"" + status + "\"}";
+                Map<String, String> header = new HashMap<>();
+                header.put("Cookie", eruiToken);
+                header.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+                //发送钉钉通知
+                StringBuffer stringBuffer = new StringBuffer();
+                stringBuffer.append("purch_id=").append(purchId);
+                stringBuffer.append("&status=status");
+                String s1 = HttpRequest.sendPost(dingSendSms, jsonParam, header);
+                logger.info("发送钉钉通知返回状态" + s1);
+            }
+        }).start();
     }
 
     //钉钉通知 审批人
