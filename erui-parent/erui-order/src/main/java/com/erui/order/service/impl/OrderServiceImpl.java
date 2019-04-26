@@ -767,60 +767,6 @@ public class OrderServiceImpl implements OrderService {
                     auditorIds.append("," + auditingUserId_i + ",");
                     break;
                 case 105://法务审核
-                    Map<String, Integer> companyMap = new ImmutableMap.Builder<String, Integer>()
-                            .put("Erui International USA, LLC", 1)
-                            .put("Erui International (Canada) Co., Ltd.", 2)
-                            .put("Erui Intemational Electronic Commerce (HK) Co., Lirnited", 3)
-                            .put("PT ERUI INTERNATIONAL INDONESIA", 4)
-                            .put("Erui Intemational Electronic Commerce (Peru) S.A.C", 5)
-                            .build();
-                    // 添加销售合同号
-                    String contractNo = null;
-                    if (StringUtils.isBlank(order.getContractNo())) {
-                        if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())) {
-                            String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
-                            String lastContractNo = orderDao.findLastContractNo(prefix);
-                            if (StringUtils.isBlank(lastContractNo)) {
-                                contractNo = StringUtil.genContractNo(null);
-                            } else {
-                                contractNo = StringUtil.genContractNo(lastContractNo);
-                            }
-
-                        } else if (companyMap.containsKey(order.getSigningCo())) {
-                            String prefix = "YRHWX" + DateUtil.format("yyyyMMdd", new Date());
-                            String lastContractNo = orderDao.findLastContractNo(prefix);
-                            if (StringUtils.isBlank(lastContractNo)) {
-                                contractNo = StringUtil.genContractNo02(null);
-                            } else {
-                                contractNo = StringUtil.genContractNo02(lastContractNo);
-                            }
-                        }
-                    } else if (order.getOrderCategory() == 6 && StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())
-                            && StringUtils.isBlank(order.getContractNo())) {
-                        String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
-                        String lastContractNo = orderDao.findLastContractNo(prefix);
-                        if (StringUtils.isBlank(lastContractNo)) {
-                            contractNo = StringUtil.genContractNo(null);
-                        } else {
-                            contractNo = StringUtil.genContractNo(lastContractNo);
-                        }
-                    }
-                    if (!StringUtils.isBlank(contractNo)) {
-                        // 判断销售合同号不能重复
-                        List<Integer> contractNoProjectIds = orderDao.findByContractNo(contractNo);
-                        if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
-                            Integer orderId = order.getId();
-                            for (Integer oId : contractNoProjectIds) {
-                                if (oId.intValue() != orderId.intValue()) {
-                                    return false;
-                                }
-                            }
-                        }
-                        order.setContractNo(contractNo);
-                        //填写商品销售合同号
-                        order.getGoodsList().forEach(vo -> vo.setContractNo(order.getContractNo()));
-                        order.getProject().setContractNo(contractNo);
-                    }
                     String replace = StringUtils.strip(auditingUserId.replaceFirst(order.getLegalAuditerId().toString(), ""));
                     if ("".equals(replace)) { // 跟他并行审核的都已经审核完成
                         //订单审核完成后项目才能办理项目
@@ -960,6 +906,56 @@ public class OrderServiceImpl implements OrderService {
             order.setContractNo("");
 
         }
+        Map<String, Integer> companyMap = new ImmutableMap.Builder<String, Integer>()
+                .put("Erui International USA, LLC", 1)
+                .put("Erui International (Canada) Co., Ltd.", 2)
+                .put("Erui Intemational Electronic Commerce (HK) Co., Lirnited", 3)
+                .put("PT ERUI INTERNATIONAL INDONESIA", 4)
+                .put("Erui Intemational Electronic Commerce (Peru) S.A.C", 5)
+                .build();
+        // 添加销售合同号
+        String contractNo = null;
+        if (StringUtils.isBlank(order.getContractNo())) {
+            if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", addOrderVo.getSigningCo())) {
+                String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
+                String lastContractNo = orderDao.findLastContractNo(prefix);
+                if (StringUtils.isBlank(lastContractNo)) {
+                    contractNo = StringUtil.genContractNo(null);
+                } else {
+                    contractNo = StringUtil.genContractNo(lastContractNo);
+                }
+            } else if (companyMap.containsKey(addOrderVo.getSigningCo())) {
+                String prefix = "YRHWX" + DateUtil.format("yyyyMMdd", new Date());
+                String lastContractNo = orderDao.findLastContractNo(prefix);
+                if (StringUtils.isBlank(lastContractNo)) {
+                    contractNo = StringUtil.genContractNo02(null);
+                } else {
+                    contractNo = StringUtil.genContractNo02(lastContractNo);
+                }
+            }
+        } else if (addOrderVo.getOrderCategory() == 6 && StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", addOrderVo.getSigningCo())
+                && StringUtils.isBlank(order.getContractNo())) {
+            String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
+            String lastContractNo = orderDao.findLastContractNo(prefix);
+            if (StringUtils.isBlank(lastContractNo)) {
+                contractNo = StringUtil.genContractNo(null);
+            } else {
+                contractNo = StringUtil.genContractNo(lastContractNo);
+            }
+        }
+        if (!StringUtils.isBlank(contractNo)) {
+            // 判断销售合同号不能重复
+            List<Integer> contractNoProjectIds = orderDao.findByContractNo(contractNo);
+            if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
+                Integer orderId = order.getId();
+                for (Integer oId : contractNoProjectIds) {
+                    if (oId.intValue() != orderId.intValue()) {
+                        return null;
+                    }
+                }
+            }
+            order.setContractNo(contractNo);
+        }
         addOrderVo.copyBaseInfoTo(order);
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setDeleteFlag(false);
@@ -1078,6 +1074,7 @@ public class OrderServiceImpl implements OrderService {
                 projectAdd = orderUpdate.getProject();
             }
             projectAdd.setOrder(orderUpdate);
+            projectAdd.setContractNo(order.getContractNo());
             //projectAdd.setExecCoName(orderUpdate.getExecCoName());
             projectAdd.setBusinessUid(orderUpdate.getTechnicalId());
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
@@ -1102,6 +1099,7 @@ public class OrderServiceImpl implements OrderService {
             goodsList1.parallelStream().forEach(goods1 -> {
                 goods1.setProject(project);
                 goods1.setProjectNo(project.getProjectNo());
+                goods1.setContractNo(order.getContractNo());
             });
             goodsDao.save(goodsList1);
             //添加项目利润核算单信息
@@ -1197,6 +1195,56 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setCreateTime(new Date());
         order.setDeleteFlag(false);
+        Map<String, Integer> companyMap = new ImmutableMap.Builder<String, Integer>()
+                .put("Erui International USA, LLC", 1)
+                .put("Erui International (Canada) Co., Ltd.", 2)
+                .put("Erui Intemational Electronic Commerce (HK) Co., Lirnited", 3)
+                .put("PT ERUI INTERNATIONAL INDONESIA", 4)
+                .put("Erui Intemational Electronic Commerce (Peru) S.A.C", 5)
+                .build();
+        // 添加销售合同号
+        String contractNo = null;
+        if (StringUtils.isBlank(addOrderVo.getContractNo())) {
+            if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", addOrderVo.getSigningCo())) {
+                String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
+                String lastContractNo = orderDao.findLastContractNo(prefix);
+                if (StringUtils.isBlank(lastContractNo)) {
+                    contractNo = StringUtil.genContractNo(null);
+                } else {
+                    contractNo = StringUtil.genContractNo(lastContractNo);
+                }
+            } else if (companyMap.containsKey(addOrderVo.getSigningCo())) {
+                String prefix = "YRHWX" + DateUtil.format("yyyyMMdd", new Date());
+                String lastContractNo = orderDao.findLastContractNo(prefix);
+                if (StringUtils.isBlank(lastContractNo)) {
+                    contractNo = StringUtil.genContractNo02(null);
+                } else {
+                    contractNo = StringUtil.genContractNo02(lastContractNo);
+                }
+            }
+        } else if (addOrderVo.getOrderCategory() == 6 && StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", addOrderVo.getSigningCo())
+                && StringUtils.isBlank(addOrderVo.getContractNo())) {
+            String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
+            String lastContractNo = orderDao.findLastContractNo(prefix);
+            if (StringUtils.isBlank(lastContractNo)) {
+                contractNo = StringUtil.genContractNo(null);
+            } else {
+                contractNo = StringUtil.genContractNo(lastContractNo);
+            }
+        }
+        if (!StringUtils.isBlank(contractNo)) {
+            // 判断销售合同号不能重复
+            List<Integer> contractNoProjectIds = orderDao.findByContractNo(contractNo);
+            if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
+                Integer orderId = order.getId();
+                for (Integer oId : contractNoProjectIds) {
+                    if (oId.intValue() != orderId.intValue()) {
+                        return null;
+                    }
+                }
+            }
+            order.setContractNo(contractNo);
+        }
         //订单商品添加
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
         Goods goods = null;
@@ -1209,6 +1257,7 @@ public class OrderServiceImpl implements OrderService {
                 // 已经存在的sku，返回错误
                 throw new MyException("同一sku不可以重复添加&&The same sku can not be added repeatedly");
             }
+            goods.setContractNo(order.getContractNo());
             goods.setSku(sku);
             goods.setOutstockNum(0);
             goods.setMeteType(pGoods.getMeteType());
@@ -1332,7 +1381,7 @@ public class OrderServiceImpl implements OrderService {
             addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null, signingDate);
             // 订单提交时推送项目信息
             Project project = new Project();
-            //project.setProjectNo(UUID.randomUUID().toString());
+            project.setContractNo(order.getContractNo());
             project.setOrder(order1);
             project.setBusinessUid(order1.getTechnicalId());
             project.setExecCoName(order1.getExecCoName());
