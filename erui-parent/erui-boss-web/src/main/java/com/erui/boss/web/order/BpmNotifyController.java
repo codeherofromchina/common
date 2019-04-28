@@ -36,6 +36,10 @@ public class BpmNotifyController {
      */
     @RequestMapping(value = "onCompleted", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result onCompleted(@RequestBody Map<String, String> params) {
+
+
+
+
         System.out.println("-----onCompleted--------" + params);
         // 验证安全性
         if (!validate(params.get("key"))) {
