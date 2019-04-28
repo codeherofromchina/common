@@ -28,7 +28,7 @@ public interface InspectApplyService {
      * @param inspectApply
      * @return
      */
-    public boolean insert(InspectApply inspectApply) throws Exception;
+    boolean insert(InspectApply inspectApply) throws Exception;
 
     /**
      * 更新报检单信息

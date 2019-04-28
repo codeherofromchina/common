@@ -103,6 +103,21 @@ public class PurchServiceImpl implements PurchService {
         return null;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Purch> findByPurchNo(String purchNo) {
+        if (purchNo != null) {
+            List<Purch> puchList = purchDao.findByPurchNo(purchNo);
+            if (puchList != null && puchList.size() > 0) {
+                for (Purch purch : puchList) {
+                    purch.setPurchGoodsList(null);
+                }
+            }
+            return puchList;
+        }
+        return null;
+    }
+
 
     /**
      * 查询采购页面详情信息
@@ -274,7 +289,7 @@ public class PurchServiceImpl implements PurchService {
             switch (curAuditProcess) {
                 case 21: // 采购经理审核核
                     if (purch.getAuditingProcess().indexOf("22") == -1) {//同级事业部项目负责人是否已审核
-                        if (purch.getContractVersion() != null && "1".equals(purch.getContractVersion())) {//是否为标准版合同，是标准则越过法务审批
+                        if (purch.getContractVersion() != null && ("1".equals(purch.getContractVersion()) || "2".equals(purch.getContractVersion()))) {//是否为标准版合同，是标准则越过法务审批
                             auditingProcess_i = "24";
                             auditingUserId_i = purch.getFinanceAuditerId() + "";
                         } else {//需要法务、财务审批
@@ -289,7 +304,7 @@ public class PurchServiceImpl implements PurchService {
                     break;
                 case 22://商务技术职称改为->事业部项目负责人审核
                     if (purch.getAuditingProcess().indexOf("21") == -1) {//同级采购经理是否已审批
-                        if (purch.getContractVersion() != null && "1".equals(purch.getContractVersion())) {//是否为标准版合同，是标准则越过法务审批
+                        if (purch.getContractVersion() != null && ("1".equals(purch.getContractVersion()) || "2".equals(purch.getContractVersion()))) {//是否为标准版合同，是标准则越过法务审批
                             auditingProcess_i = "24";
                             auditingUserId_i = purch.getFinanceAuditerId() + "";
                         } else {//需要法务、财务审批
@@ -444,21 +459,13 @@ public class PurchServiceImpl implements PurchService {
     public void updateSupplierStatus(Integer purchId, String status) {
         //获取token
         final String eruiToken = (String) ThreadLocalUtil.getObject();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String jsonParam = "{\"purch_id\":\"" + purchId + "\",\"status\":\"" + status + "\"}";
-                Map<String, String> header = new HashMap<>();
-                header.put("Cookie", eruiToken);
-                header.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
-                //发送钉钉通知
-                StringBuffer stringBuffer = new StringBuffer();
-                stringBuffer.append("purch_id=").append(purchId);
-                stringBuffer.append("&status=status");
-                String s1 = HttpRequest.sendPost(dingSendSms, jsonParam, header);
-                logger.info("发送钉钉通知返回状态" + s1);
-            }
-        }).start();
+        String jsonParam = "{\"purch_id\":\"" + purchId + "\",\"status\":\"" + status + "\"}";
+        Map<String, String> header = new HashMap<>();
+        header.put("Cookie", "eruitoken=9264d783bddd7ad2ba7571421314873e_018410");
+        header.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+        //发送钉钉通知
+        String s1 = HttpRequest.sendPost(supplierStatus, jsonParam, header);
+        logger.info("修改供应商状态返回状态" + s1);
     }
 
     //钉钉通知 审批人
@@ -674,9 +681,9 @@ public class PurchServiceImpl implements PurchService {
         row = sheet.getRow(7);
         tmpStr = row.getCell(1).getStringCellValue();
         String contractVersion = purch.getContractVersion();
-        if ("1".equals(contractVersion)) {
+        if ("1".equals(purch.getContractVersion()) || "2".equals(purch.getContractVersion())) {
             row.getCell(1).setCellValue(tmpStr.replace(unCheckedStr + "标准版本", checkedStr + "标准版本")); // 合同版本 --  □标准版本    □非标版本
-        } else if ("2".equals(contractVersion)) {
+        } else if ("3".equals(contractVersion)) {
             row.getCell(1).setCellValue(tmpStr.replace(unCheckedStr + "非标版本", checkedStr + "非标版本")); // 合同版本 --  □标准版本    □非标版本
         }
 
@@ -746,7 +753,7 @@ public class PurchServiceImpl implements PurchService {
         row.getCell(1).setCellValue(priceMode); // 定价方式
         row.getCell(3).setCellValue(saveMode); // 节约方式
 
-        row = sheet.getRow(13);
+        /*row = sheet.getRow(13);
         Integer payType = purch.getPayType();
         switch (payType) {
             case 1:
@@ -757,7 +764,7 @@ public class PurchServiceImpl implements PurchService {
                 break;
             default:
                 row.getCell(1).setCellValue("其他"); // 付款方式
-        }
+        }*/
         Date arraivalDate = purch.getPurChgDate();
         if (arraivalDate == null) {
             arraivalDate = purch.getArrivalDate();
@@ -903,8 +910,8 @@ public class PurchServiceImpl implements PurchService {
                 throw new Exception(String.format("%s%s%s", "项目必须提交采购申请", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The project must submit a purchase application"));
 
             }
-            if (purchContract.getStatus() != 2) {
-                throw new Exception(String.format("%s%s%s", "采购合同必须为未执行状态", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The purchContract must unsubmit"));
+            if (purchContract.getStatus() != 2 && purchContract.getStatus() != 3) {
+                throw new Exception(String.format("%s%s%s", "采购合同必须为未执行或执行中状态", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The purchContract must unsubmit"));
             }
             if (project.getPurchDone()) {
                 throw new Exception(String.format("%s%s%s", "项目采购已完成，不能再次采购", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project procurement has been completed and can not be repurchased"));
@@ -933,7 +940,7 @@ public class PurchServiceImpl implements PurchService {
             }
             // 增加采购合同预采购数量
             //goods.setPrePurchContractNum(goods.getPrePurchContractNum() + intPurchaseNum);
-            purchContractGoods.setPrePurchContractNum(goods.getPrePurchContractNum() + intPurchaseNum);
+            purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + intPurchaseNum);
             // 直接更新商品，放置循环中存在多次修改同一个商品错误
             purchContractGoodsDao.save(purchContractGoods);
             goodsDao.save(goods);
@@ -1086,8 +1093,8 @@ public class PurchServiceImpl implements PurchService {
                 if (Project.PurchReqCreateEnum.valueOfCode(project.getPurchReqCreate()) != Project.PurchReqCreateEnum.SUBMITED) {
                     throw new Exception(String.format("%s%s%s", "项目必须提交采购申请", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The project must submit a purchase application"));
                 }
-                if (purchContract.getStatus() != 2) {
-                    throw new Exception(String.format("%s%s%s", "采购合同必须为执行中状态", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The purchContract must submit"));
+                if (purchContract.getStatus() != 2 && purchContract.getStatus() != 3) {
+                    throw new Exception(String.format("%s%s%s", "采购合同必须为未执行或执行中状态", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The purchContract must submit"));
                 }
                 if (project.getPurchDone()) {
                     throw new Exception(String.format("%s%s%s", "项目采购已完成，不能再次采购", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project procurement has been completed and can not be repurchased"));

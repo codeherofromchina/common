@@ -136,15 +136,15 @@ public class PurchContractController {
     public Result<Object> purchAbleList(HttpServletRequest request, @RequestBody Map<String, String> params) {
         // 获取当前用户ID
         Object userid = request.getSession().getAttribute("userid");
-        String purchContractNo = StringUtils.isNumeric(params.get("purchContractNo"))? params.get("purchContractNo"):null;
-        Integer supplierId = StringUtils.isNumeric(params.get("supplierId"))? Integer.parseInt(params.get("supplierId")):null;
-        String supplierName = StringUtils.isNumeric(params.get("supplierName"))? params.get("supplierName"):null;
-        Integer type = StringUtils.isNumeric(params.get("type"))? Integer.parseInt(params.get("type")):null;
+        String purchContractNo = StringUtils.isNotEmpty(params.get("purchContractNo"))? params.get("purchContractNo"):null;
+        Integer supplierId = StringUtils.isNotEmpty(params.get("supplierId"))? Integer.parseInt(params.get("supplierId")):null;
+        String supplierName = StringUtils.isNotEmpty(params.get("supplierName"))? params.get("supplierName"):null;
+        Integer type = StringUtils.isNotEmpty(params.get("type"))? Integer.parseInt(params.get("type")):null;
         // 初始化页码信息
         int pageNum = 1;
         int pageSize = 10;
-        String pageNumStr = params.get("pageNum");
-        String pageSizeStr = params.get("pageSize");
+        String pageNumStr = params.get("page");
+        String pageSizeStr = params.get("rows");
         if (StringUtils.isNumeric(pageNumStr) && StringUtils.isNumeric(pageSizeStr)) {
             try {
                 pageNum = Integer.parseInt(pageNumStr);
