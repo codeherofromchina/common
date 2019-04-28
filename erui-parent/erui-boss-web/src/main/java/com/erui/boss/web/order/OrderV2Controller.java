@@ -8,6 +8,8 @@ import com.erui.order.entity.Order;
 import com.erui.order.requestVo.AddOrderV2Vo;
 import com.erui.order.requestVo.OrderV2ListRequest;
 import com.erui.order.service.OrderV2Service;
+import com.erui.order.v2.model.BpmStatusNode;
+import com.erui.order.v2.service.BpmStatusNodeService;
 import com.erui.report.service.BpmTaskRuntimeService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -25,6 +27,7 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -36,6 +39,8 @@ public class OrderV2Controller {
     private final static Logger logger = LoggerFactory.getLogger(OrderV2Controller.class);
     @Resource(name = "orderV2ServiceImpl")
     private OrderV2Service orderService;
+    @Autowired
+    private BpmStatusNodeService bpmStatusNodeService;
 
 
     @RequestMapping(value = "addOrder", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
@@ -48,7 +53,7 @@ public class OrderV2Controller {
             if (addOrderVo.getOrderType() == null) {
                 result.setMsg("订单类型不能为空");
                 result.setEnMsg("Order type must be filled in");
-            } else if (addOrderVo.getOrderCategory() == null){
+            } else if (addOrderVo.getOrderCategory() == null) {
                 result.setMsg("订单类别不能为空");
                 result.setEnMsg("Order category cannot be empty");
             } else if (addOrderVo.getSigningDate() == null && addOrderVo.getOrderCategory() != 1 && addOrderVo.getOrderCategory() != 3) {
@@ -131,6 +136,20 @@ public class OrderV2Controller {
         if (id != null) {
             return new Result<>(id);
         }
+        return result;
+    }
+
+    /**
+     * 查询订单流程的所有节点
+     *
+     * @param params
+     * @return
+     */
+    @RequestMapping(value = "nodes", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> nodes(@RequestBody Map<String, String> params) {
+        Result result = new Result();
+        List<BpmStatusNode> nodes = bpmStatusNodeService.findNodeByCategory(params);
+        result.setData(nodes);
         return result;
     }
 

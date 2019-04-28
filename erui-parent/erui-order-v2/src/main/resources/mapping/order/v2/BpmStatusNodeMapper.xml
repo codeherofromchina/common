@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.order.v2.dao.BpmStatusNodeMapper">
+
+    <select id="findNodeByCategory" parameterType="java.util.Map" resultType="java.util.Map">
+        select act_id,act_name from erui_sys.bpm_status_node where category =#{category} and sub_category = #{subCategory} order by sort asc ;
+    </select>
+
+</mapper>
