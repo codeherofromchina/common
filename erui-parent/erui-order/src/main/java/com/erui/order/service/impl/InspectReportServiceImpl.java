@@ -6,6 +6,7 @@ import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
@@ -449,20 +450,25 @@ public class InspectReportServiceImpl implements InspectReportService {
             Purch purch = dbInspectReport.getInspectApply().getPurch();
             List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
             boolean doneFlag = true;
-            boolean purchContractStatus = true;
             for (PurchGoods pg : purchGoodsList) {
                 if (pg.getGoodNum() < pg.getPurchaseNum()) {
                     doneFlag = false;
                     break;
                 }
             }
-            //当已采购数量不小于采购合同数量时采购完成 采购合同完成
-            for (PurchGoods pg : purchGoodsList) {
-                if (pg.getPurchContractGoods().getPurchaseNum() < pg.getPurchContractGoods().getPurchasedNum()) {
-                    purchContractStatus = false;
-                    break;
+            //采购订单付款方式
+            List<PurchPayment> purchPaymentList = purch.getPurchPaymentList();
+            Date doneDate = dbInspectReport.getDoneDate();
+            for (PurchPayment pay : purchPaymentList) {
+                //当付款方式为质保金时回执付款日期 当前质检日期加上质保金天数
+                if (pay.getType() == 5) {
+                    //加的天数
+                    int days = pay.getDays();
+                    Date dateAfter = DateUtil.getDateAfter(doneDate, days);
+                    pay.setReceiptDate(dateAfter);
                 }
             }
+            purch.setPurchPaymentList(purchPaymentList);
             if (doneFlag) {
                 purch.setStatus(Purch.StatusEnum.DONE.getCode());
                 purchDao.save(purch);
@@ -477,14 +483,7 @@ public class InspectReportServiceImpl implements InspectReportService {
             } else {
                 //当部分采购时设置供应商状态为PART_RECEIPT
                 purchServiceImpl.updateSupplierStatus(purch.getId(), "PART_RECEIPT");
-            }
-            //采购合同商品采购完成
-            if (purchContractStatus) {
-                if (purch.getPurchContractId() != null) {
-                    PurchContract purchContract = purchContractDao.findOne(purch.getPurchContractId());
-                    purchContract.setStatus(4);
-                    purchContractDao.save(purchContract);
-                }
+                purchDao.save(purch);
             }
             // 推送数据到入库部门
             Instock instock = new Instock();

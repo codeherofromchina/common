@@ -193,16 +193,12 @@ public class HttpRequest {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        String jsonParam = "{\"purch_id\":\"" + 1096 + "\",\"status\":\"DRAFT\"}";
+                        String jsonParam = "{\"purch_id\":\"" + 1098 + "\",\"status\":\"DRAFT\"}";
                         Map<String, String> header = new HashMap<>();
-                        header.put("Cookie", "eruitoken=92c7ffaa6d8974b7d467e436322d46bb_017293");
+                        header.put("Cookie", "eruitoken=9264d783bddd7ad2ba7571421314873e_018410");
                         header.put("Content-Type", "application/json");
                         header.put("accept", "*/*");
-                        //发送钉钉通知
-                        StringBuffer stringBuffer = new StringBuffer();
-                        stringBuffer.append("purch_id=").append("1096");
-                        stringBuffer.append("&status=DRAFT");
-                        String s1 = HttpRequest.sendPost("http://api.eruidev.com/V3/Purch/Purch/modify", jsonParam, header);
+                        String s1 = HttpRequest.sendPost("http://api.eruitest.com/V3/Purch/Purch/modify", jsonParam, header);
                         System.out.println("返回状态" + s1);
                     }
                 }).start();

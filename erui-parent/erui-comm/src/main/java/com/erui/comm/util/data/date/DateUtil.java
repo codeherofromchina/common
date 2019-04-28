@@ -636,6 +636,7 @@ public class DateUtil {
 
     /**
      * 获取给定日期的年，如果日期为空，则返回-1
+     *
      * @param date
      * @return
      */
@@ -651,6 +652,7 @@ public class DateUtil {
 
     /**
      * 获取给定日期的上一年日期
+     *
      * @param date
      * @return
      */
@@ -796,6 +798,9 @@ public class DateUtil {
         Date d = new Date();
         String format = format(DAY_END_TIME, d);
         System.out.println(format);
+        Date dateAfter = getDateAfter(startDate, 90);
+        System.out.println("天数：============" + dateAfter);
+
 
     }
 }
