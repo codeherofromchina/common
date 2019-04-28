@@ -450,17 +450,9 @@ public class InspectReportServiceImpl implements InspectReportService {
             Purch purch = dbInspectReport.getInspectApply().getPurch();
             List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
             boolean doneFlag = true;
-            boolean purchContractStatus = true;
             for (PurchGoods pg : purchGoodsList) {
                 if (pg.getGoodNum() < pg.getPurchaseNum()) {
                     doneFlag = false;
-                    break;
-                }
-            }
-            //当已采购数量不小于采购合同数量时采购完成 采购合同完成
-            for (PurchGoods pg : purchGoodsList) {
-                if (pg.getPurchContractGoods().getPurchaseNum() < pg.getPurchContractGoods().getPurchasedNum()) {
-                    purchContractStatus = false;
                     break;
                 }
             }
@@ -492,14 +484,6 @@ public class InspectReportServiceImpl implements InspectReportService {
                 //当部分采购时设置供应商状态为PART_RECEIPT
                 purchServiceImpl.updateSupplierStatus(purch.getId(), "PART_RECEIPT");
                 purchDao.save(purch);
-            }
-            //采购合同商品采购完成
-            if (purchContractStatus) {
-                if (purch.getPurchContractId() != null) {
-                    PurchContract purchContract = purchContractDao.findOne(purch.getPurchContractId());
-                    purchContract.setStatus(4);
-                    purchContractDao.save(purchContract);
-                }
             }
             // 推送数据到入库部门
             Instock instock = new Instock();

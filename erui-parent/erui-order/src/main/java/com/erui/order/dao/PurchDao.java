@@ -16,13 +16,12 @@ import java.util.List;
  */
 public interface PurchDao extends JpaRepository<Purch, Serializable>, JpaSpecificationExecutor<Purch> {
     List<Purch> findByIdIn(Integer[] ids);
-    public List<Purch> findByProjectsContractNoLike(String contractNo);
 
-    List<Purch> findByProjectsProjectNoLike(String contractNos);
+    List<Purch> findByPurchNo(String purchNo);
 
     @Query("select count(t.purchNo) from Purch t where t.purchNo=:purchNo")
     Long findCountByPurchNo(@Param("purchNo") String purchNo);
 
-    @Query(value = "SELECT t.purch_no FROM purch t ORDER BY t.id DESC LIMIT 1",nativeQuery=true)
+    @Query(value = "SELECT t.purch_no FROM purch t ORDER BY t.id DESC LIMIT 1", nativeQuery = true)
     String findLastedByPurchNo();
 }

@@ -15,6 +15,14 @@ public interface PurchContractService {
     Page<PurchContract> findByPage(PurchContract condition);
 
     /**
+     * 修改采购合同状态
+     *
+     * @param purchContract 采购合同
+     * @return
+     */
+    boolean updateStatus(PurchContract purchContract);
+
+    /**
      * 修改采购合同
      *
      * @param purchContract 采购合同
@@ -41,13 +49,13 @@ public interface PurchContractService {
     /**
      * 获取可采购的合同列表
      *
-     * @param agentId 采购经办人
+     * @param agentId         采购经办人
      * @param pageNum
      * @param pageSizeString
      * @param purchContractNo 采购合同号
-     * @param supplierId 供货商ID
-     * @param supplierName 供货商名称
-     * @param type 合同类型 1:简易合同 2:标准合同 3:非标合同
+     * @param supplierId      供货商ID
+     * @param supplierName    供货商名称
+     * @param type            合同类型 1:简易合同 2:标准合同 3:非标合同
      * @param
      * @return
      * @throws Exception

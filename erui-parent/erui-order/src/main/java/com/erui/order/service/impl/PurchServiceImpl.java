@@ -103,6 +103,21 @@ public class PurchServiceImpl implements PurchService {
         return null;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Purch> findByPurchNo(String purchNo) {
+        if (purchNo != null) {
+            List<Purch> puchList = purchDao.findByPurchNo(purchNo);
+            if (puchList != null && puchList.size() > 0) {
+                for (Purch purch : puchList) {
+                    purch.setPurchGoodsList(null);
+                }
+            }
+            return puchList;
+        }
+        return null;
+    }
+
 
     /**
      * 查询采购页面详情信息
