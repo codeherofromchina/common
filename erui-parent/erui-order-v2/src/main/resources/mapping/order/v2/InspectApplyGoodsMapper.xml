@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.order.v2.dao.InspectApplyGoodsMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.InspectApplyGoods" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="inspect_apply_id" property="inspectApplyId" jdbcType="INTEGER" />
+    <result column="inspect_report_id" property="inspectReportId" jdbcType="INTEGER" />
+    <result column="goods_id" property="goodsId" jdbcType="INTEGER" />
+    <result column="purch_goods_id" property="purchGoodsId" jdbcType="INTEGER" />
+    <result column="purchase_num" property="purchaseNum" jdbcType="INTEGER" />
+    <result column="inspect_num" property="inspectNum" jdbcType="INTEGER" />
+    <result column="height" property="height" jdbcType="DECIMAL" />
+    <result column="lwh" property="lwh" jdbcType="VARCHAR" />
+    <result column="samples" property="samples" jdbcType="INTEGER" />
+    <result column="unqualified" property="unqualified" jdbcType="INTEGER" />
+    <result column="unqualified_desc" property="unqualifiedDesc" jdbcType="VARCHAR" />
+    <result column="instock_num" property="instockNum" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.erui.order.v2.model.InspectApplyGoods" extends="BaseResultMap" >
+    <result column="remarks" property="remarks" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, inspect_apply_id, inspect_report_id, goods_id, purch_goods_id, purchase_num, 
+    inspect_num, height, lwh, samples, unqualified, unqualified_desc, instock_num, create_time
+  </sql>
+  <sql id="Blob_Column_List" >
+    remarks
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.erui.order.v2.model.InspectApplyGoodsExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from inspect_apply_goods
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.InspectApplyGoodsExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from inspect_apply_goods
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from inspect_apply_goods
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from inspect_apply_goods
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.order.v2.model.InspectApplyGoodsExample" >
+    delete from inspect_apply_goods
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.order.v2.model.InspectApplyGoods" >
+    insert into inspect_apply_goods (id, inspect_apply_id, inspect_report_id, 
+      goods_id, purch_goods_id, purchase_num, 
+      inspect_num, height, lwh, 
+      samples, unqualified, unqualified_desc, 
+      instock_num, create_time, remarks
+      )
+    values (#{id,jdbcType=INTEGER}, #{inspectApplyId,jdbcType=INTEGER}, #{inspectReportId,jdbcType=INTEGER}, 
+      #{goodsId,jdbcType=INTEGER}, #{purchGoodsId,jdbcType=INTEGER}, #{purchaseNum,jdbcType=INTEGER}, 
+      #{inspectNum,jdbcType=INTEGER}, #{height,jdbcType=DECIMAL}, #{lwh,jdbcType=VARCHAR}, 
+      #{samples,jdbcType=INTEGER}, #{unqualified,jdbcType=INTEGER}, #{unqualifiedDesc,jdbcType=VARCHAR}, 
+      #{instockNum,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{remarks,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.order.v2.model.InspectApplyGoods" >
+    insert into inspect_apply_goods
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="inspectApplyId != null" >
+        inspect_apply_id,
+      </if>
+      <if test="inspectReportId != null" >
+        inspect_report_id,
+      </if>
+      <if test="goodsId != null" >
+        goods_id,
+      </if>
+      <if test="purchGoodsId != null" >
+        purch_goods_id,
+      </if>
+      <if test="purchaseNum != null" >
+        purchase_num,
+      </if>
+      <if test="inspectNum != null" >
+        inspect_num,
+      </if>
+      <if test="height != null" >
+        height,
+      </if>
+      <if test="lwh != null" >
+        lwh,
+      </if>
+      <if test="samples != null" >
+        samples,
+      </if>
+      <if test="unqualified != null" >
+        unqualified,
+      </if>
+      <if test="unqualifiedDesc != null" >
+        unqualified_desc,
+      </if>
+      <if test="instockNum != null" >
+        instock_num,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="remarks != null" >
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="inspectApplyId != null" >
+        #{inspectApplyId,jdbcType=INTEGER},
+      </if>
+      <if test="inspectReportId != null" >
+        #{inspectReportId,jdbcType=INTEGER},
+      </if>
+      <if test="goodsId != null" >
+        #{goodsId,jdbcType=INTEGER},
+      </if>
+      <if test="purchGoodsId != null" >
+        #{purchGoodsId,jdbcType=INTEGER},
+      </if>
+      <if test="purchaseNum != null" >
+        #{purchaseNum,jdbcType=INTEGER},
+      </if>
+      <if test="inspectNum != null" >
+        #{inspectNum,jdbcType=INTEGER},
+      </if>
+      <if test="height != null" >
+        #{height,jdbcType=DECIMAL},
+      </if>
+      <if test="lwh != null" >
+        #{lwh,jdbcType=VARCHAR},
+      </if>
+      <if test="samples != null" >
+        #{samples,jdbcType=INTEGER},
+      </if>
+      <if test="unqualified != null" >
+        #{unqualified,jdbcType=INTEGER},
+      </if>
+      <if test="unqualifiedDesc != null" >
+        #{unqualifiedDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="instockNum != null" >
+        #{instockNum,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null" >
+        #{remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.order.v2.model.InspectApplyGoodsExample" resultType="java.lang.Integer" >
+    select count(*) from inspect_apply_goods
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update inspect_apply_goods
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.inspectApplyId != null" >
+        inspect_apply_id = #{record.inspectApplyId,jdbcType=INTEGER},
+      </if>
+      <if test="record.inspectReportId != null" >
+        inspect_report_id = #{record.inspectReportId,jdbcType=INTEGER},
+      </if>
+      <if test="record.goodsId != null" >
+        goods_id = #{record.goodsId,jdbcType=INTEGER},
+      </if>
+      <if test="record.purchGoodsId != null" >
+        purch_goods_id = #{record.purchGoodsId,jdbcType=INTEGER},
+      </if>
+      <if test="record.purchaseNum != null" >
+        purchase_num = #{record.purchaseNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.inspectNum != null" >
+        inspect_num = #{record.inspectNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.height != null" >
+        height = #{record.height,jdbcType=DECIMAL},
+      </if>
+      <if test="record.lwh != null" >
+        lwh = #{record.lwh,jdbcType=VARCHAR},
+      </if>
+      <if test="record.samples != null" >
+        samples = #{record.samples,jdbcType=INTEGER},
+      </if>
+      <if test="record.unqualified != null" >
+        unqualified = #{record.unqualified,jdbcType=INTEGER},
+      </if>
+      <if test="record.unqualifiedDesc != null" >
+        unqualified_desc = #{record.unqualifiedDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="record.instockNum != null" >
+        instock_num = #{record.instockNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.remarks != null" >
+        remarks = #{record.remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update inspect_apply_goods
+    set id = #{record.id,jdbcType=INTEGER},
+      inspect_apply_id = #{record.inspectApplyId,jdbcType=INTEGER},
+      inspect_report_id = #{record.inspectReportId,jdbcType=INTEGER},
+      goods_id = #{record.goodsId,jdbcType=INTEGER},
+      purch_goods_id = #{record.purchGoodsId,jdbcType=INTEGER},
+      purchase_num = #{record.purchaseNum,jdbcType=INTEGER},
+      inspect_num = #{record.inspectNum,jdbcType=INTEGER},
+      height = #{record.height,jdbcType=DECIMAL},
+      lwh = #{record.lwh,jdbcType=VARCHAR},
+      samples = #{record.samples,jdbcType=INTEGER},
+      unqualified = #{record.unqualified,jdbcType=INTEGER},
+      unqualified_desc = #{record.unqualifiedDesc,jdbcType=VARCHAR},
+      instock_num = #{record.instockNum,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      remarks = #{record.remarks,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update inspect_apply_goods
+    set id = #{record.id,jdbcType=INTEGER},
+      inspect_apply_id = #{record.inspectApplyId,jdbcType=INTEGER},
+      inspect_report_id = #{record.inspectReportId,jdbcType=INTEGER},
+      goods_id = #{record.goodsId,jdbcType=INTEGER},
+      purch_goods_id = #{record.purchGoodsId,jdbcType=INTEGER},
+      purchase_num = #{record.purchaseNum,jdbcType=INTEGER},
+      inspect_num = #{record.inspectNum,jdbcType=INTEGER},
+      height = #{record.height,jdbcType=DECIMAL},
+      lwh = #{record.lwh,jdbcType=VARCHAR},
+      samples = #{record.samples,jdbcType=INTEGER},
+      unqualified = #{record.unqualified,jdbcType=INTEGER},
+      unqualified_desc = #{record.unqualifiedDesc,jdbcType=VARCHAR},
+      instock_num = #{record.instockNum,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.InspectApplyGoods" >
+    update inspect_apply_goods
+    <set >
+      <if test="inspectApplyId != null" >
+        inspect_apply_id = #{inspectApplyId,jdbcType=INTEGER},
+      </if>
+      <if test="inspectReportId != null" >
+        inspect_report_id = #{inspectReportId,jdbcType=INTEGER},
+      </if>
+      <if test="goodsId != null" >
+        goods_id = #{goodsId,jdbcType=INTEGER},
+      </if>
+      <if test="purchGoodsId != null" >
+        purch_goods_id = #{purchGoodsId,jdbcType=INTEGER},
+      </if>
+      <if test="purchaseNum != null" >
+        purchase_num = #{purchaseNum,jdbcType=INTEGER},
+      </if>
+      <if test="inspectNum != null" >
+        inspect_num = #{inspectNum,jdbcType=INTEGER},
+      </if>
+      <if test="height != null" >
+        height = #{height,jdbcType=DECIMAL},
+      </if>
+      <if test="lwh != null" >
+        lwh = #{lwh,jdbcType=VARCHAR},
+      </if>
+      <if test="samples != null" >
+        samples = #{samples,jdbcType=INTEGER},
+      </if>
+      <if test="unqualified != null" >
+        unqualified = #{unqualified,jdbcType=INTEGER},
+      </if>
+      <if test="unqualifiedDesc != null" >
+        unqualified_desc = #{unqualifiedDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="instockNum != null" >
+        instock_num = #{instockNum,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remarks != null" >
+        remarks = #{remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.erui.order.v2.model.InspectApplyGoods" >
+    update inspect_apply_goods
+    set inspect_apply_id = #{inspectApplyId,jdbcType=INTEGER},
+      inspect_report_id = #{inspectReportId,jdbcType=INTEGER},
+      goods_id = #{goodsId,jdbcType=INTEGER},
+      purch_goods_id = #{purchGoodsId,jdbcType=INTEGER},
+      purchase_num = #{purchaseNum,jdbcType=INTEGER},
+      inspect_num = #{inspectNum,jdbcType=INTEGER},
+      height = #{height,jdbcType=DECIMAL},
+      lwh = #{lwh,jdbcType=VARCHAR},
+      samples = #{samples,jdbcType=INTEGER},
+      unqualified = #{unqualified,jdbcType=INTEGER},
+      unqualified_desc = #{unqualifiedDesc,jdbcType=VARCHAR},
+      instock_num = #{instockNum,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      remarks = #{remarks,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.InspectApplyGoods" >
+    update inspect_apply_goods
+    set inspect_apply_id = #{inspectApplyId,jdbcType=INTEGER},
+      inspect_report_id = #{inspectReportId,jdbcType=INTEGER},
+      goods_id = #{goodsId,jdbcType=INTEGER},
+      purch_goods_id = #{purchGoodsId,jdbcType=INTEGER},
+      purchase_num = #{purchaseNum,jdbcType=INTEGER},
+      inspect_num = #{inspectNum,jdbcType=INTEGER},
+      height = #{height,jdbcType=DECIMAL},
+      lwh = #{lwh,jdbcType=VARCHAR},
+      samples = #{samples,jdbcType=INTEGER},
+      unqualified = #{unqualified,jdbcType=INTEGER},
+      unqualified_desc = #{unqualifiedDesc,jdbcType=VARCHAR},
+      instock_num = #{instockNum,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,1822 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.order.v2.dao.OrderMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.Order" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="contract_no" property="contractNo" jdbcType="VARCHAR" />
+    <result column="framework_no" property="frameworkNo" jdbcType="VARCHAR" />
+    <result column="contract_no_os" property="contractNoOs" jdbcType="VARCHAR" />
+    <result column="po_no" property="poNo" jdbcType="VARCHAR" />
+    <result column="logi_quote_no" property="logiQuoteNo" jdbcType="VARCHAR" />
+    <result column="inquiry_no" property="inquiryNo" jdbcType="VARCHAR" />
+    <result column="order_type" property="orderType" jdbcType="INTEGER" />
+    <result column="order_source" property="orderSource" jdbcType="INTEGER" />
+    <result column="signing_date" property="signingDate" jdbcType="DATE" />
+    <result column="delivery_date" property="deliveryDate" jdbcType="VARCHAR" />
+    <result column="signing_co" property="signingCo" jdbcType="VARCHAR" />
+    <result column="agent_id" property="agentId" jdbcType="INTEGER" />
+    <result column="agent_name" property="agentName" jdbcType="VARCHAR" />
+    <result column="exec_co_id" property="execCoId" jdbcType="INTEGER" />
+    <result column="exec_co_name" property="execCoName" jdbcType="VARCHAR" />
+    <result column="region" property="region" jdbcType="VARCHAR" />
+    <result column="distribution_dept_name" property="distributionDeptName" jdbcType="VARCHAR" />
+    <result column="country" property="country" jdbcType="VARCHAR" />
+    <result column="crm_code" property="crmCode" jdbcType="VARCHAR" />
+    <result column="customer_type" property="customerType" jdbcType="INTEGER" />
+    <result column="per_liable_repay" property="perLiableRepay" jdbcType="VARCHAR" />
+    <result column="business_unit_id" property="businessUnitId" jdbcType="INTEGER" />
+    <result column="business_unit_name" property="businessUnitName" jdbcType="VARCHAR" />
+    <result column="technical_id" property="technicalId" jdbcType="INTEGER" />
+    <result column="grant_type" property="grantType" jdbcType="VARCHAR" />
+    <result column="preinvest" property="preinvest" jdbcType="INTEGER" />
+    <result column="financing" property="financing" jdbcType="INTEGER" />
+    <result column="trade_terms" property="tradeTerms" jdbcType="VARCHAR" />
+    <result column="transport_type" property="transportType" jdbcType="VARCHAR" />
+    <result column="from_country" property="fromCountry" jdbcType="VARCHAR" />
+    <result column="from_port" property="fromPort" jdbcType="VARCHAR" />
+    <result column="from_place" property="fromPlace" jdbcType="VARCHAR" />
+    <result column="to_country" property="toCountry" jdbcType="VARCHAR" />
+    <result column="to_port" property="toPort" jdbcType="VARCHAR" />
+    <result column="to_place" property="toPlace" jdbcType="VARCHAR" />
+    <result column="total_price" property="totalPrice" jdbcType="DECIMAL" />
+    <result column="distribution_dept_id" property="distributionDeptId" jdbcType="INTEGER" />
+    <result column="technical_id_dept" property="technicalIdDept" jdbcType="VARCHAR" />
+    <result column="currency_bn" property="currencyBn" jdbcType="VARCHAR" />
+    <result column="tax_bearing" property="taxBearing" jdbcType="INTEGER" />
+    <result column="payment_mode_bn" property="paymentModeBn" jdbcType="VARCHAR" />
+    <result column="quality_funds" property="qualityFunds" jdbcType="DECIMAL" />
+    <result column="pay_status" property="payStatus" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="deliver_consign_c" property="deliverConsignC" jdbcType="BIT" />
+    <result column="create_user_id" property="createUserId" jdbcType="INTEGER" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="delete_flag" property="deleteFlag" jdbcType="BIT" />
+    <result column="delete_time" property="deleteTime" jdbcType="TIMESTAMP" />
+    <result column="receivable_account_remaining" property="receivableAccountRemaining" jdbcType="DECIMAL" />
+    <result column="acquire_id" property="acquireId" jdbcType="INTEGER" />
+    <result column="exe_chg_date" property="exeChgDate" jdbcType="DATE" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="buyer_id" property="buyerId" jdbcType="INTEGER" />
+    <result column="inquiry_id" property="inquiryId" jdbcType="VARCHAR" />
+    <result column="business_name" property="businessName" jdbcType="VARCHAR" />
+    <result column="project_no" property="projectNo" jdbcType="VARCHAR" />
+    <result column="total_price_usd" property="totalPriceUsd" jdbcType="DECIMAL" />
+    <result column="exchange_rate" property="exchangeRate" jdbcType="DECIMAL" />
+    <result column="process_progress" property="processProgress" jdbcType="VARCHAR" />
+    <result column="deliver_consign_has" property="deliverConsignHas" jdbcType="INTEGER" />
+    <result column="order_belongs" property="orderBelongs" jdbcType="INTEGER" />
+    <result column="order_category" property="orderCategory" jdbcType="INTEGER" />
+    <result column="overseas_sales" property="overseasSales" jdbcType="INTEGER" />
+    <result column="shipments_money" property="shipmentsMoney" jdbcType="DECIMAL" />
+    <result column="already_gathering_money" property="alreadyGatheringMoney" jdbcType="DECIMAL" />
+    <result column="purch_req_create" property="purchReqCreate" jdbcType="INTEGER" />
+    <result column="inspect_n" property="inspectN" jdbcType="INTEGER" />
+    <result column="advance_money" property="advanceMoney" jdbcType="DECIMAL" />
+    <result column="auditing_status" property="auditingStatus" jdbcType="INTEGER" />
+    <result column="auditing_process" property="auditingProcess" jdbcType="VARCHAR" />
+    <result column="auditing_user_id" property="auditingUserId" jdbcType="VARCHAR" />
+    <result column="country_leader_id" property="countryLeaderId" jdbcType="INTEGER" />
+    <result column="country_leader" property="countryLeader" jdbcType="VARCHAR" />
+    <result column="area_leader_id" property="areaLeaderId" jdbcType="INTEGER" />
+    <result column="area_leader" property="areaLeader" jdbcType="VARCHAR" />
+    <result column="area_vp_id" property="areaVpId" jdbcType="INTEGER" />
+    <result column="area_vp" property="areaVp" jdbcType="VARCHAR" />
+    <result column="per_liable_repay_id" property="perLiableRepayId" jdbcType="INTEGER" />
+    <result column="financing_commissioner_id" property="financingCommissionerId" jdbcType="INTEGER" />
+    <result column="audi_remark" property="audiRemark" jdbcType="VARCHAR" />
+    <result column="cancel_reason" property="cancelReason" jdbcType="VARCHAR" />
+    <result column="settlement_leader_id" property="settlementLeaderId" jdbcType="INTEGER" />
+    <result column="settlement_leader" property="settlementLeader" jdbcType="VARCHAR" />
+    <result column="legal_auditer_id" property="legalAuditerId" jdbcType="INTEGER" />
+    <result column="legal_auditer" property="legalAuditer" jdbcType="VARCHAR" />
+    <result column="financing_commissioner" property="financingCommissioner" jdbcType="VARCHAR" />
+    <result column="process_id" property="processId" jdbcType="VARCHAR" />
+    <result column="task_id" property="taskId" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.erui.order.v2.model.OrderWithBLOBs" extends="BaseResultMap" >
+    <result column="delivery_requires" property="deliveryRequires" jdbcType="LONGVARCHAR" />
+    <result column="customer_context" property="customerContext" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, contract_no, framework_no, contract_no_os, po_no, logi_quote_no, inquiry_no, 
+    order_type, order_source, signing_date, delivery_date, signing_co, agent_id, agent_name, 
+    exec_co_id, exec_co_name, region, distribution_dept_name, country, crm_code, customer_type, 
+    per_liable_repay, business_unit_id, business_unit_name, technical_id, grant_type, 
+    preinvest, financing, trade_terms, transport_type, from_country, from_port, from_place, 
+    to_country, to_port, to_place, total_price, distribution_dept_id, technical_id_dept, 
+    currency_bn, tax_bearing, payment_mode_bn, quality_funds, pay_status, status, create_time, 
+    deliver_consign_c, create_user_id, update_time, delete_flag, delete_time, receivable_account_remaining, 
+    acquire_id, exe_chg_date, create_user_name, buyer_id, inquiry_id, business_name, 
+    project_no, total_price_usd, exchange_rate, process_progress, deliver_consign_has, 
+    order_belongs, order_category, overseas_sales, shipments_money, already_gathering_money, 
+    purch_req_create, inspect_n, advance_money, auditing_status, auditing_process, auditing_user_id, 
+    country_leader_id, country_leader, area_leader_id, area_leader, area_vp_id, area_vp, 
+    per_liable_repay_id, financing_commissioner_id, audi_remark, cancel_reason, settlement_leader_id, 
+    settlement_leader, legal_auditer_id, legal_auditer, financing_commissioner, process_id, 
+    task_id
+  </sql>
+  <sql id="Blob_Column_List" >
+    delivery_requires, customer_context
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.erui.order.v2.model.OrderExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from order
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.OrderExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from order
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from order
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from order
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.order.v2.model.OrderExample" >
+    delete from order
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.order.v2.model.OrderWithBLOBs" >
+    insert into order (id, contract_no, framework_no, 
+      contract_no_os, po_no, logi_quote_no, 
+      inquiry_no, order_type, order_source, 
+      signing_date, delivery_date, signing_co, 
+      agent_id, agent_name, exec_co_id, 
+      exec_co_name, region, distribution_dept_name, 
+      country, crm_code, customer_type, 
+      per_liable_repay, business_unit_id, business_unit_name, 
+      technical_id, grant_type, preinvest, 
+      financing, trade_terms, transport_type, 
+      from_country, from_port, from_place, 
+      to_country, to_port, to_place, 
+      total_price, distribution_dept_id, technical_id_dept, 
+      currency_bn, tax_bearing, payment_mode_bn, 
+      quality_funds, pay_status, status, 
+      create_time, deliver_consign_c, create_user_id, 
+      update_time, delete_flag, delete_time, 
+      receivable_account_remaining, acquire_id, 
+      exe_chg_date, create_user_name, buyer_id, 
+      inquiry_id, business_name, project_no, 
+      total_price_usd, exchange_rate, process_progress, 
+      deliver_consign_has, order_belongs, order_category, 
+      overseas_sales, shipments_money, already_gathering_money, 
+      purch_req_create, inspect_n, advance_money, 
+      auditing_status, auditing_process, auditing_user_id, 
+      country_leader_id, country_leader, area_leader_id, 
+      area_leader, area_vp_id, area_vp, 
+      per_liable_repay_id, financing_commissioner_id, 
+      audi_remark, cancel_reason, settlement_leader_id, 
+      settlement_leader, legal_auditer_id, legal_auditer, 
+      financing_commissioner, process_id, task_id, 
+      delivery_requires, customer_context
+      )
+    values (#{id,jdbcType=INTEGER}, #{contractNo,jdbcType=VARCHAR}, #{frameworkNo,jdbcType=VARCHAR}, 
+      #{contractNoOs,jdbcType=VARCHAR}, #{poNo,jdbcType=VARCHAR}, #{logiQuoteNo,jdbcType=VARCHAR}, 
+      #{inquiryNo,jdbcType=VARCHAR}, #{orderType,jdbcType=INTEGER}, #{orderSource,jdbcType=INTEGER}, 
+      #{signingDate,jdbcType=DATE}, #{deliveryDate,jdbcType=VARCHAR}, #{signingCo,jdbcType=VARCHAR}, 
+      #{agentId,jdbcType=INTEGER}, #{agentName,jdbcType=VARCHAR}, #{execCoId,jdbcType=INTEGER}, 
+      #{execCoName,jdbcType=VARCHAR}, #{region,jdbcType=VARCHAR}, #{distributionDeptName,jdbcType=VARCHAR}, 
+      #{country,jdbcType=VARCHAR}, #{crmCode,jdbcType=VARCHAR}, #{customerType,jdbcType=INTEGER}, 
+      #{perLiableRepay,jdbcType=VARCHAR}, #{businessUnitId,jdbcType=INTEGER}, #{businessUnitName,jdbcType=VARCHAR}, 
+      #{technicalId,jdbcType=INTEGER}, #{grantType,jdbcType=VARCHAR}, #{preinvest,jdbcType=INTEGER}, 
+      #{financing,jdbcType=INTEGER}, #{tradeTerms,jdbcType=VARCHAR}, #{transportType,jdbcType=VARCHAR}, 
+      #{fromCountry,jdbcType=VARCHAR}, #{fromPort,jdbcType=VARCHAR}, #{fromPlace,jdbcType=VARCHAR}, 
+      #{toCountry,jdbcType=VARCHAR}, #{toPort,jdbcType=VARCHAR}, #{toPlace,jdbcType=VARCHAR}, 
+      #{totalPrice,jdbcType=DECIMAL}, #{distributionDeptId,jdbcType=INTEGER}, #{technicalIdDept,jdbcType=VARCHAR}, 
+      #{currencyBn,jdbcType=VARCHAR}, #{taxBearing,jdbcType=INTEGER}, #{paymentModeBn,jdbcType=VARCHAR}, 
+      #{qualityFunds,jdbcType=DECIMAL}, #{payStatus,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{deliverConsignC,jdbcType=BIT}, #{createUserId,jdbcType=INTEGER}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{deleteFlag,jdbcType=BIT}, #{deleteTime,jdbcType=TIMESTAMP}, 
+      #{receivableAccountRemaining,jdbcType=DECIMAL}, #{acquireId,jdbcType=INTEGER}, 
+      #{exeChgDate,jdbcType=DATE}, #{createUserName,jdbcType=VARCHAR}, #{buyerId,jdbcType=INTEGER}, 
+      #{inquiryId,jdbcType=VARCHAR}, #{businessName,jdbcType=VARCHAR}, #{projectNo,jdbcType=VARCHAR}, 
+      #{totalPriceUsd,jdbcType=DECIMAL}, #{exchangeRate,jdbcType=DECIMAL}, #{processProgress,jdbcType=VARCHAR}, 
+      #{deliverConsignHas,jdbcType=INTEGER}, #{orderBelongs,jdbcType=INTEGER}, #{orderCategory,jdbcType=INTEGER}, 
+      #{overseasSales,jdbcType=INTEGER}, #{shipmentsMoney,jdbcType=DECIMAL}, #{alreadyGatheringMoney,jdbcType=DECIMAL}, 
+      #{purchReqCreate,jdbcType=INTEGER}, #{inspectN,jdbcType=INTEGER}, #{advanceMoney,jdbcType=DECIMAL}, 
+      #{auditingStatus,jdbcType=INTEGER}, #{auditingProcess,jdbcType=VARCHAR}, #{auditingUserId,jdbcType=VARCHAR}, 
+      #{countryLeaderId,jdbcType=INTEGER}, #{countryLeader,jdbcType=VARCHAR}, #{areaLeaderId,jdbcType=INTEGER}, 
+      #{areaLeader,jdbcType=VARCHAR}, #{areaVpId,jdbcType=INTEGER}, #{areaVp,jdbcType=VARCHAR}, 
+      #{perLiableRepayId,jdbcType=INTEGER}, #{financingCommissionerId,jdbcType=INTEGER}, 
+      #{audiRemark,jdbcType=VARCHAR}, #{cancelReason,jdbcType=VARCHAR}, #{settlementLeaderId,jdbcType=INTEGER}, 
+      #{settlementLeader,jdbcType=VARCHAR}, #{legalAuditerId,jdbcType=INTEGER}, #{legalAuditer,jdbcType=VARCHAR}, 
+      #{financingCommissioner,jdbcType=VARCHAR}, #{processId,jdbcType=VARCHAR}, #{taskId,jdbcType=VARCHAR}, 
+      #{deliveryRequires,jdbcType=LONGVARCHAR}, #{customerContext,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.order.v2.model.OrderWithBLOBs" >
+    insert into order
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="contractNo != null" >
+        contract_no,
+      </if>
+      <if test="frameworkNo != null" >
+        framework_no,
+      </if>
+      <if test="contractNoOs != null" >
+        contract_no_os,
+      </if>
+      <if test="poNo != null" >
+        po_no,
+      </if>
+      <if test="logiQuoteNo != null" >
+        logi_quote_no,
+      </if>
+      <if test="inquiryNo != null" >
+        inquiry_no,
+      </if>
+      <if test="orderType != null" >
+        order_type,
+      </if>
+      <if test="orderSource != null" >
+        order_source,
+      </if>
+      <if test="signingDate != null" >
+        signing_date,
+      </if>
+      <if test="deliveryDate != null" >
+        delivery_date,
+      </if>
+      <if test="signingCo != null" >
+        signing_co,
+      </if>
+      <if test="agentId != null" >
+        agent_id,
+      </if>
+      <if test="agentName != null" >
+        agent_name,
+      </if>
+      <if test="execCoId != null" >
+        exec_co_id,
+      </if>
+      <if test="execCoName != null" >
+        exec_co_name,
+      </if>
+      <if test="region != null" >
+        region,
+      </if>
+      <if test="distributionDeptName != null" >
+        distribution_dept_name,
+      </if>
+      <if test="country != null" >
+        country,
+      </if>
+      <if test="crmCode != null" >
+        crm_code,
+      </if>
+      <if test="customerType != null" >
+        customer_type,
+      </if>
+      <if test="perLiableRepay != null" >
+        per_liable_repay,
+      </if>
+      <if test="businessUnitId != null" >
+        business_unit_id,
+      </if>
+      <if test="businessUnitName != null" >
+        business_unit_name,
+      </if>
+      <if test="technicalId != null" >
+        technical_id,
+      </if>
+      <if test="grantType != null" >
+        grant_type,
+      </if>
+      <if test="preinvest != null" >
+        preinvest,
+      </if>
+      <if test="financing != null" >
+        financing,
+      </if>
+      <if test="tradeTerms != null" >
+        trade_terms,
+      </if>
+      <if test="transportType != null" >
+        transport_type,
+      </if>
+      <if test="fromCountry != null" >
+        from_country,
+      </if>
+      <if test="fromPort != null" >
+        from_port,
+      </if>
+      <if test="fromPlace != null" >
+        from_place,
+      </if>
+      <if test="toCountry != null" >
+        to_country,
+      </if>
+      <if test="toPort != null" >
+        to_port,
+      </if>
+      <if test="toPlace != null" >
+        to_place,
+      </if>
+      <if test="totalPrice != null" >
+        total_price,
+      </if>
+      <if test="distributionDeptId != null" >
+        distribution_dept_id,
+      </if>
+      <if test="technicalIdDept != null" >
+        technical_id_dept,
+      </if>
+      <if test="currencyBn != null" >
+        currency_bn,
+      </if>
+      <if test="taxBearing != null" >
+        tax_bearing,
+      </if>
+      <if test="paymentModeBn != null" >
+        payment_mode_bn,
+      </if>
+      <if test="qualityFunds != null" >
+        quality_funds,
+      </if>
+      <if test="payStatus != null" >
+        pay_status,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="deliverConsignC != null" >
+        deliver_consign_c,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="deleteFlag != null" >
+        delete_flag,
+      </if>
+      <if test="deleteTime != null" >
+        delete_time,
+      </if>
+      <if test="receivableAccountRemaining != null" >
+        receivable_account_remaining,
+      </if>
+      <if test="acquireId != null" >
+        acquire_id,
+      </if>
+      <if test="exeChgDate != null" >
+        exe_chg_date,
+      </if>
+      <if test="createUserName != null" >
+        create_user_name,
+      </if>
+      <if test="buyerId != null" >
+        buyer_id,
+      </if>
+      <if test="inquiryId != null" >
+        inquiry_id,
+      </if>
+      <if test="businessName != null" >
+        business_name,
+      </if>
+      <if test="projectNo != null" >
+        project_no,
+      </if>
+      <if test="totalPriceUsd != null" >
+        total_price_usd,
+      </if>
+      <if test="exchangeRate != null" >
+        exchange_rate,
+      </if>
+      <if test="processProgress != null" >
+        process_progress,
+      </if>
+      <if test="deliverConsignHas != null" >
+        deliver_consign_has,
+      </if>
+      <if test="orderBelongs != null" >
+        order_belongs,
+      </if>
+      <if test="orderCategory != null" >
+        order_category,
+      </if>
+      <if test="overseasSales != null" >
+        overseas_sales,
+      </if>
+      <if test="shipmentsMoney != null" >
+        shipments_money,
+      </if>
+      <if test="alreadyGatheringMoney != null" >
+        already_gathering_money,
+      </if>
+      <if test="purchReqCreate != null" >
+        purch_req_create,
+      </if>
+      <if test="inspectN != null" >
+        inspect_n,
+      </if>
+      <if test="advanceMoney != null" >
+        advance_money,
+      </if>
+      <if test="auditingStatus != null" >
+        auditing_status,
+      </if>
+      <if test="auditingProcess != null" >
+        auditing_process,
+      </if>
+      <if test="auditingUserId != null" >
+        auditing_user_id,
+      </if>
+      <if test="countryLeaderId != null" >
+        country_leader_id,
+      </if>
+      <if test="countryLeader != null" >
+        country_leader,
+      </if>
+      <if test="areaLeaderId != null" >
+        area_leader_id,
+      </if>
+      <if test="areaLeader != null" >
+        area_leader,
+      </if>
+      <if test="areaVpId != null" >
+        area_vp_id,
+      </if>
+      <if test="areaVp != null" >
+        area_vp,
+      </if>
+      <if test="perLiableRepayId != null" >
+        per_liable_repay_id,
+      </if>
+      <if test="financingCommissionerId != null" >
+        financing_commissioner_id,
+      </if>
+      <if test="audiRemark != null" >
+        audi_remark,
+      </if>
+      <if test="cancelReason != null" >
+        cancel_reason,
+      </if>
+      <if test="settlementLeaderId != null" >
+        settlement_leader_id,
+      </if>
+      <if test="settlementLeader != null" >
+        settlement_leader,
+      </if>
+      <if test="legalAuditerId != null" >
+        legal_auditer_id,
+      </if>
+      <if test="legalAuditer != null" >
+        legal_auditer,
+      </if>
+      <if test="financingCommissioner != null" >
+        financing_commissioner,
+      </if>
+      <if test="processId != null" >
+        process_id,
+      </if>
+      <if test="taskId != null" >
+        task_id,
+      </if>
+      <if test="deliveryRequires != null" >
+        delivery_requires,
+      </if>
+      <if test="customerContext != null" >
+        customer_context,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="contractNo != null" >
+        #{contractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="frameworkNo != null" >
+        #{frameworkNo,jdbcType=VARCHAR},
+      </if>
+      <if test="contractNoOs != null" >
+        #{contractNoOs,jdbcType=VARCHAR},
+      </if>
+      <if test="poNo != null" >
+        #{poNo,jdbcType=VARCHAR},
+      </if>
+      <if test="logiQuoteNo != null" >
+        #{logiQuoteNo,jdbcType=VARCHAR},
+      </if>
+      <if test="inquiryNo != null" >
+        #{inquiryNo,jdbcType=VARCHAR},
+      </if>
+      <if test="orderType != null" >
+        #{orderType,jdbcType=INTEGER},
+      </if>
+      <if test="orderSource != null" >
+        #{orderSource,jdbcType=INTEGER},
+      </if>
+      <if test="signingDate != null" >
+        #{signingDate,jdbcType=DATE},
+      </if>
+      <if test="deliveryDate != null" >
+        #{deliveryDate,jdbcType=VARCHAR},
+      </if>
+      <if test="signingCo != null" >
+        #{signingCo,jdbcType=VARCHAR},
+      </if>
+      <if test="agentId != null" >
+        #{agentId,jdbcType=INTEGER},
+      </if>
+      <if test="agentName != null" >
+        #{agentName,jdbcType=VARCHAR},
+      </if>
+      <if test="execCoId != null" >
+        #{execCoId,jdbcType=INTEGER},
+      </if>
+      <if test="execCoName != null" >
+        #{execCoName,jdbcType=VARCHAR},
+      </if>
+      <if test="region != null" >
+        #{region,jdbcType=VARCHAR},
+      </if>
+      <if test="distributionDeptName != null" >
+        #{distributionDeptName,jdbcType=VARCHAR},
+      </if>
+      <if test="country != null" >
+        #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="crmCode != null" >
+        #{crmCode,jdbcType=VARCHAR},
+      </if>
+      <if test="customerType != null" >
+        #{customerType,jdbcType=INTEGER},
+      </if>
+      <if test="perLiableRepay != null" >
+        #{perLiableRepay,jdbcType=VARCHAR},
+      </if>
+      <if test="businessUnitId != null" >
+        #{businessUnitId,jdbcType=INTEGER},
+      </if>
+      <if test="businessUnitName != null" >
+        #{businessUnitName,jdbcType=VARCHAR},
+      </if>
+      <if test="technicalId != null" >
+        #{technicalId,jdbcType=INTEGER},
+      </if>
+      <if test="grantType != null" >
+        #{grantType,jdbcType=VARCHAR},
+      </if>
+      <if test="preinvest != null" >
+        #{preinvest,jdbcType=INTEGER},
+      </if>
+      <if test="financing != null" >
+        #{financing,jdbcType=INTEGER},
+      </if>
+      <if test="tradeTerms != null" >
+        #{tradeTerms,jdbcType=VARCHAR},
+      </if>
+      <if test="transportType != null" >
+        #{transportType,jdbcType=VARCHAR},
+      </if>
+      <if test="fromCountry != null" >
+        #{fromCountry,jdbcType=VARCHAR},
+      </if>
+      <if test="fromPort != null" >
+        #{fromPort,jdbcType=VARCHAR},
+      </if>
+      <if test="fromPlace != null" >
+        #{fromPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="toCountry != null" >
+        #{toCountry,jdbcType=VARCHAR},
+      </if>
+      <if test="toPort != null" >
+        #{toPort,jdbcType=VARCHAR},
+      </if>
+      <if test="toPlace != null" >
+        #{toPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="totalPrice != null" >
+        #{totalPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="distributionDeptId != null" >
+        #{distributionDeptId,jdbcType=INTEGER},
+      </if>
+      <if test="technicalIdDept != null" >
+        #{technicalIdDept,jdbcType=VARCHAR},
+      </if>
+      <if test="currencyBn != null" >
+        #{currencyBn,jdbcType=VARCHAR},
+      </if>
+      <if test="taxBearing != null" >
+        #{taxBearing,jdbcType=INTEGER},
+      </if>
+      <if test="paymentModeBn != null" >
+        #{paymentModeBn,jdbcType=VARCHAR},
+      </if>
+      <if test="qualityFunds != null" >
+        #{qualityFunds,jdbcType=DECIMAL},
+      </if>
+      <if test="payStatus != null" >
+        #{payStatus,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deliverConsignC != null" >
+        #{deliverConsignC,jdbcType=BIT},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deleteFlag != null" >
+        #{deleteFlag,jdbcType=BIT},
+      </if>
+      <if test="deleteTime != null" >
+        #{deleteTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="receivableAccountRemaining != null" >
+        #{receivableAccountRemaining,jdbcType=DECIMAL},
+      </if>
+      <if test="acquireId != null" >
+        #{acquireId,jdbcType=INTEGER},
+      </if>
+      <if test="exeChgDate != null" >
+        #{exeChgDate,jdbcType=DATE},
+      </if>
+      <if test="createUserName != null" >
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerId != null" >
+        #{buyerId,jdbcType=INTEGER},
+      </if>
+      <if test="inquiryId != null" >
+        #{inquiryId,jdbcType=VARCHAR},
+      </if>
+      <if test="businessName != null" >
+        #{businessName,jdbcType=VARCHAR},
+      </if>
+      <if test="projectNo != null" >
+        #{projectNo,jdbcType=VARCHAR},
+      </if>
+      <if test="totalPriceUsd != null" >
+        #{totalPriceUsd,jdbcType=DECIMAL},
+      </if>
+      <if test="exchangeRate != null" >
+        #{exchangeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="processProgress != null" >
+        #{processProgress,jdbcType=VARCHAR},
+      </if>
+      <if test="deliverConsignHas != null" >
+        #{deliverConsignHas,jdbcType=INTEGER},
+      </if>
+      <if test="orderBelongs != null" >
+        #{orderBelongs,jdbcType=INTEGER},
+      </if>
+      <if test="orderCategory != null" >
+        #{orderCategory,jdbcType=INTEGER},
+      </if>
+      <if test="overseasSales != null" >
+        #{overseasSales,jdbcType=INTEGER},
+      </if>
+      <if test="shipmentsMoney != null" >
+        #{shipmentsMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="alreadyGatheringMoney != null" >
+        #{alreadyGatheringMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="purchReqCreate != null" >
+        #{purchReqCreate,jdbcType=INTEGER},
+      </if>
+      <if test="inspectN != null" >
+        #{inspectN,jdbcType=INTEGER},
+      </if>
+      <if test="advanceMoney != null" >
+        #{advanceMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="auditingStatus != null" >
+        #{auditingStatus,jdbcType=INTEGER},
+      </if>
+      <if test="auditingProcess != null" >
+        #{auditingProcess,jdbcType=VARCHAR},
+      </if>
+      <if test="auditingUserId != null" >
+        #{auditingUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="countryLeaderId != null" >
+        #{countryLeaderId,jdbcType=INTEGER},
+      </if>
+      <if test="countryLeader != null" >
+        #{countryLeader,jdbcType=VARCHAR},
+      </if>
+      <if test="areaLeaderId != null" >
+        #{areaLeaderId,jdbcType=INTEGER},
+      </if>
+      <if test="areaLeader != null" >
+        #{areaLeader,jdbcType=VARCHAR},
+      </if>
+      <if test="areaVpId != null" >
+        #{areaVpId,jdbcType=INTEGER},
+      </if>
+      <if test="areaVp != null" >
+        #{areaVp,jdbcType=VARCHAR},
+      </if>
+      <if test="perLiableRepayId != null" >
+        #{perLiableRepayId,jdbcType=INTEGER},
+      </if>
+      <if test="financingCommissionerId != null" >
+        #{financingCommissionerId,jdbcType=INTEGER},
+      </if>
+      <if test="audiRemark != null" >
+        #{audiRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="cancelReason != null" >
+        #{cancelReason,jdbcType=VARCHAR},
+      </if>
+      <if test="settlementLeaderId != null" >
+        #{settlementLeaderId,jdbcType=INTEGER},
+      </if>
+      <if test="settlementLeader != null" >
+        #{settlementLeader,jdbcType=VARCHAR},
+      </if>
+      <if test="legalAuditerId != null" >
+        #{legalAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="legalAuditer != null" >
+        #{legalAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="financingCommissioner != null" >
+        #{financingCommissioner,jdbcType=VARCHAR},
+      </if>
+      <if test="processId != null" >
+        #{processId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null" >
+        #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="deliveryRequires != null" >
+        #{deliveryRequires,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="customerContext != null" >
+        #{customerContext,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.order.v2.model.OrderExample" resultType="java.lang.Integer" >
+    select count(*) from order
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update order
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.contractNo != null" >
+        contract_no = #{record.contractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.frameworkNo != null" >
+        framework_no = #{record.frameworkNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.contractNoOs != null" >
+        contract_no_os = #{record.contractNoOs,jdbcType=VARCHAR},
+      </if>
+      <if test="record.poNo != null" >
+        po_no = #{record.poNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.logiQuoteNo != null" >
+        logi_quote_no = #{record.logiQuoteNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.inquiryNo != null" >
+        inquiry_no = #{record.inquiryNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orderType != null" >
+        order_type = #{record.orderType,jdbcType=INTEGER},
+      </if>
+      <if test="record.orderSource != null" >
+        order_source = #{record.orderSource,jdbcType=INTEGER},
+      </if>
+      <if test="record.signingDate != null" >
+        signing_date = #{record.signingDate,jdbcType=DATE},
+      </if>
+      <if test="record.deliveryDate != null" >
+        delivery_date = #{record.deliveryDate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.signingCo != null" >
+        signing_co = #{record.signingCo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.agentId != null" >
+        agent_id = #{record.agentId,jdbcType=INTEGER},
+      </if>
+      <if test="record.agentName != null" >
+        agent_name = #{record.agentName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.execCoId != null" >
+        exec_co_id = #{record.execCoId,jdbcType=INTEGER},
+      </if>
+      <if test="record.execCoName != null" >
+        exec_co_name = #{record.execCoName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.region != null" >
+        region = #{record.region,jdbcType=VARCHAR},
+      </if>
+      <if test="record.distributionDeptName != null" >
+        distribution_dept_name = #{record.distributionDeptName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.country != null" >
+        country = #{record.country,jdbcType=VARCHAR},
+      </if>
+      <if test="record.crmCode != null" >
+        crm_code = #{record.crmCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.customerType != null" >
+        customer_type = #{record.customerType,jdbcType=INTEGER},
+      </if>
+      <if test="record.perLiableRepay != null" >
+        per_liable_repay = #{record.perLiableRepay,jdbcType=VARCHAR},
+      </if>
+      <if test="record.businessUnitId != null" >
+        business_unit_id = #{record.businessUnitId,jdbcType=INTEGER},
+      </if>
+      <if test="record.businessUnitName != null" >
+        business_unit_name = #{record.businessUnitName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.technicalId != null" >
+        technical_id = #{record.technicalId,jdbcType=INTEGER},
+      </if>
+      <if test="record.grantType != null" >
+        grant_type = #{record.grantType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.preinvest != null" >
+        preinvest = #{record.preinvest,jdbcType=INTEGER},
+      </if>
+      <if test="record.financing != null" >
+        financing = #{record.financing,jdbcType=INTEGER},
+      </if>
+      <if test="record.tradeTerms != null" >
+        trade_terms = #{record.tradeTerms,jdbcType=VARCHAR},
+      </if>
+      <if test="record.transportType != null" >
+        transport_type = #{record.transportType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fromCountry != null" >
+        from_country = #{record.fromCountry,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fromPort != null" >
+        from_port = #{record.fromPort,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fromPlace != null" >
+        from_place = #{record.fromPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="record.toCountry != null" >
+        to_country = #{record.toCountry,jdbcType=VARCHAR},
+      </if>
+      <if test="record.toPort != null" >
+        to_port = #{record.toPort,jdbcType=VARCHAR},
+      </if>
+      <if test="record.toPlace != null" >
+        to_place = #{record.toPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="record.totalPrice != null" >
+        total_price = #{record.totalPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.distributionDeptId != null" >
+        distribution_dept_id = #{record.distributionDeptId,jdbcType=INTEGER},
+      </if>
+      <if test="record.technicalIdDept != null" >
+        technical_id_dept = #{record.technicalIdDept,jdbcType=VARCHAR},
+      </if>
+      <if test="record.currencyBn != null" >
+        currency_bn = #{record.currencyBn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.taxBearing != null" >
+        tax_bearing = #{record.taxBearing,jdbcType=INTEGER},
+      </if>
+      <if test="record.paymentModeBn != null" >
+        payment_mode_bn = #{record.paymentModeBn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.qualityFunds != null" >
+        quality_funds = #{record.qualityFunds,jdbcType=DECIMAL},
+      </if>
+      <if test="record.payStatus != null" >
+        pay_status = #{record.payStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.deliverConsignC != null" >
+        deliver_consign_c = #{record.deliverConsignC,jdbcType=BIT},
+      </if>
+      <if test="record.createUserId != null" >
+        create_user_id = #{record.createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="record.updateTime != null" >
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.deleteFlag != null" >
+        delete_flag = #{record.deleteFlag,jdbcType=BIT},
+      </if>
+      <if test="record.deleteTime != null" >
+        delete_time = #{record.deleteTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.receivableAccountRemaining != null" >
+        receivable_account_remaining = #{record.receivableAccountRemaining,jdbcType=DECIMAL},
+      </if>
+      <if test="record.acquireId != null" >
+        acquire_id = #{record.acquireId,jdbcType=INTEGER},
+      </if>
+      <if test="record.exeChgDate != null" >
+        exe_chg_date = #{record.exeChgDate,jdbcType=DATE},
+      </if>
+      <if test="record.createUserName != null" >
+        create_user_name = #{record.createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.buyerId != null" >
+        buyer_id = #{record.buyerId,jdbcType=INTEGER},
+      </if>
+      <if test="record.inquiryId != null" >
+        inquiry_id = #{record.inquiryId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.businessName != null" >
+        business_name = #{record.businessName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectNo != null" >
+        project_no = #{record.projectNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.totalPriceUsd != null" >
+        total_price_usd = #{record.totalPriceUsd,jdbcType=DECIMAL},
+      </if>
+      <if test="record.exchangeRate != null" >
+        exchange_rate = #{record.exchangeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="record.processProgress != null" >
+        process_progress = #{record.processProgress,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deliverConsignHas != null" >
+        deliver_consign_has = #{record.deliverConsignHas,jdbcType=INTEGER},
+      </if>
+      <if test="record.orderBelongs != null" >
+        order_belongs = #{record.orderBelongs,jdbcType=INTEGER},
+      </if>
+      <if test="record.orderCategory != null" >
+        order_category = #{record.orderCategory,jdbcType=INTEGER},
+      </if>
+      <if test="record.overseasSales != null" >
+        overseas_sales = #{record.overseasSales,jdbcType=INTEGER},
+      </if>
+      <if test="record.shipmentsMoney != null" >
+        shipments_money = #{record.shipmentsMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="record.alreadyGatheringMoney != null" >
+        already_gathering_money = #{record.alreadyGatheringMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="record.purchReqCreate != null" >
+        purch_req_create = #{record.purchReqCreate,jdbcType=INTEGER},
+      </if>
+      <if test="record.inspectN != null" >
+        inspect_n = #{record.inspectN,jdbcType=INTEGER},
+      </if>
+      <if test="record.advanceMoney != null" >
+        advance_money = #{record.advanceMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="record.auditingStatus != null" >
+        auditing_status = #{record.auditingStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.auditingProcess != null" >
+        auditing_process = #{record.auditingProcess,jdbcType=VARCHAR},
+      </if>
+      <if test="record.auditingUserId != null" >
+        auditing_user_id = #{record.auditingUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.countryLeaderId != null" >
+        country_leader_id = #{record.countryLeaderId,jdbcType=INTEGER},
+      </if>
+      <if test="record.countryLeader != null" >
+        country_leader = #{record.countryLeader,jdbcType=VARCHAR},
+      </if>
+      <if test="record.areaLeaderId != null" >
+        area_leader_id = #{record.areaLeaderId,jdbcType=INTEGER},
+      </if>
+      <if test="record.areaLeader != null" >
+        area_leader = #{record.areaLeader,jdbcType=VARCHAR},
+      </if>
+      <if test="record.areaVpId != null" >
+        area_vp_id = #{record.areaVpId,jdbcType=INTEGER},
+      </if>
+      <if test="record.areaVp != null" >
+        area_vp = #{record.areaVp,jdbcType=VARCHAR},
+      </if>
+      <if test="record.perLiableRepayId != null" >
+        per_liable_repay_id = #{record.perLiableRepayId,jdbcType=INTEGER},
+      </if>
+      <if test="record.financingCommissionerId != null" >
+        financing_commissioner_id = #{record.financingCommissionerId,jdbcType=INTEGER},
+      </if>
+      <if test="record.audiRemark != null" >
+        audi_remark = #{record.audiRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cancelReason != null" >
+        cancel_reason = #{record.cancelReason,jdbcType=VARCHAR},
+      </if>
+      <if test="record.settlementLeaderId != null" >
+        settlement_leader_id = #{record.settlementLeaderId,jdbcType=INTEGER},
+      </if>
+      <if test="record.settlementLeader != null" >
+        settlement_leader = #{record.settlementLeader,jdbcType=VARCHAR},
+      </if>
+      <if test="record.legalAuditerId != null" >
+        legal_auditer_id = #{record.legalAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="record.legalAuditer != null" >
+        legal_auditer = #{record.legalAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="record.financingCommissioner != null" >
+        financing_commissioner = #{record.financingCommissioner,jdbcType=VARCHAR},
+      </if>
+      <if test="record.processId != null" >
+        process_id = #{record.processId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.taskId != null" >
+        task_id = #{record.taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deliveryRequires != null" >
+        delivery_requires = #{record.deliveryRequires,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.customerContext != null" >
+        customer_context = #{record.customerContext,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update order
+    set id = #{record.id,jdbcType=INTEGER},
+      contract_no = #{record.contractNo,jdbcType=VARCHAR},
+      framework_no = #{record.frameworkNo,jdbcType=VARCHAR},
+      contract_no_os = #{record.contractNoOs,jdbcType=VARCHAR},
+      po_no = #{record.poNo,jdbcType=VARCHAR},
+      logi_quote_no = #{record.logiQuoteNo,jdbcType=VARCHAR},
+      inquiry_no = #{record.inquiryNo,jdbcType=VARCHAR},
+      order_type = #{record.orderType,jdbcType=INTEGER},
+      order_source = #{record.orderSource,jdbcType=INTEGER},
+      signing_date = #{record.signingDate,jdbcType=DATE},
+      delivery_date = #{record.deliveryDate,jdbcType=VARCHAR},
+      signing_co = #{record.signingCo,jdbcType=VARCHAR},
+      agent_id = #{record.agentId,jdbcType=INTEGER},
+      agent_name = #{record.agentName,jdbcType=VARCHAR},
+      exec_co_id = #{record.execCoId,jdbcType=INTEGER},
+      exec_co_name = #{record.execCoName,jdbcType=VARCHAR},
+      region = #{record.region,jdbcType=VARCHAR},
+      distribution_dept_name = #{record.distributionDeptName,jdbcType=VARCHAR},
+      country = #{record.country,jdbcType=VARCHAR},
+      crm_code = #{record.crmCode,jdbcType=VARCHAR},
+      customer_type = #{record.customerType,jdbcType=INTEGER},
+      per_liable_repay = #{record.perLiableRepay,jdbcType=VARCHAR},
+      business_unit_id = #{record.businessUnitId,jdbcType=INTEGER},
+      business_unit_name = #{record.businessUnitName,jdbcType=VARCHAR},
+      technical_id = #{record.technicalId,jdbcType=INTEGER},
+      grant_type = #{record.grantType,jdbcType=VARCHAR},
+      preinvest = #{record.preinvest,jdbcType=INTEGER},
+      financing = #{record.financing,jdbcType=INTEGER},
+      trade_terms = #{record.tradeTerms,jdbcType=VARCHAR},
+      transport_type = #{record.transportType,jdbcType=VARCHAR},
+      from_country = #{record.fromCountry,jdbcType=VARCHAR},
+      from_port = #{record.fromPort,jdbcType=VARCHAR},
+      from_place = #{record.fromPlace,jdbcType=VARCHAR},
+      to_country = #{record.toCountry,jdbcType=VARCHAR},
+      to_port = #{record.toPort,jdbcType=VARCHAR},
+      to_place = #{record.toPlace,jdbcType=VARCHAR},
+      total_price = #{record.totalPrice,jdbcType=DECIMAL},
+      distribution_dept_id = #{record.distributionDeptId,jdbcType=INTEGER},
+      technical_id_dept = #{record.technicalIdDept,jdbcType=VARCHAR},
+      currency_bn = #{record.currencyBn,jdbcType=VARCHAR},
+      tax_bearing = #{record.taxBearing,jdbcType=INTEGER},
+      payment_mode_bn = #{record.paymentModeBn,jdbcType=VARCHAR},
+      quality_funds = #{record.qualityFunds,jdbcType=DECIMAL},
+      pay_status = #{record.payStatus,jdbcType=INTEGER},
+      status = #{record.status,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      deliver_consign_c = #{record.deliverConsignC,jdbcType=BIT},
+      create_user_id = #{record.createUserId,jdbcType=INTEGER},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      delete_flag = #{record.deleteFlag,jdbcType=BIT},
+      delete_time = #{record.deleteTime,jdbcType=TIMESTAMP},
+      receivable_account_remaining = #{record.receivableAccountRemaining,jdbcType=DECIMAL},
+      acquire_id = #{record.acquireId,jdbcType=INTEGER},
+      exe_chg_date = #{record.exeChgDate,jdbcType=DATE},
+      create_user_name = #{record.createUserName,jdbcType=VARCHAR},
+      buyer_id = #{record.buyerId,jdbcType=INTEGER},
+      inquiry_id = #{record.inquiryId,jdbcType=VARCHAR},
+      business_name = #{record.businessName,jdbcType=VARCHAR},
+      project_no = #{record.projectNo,jdbcType=VARCHAR},
+      total_price_usd = #{record.totalPriceUsd,jdbcType=DECIMAL},
+      exchange_rate = #{record.exchangeRate,jdbcType=DECIMAL},
+      process_progress = #{record.processProgress,jdbcType=VARCHAR},
+      deliver_consign_has = #{record.deliverConsignHas,jdbcType=INTEGER},
+      order_belongs = #{record.orderBelongs,jdbcType=INTEGER},
+      order_category = #{record.orderCategory,jdbcType=INTEGER},
+      overseas_sales = #{record.overseasSales,jdbcType=INTEGER},
+      shipments_money = #{record.shipmentsMoney,jdbcType=DECIMAL},
+      already_gathering_money = #{record.alreadyGatheringMoney,jdbcType=DECIMAL},
+      purch_req_create = #{record.purchReqCreate,jdbcType=INTEGER},
+      inspect_n = #{record.inspectN,jdbcType=INTEGER},
+      advance_money = #{record.advanceMoney,jdbcType=DECIMAL},
+      auditing_status = #{record.auditingStatus,jdbcType=INTEGER},
+      auditing_process = #{record.auditingProcess,jdbcType=VARCHAR},
+      auditing_user_id = #{record.auditingUserId,jdbcType=VARCHAR},
+      country_leader_id = #{record.countryLeaderId,jdbcType=INTEGER},
+      country_leader = #{record.countryLeader,jdbcType=VARCHAR},
+      area_leader_id = #{record.areaLeaderId,jdbcType=INTEGER},
+      area_leader = #{record.areaLeader,jdbcType=VARCHAR},
+      area_vp_id = #{record.areaVpId,jdbcType=INTEGER},
+      area_vp = #{record.areaVp,jdbcType=VARCHAR},
+      per_liable_repay_id = #{record.perLiableRepayId,jdbcType=INTEGER},
+      financing_commissioner_id = #{record.financingCommissionerId,jdbcType=INTEGER},
+      audi_remark = #{record.audiRemark,jdbcType=VARCHAR},
+      cancel_reason = #{record.cancelReason,jdbcType=VARCHAR},
+      settlement_leader_id = #{record.settlementLeaderId,jdbcType=INTEGER},
+      settlement_leader = #{record.settlementLeader,jdbcType=VARCHAR},
+      legal_auditer_id = #{record.legalAuditerId,jdbcType=INTEGER},
+      legal_auditer = #{record.legalAuditer,jdbcType=VARCHAR},
+      financing_commissioner = #{record.financingCommissioner,jdbcType=VARCHAR},
+      process_id = #{record.processId,jdbcType=VARCHAR},
+      task_id = #{record.taskId,jdbcType=VARCHAR},
+      delivery_requires = #{record.deliveryRequires,jdbcType=LONGVARCHAR},
+      customer_context = #{record.customerContext,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update order
+    set id = #{record.id,jdbcType=INTEGER},
+      contract_no = #{record.contractNo,jdbcType=VARCHAR},
+      framework_no = #{record.frameworkNo,jdbcType=VARCHAR},
+      contract_no_os = #{record.contractNoOs,jdbcType=VARCHAR},
+      po_no = #{record.poNo,jdbcType=VARCHAR},
+      logi_quote_no = #{record.logiQuoteNo,jdbcType=VARCHAR},
+      inquiry_no = #{record.inquiryNo,jdbcType=VARCHAR},
+      order_type = #{record.orderType,jdbcType=INTEGER},
+      order_source = #{record.orderSource,jdbcType=INTEGER},
+      signing_date = #{record.signingDate,jdbcType=DATE},
+      delivery_date = #{record.deliveryDate,jdbcType=VARCHAR},
+      signing_co = #{record.signingCo,jdbcType=VARCHAR},
+      agent_id = #{record.agentId,jdbcType=INTEGER},
+      agent_name = #{record.agentName,jdbcType=VARCHAR},
+      exec_co_id = #{record.execCoId,jdbcType=INTEGER},
+      exec_co_name = #{record.execCoName,jdbcType=VARCHAR},
+      region = #{record.region,jdbcType=VARCHAR},
+      distribution_dept_name = #{record.distributionDeptName,jdbcType=VARCHAR},
+      country = #{record.country,jdbcType=VARCHAR},
+      crm_code = #{record.crmCode,jdbcType=VARCHAR},
+      customer_type = #{record.customerType,jdbcType=INTEGER},
+      per_liable_repay = #{record.perLiableRepay,jdbcType=VARCHAR},
+      business_unit_id = #{record.businessUnitId,jdbcType=INTEGER},
+      business_unit_name = #{record.businessUnitName,jdbcType=VARCHAR},
+      technical_id = #{record.technicalId,jdbcType=INTEGER},
+      grant_type = #{record.grantType,jdbcType=VARCHAR},
+      preinvest = #{record.preinvest,jdbcType=INTEGER},
+      financing = #{record.financing,jdbcType=INTEGER},
+      trade_terms = #{record.tradeTerms,jdbcType=VARCHAR},
+      transport_type = #{record.transportType,jdbcType=VARCHAR},
+      from_country = #{record.fromCountry,jdbcType=VARCHAR},
+      from_port = #{record.fromPort,jdbcType=VARCHAR},
+      from_place = #{record.fromPlace,jdbcType=VARCHAR},
+      to_country = #{record.toCountry,jdbcType=VARCHAR},
+      to_port = #{record.toPort,jdbcType=VARCHAR},
+      to_place = #{record.toPlace,jdbcType=VARCHAR},
+      total_price = #{record.totalPrice,jdbcType=DECIMAL},
+      distribution_dept_id = #{record.distributionDeptId,jdbcType=INTEGER},
+      technical_id_dept = #{record.technicalIdDept,jdbcType=VARCHAR},
+      currency_bn = #{record.currencyBn,jdbcType=VARCHAR},
+      tax_bearing = #{record.taxBearing,jdbcType=INTEGER},
+      payment_mode_bn = #{record.paymentModeBn,jdbcType=VARCHAR},
+      quality_funds = #{record.qualityFunds,jdbcType=DECIMAL},
+      pay_status = #{record.payStatus,jdbcType=INTEGER},
+      status = #{record.status,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      deliver_consign_c = #{record.deliverConsignC,jdbcType=BIT},
+      create_user_id = #{record.createUserId,jdbcType=INTEGER},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      delete_flag = #{record.deleteFlag,jdbcType=BIT},
+      delete_time = #{record.deleteTime,jdbcType=TIMESTAMP},
+      receivable_account_remaining = #{record.receivableAccountRemaining,jdbcType=DECIMAL},
+      acquire_id = #{record.acquireId,jdbcType=INTEGER},
+      exe_chg_date = #{record.exeChgDate,jdbcType=DATE},
+      create_user_name = #{record.createUserName,jdbcType=VARCHAR},
+      buyer_id = #{record.buyerId,jdbcType=INTEGER},
+      inquiry_id = #{record.inquiryId,jdbcType=VARCHAR},
+      business_name = #{record.businessName,jdbcType=VARCHAR},
+      project_no = #{record.projectNo,jdbcType=VARCHAR},
+      total_price_usd = #{record.totalPriceUsd,jdbcType=DECIMAL},
+      exchange_rate = #{record.exchangeRate,jdbcType=DECIMAL},
+      process_progress = #{record.processProgress,jdbcType=VARCHAR},
+      deliver_consign_has = #{record.deliverConsignHas,jdbcType=INTEGER},
+      order_belongs = #{record.orderBelongs,jdbcType=INTEGER},
+      order_category = #{record.orderCategory,jdbcType=INTEGER},
+      overseas_sales = #{record.overseasSales,jdbcType=INTEGER},
+      shipments_money = #{record.shipmentsMoney,jdbcType=DECIMAL},
+      already_gathering_money = #{record.alreadyGatheringMoney,jdbcType=DECIMAL},
+      purch_req_create = #{record.purchReqCreate,jdbcType=INTEGER},
+      inspect_n = #{record.inspectN,jdbcType=INTEGER},
+      advance_money = #{record.advanceMoney,jdbcType=DECIMAL},
+      auditing_status = #{record.auditingStatus,jdbcType=INTEGER},
+      auditing_process = #{record.auditingProcess,jdbcType=VARCHAR},
+      auditing_user_id = #{record.auditingUserId,jdbcType=VARCHAR},
+      country_leader_id = #{record.countryLeaderId,jdbcType=INTEGER},
+      country_leader = #{record.countryLeader,jdbcType=VARCHAR},
+      area_leader_id = #{record.areaLeaderId,jdbcType=INTEGER},
+      area_leader = #{record.areaLeader,jdbcType=VARCHAR},
+      area_vp_id = #{record.areaVpId,jdbcType=INTEGER},
+      area_vp = #{record.areaVp,jdbcType=VARCHAR},
+      per_liable_repay_id = #{record.perLiableRepayId,jdbcType=INTEGER},
+      financing_commissioner_id = #{record.financingCommissionerId,jdbcType=INTEGER},
+      audi_remark = #{record.audiRemark,jdbcType=VARCHAR},
+      cancel_reason = #{record.cancelReason,jdbcType=VARCHAR},
+      settlement_leader_id = #{record.settlementLeaderId,jdbcType=INTEGER},
+      settlement_leader = #{record.settlementLeader,jdbcType=VARCHAR},
+      legal_auditer_id = #{record.legalAuditerId,jdbcType=INTEGER},
+      legal_auditer = #{record.legalAuditer,jdbcType=VARCHAR},
+      financing_commissioner = #{record.financingCommissioner,jdbcType=VARCHAR},
+      process_id = #{record.processId,jdbcType=VARCHAR},
+      task_id = #{record.taskId,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.OrderWithBLOBs" >
+    update order
+    <set >
+      <if test="contractNo != null" >
+        contract_no = #{contractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="frameworkNo != null" >
+        framework_no = #{frameworkNo,jdbcType=VARCHAR},
+      </if>
+      <if test="contractNoOs != null" >
+        contract_no_os = #{contractNoOs,jdbcType=VARCHAR},
+      </if>
+      <if test="poNo != null" >
+        po_no = #{poNo,jdbcType=VARCHAR},
+      </if>
+      <if test="logiQuoteNo != null" >
+        logi_quote_no = #{logiQuoteNo,jdbcType=VARCHAR},
+      </if>
+      <if test="inquiryNo != null" >
+        inquiry_no = #{inquiryNo,jdbcType=VARCHAR},
+      </if>
+      <if test="orderType != null" >
+        order_type = #{orderType,jdbcType=INTEGER},
+      </if>
+      <if test="orderSource != null" >
+        order_source = #{orderSource,jdbcType=INTEGER},
+      </if>
+      <if test="signingDate != null" >
+        signing_date = #{signingDate,jdbcType=DATE},
+      </if>
+      <if test="deliveryDate != null" >
+        delivery_date = #{deliveryDate,jdbcType=VARCHAR},
+      </if>
+      <if test="signingCo != null" >
+        signing_co = #{signingCo,jdbcType=VARCHAR},
+      </if>
+      <if test="agentId != null" >
+        agent_id = #{agentId,jdbcType=INTEGER},
+      </if>
+      <if test="agentName != null" >
+        agent_name = #{agentName,jdbcType=VARCHAR},
+      </if>
+      <if test="execCoId != null" >
+        exec_co_id = #{execCoId,jdbcType=INTEGER},
+      </if>
+      <if test="execCoName != null" >
+        exec_co_name = #{execCoName,jdbcType=VARCHAR},
+      </if>
+      <if test="region != null" >
+        region = #{region,jdbcType=VARCHAR},
+      </if>
+      <if test="distributionDeptName != null" >
+        distribution_dept_name = #{distributionDeptName,jdbcType=VARCHAR},
+      </if>
+      <if test="country != null" >
+        country = #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="crmCode != null" >
+        crm_code = #{crmCode,jdbcType=VARCHAR},
+      </if>
+      <if test="customerType != null" >
+        customer_type = #{customerType,jdbcType=INTEGER},
+      </if>
+      <if test="perLiableRepay != null" >
+        per_liable_repay = #{perLiableRepay,jdbcType=VARCHAR},
+      </if>
+      <if test="businessUnitId != null" >
+        business_unit_id = #{businessUnitId,jdbcType=INTEGER},
+      </if>
+      <if test="businessUnitName != null" >
+        business_unit_name = #{businessUnitName,jdbcType=VARCHAR},
+      </if>
+      <if test="technicalId != null" >
+        technical_id = #{technicalId,jdbcType=INTEGER},
+      </if>
+      <if test="grantType != null" >
+        grant_type = #{grantType,jdbcType=VARCHAR},
+      </if>
+      <if test="preinvest != null" >
+        preinvest = #{preinvest,jdbcType=INTEGER},
+      </if>
+      <if test="financing != null" >
+        financing = #{financing,jdbcType=INTEGER},
+      </if>
+      <if test="tradeTerms != null" >
+        trade_terms = #{tradeTerms,jdbcType=VARCHAR},
+      </if>
+      <if test="transportType != null" >
+        transport_type = #{transportType,jdbcType=VARCHAR},
+      </if>
+      <if test="fromCountry != null" >
+        from_country = #{fromCountry,jdbcType=VARCHAR},
+      </if>
+      <if test="fromPort != null" >
+        from_port = #{fromPort,jdbcType=VARCHAR},
+      </if>
+      <if test="fromPlace != null" >
+        from_place = #{fromPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="toCountry != null" >
+        to_country = #{toCountry,jdbcType=VARCHAR},
+      </if>
+      <if test="toPort != null" >
+        to_port = #{toPort,jdbcType=VARCHAR},
+      </if>
+      <if test="toPlace != null" >
+        to_place = #{toPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="totalPrice != null" >
+        total_price = #{totalPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="distributionDeptId != null" >
+        distribution_dept_id = #{distributionDeptId,jdbcType=INTEGER},
+      </if>
+      <if test="technicalIdDept != null" >
+        technical_id_dept = #{technicalIdDept,jdbcType=VARCHAR},
+      </if>
+      <if test="currencyBn != null" >
+        currency_bn = #{currencyBn,jdbcType=VARCHAR},
+      </if>
+      <if test="taxBearing != null" >
+        tax_bearing = #{taxBearing,jdbcType=INTEGER},
+      </if>
+      <if test="paymentModeBn != null" >
+        payment_mode_bn = #{paymentModeBn,jdbcType=VARCHAR},
+      </if>
+      <if test="qualityFunds != null" >
+        quality_funds = #{qualityFunds,jdbcType=DECIMAL},
+      </if>
+      <if test="payStatus != null" >
+        pay_status = #{payStatus,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deliverConsignC != null" >
+        deliver_consign_c = #{deliverConsignC,jdbcType=BIT},
+      </if>
+      <if test="createUserId != null" >
+        create_user_id = #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deleteFlag != null" >
+        delete_flag = #{deleteFlag,jdbcType=BIT},
+      </if>
+      <if test="deleteTime != null" >
+        delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="receivableAccountRemaining != null" >
+        receivable_account_remaining = #{receivableAccountRemaining,jdbcType=DECIMAL},
+      </if>
+      <if test="acquireId != null" >
+        acquire_id = #{acquireId,jdbcType=INTEGER},
+      </if>
+      <if test="exeChgDate != null" >
+        exe_chg_date = #{exeChgDate,jdbcType=DATE},
+      </if>
+      <if test="createUserName != null" >
+        create_user_name = #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerId != null" >
+        buyer_id = #{buyerId,jdbcType=INTEGER},
+      </if>
+      <if test="inquiryId != null" >
+        inquiry_id = #{inquiryId,jdbcType=VARCHAR},
+      </if>
+      <if test="businessName != null" >
+        business_name = #{businessName,jdbcType=VARCHAR},
+      </if>
+      <if test="projectNo != null" >
+        project_no = #{projectNo,jdbcType=VARCHAR},
+      </if>
+      <if test="totalPriceUsd != null" >
+        total_price_usd = #{totalPriceUsd,jdbcType=DECIMAL},
+      </if>
+      <if test="exchangeRate != null" >
+        exchange_rate = #{exchangeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="processProgress != null" >
+        process_progress = #{processProgress,jdbcType=VARCHAR},
+      </if>
+      <if test="deliverConsignHas != null" >
+        deliver_consign_has = #{deliverConsignHas,jdbcType=INTEGER},
+      </if>
+      <if test="orderBelongs != null" >
+        order_belongs = #{orderBelongs,jdbcType=INTEGER},
+      </if>
+      <if test="orderCategory != null" >
+        order_category = #{orderCategory,jdbcType=INTEGER},
+      </if>
+      <if test="overseasSales != null" >
+        overseas_sales = #{overseasSales,jdbcType=INTEGER},
+      </if>
+      <if test="shipmentsMoney != null" >
+        shipments_money = #{shipmentsMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="alreadyGatheringMoney != null" >
+        already_gathering_money = #{alreadyGatheringMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="purchReqCreate != null" >
+        purch_req_create = #{purchReqCreate,jdbcType=INTEGER},
+      </if>
+      <if test="inspectN != null" >
+        inspect_n = #{inspectN,jdbcType=INTEGER},
+      </if>
+      <if test="advanceMoney != null" >
+        advance_money = #{advanceMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="auditingStatus != null" >
+        auditing_status = #{auditingStatus,jdbcType=INTEGER},
+      </if>
+      <if test="auditingProcess != null" >
+        auditing_process = #{auditingProcess,jdbcType=VARCHAR},
+      </if>
+      <if test="auditingUserId != null" >
+        auditing_user_id = #{auditingUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="countryLeaderId != null" >
+        country_leader_id = #{countryLeaderId,jdbcType=INTEGER},
+      </if>
+      <if test="countryLeader != null" >
+        country_leader = #{countryLeader,jdbcType=VARCHAR},
+      </if>
+      <if test="areaLeaderId != null" >
+        area_leader_id = #{areaLeaderId,jdbcType=INTEGER},
+      </if>
+      <if test="areaLeader != null" >
+        area_leader = #{areaLeader,jdbcType=VARCHAR},
+      </if>
+      <if test="areaVpId != null" >
+        area_vp_id = #{areaVpId,jdbcType=INTEGER},
+      </if>
+      <if test="areaVp != null" >
+        area_vp = #{areaVp,jdbcType=VARCHAR},
+      </if>
+      <if test="perLiableRepayId != null" >
+        per_liable_repay_id = #{perLiableRepayId,jdbcType=INTEGER},
+      </if>
+      <if test="financingCommissionerId != null" >
+        financing_commissioner_id = #{financingCommissionerId,jdbcType=INTEGER},
+      </if>
+      <if test="audiRemark != null" >
+        audi_remark = #{audiRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="cancelReason != null" >
+        cancel_reason = #{cancelReason,jdbcType=VARCHAR},
+      </if>
+      <if test="settlementLeaderId != null" >
+        settlement_leader_id = #{settlementLeaderId,jdbcType=INTEGER},
+      </if>
+      <if test="settlementLeader != null" >
+        settlement_leader = #{settlementLeader,jdbcType=VARCHAR},
+      </if>
+      <if test="legalAuditerId != null" >
+        legal_auditer_id = #{legalAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="legalAuditer != null" >
+        legal_auditer = #{legalAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="financingCommissioner != null" >
+        financing_commissioner = #{financingCommissioner,jdbcType=VARCHAR},
+      </if>
+      <if test="processId != null" >
+        process_id = #{processId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null" >
+        task_id = #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="deliveryRequires != null" >
+        delivery_requires = #{deliveryRequires,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="customerContext != null" >
+        customer_context = #{customerContext,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.erui.order.v2.model.OrderWithBLOBs" >
+    update order
+    set contract_no = #{contractNo,jdbcType=VARCHAR},
+      framework_no = #{frameworkNo,jdbcType=VARCHAR},
+      contract_no_os = #{contractNoOs,jdbcType=VARCHAR},
+      po_no = #{poNo,jdbcType=VARCHAR},
+      logi_quote_no = #{logiQuoteNo,jdbcType=VARCHAR},
+      inquiry_no = #{inquiryNo,jdbcType=VARCHAR},
+      order_type = #{orderType,jdbcType=INTEGER},
+      order_source = #{orderSource,jdbcType=INTEGER},
+      signing_date = #{signingDate,jdbcType=DATE},
+      delivery_date = #{deliveryDate,jdbcType=VARCHAR},
+      signing_co = #{signingCo,jdbcType=VARCHAR},
+      agent_id = #{agentId,jdbcType=INTEGER},
+      agent_name = #{agentName,jdbcType=VARCHAR},
+      exec_co_id = #{execCoId,jdbcType=INTEGER},
+      exec_co_name = #{execCoName,jdbcType=VARCHAR},
+      region = #{region,jdbcType=VARCHAR},
+      distribution_dept_name = #{distributionDeptName,jdbcType=VARCHAR},
+      country = #{country,jdbcType=VARCHAR},
+      crm_code = #{crmCode,jdbcType=VARCHAR},
+      customer_type = #{customerType,jdbcType=INTEGER},
+      per_liable_repay = #{perLiableRepay,jdbcType=VARCHAR},
+      business_unit_id = #{businessUnitId,jdbcType=INTEGER},
+      business_unit_name = #{businessUnitName,jdbcType=VARCHAR},
+      technical_id = #{technicalId,jdbcType=INTEGER},
+      grant_type = #{grantType,jdbcType=VARCHAR},
+      preinvest = #{preinvest,jdbcType=INTEGER},
+      financing = #{financing,jdbcType=INTEGER},
+      trade_terms = #{tradeTerms,jdbcType=VARCHAR},
+      transport_type = #{transportType,jdbcType=VARCHAR},
+      from_country = #{fromCountry,jdbcType=VARCHAR},
+      from_port = #{fromPort,jdbcType=VARCHAR},
+      from_place = #{fromPlace,jdbcType=VARCHAR},
+      to_country = #{toCountry,jdbcType=VARCHAR},
+      to_port = #{toPort,jdbcType=VARCHAR},
+      to_place = #{toPlace,jdbcType=VARCHAR},
+      total_price = #{totalPrice,jdbcType=DECIMAL},
+      distribution_dept_id = #{distributionDeptId,jdbcType=INTEGER},
+      technical_id_dept = #{technicalIdDept,jdbcType=VARCHAR},
+      currency_bn = #{currencyBn,jdbcType=VARCHAR},
+      tax_bearing = #{taxBearing,jdbcType=INTEGER},
+      payment_mode_bn = #{paymentModeBn,jdbcType=VARCHAR},
+      quality_funds = #{qualityFunds,jdbcType=DECIMAL},
+      pay_status = #{payStatus,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      deliver_consign_c = #{deliverConsignC,jdbcType=BIT},
+      create_user_id = #{createUserId,jdbcType=INTEGER},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      delete_flag = #{deleteFlag,jdbcType=BIT},
+      delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+      receivable_account_remaining = #{receivableAccountRemaining,jdbcType=DECIMAL},
+      acquire_id = #{acquireId,jdbcType=INTEGER},
+      exe_chg_date = #{exeChgDate,jdbcType=DATE},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      buyer_id = #{buyerId,jdbcType=INTEGER},
+      inquiry_id = #{inquiryId,jdbcType=VARCHAR},
+      business_name = #{businessName,jdbcType=VARCHAR},
+      project_no = #{projectNo,jdbcType=VARCHAR},
+      total_price_usd = #{totalPriceUsd,jdbcType=DECIMAL},
+      exchange_rate = #{exchangeRate,jdbcType=DECIMAL},
+      process_progress = #{processProgress,jdbcType=VARCHAR},
+      deliver_consign_has = #{deliverConsignHas,jdbcType=INTEGER},
+      order_belongs = #{orderBelongs,jdbcType=INTEGER},
+      order_category = #{orderCategory,jdbcType=INTEGER},
+      overseas_sales = #{overseasSales,jdbcType=INTEGER},
+      shipments_money = #{shipmentsMoney,jdbcType=DECIMAL},
+      already_gathering_money = #{alreadyGatheringMoney,jdbcType=DECIMAL},
+      purch_req_create = #{purchReqCreate,jdbcType=INTEGER},
+      inspect_n = #{inspectN,jdbcType=INTEGER},
+      advance_money = #{advanceMoney,jdbcType=DECIMAL},
+      auditing_status = #{auditingStatus,jdbcType=INTEGER},
+      auditing_process = #{auditingProcess,jdbcType=VARCHAR},
+      auditing_user_id = #{auditingUserId,jdbcType=VARCHAR},
+      country_leader_id = #{countryLeaderId,jdbcType=INTEGER},
+      country_leader = #{countryLeader,jdbcType=VARCHAR},
+      area_leader_id = #{areaLeaderId,jdbcType=INTEGER},
+      area_leader = #{areaLeader,jdbcType=VARCHAR},
+      area_vp_id = #{areaVpId,jdbcType=INTEGER},
+      area_vp = #{areaVp,jdbcType=VARCHAR},
+      per_liable_repay_id = #{perLiableRepayId,jdbcType=INTEGER},
+      financing_commissioner_id = #{financingCommissionerId,jdbcType=INTEGER},
+      audi_remark = #{audiRemark,jdbcType=VARCHAR},
+      cancel_reason = #{cancelReason,jdbcType=VARCHAR},
+      settlement_leader_id = #{settlementLeaderId,jdbcType=INTEGER},
+      settlement_leader = #{settlementLeader,jdbcType=VARCHAR},
+      legal_auditer_id = #{legalAuditerId,jdbcType=INTEGER},
+      legal_auditer = #{legalAuditer,jdbcType=VARCHAR},
+      financing_commissioner = #{financingCommissioner,jdbcType=VARCHAR},
+      process_id = #{processId,jdbcType=VARCHAR},
+      task_id = #{taskId,jdbcType=VARCHAR},
+      delivery_requires = #{deliveryRequires,jdbcType=LONGVARCHAR},
+      customer_context = #{customerContext,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.Order" >
+    update order
+    set contract_no = #{contractNo,jdbcType=VARCHAR},
+      framework_no = #{frameworkNo,jdbcType=VARCHAR},
+      contract_no_os = #{contractNoOs,jdbcType=VARCHAR},
+      po_no = #{poNo,jdbcType=VARCHAR},
+      logi_quote_no = #{logiQuoteNo,jdbcType=VARCHAR},
+      inquiry_no = #{inquiryNo,jdbcType=VARCHAR},
+      order_type = #{orderType,jdbcType=INTEGER},
+      order_source = #{orderSource,jdbcType=INTEGER},
+      signing_date = #{signingDate,jdbcType=DATE},
+      delivery_date = #{deliveryDate,jdbcType=VARCHAR},
+      signing_co = #{signingCo,jdbcType=VARCHAR},
+      agent_id = #{agentId,jdbcType=INTEGER},
+      agent_name = #{agentName,jdbcType=VARCHAR},
+      exec_co_id = #{execCoId,jdbcType=INTEGER},
+      exec_co_name = #{execCoName,jdbcType=VARCHAR},
+      region = #{region,jdbcType=VARCHAR},
+      distribution_dept_name = #{distributionDeptName,jdbcType=VARCHAR},
+      country = #{country,jdbcType=VARCHAR},
+      crm_code = #{crmCode,jdbcType=VARCHAR},
+      customer_type = #{customerType,jdbcType=INTEGER},
+      per_liable_repay = #{perLiableRepay,jdbcType=VARCHAR},
+      business_unit_id = #{businessUnitId,jdbcType=INTEGER},
+      business_unit_name = #{businessUnitName,jdbcType=VARCHAR},
+      technical_id = #{technicalId,jdbcType=INTEGER},
+      grant_type = #{grantType,jdbcType=VARCHAR},
+      preinvest = #{preinvest,jdbcType=INTEGER},
+      financing = #{financing,jdbcType=INTEGER},
+      trade_terms = #{tradeTerms,jdbcType=VARCHAR},
+      transport_type = #{transportType,jdbcType=VARCHAR},
+      from_country = #{fromCountry,jdbcType=VARCHAR},
+      from_port = #{fromPort,jdbcType=VARCHAR},
+      from_place = #{fromPlace,jdbcType=VARCHAR},
+      to_country = #{toCountry,jdbcType=VARCHAR},
+      to_port = #{toPort,jdbcType=VARCHAR},
+      to_place = #{toPlace,jdbcType=VARCHAR},
+      total_price = #{totalPrice,jdbcType=DECIMAL},
+      distribution_dept_id = #{distributionDeptId,jdbcType=INTEGER},
+      technical_id_dept = #{technicalIdDept,jdbcType=VARCHAR},
+      currency_bn = #{currencyBn,jdbcType=VARCHAR},
+      tax_bearing = #{taxBearing,jdbcType=INTEGER},
+      payment_mode_bn = #{paymentModeBn,jdbcType=VARCHAR},
+      quality_funds = #{qualityFunds,jdbcType=DECIMAL},
+      pay_status = #{payStatus,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      deliver_consign_c = #{deliverConsignC,jdbcType=BIT},
+      create_user_id = #{createUserId,jdbcType=INTEGER},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      delete_flag = #{deleteFlag,jdbcType=BIT},
+      delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+      receivable_account_remaining = #{receivableAccountRemaining,jdbcType=DECIMAL},
+      acquire_id = #{acquireId,jdbcType=INTEGER},
+      exe_chg_date = #{exeChgDate,jdbcType=DATE},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      buyer_id = #{buyerId,jdbcType=INTEGER},
+      inquiry_id = #{inquiryId,jdbcType=VARCHAR},
+      business_name = #{businessName,jdbcType=VARCHAR},
+      project_no = #{projectNo,jdbcType=VARCHAR},
+      total_price_usd = #{totalPriceUsd,jdbcType=DECIMAL},
+      exchange_rate = #{exchangeRate,jdbcType=DECIMAL},
+      process_progress = #{processProgress,jdbcType=VARCHAR},
+      deliver_consign_has = #{deliverConsignHas,jdbcType=INTEGER},
+      order_belongs = #{orderBelongs,jdbcType=INTEGER},
+      order_category = #{orderCategory,jdbcType=INTEGER},
+      overseas_sales = #{overseasSales,jdbcType=INTEGER},
+      shipments_money = #{shipmentsMoney,jdbcType=DECIMAL},
+      already_gathering_money = #{alreadyGatheringMoney,jdbcType=DECIMAL},
+      purch_req_create = #{purchReqCreate,jdbcType=INTEGER},
+      inspect_n = #{inspectN,jdbcType=INTEGER},
+      advance_money = #{advanceMoney,jdbcType=DECIMAL},
+      auditing_status = #{auditingStatus,jdbcType=INTEGER},
+      auditing_process = #{auditingProcess,jdbcType=VARCHAR},
+      auditing_user_id = #{auditingUserId,jdbcType=VARCHAR},
+      country_leader_id = #{countryLeaderId,jdbcType=INTEGER},
+      country_leader = #{countryLeader,jdbcType=VARCHAR},
+      area_leader_id = #{areaLeaderId,jdbcType=INTEGER},
+      area_leader = #{areaLeader,jdbcType=VARCHAR},
+      area_vp_id = #{areaVpId,jdbcType=INTEGER},
+      area_vp = #{areaVp,jdbcType=VARCHAR},
+      per_liable_repay_id = #{perLiableRepayId,jdbcType=INTEGER},
+      financing_commissioner_id = #{financingCommissionerId,jdbcType=INTEGER},
+      audi_remark = #{audiRemark,jdbcType=VARCHAR},
+      cancel_reason = #{cancelReason,jdbcType=VARCHAR},
+      settlement_leader_id = #{settlementLeaderId,jdbcType=INTEGER},
+      settlement_leader = #{settlementLeader,jdbcType=VARCHAR},
+      legal_auditer_id = #{legalAuditerId,jdbcType=INTEGER},
+      legal_auditer = #{legalAuditer,jdbcType=VARCHAR},
+      financing_commissioner = #{financingCommissioner,jdbcType=VARCHAR},
+      process_id = #{processId,jdbcType=VARCHAR},
+      task_id = #{taskId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

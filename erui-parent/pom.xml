@@ -20,6 +20,7 @@
         <module>erui-monitor</module>
         <module>erui-report</module>
         <module>erui-quartz</module>
+        <module>erui-order-v2</module>
     </modules>
     <packaging>pom</packaging>
 

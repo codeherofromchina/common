@@ -269,7 +269,7 @@ public class DeliverConsignV2ServiceImpl implements DeliverConsignV2Service {
         DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignUpdate);
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             // 启动业务流流程实例
-            JSONObject processResp = BpmUtils.startProcessInstanceByKey("process_bookingorder", null, eruitoken, "deliver_consign:" + deliverConsign1.getId(), null);
+            JSONObject processResp = BpmUtils.startProcessInstanceByKey("booking_order", null, eruitoken, "deliver_consign:" + deliverConsign1.getId(), null);
             // 设置订单和业务流标示关联
             deliverConsign1.setProcessId(processResp.getString("instanceId"));
         }
@@ -391,7 +391,7 @@ public class DeliverConsignV2ServiceImpl implements DeliverConsignV2Service {
         DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignAdd);
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             // 启动业务流流程实例
-            JSONObject processResp = BpmUtils.startProcessInstanceByKey("process_bookingorder", null, eruitoken, "deliver_consign:" + deliverConsign1.getId(), null);
+            JSONObject processResp = BpmUtils.startProcessInstanceByKey("booking_order", null, eruitoken, "deliver_consign:" + deliverConsign1.getId(), null);
             // 设置订单和业务流标示关联
             deliverConsign1.setProcessId(processResp.getString("instanceId"));
         }

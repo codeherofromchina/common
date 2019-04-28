@@ -77,7 +77,7 @@ public class ExcelController {
      * 下载模板
      *
      * @param response
-     * @param type     模板类型，参考枚举类型com.erui.report.util.ExcelUploadTypeEnum中的值
+     * @param type     模板类型，参考枚举类型com.erui.order.util.ExcelUploadTypeEnum中的值
      * @throws IOException
      */
     @RequestMapping(value = "/downtemp")
@@ -119,7 +119,7 @@ public class ExcelController {
      *
      * @param request
      * @param file    具体文件
-     * @param type    参考枚举类型com.erui.report.util.ExcelUploadTypeEnum中的值
+     * @param type    参考枚举类型com.erui.order.util.ExcelUploadTypeEnum中的值
      * @return
      */
     @RequestMapping(value = "/update", method = RequestMethod.POST)
@@ -197,7 +197,7 @@ public class ExcelController {
      *
      * @param request
      * @param fileName    具体文件
-     * @param type    参考枚举类型com.erui.report.util.ExcelUploadTypeEnum中的值
+     * @param type    参考枚举类型com.erui.order.util.ExcelUploadTypeEnum中的值
      * @return
      */
     @RequestMapping(value = "/import", method = RequestMethod.POST)

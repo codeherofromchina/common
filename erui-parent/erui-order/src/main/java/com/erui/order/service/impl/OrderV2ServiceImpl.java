@@ -235,14 +235,30 @@ public class OrderV2ServiceImpl implements OrderV2Service {
                     financing_approval = "Y";
                 }
                 bpmInitVar.put("financing_approval", financing_approval);
-                JSONObject processResp = BpmUtils.startProcessInstanceByKey("process_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                JSONObject processResp = null;
+                switch (addOrderVo.getOrderCategory()) {
+                    case 1:
+                        // 预投订单
+                        processResp = BpmUtils.startProcessInstanceByKey("stocking_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                    case 3:
+                        // 试用订单
+                        processResp = BpmUtils.startProcessInstanceByKey("sample_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                    case 4:
+                        // 现货订单
+                        processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                    case 6:
+                        // 国内订单
+                        processResp = BpmUtils.startProcessInstanceByKey("domestic_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                    default:
+                        // 非国内订单审批流程 process_order
+                        processResp = BpmUtils.startProcessInstanceByKey("overseas_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                }
                 orderUpdate.setProcessId(processResp.getJSONObject("response").getString("instanceId"));
             } else {
                 Map<String, Object> bpmVar = new HashMap<>();
                 bpmVar.put("audit_status", "APPROVED");
                 // 完善订单节点，完成任务
                 BpmUtils.completeTask(addOrderVo.getTaskId(), eruiToken, null, bpmVar, "同意");
-
             }
 
             List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeAsc(orderUpdate.getId());
@@ -424,19 +440,19 @@ public class OrderV2ServiceImpl implements OrderV2Service {
             switch (addOrderVo.getOrderCategory()) {
                 case 1:
                     // 预投订单
-                    processResp = BpmUtils.startProcessInstanceByKey("process_preorder", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    processResp = BpmUtils.startProcessInstanceByKey("stocking_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
                 case 3:
                     // 试用订单
-                    processResp = BpmUtils.startProcessInstanceByKey("process_trialorder", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    processResp = BpmUtils.startProcessInstanceByKey("sample_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
                 case 4:
                     // 现货订单
-                    processResp = BpmUtils.startProcessInstanceByKey("process_spotorder", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
                 case 6:
                     // 国内订单
-                    processResp = BpmUtils.startProcessInstanceByKey("process_domesticorder", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    processResp = BpmUtils.startProcessInstanceByKey("domestic_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
                 default:
                     // 非国内订单审批流程 process_order
-                    processResp = BpmUtils.startProcessInstanceByKey("process_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    processResp = BpmUtils.startProcessInstanceByKey("overseas_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
             }
             // 设置订单和业务流标示关联
             order1.setProcessId(processResp.getString("instanceId"));

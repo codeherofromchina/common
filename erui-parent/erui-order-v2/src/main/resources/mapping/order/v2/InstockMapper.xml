@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.order.v2.dao.InstockMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.Instock" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="inspect_report_id" property="inspectReportId" jdbcType="INTEGER" />
+    <result column="uid" property="uid" jdbcType="INTEGER" />
+    <result column="instock_date" property="instockDate" jdbcType="DATE" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="current_user_id" property="currentUserId" jdbcType="INTEGER" />
+    <result column="current_user_name" property="currentUserName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="department" property="department" jdbcType="VARCHAR" />
+    <result column="inspect_apply_no" property="inspectApplyNo" jdbcType="VARCHAR" />
+    <result column="supplier_name" property="supplierName" jdbcType="VARCHAR" />
+    <result column="uname" property="uname" jdbcType="VARCHAR" />
+    <result column="out_check" property="outCheck" jdbcType="INTEGER" />
+    <result column="submenu_name" property="submenuName" jdbcType="VARCHAR" />
+    <result column="submenu_id" property="submenuId" jdbcType="INTEGER" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.erui.order.v2.model.Instock" extends="BaseResultMap" >
+    <result column="remarks" property="remarks" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, inspect_report_id, uid, instock_date, status, current_user_id, current_user_name, 
+    create_time, department, inspect_apply_no, supplier_name, uname, out_check, submenu_name, 
+    submenu_id
+  </sql>
+  <sql id="Blob_Column_List" >
+    remarks
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.erui.order.v2.model.InstockExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from instock
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.InstockExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from instock
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from instock
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from instock
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.order.v2.model.InstockExample" >
+    delete from instock
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.order.v2.model.Instock" >
+    insert into instock (id, inspect_report_id, uid, 
+      instock_date, status, current_user_id, 
+      current_user_name, create_time, department, 
+      inspect_apply_no, supplier_name, uname, 
+      out_check, submenu_name, submenu_id, 
+      remarks)
+    values (#{id,jdbcType=INTEGER}, #{inspectReportId,jdbcType=INTEGER}, #{uid,jdbcType=INTEGER}, 
+      #{instockDate,jdbcType=DATE}, #{status,jdbcType=INTEGER}, #{currentUserId,jdbcType=INTEGER}, 
+      #{currentUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{department,jdbcType=VARCHAR}, 
+      #{inspectApplyNo,jdbcType=VARCHAR}, #{supplierName,jdbcType=VARCHAR}, #{uname,jdbcType=VARCHAR}, 
+      #{outCheck,jdbcType=INTEGER}, #{submenuName,jdbcType=VARCHAR}, #{submenuId,jdbcType=INTEGER}, 
+      #{remarks,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.order.v2.model.Instock" >
+    insert into instock
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="inspectReportId != null" >
+        inspect_report_id,
+      </if>
+      <if test="uid != null" >
+        uid,
+      </if>
+      <if test="instockDate != null" >
+        instock_date,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="currentUserId != null" >
+        current_user_id,
+      </if>
+      <if test="currentUserName != null" >
+        current_user_name,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="department != null" >
+        department,
+      </if>
+      <if test="inspectApplyNo != null" >
+        inspect_apply_no,
+      </if>
+      <if test="supplierName != null" >
+        supplier_name,
+      </if>
+      <if test="uname != null" >
+        uname,
+      </if>
+      <if test="outCheck != null" >
+        out_check,
+      </if>
+      <if test="submenuName != null" >
+        submenu_name,
+      </if>
+      <if test="submenuId != null" >
+        submenu_id,
+      </if>
+      <if test="remarks != null" >
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="inspectReportId != null" >
+        #{inspectReportId,jdbcType=INTEGER},
+      </if>
+      <if test="uid != null" >
+        #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="instockDate != null" >
+        #{instockDate,jdbcType=DATE},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="currentUserId != null" >
+        #{currentUserId,jdbcType=INTEGER},
+      </if>
+      <if test="currentUserName != null" >
+        #{currentUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="department != null" >
+        #{department,jdbcType=VARCHAR},
+      </if>
+      <if test="inspectApplyNo != null" >
+        #{inspectApplyNo,jdbcType=VARCHAR},
+      </if>
+      <if test="supplierName != null" >
+        #{supplierName,jdbcType=VARCHAR},
+      </if>
+      <if test="uname != null" >
+        #{uname,jdbcType=VARCHAR},
+      </if>
+      <if test="outCheck != null" >
+        #{outCheck,jdbcType=INTEGER},
+      </if>
+      <if test="submenuName != null" >
+        #{submenuName,jdbcType=VARCHAR},
+      </if>
+      <if test="submenuId != null" >
+        #{submenuId,jdbcType=INTEGER},
+      </if>
+      <if test="remarks != null" >
+        #{remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.order.v2.model.InstockExample" resultType="java.lang.Integer" >
+    select count(*) from instock
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update instock
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.inspectReportId != null" >
+        inspect_report_id = #{record.inspectReportId,jdbcType=INTEGER},
+      </if>
+      <if test="record.uid != null" >
+        uid = #{record.uid,jdbcType=INTEGER},
+      </if>
+      <if test="record.instockDate != null" >
+        instock_date = #{record.instockDate,jdbcType=DATE},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.currentUserId != null" >
+        current_user_id = #{record.currentUserId,jdbcType=INTEGER},
+      </if>
+      <if test="record.currentUserName != null" >
+        current_user_name = #{record.currentUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.department != null" >
+        department = #{record.department,jdbcType=VARCHAR},
+      </if>
+      <if test="record.inspectApplyNo != null" >
+        inspect_apply_no = #{record.inspectApplyNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.supplierName != null" >
+        supplier_name = #{record.supplierName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.uname != null" >
+        uname = #{record.uname,jdbcType=VARCHAR},
+      </if>
+      <if test="record.outCheck != null" >
+        out_check = #{record.outCheck,jdbcType=INTEGER},
+      </if>
+      <if test="record.submenuName != null" >
+        submenu_name = #{record.submenuName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.submenuId != null" >
+        submenu_id = #{record.submenuId,jdbcType=INTEGER},
+      </if>
+      <if test="record.remarks != null" >
+        remarks = #{record.remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update instock
+    set id = #{record.id,jdbcType=INTEGER},
+      inspect_report_id = #{record.inspectReportId,jdbcType=INTEGER},
+      uid = #{record.uid,jdbcType=INTEGER},
+      instock_date = #{record.instockDate,jdbcType=DATE},
+      status = #{record.status,jdbcType=INTEGER},
+      current_user_id = #{record.currentUserId,jdbcType=INTEGER},
+      current_user_name = #{record.currentUserName,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      department = #{record.department,jdbcType=VARCHAR},
+      inspect_apply_no = #{record.inspectApplyNo,jdbcType=VARCHAR},
+      supplier_name = #{record.supplierName,jdbcType=VARCHAR},
+      uname = #{record.uname,jdbcType=VARCHAR},
+      out_check = #{record.outCheck,jdbcType=INTEGER},
+      submenu_name = #{record.submenuName,jdbcType=VARCHAR},
+      submenu_id = #{record.submenuId,jdbcType=INTEGER},
+      remarks = #{record.remarks,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update instock
+    set id = #{record.id,jdbcType=INTEGER},
+      inspect_report_id = #{record.inspectReportId,jdbcType=INTEGER},
+      uid = #{record.uid,jdbcType=INTEGER},
+      instock_date = #{record.instockDate,jdbcType=DATE},
+      status = #{record.status,jdbcType=INTEGER},
+      current_user_id = #{record.currentUserId,jdbcType=INTEGER},
+      current_user_name = #{record.currentUserName,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      department = #{record.department,jdbcType=VARCHAR},
+      inspect_apply_no = #{record.inspectApplyNo,jdbcType=VARCHAR},
+      supplier_name = #{record.supplierName,jdbcType=VARCHAR},
+      uname = #{record.uname,jdbcType=VARCHAR},
+      out_check = #{record.outCheck,jdbcType=INTEGER},
+      submenu_name = #{record.submenuName,jdbcType=VARCHAR},
+      submenu_id = #{record.submenuId,jdbcType=INTEGER}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.Instock" >
+    update instock
+    <set >
+      <if test="inspectReportId != null" >
+        inspect_report_id = #{inspectReportId,jdbcType=INTEGER},
+      </if>
+      <if test="uid != null" >
+        uid = #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="instockDate != null" >
+        instock_date = #{instockDate,jdbcType=DATE},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="currentUserId != null" >
+        current_user_id = #{currentUserId,jdbcType=INTEGER},
+      </if>
+      <if test="currentUserName != null" >
+        current_user_name = #{currentUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="department != null" >
+        department = #{department,jdbcType=VARCHAR},
+      </if>
+      <if test="inspectApplyNo != null" >
+        inspect_apply_no = #{inspectApplyNo,jdbcType=VARCHAR},
+      </if>
+      <if test="supplierName != null" >
+        supplier_name = #{supplierName,jdbcType=VARCHAR},
+      </if>
+      <if test="uname != null" >
+        uname = #{uname,jdbcType=VARCHAR},
+      </if>
+      <if test="outCheck != null" >
+        out_check = #{outCheck,jdbcType=INTEGER},
+      </if>
+      <if test="submenuName != null" >
+        submenu_name = #{submenuName,jdbcType=VARCHAR},
+      </if>
+      <if test="submenuId != null" >
+        submenu_id = #{submenuId,jdbcType=INTEGER},
+      </if>
+      <if test="remarks != null" >
+        remarks = #{remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.erui.order.v2.model.Instock" >
+    update instock
+    set inspect_report_id = #{inspectReportId,jdbcType=INTEGER},
+      uid = #{uid,jdbcType=INTEGER},
+      instock_date = #{instockDate,jdbcType=DATE},
+      status = #{status,jdbcType=INTEGER},
+      current_user_id = #{currentUserId,jdbcType=INTEGER},
+      current_user_name = #{currentUserName,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      department = #{department,jdbcType=VARCHAR},
+      inspect_apply_no = #{inspectApplyNo,jdbcType=VARCHAR},
+      supplier_name = #{supplierName,jdbcType=VARCHAR},
+      uname = #{uname,jdbcType=VARCHAR},
+      out_check = #{outCheck,jdbcType=INTEGER},
+      submenu_name = #{submenuName,jdbcType=VARCHAR},
+      submenu_id = #{submenuId,jdbcType=INTEGER},
+      remarks = #{remarks,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.Instock" >
+    update instock
+    set inspect_report_id = #{inspectReportId,jdbcType=INTEGER},
+      uid = #{uid,jdbcType=INTEGER},
+      instock_date = #{instockDate,jdbcType=DATE},
+      status = #{status,jdbcType=INTEGER},
+      current_user_id = #{currentUserId,jdbcType=INTEGER},
+      current_user_name = #{currentUserName,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      department = #{department,jdbcType=VARCHAR},
+      inspect_apply_no = #{inspectApplyNo,jdbcType=VARCHAR},
+      supplier_name = #{supplierName,jdbcType=VARCHAR},
+      uname = #{uname,jdbcType=VARCHAR},
+      out_check = #{outCheck,jdbcType=INTEGER},
+      submenu_name = #{submenuName,jdbcType=VARCHAR},
+      submenu_id = #{submenuId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

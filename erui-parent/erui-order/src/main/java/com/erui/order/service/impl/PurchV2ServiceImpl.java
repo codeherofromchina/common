@@ -220,7 +220,7 @@ public class PurchV2ServiceImpl implements PurchV2Service {
             Map<String, Object> bpmInitVar = new HashMap<>();
             bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
             bpmInitVar.put("is_standard_version", StringUtils.equals("1", purch.getContractVersion()) ? "Y" : "N"); // 标准版本
-            JSONObject processResp = BpmUtils.startProcessInstanceByKey("process_purchaseorder", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
+            JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
 
             save.setProcessId(processResp.getString("instanceId"));
         }
@@ -524,11 +524,11 @@ public class PurchV2ServiceImpl implements PurchV2Service {
             if (save.getPurchAuditerId() != null) {
                 sendDingtalk(purch, purch.getPurchAuditerId().toString(), false);
             }
-            // 启动采购合同订单流程实例（process_purchaseorder）
+            // 启动采购合同订单流程实例（purchase_order）
             Map<String, Object> bpmInitVar = new HashMap<>();
             bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
             bpmInitVar.put("is_standard_version", StringUtils.equals("1", purch.getContractVersion()) ? "Y" : "N"); // 标准版本
-            JSONObject processResp = BpmUtils.startProcessInstanceByKey("process_purchaseorder", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
+            JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
 
             save.setProcessId(processResp.getString("instanceId"));
         }

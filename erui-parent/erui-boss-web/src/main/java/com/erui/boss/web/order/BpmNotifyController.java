@@ -1,5 +1,6 @@
 package com.erui.boss.web.order;
 
+import com.alibaba.fastjson.JSON;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.order.OrderConf;
@@ -35,20 +36,27 @@ public class BpmNotifyController {
      */
     @RequestMapping(value = "onCompleted", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result onCompleted(@RequestBody Map<String, String> params) {
+        System.out.println("-----onCompleted--------" + params);
         // 验证安全性
         if (!validate(params.get("key"))) {
+            System.out.println("-----onCompleted--------validate = false");
             // 如果秘钥不正确，什么也不返回
             return new Result<>(ResultStatusEnum.FAIL);
         }
+        System.out.println("-----onCompleted--------validate = true");
         Result<Object> result = new Result<>();
         // 检查参数
         String processInstanceId = params.get("processInstanceId");
         String taskId = params.get("taskId");
         String taskDefinitionKey = params.get("taskDefinitionKey");
-        if (StringUtils.isAnyBlank(processInstanceId, taskId)) {
+        String businessKey = params.get("businessKey");
+        if (StringUtils.isAnyBlank(businessKey, processInstanceId, taskId)) {
             result.setStatus(ResultStatusEnum.PARAM_ERROR);
         }
-        orderV2Service.updateAuditProcessDone(processInstanceId,taskDefinitionKey);
+        if (businessKey.startsWith("order:")) {
+            // 如果是订单，则完成订单信息
+            orderV2Service.updateAuditProcessDone(processInstanceId, taskDefinitionKey);
+        }
         bpmTaskRuntimeService.delBpmTaskRuntime(processInstanceId, taskId);
         return result;
     }
@@ -58,12 +66,14 @@ public class BpmNotifyController {
      */
     @RequestMapping(value = "onCreated", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result onCreated(@RequestBody BpmTaskRuntime bpmTaskRuntime) {
+        System.out.println("-----onCreated--------" + JSON.toJSONString(bpmTaskRuntime));
         // 验证安全性
         if (!validate(bpmTaskRuntime.getKey())) {
+            System.out.println("-----onCreated--------validate = false");
             // 如果秘钥不正确，什么也不返回
             return new Result<>(ResultStatusEnum.FAIL);
         }
-
+        System.out.println("-----onCreated--------validate = true");
         orderV2Service.updateAuditProcessDoing(bpmTaskRuntime.getPiId(),bpmTaskRuntime.getActId(),bpmTaskRuntime.getTaskId());
         bpmTaskRuntimeService.addBpmTaskRuntime(bpmTaskRuntime);
 

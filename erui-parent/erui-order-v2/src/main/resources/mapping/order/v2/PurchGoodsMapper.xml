@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.order.v2.dao.PurchGoodsMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.PurchGoods" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="project_id" property="projectId" jdbcType="INTEGER" />
+    <result column="project_no" property="projectNo" jdbcType="VARCHAR" />
+    <result column="parent_id" property="parentId" jdbcType="INTEGER" />
+    <result column="contract_no" property="contractNo" jdbcType="VARCHAR" />
+    <result column="purch_id" property="purchId" jdbcType="INTEGER" />
+    <result column="goods_id" property="goodsId" jdbcType="INTEGER" />
+    <result column="exchanged" property="exchanged" jdbcType="BIT" />
+    <result column="purchase_num" property="purchaseNum" jdbcType="INTEGER" />
+    <result column="inspect_num" property="inspectNum" jdbcType="INTEGER" />
+    <result column="good_num" property="goodNum" jdbcType="INTEGER" />
+    <result column="non_tax_price" property="nonTaxPrice" jdbcType="DECIMAL" />
+    <result column="purchase_price" property="purchasePrice" jdbcType="DECIMAL" />
+    <result column="purchase_total_price" property="purchaseTotalPrice" jdbcType="DECIMAL" />
+    <result column="purchase_remark" property="purchaseRemark" jdbcType="VARCHAR" />
+    <result column="tax_price" property="taxPrice" jdbcType="DECIMAL" />
+    <result column="total_price" property="totalPrice" jdbcType="DECIMAL" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="pre_inspect_num" property="preInspectNum" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, project_id, project_no, parent_id, contract_no, purch_id, goods_id, exchanged, 
+    purchase_num, inspect_num, good_num, non_tax_price, purchase_price, purchase_total_price, 
+    purchase_remark, tax_price, total_price, create_time, pre_inspect_num
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.PurchGoodsExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from purch_goods
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from purch_goods
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from purch_goods
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.order.v2.model.PurchGoodsExample" >
+    delete from purch_goods
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.order.v2.model.PurchGoods" >
+    insert into purch_goods (id, project_id, project_no, 
+      parent_id, contract_no, purch_id, 
+      goods_id, exchanged, purchase_num, 
+      inspect_num, good_num, non_tax_price, 
+      purchase_price, purchase_total_price, purchase_remark, 
+      tax_price, total_price, create_time, 
+      pre_inspect_num)
+    values (#{id,jdbcType=INTEGER}, #{projectId,jdbcType=INTEGER}, #{projectNo,jdbcType=VARCHAR}, 
+      #{parentId,jdbcType=INTEGER}, #{contractNo,jdbcType=VARCHAR}, #{purchId,jdbcType=INTEGER}, 
+      #{goodsId,jdbcType=INTEGER}, #{exchanged,jdbcType=BIT}, #{purchaseNum,jdbcType=INTEGER}, 
+      #{inspectNum,jdbcType=INTEGER}, #{goodNum,jdbcType=INTEGER}, #{nonTaxPrice,jdbcType=DECIMAL}, 
+      #{purchasePrice,jdbcType=DECIMAL}, #{purchaseTotalPrice,jdbcType=DECIMAL}, #{purchaseRemark,jdbcType=VARCHAR}, 
+      #{taxPrice,jdbcType=DECIMAL}, #{totalPrice,jdbcType=DECIMAL}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{preInspectNum,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.order.v2.model.PurchGoods" >
+    insert into purch_goods
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="projectId != null" >
+        project_id,
+      </if>
+      <if test="projectNo != null" >
+        project_no,
+      </if>
+      <if test="parentId != null" >
+        parent_id,
+      </if>
+      <if test="contractNo != null" >
+        contract_no,
+      </if>
+      <if test="purchId != null" >
+        purch_id,
+      </if>
+      <if test="goodsId != null" >
+        goods_id,
+      </if>
+      <if test="exchanged != null" >
+        exchanged,
+      </if>
+      <if test="purchaseNum != null" >
+        purchase_num,
+      </if>
+      <if test="inspectNum != null" >
+        inspect_num,
+      </if>
+      <if test="goodNum != null" >
+        good_num,
+      </if>
+      <if test="nonTaxPrice != null" >
+        non_tax_price,
+      </if>
+      <if test="purchasePrice != null" >
+        purchase_price,
+      </if>
+      <if test="purchaseTotalPrice != null" >
+        purchase_total_price,
+      </if>
+      <if test="purchaseRemark != null" >
+        purchase_remark,
+      </if>
+      <if test="taxPrice != null" >
+        tax_price,
+      </if>
+      <if test="totalPrice != null" >
+        total_price,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="preInspectNum != null" >
+        pre_inspect_num,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="projectId != null" >
+        #{projectId,jdbcType=INTEGER},
+      </if>
+      <if test="projectNo != null" >
+        #{projectNo,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null" >
+        #{parentId,jdbcType=INTEGER},
+      </if>
+      <if test="contractNo != null" >
+        #{contractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="purchId != null" >
+        #{purchId,jdbcType=INTEGER},
+      </if>
+      <if test="goodsId != null" >
+        #{goodsId,jdbcType=INTEGER},
+      </if>
+      <if test="exchanged != null" >
+        #{exchanged,jdbcType=BIT},
+      </if>
+      <if test="purchaseNum != null" >
+        #{purchaseNum,jdbcType=INTEGER},
+      </if>
+      <if test="inspectNum != null" >
+        #{inspectNum,jdbcType=INTEGER},
+      </if>
+      <if test="goodNum != null" >
+        #{goodNum,jdbcType=INTEGER},
+      </if>
+      <if test="nonTaxPrice != null" >
+        #{nonTaxPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="purchasePrice != null" >
+        #{purchasePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="purchaseTotalPrice != null" >
+        #{purchaseTotalPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="purchaseRemark != null" >
+        #{purchaseRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="taxPrice != null" >
+        #{taxPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="totalPrice != null" >
+        #{totalPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="preInspectNum != null" >
+        #{preInspectNum,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.order.v2.model.PurchGoodsExample" resultType="java.lang.Integer" >
+    select count(*) from purch_goods
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update purch_goods
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.projectId != null" >
+        project_id = #{record.projectId,jdbcType=INTEGER},
+      </if>
+      <if test="record.projectNo != null" >
+        project_no = #{record.projectNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.parentId != null" >
+        parent_id = #{record.parentId,jdbcType=INTEGER},
+      </if>
+      <if test="record.contractNo != null" >
+        contract_no = #{record.contractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.purchId != null" >
+        purch_id = #{record.purchId,jdbcType=INTEGER},
+      </if>
+      <if test="record.goodsId != null" >
+        goods_id = #{record.goodsId,jdbcType=INTEGER},
+      </if>
+      <if test="record.exchanged != null" >
+        exchanged = #{record.exchanged,jdbcType=BIT},
+      </if>
+      <if test="record.purchaseNum != null" >
+        purchase_num = #{record.purchaseNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.inspectNum != null" >
+        inspect_num = #{record.inspectNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.goodNum != null" >
+        good_num = #{record.goodNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.nonTaxPrice != null" >
+        non_tax_price = #{record.nonTaxPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.purchasePrice != null" >
+        purchase_price = #{record.purchasePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.purchaseTotalPrice != null" >
+        purchase_total_price = #{record.purchaseTotalPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.purchaseRemark != null" >
+        purchase_remark = #{record.purchaseRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.taxPrice != null" >
+        tax_price = #{record.taxPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.totalPrice != null" >
+        total_price = #{record.totalPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.preInspectNum != null" >
+        pre_inspect_num = #{record.preInspectNum,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update purch_goods
+    set id = #{record.id,jdbcType=INTEGER},
+      project_id = #{record.projectId,jdbcType=INTEGER},
+      project_no = #{record.projectNo,jdbcType=VARCHAR},
+      parent_id = #{record.parentId,jdbcType=INTEGER},
+      contract_no = #{record.contractNo,jdbcType=VARCHAR},
+      purch_id = #{record.purchId,jdbcType=INTEGER},
+      goods_id = #{record.goodsId,jdbcType=INTEGER},
+      exchanged = #{record.exchanged,jdbcType=BIT},
+      purchase_num = #{record.purchaseNum,jdbcType=INTEGER},
+      inspect_num = #{record.inspectNum,jdbcType=INTEGER},
+      good_num = #{record.goodNum,jdbcType=INTEGER},
+      non_tax_price = #{record.nonTaxPrice,jdbcType=DECIMAL},
+      purchase_price = #{record.purchasePrice,jdbcType=DECIMAL},
+      purchase_total_price = #{record.purchaseTotalPrice,jdbcType=DECIMAL},
+      purchase_remark = #{record.purchaseRemark,jdbcType=VARCHAR},
+      tax_price = #{record.taxPrice,jdbcType=DECIMAL},
+      total_price = #{record.totalPrice,jdbcType=DECIMAL},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      pre_inspect_num = #{record.preInspectNum,jdbcType=INTEGER}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.PurchGoods" >
+    update purch_goods
+    <set >
+      <if test="projectId != null" >
+        project_id = #{projectId,jdbcType=INTEGER},
+      </if>
+      <if test="projectNo != null" >
+        project_no = #{projectNo,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null" >
+        parent_id = #{parentId,jdbcType=INTEGER},
+      </if>
+      <if test="contractNo != null" >
+        contract_no = #{contractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="purchId != null" >
+        purch_id = #{purchId,jdbcType=INTEGER},
+      </if>
+      <if test="goodsId != null" >
+        goods_id = #{goodsId,jdbcType=INTEGER},
+      </if>
+      <if test="exchanged != null" >
+        exchanged = #{exchanged,jdbcType=BIT},
+      </if>
+      <if test="purchaseNum != null" >
+        purchase_num = #{purchaseNum,jdbcType=INTEGER},
+      </if>
+      <if test="inspectNum != null" >
+        inspect_num = #{inspectNum,jdbcType=INTEGER},
+      </if>
+      <if test="goodNum != null" >
+        good_num = #{goodNum,jdbcType=INTEGER},
+      </if>
+      <if test="nonTaxPrice != null" >
+        non_tax_price = #{nonTaxPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="purchasePrice != null" >
+        purchase_price = #{purchasePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="purchaseTotalPrice != null" >
+        purchase_total_price = #{purchaseTotalPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="purchaseRemark != null" >
+        purchase_remark = #{purchaseRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="taxPrice != null" >
+        tax_price = #{taxPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="totalPrice != null" >
+        total_price = #{totalPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="preInspectNum != null" >
+        pre_inspect_num = #{preInspectNum,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.PurchGoods" >
+    update purch_goods
+    set project_id = #{projectId,jdbcType=INTEGER},
+      project_no = #{projectNo,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=INTEGER},
+      contract_no = #{contractNo,jdbcType=VARCHAR},
+      purch_id = #{purchId,jdbcType=INTEGER},
+      goods_id = #{goodsId,jdbcType=INTEGER},
+      exchanged = #{exchanged,jdbcType=BIT},
+      purchase_num = #{purchaseNum,jdbcType=INTEGER},
+      inspect_num = #{inspectNum,jdbcType=INTEGER},
+      good_num = #{goodNum,jdbcType=INTEGER},
+      non_tax_price = #{nonTaxPrice,jdbcType=DECIMAL},
+      purchase_price = #{purchasePrice,jdbcType=DECIMAL},
+      purchase_total_price = #{purchaseTotalPrice,jdbcType=DECIMAL},
+      purchase_remark = #{purchaseRemark,jdbcType=VARCHAR},
+      tax_price = #{taxPrice,jdbcType=DECIMAL},
+      total_price = #{totalPrice,jdbcType=DECIMAL},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      pre_inspect_num = #{preInspectNum,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

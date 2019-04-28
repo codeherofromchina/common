@@ -111,7 +111,7 @@
     </select>
     <!-- 查询大部门累计数据
      <select id="selectBigDepartCountByExample" resultType="java.util.Map"
-             parameterType="com.erui.report.model.HrCountExample">
+             parameterType="com.erui.order.model.HrCountExample">
          SELECT IFNULL(SUM(new_count),0)AS newCount,IFNULL(SUM(dimission_count),0)AS dimissionCount ,
          IFNULL(SUM(group_transfer_in),0)AS groupTransferIn ,IFNULL(SUM(group_transfer_out),0)AS
          groupTransferOut,big_depart
@@ -165,7 +165,7 @@
     </select>
     <!-- 即时查询大部门数据-->
     <!-- <select id="findImmediateBigDepartNum" resultType="java.util.Map"
-             parameterType="com.erui.report.model.HrCountExample">
+             parameterType="com.erui.order.model.HrCountExample">
          select FROM_DAYS(TO_DAYS(create_at)),sum(plan_count)AS plan_count,SUM(regular_count)AS
          regular_count,SUM(try_count)AS try_count,SUM(turn_right_count)AS turn_right_count,SUM(china_count)AS
          china_count,SUM(foreign_count)AS foreign_count ,big_depart
