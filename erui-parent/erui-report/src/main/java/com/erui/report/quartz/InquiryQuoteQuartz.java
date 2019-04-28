@@ -22,8 +22,8 @@ public class InquiryQuoteQuartz {
      */
     public void execute() throws Exception {
 
-        ReportBaseQuartz reportBaseQuartz = new ReportBaseQuartz();
-        reportBaseQuartz.start();
+//        ReportBaseQuartz reportBaseQuartz = new ReportBaseQuartz();
+//        reportBaseQuartz.start();
 
     }
 
