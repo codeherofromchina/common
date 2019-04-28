@@ -40,18 +40,19 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     }
 
     @Override
-    public void updateAuditProcessDone(String processInstanceId, String auditingProcess) {
+    public void updateAuditProcessDone(String processInstanceId, String auditingProcess, String assignee) {
         // 查询出口通知单
         DeliverConsign deliverConsign = findDeliverConsignByProcessId(processInstanceId);
         if (deliverConsign == null) {
             return;
         }
         // 更新审核进度，如果审核进度为空，则更新审核状态为通过
-        Integer auditingStatus = deliverConsign.getAuditingStatus(); // 2:审核中  3：审核完成
+        Integer auditingStatus = deliverConsign.getAuditingStatus(); // 2:审核中  4：审核完成
         String auditingProcess2 = deliverConsign.getAuditingProcess();
+        String audiRemark = deliverConsign.getAudiRemark();
         if (StringUtils.isNotBlank(auditingProcess2)) {
             if (auditingProcess2.equals(auditingProcess)) {
-                auditingStatus = 3;
+                auditingStatus = 4;
             } else {
                 auditingProcess2 = auditingProcess2.replace(auditingProcess, "");
                 while (auditingProcess2.indexOf(",,") != -1) {
@@ -60,13 +61,22 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 auditingProcess2 = StringUtils.strip(auditingProcess2, ",");
             }
         } else {
-            auditingStatus = 3;
+            auditingStatus = 4;
+        }
+        // 设置审核人
+        if (StringUtils.isNotBlank(audiRemark)) {
+            if (StringUtils.isNotBlank(assignee)) {
+                audiRemark += "," + assignee + ",";
+            }
+        } else if (StringUtils.isNotBlank(assignee)) {
+            audiRemark = "," + assignee + ",";
         }
         // 更新修正后的状态
         DeliverConsign deliverConsignSelective = new DeliverConsign();
         deliverConsignSelective.setId(deliverConsign.getId());
         deliverConsignSelective.setAuditingStatus(auditingStatus);
         deliverConsignSelective.setAuditingProcess(auditingProcess2);
+        deliverConsignSelective.setAudiRemark(audiRemark);
         deliverConsignMapper.updateByPrimaryKeySelective(deliverConsignSelective);
     }
 

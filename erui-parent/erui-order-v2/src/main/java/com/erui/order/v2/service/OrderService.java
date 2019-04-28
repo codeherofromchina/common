@@ -21,8 +21,9 @@ public interface OrderService {
      *
      * @param processInstanceId
      * @param auditingProcess
+     * @param assignee  审核人
      */
-    void updateAuditProcessDone(String processInstanceId, String auditingProcess);
+    void updateAuditProcessDone(String processInstanceId, String auditingProcess, String assignee);
 
     /**
      * 更新订单审核进度进行中

@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * 新的项目业务类
+ *
  * @Auther 王晓丹
  * @Date 2019/4/28 下午2:17
  */
@@ -23,6 +24,7 @@ public class PurchServiceImpl implements PurchService {
 
     /**
      * 根据业务流的实例ID查找订单信息
+     *
      * @param processId
      * @return
      */
@@ -38,7 +40,7 @@ public class PurchServiceImpl implements PurchService {
     }
 
     @Override
-    public void updateAuditProcessDone(String processInstanceId, String auditingProcess) {
+    public void updateAuditProcessDone(String processInstanceId, String auditingProcess, String assignee) {
         // 查询采购
         Purch purch = findPurchByProcessId(processInstanceId);
         if (purch == null) {
@@ -47,6 +49,7 @@ public class PurchServiceImpl implements PurchService {
         // 更新审核进度，如果审核进度为空，则更新审核状态为通过
         Integer auditingStatus = purch.getAuditingStatus(); // 2:审核中  4：审核完成
         String auditingProcess2 = purch.getAuditingProcess();
+        String audiRemark = purch.getAudiRemark();
         if (StringUtils.isNotBlank(auditingProcess2)) {
             if (auditingProcess2.equals(auditingProcess)) {
                 auditingStatus = 4;
@@ -60,11 +63,20 @@ public class PurchServiceImpl implements PurchService {
         } else {
             auditingStatus = 4;
         }
+        // 设置审核人
+        if (StringUtils.isNotBlank(audiRemark)) {
+            if (StringUtils.isNotBlank(assignee)) {
+                audiRemark += "," + assignee + ",";
+            }
+        } else if (StringUtils.isNotBlank(assignee)) {
+            audiRemark = "," + assignee + ",";
+        }
         // 更新修正后的状态
         Purch purchSelective = new Purch();
         purchSelective.setId(purch.getId());
         purchSelective.setAuditingStatus(auditingStatus);
         purchSelective.setAuditingProcess(auditingProcess2);
+        purchSelective.setAudiRemark(audiRemark);
         purchMapper.updateByPrimaryKeySelective(purchSelective);
     }
 

@@ -33,7 +33,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void updateAuditProcessDone(String processInstanceId, String auditingProcess) {
+    public void updateAuditProcessDone(String processInstanceId, String auditingProcess, String assignee) {
         // 查询项目
         Project project = findProjectByProcessId(processInstanceId);
         if (project == null) {
@@ -42,6 +42,7 @@ public class ProjectServiceImpl implements ProjectService {
         // 更新审核进度，如果审核进度为空，则更新审核状态为通过
         Integer auditingStatus = project.getAuditingStatus(); // 2:审核中  4：审核完成
         String auditingProcess2 = project.getAuditingProcess();
+        String audiRemark = project.getAudiRemark();
         if (StringUtils.isNotBlank(auditingProcess2)) {
             if (auditingProcess2.equals(auditingProcess)) {
                 auditingStatus = 4;
@@ -55,11 +56,20 @@ public class ProjectServiceImpl implements ProjectService {
         } else {
             auditingStatus = 4;
         }
+        // 设置审核人
+        if (StringUtils.isNotBlank(audiRemark)) {
+            if (StringUtils.isNotBlank(assignee)) {
+                audiRemark += "," + assignee + ",";
+            }
+        } else if (StringUtils.isNotBlank(assignee)) {
+            audiRemark = "," + assignee + ",";
+        }
         // 更新修正后的状态
         Project projectSelective = new Project();
         projectSelective.setId(project.getId());
         projectSelective.setAuditingStatus(auditingStatus);
         projectSelective.setAuditingProcess(auditingProcess2);
+        projectSelective.setAudiRemark(audiRemark);
         projectMapper.updateByPrimaryKeySelective(projectSelective);
     }
 

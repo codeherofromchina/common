@@ -42,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void updateAuditProcessDone(String processInstanceId, String auditingProcess) {
+    public void updateAuditProcessDone(String processInstanceId, String auditingProcess, String assignee) {
         // 查询订单
         Order order = findOrderByProcessId(processInstanceId);
         if (order == null) {
@@ -51,6 +51,8 @@ public class OrderServiceImpl implements OrderService {
         // 更新审核进度，如果审核进度为空，则更新审核状态为通过
         Integer auditingStatus = order.getAuditingStatus(); // 2:审核中  4：审核完成
         String auditingProcess2 = order.getAuditingProcess();
+        String audiRemark = order.getAudiRemark();
+
         if (StringUtils.isNotBlank(auditingProcess2)) {
             if (auditingProcess2.equals(auditingProcess)) {
                 auditingStatus = 4;
@@ -64,11 +66,21 @@ public class OrderServiceImpl implements OrderService {
         } else {
             auditingStatus = 4;
         }
+        // 设置审核人
+        if (StringUtils.isNotBlank(audiRemark)) {
+            if (StringUtils.isNotBlank(assignee)) {
+                audiRemark += "," + assignee + ",";
+            }
+        } else if (StringUtils.isNotBlank(assignee)) {
+            audiRemark = "," + assignee + ",";
+        }
+
         // 更新修正后的状态
         OrderWithBLOBs orderSelective = new OrderWithBLOBs();
         orderSelective.setId(order.getId());
         orderSelective.setAuditingStatus(auditingStatus);
         orderSelective.setAuditingProcess(auditingProcess2);
+        orderSelective.setAudiRemark(audiRemark);
         orderMapper.updateByPrimaryKeySelective(orderSelective);
     }
 

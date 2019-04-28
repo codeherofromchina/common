@@ -54,19 +54,20 @@ public class BpmNotifyController {
         String taskId = params.get("taskId");
         String taskDefinitionKey = params.get("taskDefinitionKey");
         String businessKey = params.get("businessKey");
+        String assignee = params.get("assignee");
         if (StringUtils.isAnyBlank(businessKey, processInstanceId, taskId)) {
             result.setStatus(ResultStatusEnum.PARAM_ERROR);
         }
         if (businessKey.startsWith("order:")) {
             // 订单审核流程
-            orderService.updateAuditProcessDone(processInstanceId, taskDefinitionKey);
-            projectService.updateAuditProcessDone(processInstanceId, taskDefinitionKey);
+            orderService.updateAuditProcessDone(processInstanceId, taskDefinitionKey, assignee);
+            projectService.updateAuditProcessDone(processInstanceId, taskDefinitionKey, assignee);
         } else if (businessKey.startsWith("deliver_consign:")) {
             // 订舱审核流程
-            deliverConsignService.updateAuditProcessDone(processInstanceId, taskDefinitionKey);
+            deliverConsignService.updateAuditProcessDone(processInstanceId, taskDefinitionKey, assignee);
         } else if (businessKey.startsWith("purch:")) {
             // 采购审核流程
-            purchService.updateAuditProcessDone(processInstanceId, taskDefinitionKey);
+            purchService.updateAuditProcessDone(processInstanceId, taskDefinitionKey, assignee);
         }
         bpmTaskRuntimeService.delBpmTaskRuntime(processInstanceId, taskId);
         return result;
