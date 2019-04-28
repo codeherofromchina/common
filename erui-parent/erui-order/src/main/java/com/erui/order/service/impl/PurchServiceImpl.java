@@ -224,7 +224,6 @@ public class PurchServiceImpl implements PurchService {
         if (list != null && list.size() > 0) {
             Set<Integer> idSet = new HashSet<>();
             for (Purch purch : list) {
-                setPurchContractStatus(purch.getPurchNo());
                 Integer id = purch.getId();
                 if (idSet.contains(id)) {
                     continue;
@@ -618,6 +617,7 @@ public class PurchServiceImpl implements PurchService {
 
         if (page.hasContent()) {
             page.getContent().stream().forEach(vo -> {
+                setPurchContractStatus(vo.getPurchNo());
                 List<String> projectNoList = new ArrayList<>();
                 List<String> contractNoList = new ArrayList<>();
                 vo.getProjects().stream().forEach(project -> {
