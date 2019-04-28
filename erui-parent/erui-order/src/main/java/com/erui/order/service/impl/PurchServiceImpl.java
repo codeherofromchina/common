@@ -289,7 +289,7 @@ public class PurchServiceImpl implements PurchService {
             switch (curAuditProcess) {
                 case 21: // 采购经理审核核
                     if (purch.getAuditingProcess().indexOf("22") == -1) {//同级事业部项目负责人是否已审核
-                        if (purch.getContractVersion() != null && "1".equals(purch.getContractVersion())) {//是否为标准版合同，是标准则越过法务审批
+                        if (purch.getContractVersion() != null && ("1".equals(purch.getContractVersion()) || "2".equals(purch.getContractVersion()))) {//是否为标准版合同，是标准则越过法务审批
                             auditingProcess_i = "24";
                             auditingUserId_i = purch.getFinanceAuditerId() + "";
                         } else {//需要法务、财务审批
@@ -753,7 +753,7 @@ public class PurchServiceImpl implements PurchService {
         row.getCell(1).setCellValue(priceMode); // 定价方式
         row.getCell(3).setCellValue(saveMode); // 节约方式
 
-        row = sheet.getRow(13);
+        /*row = sheet.getRow(13);
         Integer payType = purch.getPayType();
         switch (payType) {
             case 1:
@@ -764,7 +764,7 @@ public class PurchServiceImpl implements PurchService {
                 break;
             default:
                 row.getCell(1).setCellValue("其他"); // 付款方式
-        }
+        }*/
         Date arraivalDate = purch.getPurChgDate();
         if (arraivalDate == null) {
             arraivalDate = purch.getArrivalDate();
