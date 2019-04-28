@@ -304,7 +304,7 @@ public class PurchServiceImpl implements PurchService {
                     break;
                 case 22://商务技术职称改为->事业部项目负责人审核
                     if (purch.getAuditingProcess().indexOf("21") == -1) {//同级采购经理是否已审批
-                        if (purch.getContractVersion() != null && "1".equals(purch.getContractVersion())) {//是否为标准版合同，是标准则越过法务审批
+                        if (purch.getContractVersion() != null && ("1".equals(purch.getContractVersion()) || "2".equals(purch.getContractVersion()))) {//是否为标准版合同，是标准则越过法务审批
                             auditingProcess_i = "24";
                             auditingUserId_i = purch.getFinanceAuditerId() + "";
                         } else {//需要法务、财务审批
@@ -681,9 +681,9 @@ public class PurchServiceImpl implements PurchService {
         row = sheet.getRow(7);
         tmpStr = row.getCell(1).getStringCellValue();
         String contractVersion = purch.getContractVersion();
-        if ("1".equals(contractVersion)) {
+        if ("1".equals(purch.getContractVersion()) || "2".equals(purch.getContractVersion())) {
             row.getCell(1).setCellValue(tmpStr.replace(unCheckedStr + "标准版本", checkedStr + "标准版本")); // 合同版本 --  □标准版本    □非标版本
-        } else if ("2".equals(contractVersion)) {
+        } else if ("3".equals(contractVersion)) {
             row.getCell(1).setCellValue(tmpStr.replace(unCheckedStr + "非标版本", checkedStr + "非标版本")); // 合同版本 --  □标准版本    □非标版本
         }
 
