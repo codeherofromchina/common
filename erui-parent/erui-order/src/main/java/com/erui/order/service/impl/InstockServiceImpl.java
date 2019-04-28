@@ -163,7 +163,7 @@ public class InstockServiceImpl implements InstockService {
                     }
                     PurchGoods purchGoods = instockGoods.getInspectApplyGoods().getPurchGoods();
                     Goods goods = purchGoods.getGoods();
-                    purchNoList.add(purchGoods.getPurch().getPurchNo());
+                    purchNoList.add(purchGoods.getPurchContract().getPurchContractNo());
 
                     if (StringUtil.isNotBlank(goods.getProjectNo())) {
                         projectNoList.add(goods.getProjectNo());
