@@ -193,8 +193,6 @@ public class InspectReportController {
      */
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> save(@RequestBody InspectReport inspectReport, HttpServletRequest request) {
-
-
         String errorMsg = null;
         try {
             String eruiToken = CookiesUtil.getEruiToken(request);
