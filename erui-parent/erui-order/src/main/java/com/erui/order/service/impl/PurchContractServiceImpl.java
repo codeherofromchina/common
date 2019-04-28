@@ -176,40 +176,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                 goodsDao.save(goods);
             } else if (dbPurchContractGoodsMap.containsKey(pgId)) {
                 Integer paramPurchaseNum = pg.getPurchaseNum();
-                // 验证是删除还是修改，传入的商品采购数量0也作为删除
-                if (paramPurchaseNum == null || paramPurchaseNum <= 0) {
-                    PurchContractGoods purchContractGoods = dbPurchContractGoodsMap.get(pgId);
-                    if (purchContractGoods.getExchanged()) {
-                        // 是替换后的商品，则直接删除（跳过处理后在循环外删除）
-                        continue;
-                    } else if (pg.getSon() == null) { // 不是替换商品，查看是否存在替换后商品，如果不存在，则删除
-                        PurchContractGoods sonPurchContractGoods = purchContractGoodsDao.findByPurchContractIdAndParentId(dbPurchContract.getId(), pgId);
-                        if (sonPurchContractGoods == null) {
-                            continue;
-                        } else {
-                            // 查找参数中的替换后商品
-                            PurchContractGoods paramSonPurchContractGoods = purchContract.getPurchContractGoodsList().parallelStream().filter(vo -> {
-                                Integer id = vo.getId();
-                                if (id != null && id.intValue() == sonPurchContractGoods.getId()) {
-                                    return true;
-                                }
-                                return false;
-                            }).findFirst().get();
-                            if (paramSonPurchContractGoods == null) {
-                                continue;
-                            }
-                            Integer paramSonPurchaseNum = paramSonPurchContractGoods.getPurchaseNum();
-                            if (paramSonPurchaseNum == null || paramSonPurchaseNum <= 0) {
-                                continue;
-                            }
-                        }
-                    } else {
-                        Integer purchaseNum = pg.getSon().getPurchaseNum();
-                        if (purchaseNum == null || purchaseNum <= 0) {
-                            continue;
-                        }
-                    }
-                }
                 // 编辑原来的采购商品
                 PurchContractGoods purchContractGoods = dbPurchContractGoodsMap.remove(pgId);
                 existId.add(pgId);
