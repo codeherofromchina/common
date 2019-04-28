@@ -27,13 +27,9 @@ import java.util.stream.Collectors;
 @RequestMapping("order/inspectApply")
 public class InspectApplyController {
     private final static Logger logger = LoggerFactory.getLogger(InspectApplyController.class);
-
     @Autowired
     private InspectApplyService inspectApplyService;
-    @Autowired
-    private PurchService purchService;
-    @Autowired
-    private PurchContractService purchContractService;
+
 
     /**
      * 获取采购纬度的报检单信息列表
@@ -309,29 +305,6 @@ public class InspectApplyController {
             } catch (Exception ex) {
                 errMsg = ex.getMessage();
                 logger.error("异常报错", ex);
-            }
-        }
-        //当所有采购合同的采购订单完成时设置采购合同状态为已完成
-        if (StringUtils.isNotBlank(inspectApply.getPurchNo())) {
-            List<Purch> byPurchNo = purchService.findByPurchNo(inspectApply.getPurchNo());
-            boolean doneFlag = true;
-            if (byPurchNo != null && byPurchNo.size() > 0) {
-                for (Purch purch : byPurchNo) {
-                    if (purch.getStatus() != 4) {
-                        doneFlag = false;
-                        break;
-                    }
-                }
-                if (doneFlag) {
-                    if (byPurchNo != null && byPurchNo.size() > 0) {
-                        Integer purchContractId = byPurchNo.get(0).getPurchContractId() == null ? 0 : byPurchNo.get(0).getPurchContractId();
-                        if (purchContractId > 0) {
-                            PurchContract purchContract = purchContractService.findDetailInfo(purchContractId);
-                            purchContract.setStatus(4);
-                            purchContractService.updateStatus(purchContract);
-                        }
-                    }
-                }
             }
         }
         return new Result<>(ResultStatusEnum.FAIL).setMsg(errMsg);

@@ -62,6 +62,8 @@ public class PurchServiceImpl implements PurchService {
     @Autowired
     private PurchContractGoodsDao purchContractGoodsDao;
     @Autowired
+    private PurchContractDao purchContractDao;
+    @Autowired
     private PurchPaymentDao purchPaymentDao;
     @Autowired
     private OrderDao orderDao;
@@ -103,19 +105,33 @@ public class PurchServiceImpl implements PurchService {
         return null;
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<Purch> findByPurchNo(String purchNo) {
+    private boolean setPurchContractStatus(String purchNo) {
         if (purchNo != null) {
             List<Purch> puchList = purchDao.findByPurchNo(purchNo);
             if (puchList != null && puchList.size() > 0) {
+                boolean doneFlag = true;
                 for (Purch purch : puchList) {
                     purch.setPurchGoodsList(null);
+                    if (purch.getStatus() != 4) {
+                        doneFlag = false;
+                        break;
+                    }
+                }
+                //当所有采购合同的采购订单完成时设置采购合同状态为已完成
+                if (doneFlag) {
+                    if (puchList != null && puchList.size() > 0) {
+                        Integer purchContractId = puchList.get(0).getPurchContractId() == null ? 0 : puchList.get(0).getPurchContractId();
+                        if (purchContractId > 0) {
+                            PurchContract purchContract = purchContractDao.findOne(purchContractId);
+                            purchContract.setStatus(4);
+                            purchContractDao.save(purchContract);
+                        }
+                    }
                 }
             }
-            return puchList;
+            return true;
         }
-        return null;
+        return false;
     }
 
 
@@ -208,6 +224,7 @@ public class PurchServiceImpl implements PurchService {
         if (list != null && list.size() > 0) {
             Set<Integer> idSet = new HashSet<>();
             for (Purch purch : list) {
+                setPurchContractStatus(purch.getPurchNo());
                 Integer id = purch.getId();
                 if (idSet.contains(id)) {
                     continue;
@@ -529,7 +546,6 @@ public class PurchServiceImpl implements PurchService {
     @Transactional(readOnly = true)
     public Page<Purch> findByPage(final Purch condition) {
         PageRequest request = new PageRequest(condition.getPage() - 1, condition.getRows(), Sort.Direction.DESC, "id");
-
         Page<Purch> page = purchDao.findAll(new Specification<Purch>() {
             @Override
             public Predicate toPredicate(Root<Purch> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {

@@ -201,8 +201,9 @@ public class InspectReportController {
             ThreadLocalUtil.setObject(eruiToken);
             //当所有采购合同的采购订单完成时设置采购合同状态为已完成
             if (inspectReportService.save(inspectReport)) {
-                if (StringUtils.isNotBlank(inspectReport.getPurchNo())) {
-                    List<Purch> byPurchNo = purchService.findByPurchNo(inspectReport.getPurchNo());
+                InspectReport detail = inspectReportService.detail(inspectReport.getId());
+                if (StringUtils.isNotBlank(detail.getPurchNo())) {
+                    List<Purch> byPurchNo = purchService.findByPurchNo(detail.getPurchNo());
                     boolean doneFlag = true;
                     if (byPurchNo != null && byPurchNo.size() > 0) {
                         for (Purch purch : byPurchNo) {
