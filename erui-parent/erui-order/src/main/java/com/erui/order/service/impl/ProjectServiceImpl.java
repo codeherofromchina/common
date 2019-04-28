@@ -577,8 +577,13 @@ public class ProjectServiceImpl implements ProjectService {
                     searchList.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
                 // 根据审核进度
-                if (condition.getAuditingProcess() != null) {
-                    searchList.add(cb.equal(root.get("auditingProcess").as(String.class), condition.getAuditingProcess()));
+                if (StringUtils.isNotBlank(condition.getAuditingProcess())) {
+                    if ("999".equals(condition.getAuditingProcess())) {
+                        // 999 定位审核完成的查询
+                        searchList.add(cb.equal(root.get("auditingStatus").as(Integer.class), Order.AuditingStatusEnum.THROUGH.getStatus()));
+                    } else {
+                        searchList.add(cb.like(root.get("auditingProcess").as(String.class), "%" + condition.getAuditingProcess() + "%"));
+                    }
                 }
                 //根据项目号
                 if (StringUtil.isNotBlank(condition.getProjectNo())) {

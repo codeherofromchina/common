@@ -122,6 +122,10 @@ public class Project {
 
     private String audiRemark;
 
+    private String processId;
+
+    private String taskId;
+
     private String remarks;
 
     public Integer getId() {
@@ -594,6 +598,22 @@ public class Project {
 
     public void setAudiRemark(String audiRemark) {
         this.audiRemark = audiRemark;
+    }
+
+    public String getProcessId() {
+        return processId;
+    }
+
+    public void setProcessId(String processId) {
+        this.processId = processId;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 
     public String getRemarks() {

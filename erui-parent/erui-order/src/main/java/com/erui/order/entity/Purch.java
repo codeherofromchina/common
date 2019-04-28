@@ -128,7 +128,7 @@ public class Purch {
     private int page = 1; // 默认从1开始
     @Transient
     private int rows = 20; // 默认每页20条记录
-    //auditing_status   审核状态
+    //auditing_status   审核状态 4:审核完成
     @Column(name = "auditing_status")
     private Integer auditingStatus;
     //auditing_process  审核流程，多个

@@ -8,7 +8,6 @@ import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.ProjectService;
-import com.erui.order.service.ProjectV2Service;
 import com.erui.order.util.GoodsUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -35,7 +34,7 @@ import java.util.Map;
 public class ProjectController {
     private final static Logger logger = LoggerFactory.getLogger(ProjectController.class);
     @Autowired
-    private ProjectV2Service projectV2Service;
+    private ProjectService projectService;
 
     /**
      * 可以采购的项目列表
@@ -73,7 +72,7 @@ public class ProjectController {
         try {
             //projectList = projectService.purchAbleList(projectNoList, purchaseUid);
             // 分页查询可采购项目
-            Page<Map<String, Object>> projectPage = projectV2Service.purchAbleByPage(projectNoList, purchaseUid, pageNum, pageSize, contractNo, projectName);
+            Page<Map<String, Object>> projectPage = projectService.purchAbleByPage(projectNoList, purchaseUid, pageNum, pageSize, contractNo, projectName);
 
             return new Result<>(projectPage);
         } catch (Exception e) {
@@ -95,7 +94,7 @@ public class ProjectController {
         if (page < 1) {
             return new Result<>(ResultStatusEnum.PAGE_ERROR);
         }
-        Page<Project> projectPage = projectV2Service.findByPage(condition);
+        Page<Project> projectPage = projectService.findByPage(condition);
         if (projectPage != null) {
             for (Project project : projectPage) {
                 project.setGoodsList(null);
@@ -126,7 +125,7 @@ public class ProjectController {
         Integer checkLogId = pProject.getCheckLogId();
 
         // 判断项目是否存在，
-        Project project = projectV2Service.findDesc(projectId);
+        Project project = projectService.findDesc(projectId);
         if (project == null) {
             return new Result<>(ResultStatusEnum.PROJECT_NOT_EXIST);
         }
@@ -147,7 +146,7 @@ public class ProjectController {
 
         // 判断通过，审核项目并返回是否审核成功
 //        boolean flag = projectService.audit(project, String.valueOf(userId), String.valueOf(realname), pProject);
-        boolean flag = projectV2Service.audit(projectId, String.valueOf(userId), String.valueOf(realname), pProject);
+        boolean flag = projectService.audit(projectId, String.valueOf(userId), String.valueOf(realname), pProject);
         if (flag) {
             return new Result<>();
         }
@@ -162,7 +161,7 @@ public class ProjectController {
      */
     @RequestMapping(value = "handleProject", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> handleProject(@RequestBody @Valid Project project, HttpServletRequest request) {
-        Project proStatus = projectV2Service.findById(project.getId());
+        Project proStatus = projectService.findById(project.getId());
         String errorMsg = null;
         try {
 
@@ -180,7 +179,7 @@ public class ProjectController {
                 return new Result<>(ResultStatusEnum.ORDER_AUDIT_NOT_DONE_ERROR);
             }
 
-            if (projectV2Service.updateProject(project)) {
+            if (projectService.updateProject(project)) {
                 return new Result<>();
             } else {
                 errorMsg = "项目状态错误";
@@ -204,7 +203,7 @@ public class ProjectController {
         if (id == null) {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
         }
-        Project project = projectV2Service.findDesc(id);
+        Project project = projectService.findDesc(id);
         if (project != null) {
             return new Result<>(project);
         }
@@ -222,7 +221,7 @@ public class ProjectController {
         if (map.get("id") == null && map.get("orderId") == null) {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
         }
-        Project project = projectV2Service.findByIdOrOrderId(map.get("id"), map.get("orderId"));
+        Project project = projectService.findByIdOrOrderId(map.get("id"), map.get("orderId"));
         if (project != null) {
             if (project.getPurchRequisition() != null) {
                 project.getPurchRequisition().setGoodsList(null);
@@ -251,7 +250,7 @@ public class ProjectController {
     @RequestMapping("listByTeachnalIds")
     public Result<Object> listByProjectForPurch(@RequestBody List<String> projectNos) {
         if (projectNos != null) {
-            List<Integer> teachnalIds = projectV2Service.findByProjectNos(projectNos);
+            List<Integer> teachnalIds = projectService.findByProjectNos(projectNos);
             return new Result<>(teachnalIds);
         }
         return new Result<>(ResultStatusEnum.DATA_NULL);

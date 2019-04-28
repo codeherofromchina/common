@@ -61,24 +61,5 @@ public interface OrderV2Service {
      */
     Page<Order> findByPage(OrderV2ListRequest condition);
 
-    /**
-     * 查询所有订单的审核节点
-     * @return
-     * @throws Exception
-     */
-    List findAllAuditProcess() throws Exception;
 
-    /**
-     * 更新审核进度完成
-     * @param processInstanceId
-     * @param taskDefinitionKey
-     */
-    void updateAuditProcessDone(String processInstanceId, String taskDefinitionKey);
-
-    /**
-     * 更新审核进度进行中
-     * @param processInstanceId
-     * @param taskDefinitionKey
-     */
-    void updateAuditProcessDoing(String processInstanceId, String taskDefinitionKey, String taskId);
 }
