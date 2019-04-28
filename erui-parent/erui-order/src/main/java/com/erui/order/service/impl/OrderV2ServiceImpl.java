@@ -253,7 +253,9 @@ public class OrderV2ServiceImpl implements OrderV2Service {
                         // 非国内订单审批流程 process_order
                         processResp = BpmUtils.startProcessInstanceByKey("overseas_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
                 }
-                orderUpdate.setProcessId(processResp.getJSONObject("response").getString("instanceId"));
+                orderUpdate.setProcessId(processResp.getString("instanceId"));
+                orderUpdate.setAuditingProcess("task_cm"); // TODO 第一个节点通知失败，写固定第一个节点
+                orderUpdate.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
             } else {
                 Map<String, Object> bpmVar = new HashMap<>();
                 bpmVar.put("audit_status", "APPROVED");
@@ -380,6 +382,7 @@ public class OrderV2ServiceImpl implements OrderV2Service {
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setCreateTime(new Date());
         order.setDeleteFlag(false);
+        order.setAuditingStatus(Order.AuditingStatusEnum.WAIT.getStatus());
         //订单商品添加
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
         List<Goods> goodsList = new ArrayList<>();
@@ -456,6 +459,8 @@ public class OrderV2ServiceImpl implements OrderV2Service {
             }
             // 设置订单和业务流标示关联
             order1.setProcessId(processResp.getString("instanceId"));
+            order1.setAuditingProcess("task_cm"); // TODO 第一个节点通知失败，写固定第一个节点
+            order1.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
 
             //添加订单未执行事件，设置订单流程进度信息
             applicationContext.publishEvent(new OrderProgressEvent(order1, 1, eruiToken));
@@ -809,7 +814,12 @@ public class OrderV2ServiceImpl implements OrderV2Service {
 
     @Override
     public void updateAuditProcessDone(String processInstanceId, String taskDefinitionKey) {
+        System.out.println("-----onCompleted--------updateAuditProcessDone");
         Order order = orderDao.findByProcessId(processInstanceId);
+        if (order == null) {
+            System.out.println("-----onCompleted--------updateAuditProcessDone -- order is null;");
+            return;
+        }
 
         String auditingProcess = order.getAuditingProcess();
         if (StringUtils.isNotBlank(auditingProcess)) {
@@ -829,12 +839,19 @@ public class OrderV2ServiceImpl implements OrderV2Service {
             order.setAuditingStatus(Order.AuditingStatusEnum.THROUGH.getStatus());
         }
         orderDao.save(order);
+        System.out.println("-----onCompleted--------updateAuditProcessDone -- save order --- " + order.getId());
         projectV2Service.updateAuditProcessDone(order.getId(), taskDefinitionKey);
     }
 
     @Override
     public void updateAuditProcessDoing(String processInstanceId, String taskDefinitionKey, String taskId) {
+        System.out.println("-----onCreated--------updateAuditProcessDoing");
         Order order = orderDao.findByProcessId(processInstanceId);
+        if (order == null) {
+            System.out.println("-----onCreated--------updateAuditProcessDoing --- order is null");
+            return;
+        }
+        System.out.println("-----onCreated--------updateAuditProcessDoing ---- " + String.valueOf(order.getId()));
         order.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
         order.setTaskId(taskId);
 
@@ -846,9 +863,10 @@ public class OrderV2ServiceImpl implements OrderV2Service {
         }
         order.setAuditingProcess(auditingProcess);
         orderDao.save(order);
-
+        System.out.println("-----onCreated--------updateAuditProcessDoing save-success --- -" + order.getId());
 
         projectV2Service.updateAuditProcessDoing(order.getId(), taskDefinitionKey);
+        System.out.println("-----onCreated--------updateAuditProcessDoing save-success --- -" + order.getId());
     }
 }
 

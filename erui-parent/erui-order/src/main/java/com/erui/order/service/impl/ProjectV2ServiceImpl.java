@@ -1595,6 +1595,9 @@ public class ProjectV2ServiceImpl implements ProjectV2Service {
     @Override
     public void updateAuditProcessDone(Integer orderId, String taskDefinitionKey) {
         Project project = projectDao.findByIdOrOrderId(null, orderId);
+        if (project == null) {
+            return;
+        }
 
         String auditingProcess = project.getAuditingProcess();
         if (StringUtils.isNotBlank(auditingProcess)) {
@@ -1619,6 +1622,9 @@ public class ProjectV2ServiceImpl implements ProjectV2Service {
     @Override
     public void updateAuditProcessDoing(Integer orderId,String taskDefinitionKey) {
         Project project = projectDao.findByIdOrOrderId(null, orderId);
+        if (project == null) {
+            return ;
+        }
         project.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
 
         String auditingProcess = project.getAuditingProcess();
