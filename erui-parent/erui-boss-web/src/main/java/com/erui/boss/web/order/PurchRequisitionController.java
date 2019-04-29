@@ -41,10 +41,10 @@ public class PurchRequisitionController {
     /**
      * 采购申请列表
      *
-     * @param condition { 销售合同号：contractNo,项目号：projectNo,项目名称：projectName,项目开始日期：startDate,下发采购日期：submitDate,
+     * @param condition { 销售合同号：contractNo,项目号：projectNo,合同标的：projectName,项目开始日期：startDate,下发采购日期：submitDate,
      *                  要求采购到货日期：requirePurchaseDate,商务技术经办人：businessName,页码：page,页大小：rows}
      * @return {
-     * contractNo:销售合同号,projectNo:项目号,projectName:项目名称,
+     * contractNo:销售合同号,projectNo:项目号,projectName:合同标的,
      * businessName:商务技术经办人,startDate:项目开始日期,
      * submitDate:下发采购日期,requirePurchaseDate:要求采购到货日期,status:状态
      * }

@@ -12,7 +12,7 @@ public class OrderMainProcess {
     private String  region; //地区
     private String country; //国家
     private String  projectNo; //项目号
-    private String  projectName;    //项目名称
+    private String  projectName;    //合同标的
     private Integer  orderStatus; //订单状态
     private String  projectStatus; //项目状态
     private Integer  purchStatus;    //采购状态

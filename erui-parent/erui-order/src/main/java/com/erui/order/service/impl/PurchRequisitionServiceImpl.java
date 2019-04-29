@@ -421,10 +421,10 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 
 
     /**
-     * @param condition { 销售合同号：contractNo,项目号：projectNo,项目名称：projectName,项目开始日期：startDate,下发采购日期：submitDate,
+     * @param condition { 销售合同号：contractNo,项目号：projectNo,合同标的：projectName,项目开始日期：startDate,下发采购日期：submitDate,
      *                  要求采购到货日期：requirePurchaseDate,商务技术经办人：businessName,页码：page,页大小：rows}
      * @return {
-     * contractNo:销售合同号,projectNo:项目号,projectName:项目名称,
+     * contractNo:销售合同号,projectNo:项目号,projectName:合同标的,
      * businessName:商务技术经办人,startDate:项目开始日期,
      * submitDate:下发采购日期,requirePurchaseDate:要求采购到货日期,status:状态
      * }
@@ -474,7 +474,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                 if (StringUtils.isNotBlank(projectNo)) {
                     list.add(cb.like(projectPath.get("projectNo").as(String.class), "%" + projectNo + "%"));
                 }
-                // 项目名称查询
+                // 合同标的查询
                 String projectName = condition.get("projectName");
                 if (StringUtils.isNotBlank(projectName)) {
                     list.add(cb.like(projectPath.get("projectName").as(String.class), "%" + projectName + "%"));
@@ -517,7 +517,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             Project project = pr.getProject();
             Map<String, Object> map = new HashMap<>();
             map.put("projectId", project.getId()); // 项目ID
-            map.put("projectName", project.getProjectName()); // 项目名称
+            map.put("projectName", project.getProjectName()); // 合同标的
             map.put("projectNo", project.getProjectNo()); // 项目号
             map.put("contractNo", project.getContractNo()); // 销售合同号
             map.put("businessName", project.getBusinessName()); // 商务技术经办人

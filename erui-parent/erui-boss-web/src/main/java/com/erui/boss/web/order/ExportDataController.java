@@ -257,9 +257,9 @@ public class ExportDataController {
             }
 
         }
-      /*  String[] header = new String[]{"销售合同号", "项目号", "项目名称", "执行分公司", "分销部", "事业部", "商务技术经办人", "所属地区",
+      /*  String[] header = new String[]{"销售合同号", "项目号", "合同标的", "执行分公司", "分销部", "事业部", "商务技术经办人", "所属地区",
                 "项目创建日期","项目开始日期", "执行单约定交付日期", "执行单变更后日期", "要求采购到货日期", "项目状态", "流程进度"};*/
-        String[] header = new String[]{"销售合同号", "项目号", "项目名称", "执行事业部", "商务技术经办人", "项目创建日期", "项目开始日期", "项目状态", "流程进度"};
+        String[] header = new String[]{"销售合同号", "项目号", "合同标的", "执行事业部", "商务技术经办人", "项目创建日期", "项目开始日期", "项目状态", "流程进度"};
    /*     String[] keys = new String[]{"contractNo", "projectNo", "projectName", "execCoName", "distributionDeptName", "businessUnitName", "businessName", "region",
                 "createTime", "startDate", "deliveryDate", "exeChgDate", "requirePurchaseDate", "projectStatusName", "processProgressName"};*/
         String[] keys = new String[]{"contractNo", "projectNo", "projectName", "businessUnitName", "businessName", "createTime", "startDate", "projectStatusName", "processProgressName"};
