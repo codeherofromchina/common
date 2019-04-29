@@ -490,7 +490,7 @@ public class PurchServiceImpl implements PurchService {
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         String jsonParam = "{\"purch_id\":\"" + purchId + "\",\"status\":\"" + status + "\"}";
         Map<String, String> header = new HashMap<>();
-        header.put("Cookie", eruiToken);
+        header.put("Cookie", "eruitoken=" + eruiToken);
         header.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
         //发送钉钉通知
         String s1 = HttpRequest.sendPost(supplierStatus, jsonParam, header);
