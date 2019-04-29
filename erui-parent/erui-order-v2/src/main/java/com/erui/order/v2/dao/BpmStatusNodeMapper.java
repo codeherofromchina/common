@@ -10,9 +10,11 @@ import java.util.Map;
 public interface BpmStatusNodeMapper {
 
     /**
-     * 查询流程定义所有节点
+     * 查询流程的所有审批节点
      *
-     * @param params
+     * @param params tenant      租户
+     *               category    业务流程类别
+     *               sub_category业务流程模块类别
      * @return
      */
     List<Map<String, String>> findNodeByCategory(Map<String, String> params);

@@ -6,6 +6,8 @@ package com.erui.order.v2.model;
 public class BpmStatusNode {
     //  主键
     private Long id;
+    // 租户
+    private String tenant;
     // '业务类型'
     private String category;
     // '业务子类型'
@@ -63,6 +65,14 @@ public class BpmStatusNode {
 
     public void setSort(Integer sort) {
         this.sort = sort;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }
 
