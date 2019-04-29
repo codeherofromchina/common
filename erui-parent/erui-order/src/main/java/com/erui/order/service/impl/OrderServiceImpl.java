@@ -718,7 +718,7 @@ public class OrderServiceImpl implements OrderService {
                             auditorIds.append("," + auditingUserId_i + ",");
                         }
                     } else {
-                        //订单金额大于3万小于20万 交给地区总经理审核
+                        // 订单金额大于3万小于20万 交给地区总经理审核
                         auditingProcess_i = "102";
                         if (order.getAreaLeaderId() != null)
                             auditingUserId_i = order.getAreaLeaderId().toString();
