@@ -28,8 +28,6 @@ public class Project {
     private Order order;
     @Transient
     private Integer oId;
-    @Transient
-    private String taskId; // 任务ID
     @OneToOne(mappedBy = "project", fetch = FetchType.LAZY)
     private PurchRequisition purchRequisition;
 
@@ -229,6 +227,20 @@ public class Project {
      @JsonInclude(JsonInclude.Include.NON_DEFAULT)*/
     @Transient
     private List<Attachment> attachmentList = new ArrayList<>();
+
+    // 流程实例ID
+    @Column(name="process_id")
+    private String processId;
+    @Column(name="task_id")
+    private String taskId;
+
+    public String getProcessId() {
+        return processId;
+    }
+
+    public void setProcessId(String processId) {
+        this.processId = processId;
+    }
 
     public List<Attachment> getAttachmentList() {
         return attachmentList;

@@ -3942,6 +3942,146 @@ public class ProjectExample {
             addCriterion("audi_remark not between", value1, value2, "audiRemark");
             return (Criteria) this;
         }
+
+        public Criteria andProcessIdIsNull() {
+            addCriterion("process_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessIdIsNotNull() {
+            addCriterion("process_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessIdEqualTo(String value) {
+            addCriterion("process_id =", value, "processId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessIdNotEqualTo(String value) {
+            addCriterion("process_id <>", value, "processId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessIdGreaterThan(String value) {
+            addCriterion("process_id >", value, "processId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessIdGreaterThanOrEqualTo(String value) {
+            addCriterion("process_id >=", value, "processId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessIdLessThan(String value) {
+            addCriterion("process_id <", value, "processId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessIdLessThanOrEqualTo(String value) {
+            addCriterion("process_id <=", value, "processId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessIdLike(String value) {
+            addCriterion("process_id like", value, "processId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessIdNotLike(String value) {
+            addCriterion("process_id not like", value, "processId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessIdIn(List<String> values) {
+            addCriterion("process_id in", values, "processId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessIdNotIn(List<String> values) {
+            addCriterion("process_id not in", values, "processId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessIdBetween(String value1, String value2) {
+            addCriterion("process_id between", value1, value2, "processId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProcessIdNotBetween(String value1, String value2) {
+            addCriterion("process_id not between", value1, value2, "processId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaskIdIsNull() {
+            addCriterion("task_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaskIdIsNotNull() {
+            addCriterion("task_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaskIdEqualTo(String value) {
+            addCriterion("task_id =", value, "taskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaskIdNotEqualTo(String value) {
+            addCriterion("task_id <>", value, "taskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaskIdGreaterThan(String value) {
+            addCriterion("task_id >", value, "taskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaskIdGreaterThanOrEqualTo(String value) {
+            addCriterion("task_id >=", value, "taskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaskIdLessThan(String value) {
+            addCriterion("task_id <", value, "taskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaskIdLessThanOrEqualTo(String value) {
+            addCriterion("task_id <=", value, "taskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaskIdLike(String value) {
+            addCriterion("task_id like", value, "taskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaskIdNotLike(String value) {
+            addCriterion("task_id not like", value, "taskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaskIdIn(List<String> values) {
+            addCriterion("task_id in", values, "taskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaskIdNotIn(List<String> values) {
+            addCriterion("task_id not in", values, "taskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaskIdBetween(String value1, String value2) {
+            addCriterion("task_id between", value1, value2, "taskId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTaskIdNotBetween(String value1, String value2) {
+            addCriterion("task_id not between", value1, value2, "taskId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

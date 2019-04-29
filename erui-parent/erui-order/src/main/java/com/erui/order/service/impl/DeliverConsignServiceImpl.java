@@ -521,8 +521,13 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     searchList.add(cb.equal(root.get("auditingStatus").as(Integer.class), condition.getAuditingStatus()));
                 }
                 // 根据审核进度
-                if (condition.getAuditingProcess() != null && condition.getAuditingProcess() != 0) {
-                    searchList.add(cb.like(root.get("auditingProcess").as(String.class), "%" + condition.getAuditingProcess() + "%"));
+                if (StringUtils.isNotBlank(condition.getAuditingProcess())) {
+                    if ("999".equals(condition.getAuditingProcess())) {
+                        // 999 定位审核完成的查询
+                        searchList.add(cb.equal(root.get("auditingStatus").as(Integer.class), 4));
+                    } else {
+                        searchList.add(cb.like(root.get("auditingProcess").as(String.class), "%" + condition.getAuditingProcess() + "%"));
+                    }
                 }
 
                 // 可以看到列表的人

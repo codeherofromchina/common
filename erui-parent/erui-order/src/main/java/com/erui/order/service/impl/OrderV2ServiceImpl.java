@@ -230,11 +230,11 @@ public class OrderV2ServiceImpl implements OrderV2Service {
                 // 调用业务流，开启业务审核流程系统 // 非国内订单审批流程
                 Map<String, Object> bpmInitVar = new HashMap<>();
                 bpmInitVar.put("order_amount", addOrderVo.getTotalPriceUsd().doubleValue());
-                String financing_approval = "N";
+                String task_fn_check = "N";
                 if (addOrderVo.getFinancing() != null && addOrderVo.getFinancing() == 1) {
-                    financing_approval = "Y";
+                    task_fn_check = "Y";
                 }
-                bpmInitVar.put("financing_approval", financing_approval);
+                bpmInitVar.put("task_fn_check", task_fn_check);
                 JSONObject processResp = null;
                 switch (addOrderVo.getOrderCategory()) {
                     case 1:
@@ -254,7 +254,7 @@ public class OrderV2ServiceImpl implements OrderV2Service {
                         processResp = BpmUtils.startProcessInstanceByKey("overseas_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
                 }
                 orderUpdate.setProcessId(processResp.getString("instanceId"));
-                orderUpdate.setAuditingProcess("task_cm"); // TODO 第一个节点通知失败，写固定第一个节点
+                orderUpdate.setAuditingProcess("task_cm"); // 第一个节点通知失败，写固定第一个节点
                 orderUpdate.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
             } else {
                 Map<String, Object> bpmVar = new HashMap<>();
@@ -294,6 +294,7 @@ public class OrderV2ServiceImpl implements OrderV2Service {
             projectAdd.setUpdateTime(new Date());
             projectAdd.setBusinessName(orderUpdate.getBusinessName());
             projectAdd.setAuditingStatus(0);
+            projectAdd.setProcessId(orderUpdate.getProcessId());
             //商务技术经办人名称
             Project project = projectDao.save(projectAdd);
             List<Goods> goodsList1 = orderUpdate.getGoodsList();
@@ -433,13 +434,13 @@ public class OrderV2ServiceImpl implements OrderV2Service {
             Map<String, Object> bpmInitVar = new HashMap<>();
             bpmInitVar.put("order_amount", addOrderVo.getTotalPriceUsd().doubleValue()); // 订单金额
             // 国内订单
-            String financing_approval = "N";
+            String task_fn_check = "N";
             if (addOrderVo.getFinancing() != null && addOrderVo.getFinancing() == 1) {
                 // 判断是否需要融资审批
-                financing_approval = "Y";
+                task_fn_check = "Y";
             }
-            bpmInitVar.put("financing_approval", financing_approval);
-            bpmInitVar.put("logistics_approval", "Y"); // 是否需要物流审批，现在是都需要物流审批
+            bpmInitVar.put("task_fn_check", task_fn_check);
+            bpmInitVar.put("task_lg_check", "Y"); // 是否需要物流审批，现在是都需要物流审批
             switch (addOrderVo.getOrderCategory()) {
                 case 1:
                     // 预投订单
@@ -459,7 +460,7 @@ public class OrderV2ServiceImpl implements OrderV2Service {
             }
             // 设置订单和业务流标示关联
             order1.setProcessId(processResp.getString("instanceId"));
-            order1.setAuditingProcess("task_cm"); // TODO 第一个节点通知失败，写固定第一个节点
+            order1.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
             order1.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
 
             //添加订单未执行事件，设置订单流程进度信息
@@ -492,6 +493,7 @@ public class OrderV2ServiceImpl implements OrderV2Service {
             project.setBusinessName(order1.getBusinessName());   //商务技术经办人名称
             //新建项目审批状态为未审核
             project.setAuditingStatus(0);
+            project.setProcessId(order1.getProcessId());
             Project project1 = projectDao.save(project);
             // 设置商品的项目信息
             List<Goods> goodsList1 = order1.getGoodsList();
@@ -802,72 +804,6 @@ public class OrderV2ServiceImpl implements OrderV2Service {
         return countryArr;
     }
 
-
-    @Override
-    public List<Object> findAllAuditProcess() throws Exception {
-        String eruiToken = (String) ThreadLocalUtil.getObject();
-        JSONArray jsonArray = BpmUtils.processDefinitionUsertasks("process_order", eruiToken, "017340");
-
-        return jsonArray;
-    }
-
-
-    @Override
-    public void updateAuditProcessDone(String processInstanceId, String taskDefinitionKey) {
-        System.out.println("-----onCompleted--------updateAuditProcessDone");
-        Order order = orderDao.findByProcessId(processInstanceId);
-        if (order == null) {
-            System.out.println("-----onCompleted--------updateAuditProcessDone -- order is null;");
-            return;
-        }
-
-        String auditingProcess = order.getAuditingProcess();
-        if (StringUtils.isNotBlank(auditingProcess)) {
-            if (auditingProcess.equals(taskDefinitionKey)) {
-                auditingProcess = null;
-                order.setAuditingStatus(Order.AuditingStatusEnum.THROUGH.getStatus());
-            } else {
-                auditingProcess = auditingProcess.replace(taskDefinitionKey, "");
-                while (auditingProcess.indexOf(",,") != -1) {
-                    auditingProcess = auditingProcess.replace(",,", ",");
-                }
-                auditingProcess = StringUtils.strip(auditingProcess, ",");
-            }
-            order.setAuditingProcess(auditingProcess);
-
-        } else {
-            order.setAuditingStatus(Order.AuditingStatusEnum.THROUGH.getStatus());
-        }
-        orderDao.save(order);
-        System.out.println("-----onCompleted--------updateAuditProcessDone -- save order --- " + order.getId());
-        projectV2Service.updateAuditProcessDone(order.getId(), taskDefinitionKey);
-    }
-
-    @Override
-    public void updateAuditProcessDoing(String processInstanceId, String taskDefinitionKey, String taskId) {
-        System.out.println("-----onCreated--------updateAuditProcessDoing");
-        Order order = orderDao.findByProcessId(processInstanceId);
-        if (order == null) {
-            System.out.println("-----onCreated--------updateAuditProcessDoing --- order is null");
-            return;
-        }
-        System.out.println("-----onCreated--------updateAuditProcessDoing ---- " + String.valueOf(order.getId()));
-        order.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
-        order.setTaskId(taskId);
-
-        String auditingProcess = order.getAuditingProcess();
-        if (StringUtils.isNotBlank(auditingProcess)) {
-            auditingProcess = auditingProcess + "," + taskDefinitionKey;
-        } else {
-            auditingProcess = taskDefinitionKey;
-        }
-        order.setAuditingProcess(auditingProcess);
-        orderDao.save(order);
-        System.out.println("-----onCreated--------updateAuditProcessDoing save-success --- -" + order.getId());
-
-        projectV2Service.updateAuditProcessDoing(order.getId(), taskDefinitionKey);
-        System.out.println("-----onCreated--------updateAuditProcessDoing save-success --- -" + order.getId());
-    }
 }
 
 

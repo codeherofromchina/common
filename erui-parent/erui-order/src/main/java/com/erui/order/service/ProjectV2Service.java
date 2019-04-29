@@ -105,19 +105,4 @@ public interface ProjectV2Service {
      * @return
      */
     void addProfitData(XSSFWorkbook workbook, Map<String, Object> results);
-
-
-    /**
-     * 更新审核进度完成
-     * @param orderId
-     * @param taskDefinitionKey
-     */
-    void updateAuditProcessDone(Integer orderId, String taskDefinitionKey);
-
-    /**
-     * 更新审核进度进行中
-     * @param orderId
-     * @param taskDefinitionKey
-     */
-    void updateAuditProcessDoing(Integer orderId, String taskDefinitionKey);
 }

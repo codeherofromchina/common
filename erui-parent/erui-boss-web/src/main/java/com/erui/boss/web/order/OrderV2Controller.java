@@ -40,55 +40,8 @@ public class OrderV2Controller {
     @Resource(name = "orderV2ServiceImpl")
     private OrderV2Service orderService;
     @Autowired
-    private BpmTaskRuntimeService bpmTaskRuntimeService;
-    @Autowired
     private BpmStatusNodeService bpmStatusNodeService;
 
-    /**
-     * 订单审核流程中的所有流程节点
-     *
-     * @param request
-     * @return
-     */
-    @RequestMapping(value = "processSelectList", produces = {"application/json;charset=utf-8"})
-    public Result<Object> processSelectList(HttpServletRequest request) throws Exception {
-        String eruiToken = CookiesUtil.getEruiToken(request);
-        ThreadLocalUtil.setObject(eruiToken);
-        List allAuditProcess = orderService.findAllAuditProcess();
-        Result result = new Result();
-        result.setData(allAuditProcess);
-        return result;
-    }
-
-    /**
-     * 获取单列表
-     *
-     * @return
-     */
-    @RequestMapping(value = "orderManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> orderManage(@RequestBody OrderV2ListRequest condition, HttpServletRequest request) {
-        //页数不能小于1
-        if (condition.getPage() < 1) {
-            return new Result<>(ResultStatusEnum.FAIL);
-        }
-        String eruiToken = CookiesUtil.getEruiToken(request);
-        ThreadLocalUtil.setObject(eruiToken);
-        // 设置请求语言
-        String lang = CookiesUtil.getLang(request);
-        condition.setLang(lang);
-
-        Page<Order> orderPage = orderService.findByPage(condition);
-        if (orderPage.hasContent()) {
-            orderPage.getContent().forEach(vo -> {
-                vo.setAttachmentSet(null);
-                vo.setOrderPayments(null);
-                vo.setGoodsList(null);
-                vo.setOrderAccountDelivers(null);
-                vo.setOrderAccounts(null);
-            });
-        }
-        return new Result<>(orderPage);
-    }
 
     @RequestMapping(value = "addOrder", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> addOrder(@RequestBody @Valid AddOrderV2Vo addOrderVo, HttpServletRequest request) throws Exception {

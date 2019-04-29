@@ -1,10 +1,12 @@
 package com.erui.boss.web.order;
 
-import com.alibaba.fastjson.JSON;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.order.OrderConf;
-import com.erui.order.service.OrderV2Service;
+import com.erui.order.v2.service.DeliverConsignService;
+import com.erui.order.v2.service.OrderService;
+import com.erui.order.v2.service.ProjectService;
+import com.erui.order.v2.service.PurchService;
 import com.erui.report.model.BpmTaskRuntime;
 import com.erui.report.service.BpmTaskRuntimeService;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +29,13 @@ public class BpmNotifyController {
     @Autowired
     private BpmTaskRuntimeService bpmTaskRuntimeService;
     @Autowired
-    private OrderV2Service orderV2Service;
+    private OrderService orderService;
+    @Autowired
+    private ProjectService projectService;
+    @Autowired
+    private DeliverConsignService deliverConsignService;
+    @Autowired
+    private PurchService purchService;
 
     /**
      * 任务完成通知，删除流程进度
@@ -36,27 +44,30 @@ public class BpmNotifyController {
      */
     @RequestMapping(value = "onCompleted", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result onCompleted(@RequestBody Map<String, String> params) {
-
-        System.out.println("-----onCompleted--------" + params);
-        // 验证安全性
+        // 验证安全性，// 如果秘钥不正确，返回失败
         if (!validate(params.get("key"))) {
-            System.out.println("-----onCompleted--------validate = false");
-            // 如果秘钥不正确，什么也不返回
             return new Result<>(ResultStatusEnum.FAIL);
         }
-        System.out.println("-----onCompleted--------validate = true");
         Result<Object> result = new Result<>();
         // 检查参数
         String processInstanceId = params.get("processInstanceId");
         String taskId = params.get("taskId");
         String taskDefinitionKey = params.get("taskDefinitionKey");
         String businessKey = params.get("businessKey");
+        String assignee = params.get("assignee");
         if (StringUtils.isAnyBlank(businessKey, processInstanceId, taskId)) {
             result.setStatus(ResultStatusEnum.PARAM_ERROR);
         }
         if (businessKey.startsWith("order:")) {
-            // 如果是订单，则完成订单信息
-            orderV2Service.updateAuditProcessDone(processInstanceId, taskDefinitionKey);
+            // 订单审核流程
+            orderService.updateAuditProcessDone(processInstanceId, taskDefinitionKey, assignee);
+            projectService.updateAuditProcessDone(processInstanceId, taskDefinitionKey, assignee);
+        } else if (businessKey.startsWith("deliver_consign:")) {
+            // 订舱审核流程
+            deliverConsignService.updateAuditProcessDone(processInstanceId, taskDefinitionKey, assignee);
+        } else if (businessKey.startsWith("purch:")) {
+            // 采购审核流程
+            purchService.updateAuditProcessDone(processInstanceId, taskDefinitionKey, assignee);
         }
         bpmTaskRuntimeService.delBpmTaskRuntime(processInstanceId, taskId);
         return result;
@@ -67,17 +78,23 @@ public class BpmNotifyController {
      */
     @RequestMapping(value = "onCreated", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result onCreated(@RequestBody BpmTaskRuntime bpmTaskRuntime) {
-        System.out.println("-----onCreated--------" + JSON.toJSONString(bpmTaskRuntime));
         // 验证安全性
         if (!validate(bpmTaskRuntime.getKey())) {
-            System.out.println("-----onCreated--------validate = false");
             // 如果秘钥不正确，什么也不返回
             return new Result<>(ResultStatusEnum.FAIL);
         }
-        System.out.println("-----onCreated--------validate = true");
-        orderV2Service.updateAuditProcessDoing(bpmTaskRuntime.getPiId(),bpmTaskRuntime.getActId(),bpmTaskRuntime.getTaskId());
+        if (StringUtils.equals("order", bpmTaskRuntime.getBizType())) {
+            // 订单审核流程
+            orderService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId());
+            projectService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId());
+        } else if (StringUtils.equals("deliver_consign", bpmTaskRuntime.getBizType())) {
+            // 订舱审核流程
+            deliverConsignService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId());
+        } else if (StringUtils.equals("purch", bpmTaskRuntime.getBizType())) {
+            // 采购审核流程
+            purchService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId());
+        }
         bpmTaskRuntimeService.addBpmTaskRuntime(bpmTaskRuntime);
-
         return new Result();
     }
 

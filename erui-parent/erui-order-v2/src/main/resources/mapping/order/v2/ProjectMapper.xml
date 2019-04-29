@@ -61,6 +61,8 @@
     <result column="chairman_id" property="chairmanId" jdbcType="INTEGER" />
     <result column="chairman" property="chairman" jdbcType="VARCHAR" />
     <result column="audi_remark" property="audiRemark" jdbcType="VARCHAR" />
+    <result column="process_id" property="processId" jdbcType="VARCHAR" />
+    <result column="task_id" property="taskId" jdbcType="VARCHAR" />
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.erui.order.v2.model.Project" extends="BaseResultMap" >
     <result column="remarks" property="remarks" jdbcType="LONGVARCHAR" />
@@ -133,7 +135,7 @@
     deliver_consign_has, order_category, overseas_sales, purch_time, logistics_audit, 
     auditing_level, auditing_status, auditing_process, auditing_user_id, auditing_user, 
     logistics_auditer_id, logistics_auditer, bu_auditer_id, bu_auditer, bu_vp_auditer_id, 
-    bu_vp_auditer, ceo_id, ceo, chairman_id, chairman, audi_remark
+    bu_vp_auditer, ceo_id, ceo, chairman_id, chairman, audi_remark, process_id, task_id
   </sql>
   <sql id="Blob_Column_List" >
     remarks
@@ -206,8 +208,8 @@
       logistics_auditer_id, logistics_auditer, bu_auditer_id, 
       bu_auditer, bu_vp_auditer_id, bu_vp_auditer, 
       ceo_id, ceo, chairman_id, 
-      chairman, audi_remark, remarks
-      )
+      chairman, audi_remark, process_id, 
+      task_id, remarks)
     values (#{id,jdbcType=INTEGER}, #{orderId,jdbcType=INTEGER}, #{contractNo,jdbcType=VARCHAR}, 
       #{execCoName,jdbcType=VARCHAR}, #{distributionDeptName,jdbcType=VARCHAR}, #{businessUnitName,jdbcType=VARCHAR}, 
       #{region,jdbcType=VARCHAR}, #{country,jdbcType=VARCHAR}, #{projectNo,jdbcType=VARCHAR}, 
@@ -227,8 +229,8 @@
       #{logisticsAuditerId,jdbcType=INTEGER}, #{logisticsAuditer,jdbcType=VARCHAR}, #{buAuditerId,jdbcType=INTEGER}, 
       #{buAuditer,jdbcType=VARCHAR}, #{buVpAuditerId,jdbcType=INTEGER}, #{buVpAuditer,jdbcType=VARCHAR}, 
       #{ceoId,jdbcType=INTEGER}, #{ceo,jdbcType=VARCHAR}, #{chairmanId,jdbcType=INTEGER}, 
-      #{chairman,jdbcType=VARCHAR}, #{audiRemark,jdbcType=VARCHAR}, #{remarks,jdbcType=LONGVARCHAR}
-      )
+      #{chairman,jdbcType=VARCHAR}, #{audiRemark,jdbcType=VARCHAR}, #{processId,jdbcType=VARCHAR}, 
+      #{taskId,jdbcType=VARCHAR}, #{remarks,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.Project" >
     insert into project
@@ -409,6 +411,12 @@
       </if>
       <if test="audiRemark != null" >
         audi_remark,
+      </if>
+      <if test="processId != null" >
+        process_id,
+      </if>
+      <if test="taskId != null" >
+        task_id,
       </if>
       <if test="remarks != null" >
         remarks,
@@ -591,6 +599,12 @@
       </if>
       <if test="audiRemark != null" >
         #{audiRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="processId != null" >
+        #{processId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null" >
+        #{taskId,jdbcType=VARCHAR},
       </if>
       <if test="remarks != null" >
         #{remarks,jdbcType=LONGVARCHAR},
@@ -783,6 +797,12 @@
       <if test="record.audiRemark != null" >
         audi_remark = #{record.audiRemark,jdbcType=VARCHAR},
       </if>
+      <if test="record.processId != null" >
+        process_id = #{record.processId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.taskId != null" >
+        task_id = #{record.taskId,jdbcType=VARCHAR},
+      </if>
       <if test="record.remarks != null" >
         remarks = #{record.remarks,jdbcType=LONGVARCHAR},
       </if>
@@ -852,6 +872,8 @@
       chairman_id = #{record.chairmanId,jdbcType=INTEGER},
       chairman = #{record.chairman,jdbcType=VARCHAR},
       audi_remark = #{record.audiRemark,jdbcType=VARCHAR},
+      process_id = #{record.processId,jdbcType=VARCHAR},
+      task_id = #{record.taskId,jdbcType=VARCHAR},
       remarks = #{record.remarks,jdbcType=LONGVARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -917,7 +939,9 @@
       ceo = #{record.ceo,jdbcType=VARCHAR},
       chairman_id = #{record.chairmanId,jdbcType=INTEGER},
       chairman = #{record.chairman,jdbcType=VARCHAR},
-      audi_remark = #{record.audiRemark,jdbcType=VARCHAR}
+      audi_remark = #{record.audiRemark,jdbcType=VARCHAR},
+      process_id = #{record.processId,jdbcType=VARCHAR},
+      task_id = #{record.taskId,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -1099,6 +1123,12 @@
       <if test="audiRemark != null" >
         audi_remark = #{audiRemark,jdbcType=VARCHAR},
       </if>
+      <if test="processId != null" >
+        process_id = #{processId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null" >
+        task_id = #{taskId,jdbcType=VARCHAR},
+      </if>
       <if test="remarks != null" >
         remarks = #{remarks,jdbcType=LONGVARCHAR},
       </if>
@@ -1165,6 +1195,8 @@
       chairman_id = #{chairmanId,jdbcType=INTEGER},
       chairman = #{chairman,jdbcType=VARCHAR},
       audi_remark = #{audiRemark,jdbcType=VARCHAR},
+      process_id = #{processId,jdbcType=VARCHAR},
+      task_id = #{taskId,jdbcType=VARCHAR},
       remarks = #{remarks,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -1227,7 +1259,9 @@
       ceo = #{ceo,jdbcType=VARCHAR},
       chairman_id = #{chairmanId,jdbcType=INTEGER},
       chairman = #{chairman,jdbcType=VARCHAR},
-      audi_remark = #{audiRemark,jdbcType=VARCHAR}
+      audi_remark = #{audiRemark,jdbcType=VARCHAR},
+      process_id = #{processId,jdbcType=VARCHAR},
+      task_id = #{taskId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>
