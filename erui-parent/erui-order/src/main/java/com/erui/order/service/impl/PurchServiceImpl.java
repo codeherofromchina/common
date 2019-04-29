@@ -385,7 +385,6 @@ public class PurchServiceImpl implements PurchService {
                 backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCH_AUDIT.getNum());    //功能访问路径标识
                 backLogService.updateBackLogByDelYn(backLog2);
             }
-
             if (auditingUserId != null && !isComeMore) {//并行未走完不用推送待办
                 for (String user : auditingUserId.split(",")) {
                     // 推送待办事件
