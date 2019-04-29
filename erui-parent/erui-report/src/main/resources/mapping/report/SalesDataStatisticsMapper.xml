@@ -197,7 +197,7 @@
         t3.`name` AS org_name,
         t4.`name` AS area_name,
         t5.op_note,
-        t5.created_at
+        t5.out_at created_at
         FROM
         erui_rfq.inquiry t1
         LEFT JOIN
@@ -213,7 +213,7 @@
         t1.id = t5.inquiry_id
         AND t5.action = 'FAIL'
         <if test="startTime!=null and startTime!=''">
-          AND t5.created_at BETWEEN #{startTime} AND #{endTime}
+          AND t5.out_at BETWEEN #{startTime} AND #{endTime}
         </if>
         ORDER BY t1.created_at DESC
     </select>
