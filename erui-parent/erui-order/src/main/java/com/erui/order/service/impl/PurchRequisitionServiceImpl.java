@@ -344,7 +344,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionAdd.setStatus(purchRequisition.getStatus());
         PurchRequisition purchRequisition1 = purchRequisitionDao.save(purchRequisitionAdd);
         // 添加附件
-        //purchRequisition1.setAttachmentList(purchRequisition.getAttachmentList());
+        // purchRequisition1.setAttachmentList(purchRequisition.getAttachmentList());
         if (purchRequisition.getAttachmentSet() != null && purchRequisition.getAttachmentSet().size() > 0) {
             attachmentService.addAttachments(purchRequisition.getAttachmentSet(), purchRequisition1.getId(), Attachment.AttachmentCategory.PURCHREQUEST.getCode());
         }
