@@ -1044,7 +1044,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         auditingUserId_i = StringUtils.strip(replace2, ",");
                     }
                     break;
-                case 34://物流负责人审核
+                case 34:// 物流负责人审核
                     // 由物流负责人指派订舱专员和操作专员
                     deliverConsign.setBookingOfficer(rDeliverConsign.getBookingOfficer());
                     deliverConsign.setBookingOfficerId(rDeliverConsign.getBookingOfficerId());
