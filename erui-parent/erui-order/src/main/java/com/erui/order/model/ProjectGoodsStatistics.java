@@ -18,7 +18,7 @@ public class ProjectGoodsStatistics {
     //序号
     private Integer id;
     //未用易瑞签约原因
-    //private String nonReson;
+    private String nonReson;
     //是否通过代理商获取
     private String agent;
     //代理商代码
@@ -30,6 +30,14 @@ public class ProjectGoodsStatistics {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getNonReson() {
+        return nonReson;
+    }
+
+    public void setNonReson(String nonReson) {
+        this.nonReson = nonReson;
     }
 
     public String getAgent() {

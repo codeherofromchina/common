@@ -146,7 +146,7 @@ public class PurchRequisitionController {
             result.setMsg(ResultStatusEnum.SUCCESS.getMsg());
             result.setEnMsg(ResultStatusEnum.SUCCESS.getEnMsg());
             result.setData(i);
-        } else {
+        }else {
             result.setData(i);
         }
         return result;
@@ -163,8 +163,6 @@ public class PurchRequisitionController {
         Result<Object> result = new Result<>();
         List<PurchRequisition> list = null;
         PurchRequisition purchRequisition = null;
-        String eruiToken = CookiesUtil.getEruiToken(request);
-        ThreadLocalUtil.setObject(eruiToken);
         String ids = proMap.get("id");//采购单ID
         String purchaseName = proMap.get("purchaseName");//采购经办人姓名
         String purchaseUid = proMap.get("purchaseUid");//采购单ID
@@ -181,8 +179,8 @@ public class PurchRequisitionController {
             list = new ArrayList<PurchRequisition>();
             Object userId = request.getSession().getAttribute("userid");
             Object userName = request.getSession().getAttribute("realname");
-            if (ids.split(",").length > 1) {
-                for (String id : ids.split(",")) {
+            if(ids.split(",").length > 1){
+                for(String id : ids.split(",")){
                     purchRequisition = new PurchRequisition();
                     purchRequisition.setId(Integer.parseInt(id));
                     purchRequisition.setPurchaseUid(Integer.parseInt(purchaseUid));
@@ -191,7 +189,7 @@ public class PurchRequisitionController {
                     purchRequisition.setSinglePerson(userName.toString());
                     list.add(purchRequisition);
                 }
-            } else {
+            }else{
                 purchRequisition = new PurchRequisition();
                 purchRequisition.setId(Integer.parseInt(ids));
                 purchRequisition.setPurchaseUid(Integer.parseInt(purchaseUid));
