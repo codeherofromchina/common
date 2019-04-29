@@ -396,7 +396,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             applyGoods.setInspectNum(iaGoods.getInspectNum());
             applyGoods.setHeight(iaGoods.getHeight());
             applyGoods.setLwh(iaGoods.getLwh());
-
             // 保证每次从数据库获取
             PurchGoods purchGoods = purchGoodsDao.findOne(applyGoods.getPurchGoods().getId());
             // 报检数量大于采购数量
