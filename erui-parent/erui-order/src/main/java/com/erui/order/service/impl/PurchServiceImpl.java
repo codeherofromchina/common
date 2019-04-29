@@ -62,6 +62,8 @@ public class PurchServiceImpl implements PurchService {
     @Autowired
     private PurchContractGoodsDao purchContractGoodsDao;
     @Autowired
+    private PurchContractDao purchContractDao;
+    @Autowired
     private PurchPaymentDao purchPaymentDao;
     @Autowired
     private OrderDao orderDao;
@@ -116,6 +118,33 @@ public class PurchServiceImpl implements PurchService {
             return puchList;
         }
         return null;
+    }
+
+    private boolean findByPurchNo2(String purchNo) {
+        if (purchNo != null) {
+            List<Purch> puchList = purchDao.findByPurchNo(purchNo);
+            if (puchList != null && puchList.size() > 0) {
+                boolean doneFlag = true;
+                for (Purch purch : puchList) {
+                    if (purch.getStatus() != 3) {
+                        doneFlag = false;
+                        break;
+                    }
+                }
+                if (doneFlag) {
+                    if (puchList != null && puchList.size() > 0) {
+                        Integer purchContractId = puchList.get(0).getPurchContractId() == null ? 0 : puchList.get(0).getPurchContractId();
+                        if (purchContractId > 0) {
+                            PurchContract purchContract = purchContractDao.findOne(purchContractId);
+                            purchContract.setStatus(4);
+                            purchContractDao.save(purchContract);
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
 
@@ -526,7 +555,7 @@ public class PurchServiceImpl implements PurchService {
      * @return
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional()
     public Page<Purch> findByPage(final Purch condition) {
         PageRequest request = new PageRequest(condition.getPage() - 1, condition.getRows(), Sort.Direction.DESC, "id");
 
@@ -602,6 +631,7 @@ public class PurchServiceImpl implements PurchService {
 
         if (page.hasContent()) {
             page.getContent().stream().forEach(vo -> {
+                findByPurchNo2(vo.getPurchNo());
                 List<String> projectNoList = new ArrayList<>();
                 List<String> contractNoList = new ArrayList<>();
                 vo.getProjects().stream().forEach(project -> {

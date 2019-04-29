@@ -20,6 +20,7 @@ public interface PurchService {
      * @return
      */
     Purch findBaseInfo(Integer id);
+
     /**
      * 根据id查询采购基本信息
      *
