@@ -1,5 +1,6 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
@@ -62,6 +63,9 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
+
+    @Value("#{orderProp[MEMBER_LIST]}")
+    private String memberList;  //查询人员信息调用接口
 
 
     @Transactional(readOnly = true)
@@ -175,6 +179,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updatePurchRequisition(PurchRequisition purchRequisition) throws Exception {
+        //获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
         Project project = projectDao.findOne(purchRequisition.getProId());
         PurchRequisition prt = findById(purchRequisition.getId(), project.getOrder().getId());
         if (!purchRequisition.getProjectNo().equals(prt.getProjectNo())) {
@@ -266,6 +272,12 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 
 
             try {
+                List<Integer>userList = getUserList(eruiToken, "O38");
+                if(userList != null && userList.size() >0){
+                    for (Integer user : userList){
+                        sendDingtalk(purchRequisition1, user.toString(), true);
+                    }
+                }
                 //TODO 采购申请通知：采购申请单下达后通知采购经办人
                 sendSms(project1);
             } catch (Exception e) {
@@ -279,6 +291,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean insertPurchRequisition(PurchRequisition purchRequisition) throws Exception {
+        //获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
         Project project = projectDao.findOne(purchRequisition.getProId());
         if (StringUtils.isNotBlank(purchRequisition.getProjectNo()) && purchRequisitionDao.countByProjectNo(purchRequisition.getProjectNo()) > 0) {
             throw new MyException("项目号已存在&&The project No. already exists");
@@ -366,6 +380,12 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 //            backLogService.addBackLogByDelYn(newBackLog);
 
             try {
+                List<Integer>userList = getUserList(eruiToken, "O38");
+                if(userList != null && userList.size() >0){
+                    for (Integer user : userList){
+                        sendDingtalk(purchRequisition1, user.toString(), true);
+                    }
+                }
                 // TODO 采购申请通知：采购申请单下达后通知采购经办人
                 sendSms(project1);
             } catch (Exception e) {
@@ -375,6 +395,42 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         return true;
     }
 
+    //根据角色获取人员列表
+    private List<Integer>getUserList(String eruiToken, String roleNo){
+        //获取人员id
+        List<Integer> listAll = new ArrayList<>(); //分单员id
+
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(eruiToken)) {
+            Map<String, String> header = new HashMap<>();
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+            try {
+                //获取物流分单员
+                String jsonParam = "{\"role_no\":\""+roleNo+"\"}";
+                String s2 = HttpRequest.sendPost(memberList, jsonParam, header);
+                logger.info("人员详情返回信息：" + s2);
+
+                // 获取人员手机号
+                JSONObject jsonObjects = JSONObject.parseObject(s2);
+                Integer codes = jsonObjects.getInteger("code");
+                if (codes == 1) { //判断请求是否成功
+                    // 获取数据信息
+                    JSONArray data1 = jsonObjects.getJSONArray("data");
+                    for (int i = 0; i < data1.size(); i++) {
+                        JSONObject ob = (JSONObject) data1.get(i);
+                        listAll.add(ob.getInteger("id")); //获取人员id
+                    }
+                } else {
+                    throw new Exception("人员详情返回信息查询失败");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        return listAll;
+    }
 
     // 采购申请通知：采购申请单下达后通知采购经办人
     public void sendSms(Project project1) throws Exception {
