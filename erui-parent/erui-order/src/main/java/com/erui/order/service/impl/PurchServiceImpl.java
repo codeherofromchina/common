@@ -419,7 +419,6 @@ public class PurchServiceImpl implements PurchService {
         purchDao.save(purch);
 
         auditBackLogHandle(purch, rejectFlag, auditingUserId_i, auditorId, isComeMore);
-
         return true;
     }
 
