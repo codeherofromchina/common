@@ -619,7 +619,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         projectStatistics.stream().forEach(vo -> vo.setGoodsList(null));
 
-        String[] header = new String[]{"项目创建日期", "项目开始日期", "销售合同号", "订单类别", "海外销类型", "询单号", "项目号", "项目名称", "海外销售合同号", "物流报价单号",
+        String[] header = new String[]{"项目创建日期", "项目开始日期", "销售合同号", "订单类别", "海外销类型", "询单号", "项目号", "合同标的", "海外销售合同号", "物流报价单号",
                 "产品分类", "执行分公司", "事业部", "所属地区", "CRM客户代码", "客户类型", "项目金额（美元）",
                 "收款方式", "回款时间", "回款金额", "初步利润率%", "授信情况", "执行单约定交付日期",
                 "要求采购到货日期", "执行单变更后日期", "分销部(获取人所在分类销售)", "市场经办人", "获取人", "商务技术经办人", "贸易术语",
@@ -673,7 +673,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         }
         String[] header = new String[]{"序号", "项目创建日期", "项目开始日期", "销售合同号", "订单类别", "海外销类型", "询单号", "项目号",// "未用易瑞签约原因",
-                "是否通过代理商获取", "代理商代码", "PO号", "项目名称", "海外销售合同号", "物流报价单号", "产品分类", "执行分公司", "事业部",
+                "是否通过代理商获取", "代理商代码", "PO号", "合同标的", "海外销售合同号", "物流报价单号", "产品分类", "执行分公司", "事业部",
                 "所属地区", "CRM客户代码", "客户类型", "品名中文", "品名外文", "规格", "数量", "单位", "项目金额", "币种",
                 "收款方式", "回款时间", "回款金额", "初步利润率%", "授信情况", "执行单约定交付日期",
                 "要求采购到货日期", "执行单变更后日期", "分销部(获取人所在分类销售)", "市场经办人", "获取人", "商务技术经办人", "贸易术语",
@@ -1129,7 +1129,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 if (StringUtil.isNotBlank(projectNo)) {
                     list.add(cb.like(root.get("projectNo").as(String.class), "%" + projectNo + "%"));
                 }
-                //  项目名称
+                //  合同标的
                 String projectName = condition.get("projectName");
                 if (StringUtil.isNotBlank(projectName)) {
                     list.add(cb.like(root.get("projectName").as(String.class), "%" + projectName + "%"));
@@ -1239,7 +1239,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 Map<String, String> bnMapZhCountry = findBnMapZhCountry();  //获取国家中英文   kay/vlaue
                 omp.setCountry(bnMapZhCountry.get(project.getOrder().getCountry()));   //  国家
                 omp.setProjectNo(project.getProjectNo());   //项目号
-                omp.setProjectName(project.getProjectName());    //项目名称
+                omp.setProjectName(project.getProjectName());    //合同标的
                 omp.setOrderStatus(order.getStatus()); //订单状态
                 omp.setProjectStatus(project.getProjectStatus());   //项目状态
                 omp.setPurchStatus(disposePurchsStatus(project, order.getGoodsList()));   //采购状态      根据采购条数，订单商品报检数量来判断
@@ -1324,7 +1324,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 if (StringUtil.isNotBlank(params.get("projectNo"))) {
                     list.add(cb.like(root.get("projectNo").as(String.class), "%" + params.get("projectNo") + "%"));
                 }
-                //项目名称
+                //合同标的
                 if (StringUtil.isNotBlank(params.get("projectName"))) {
                     list.add(cb.like(root.get("projectName").as(String.class), "%" + params.get("projectName") + "%"));
                 }

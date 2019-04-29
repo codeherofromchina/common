@@ -61,7 +61,7 @@ public interface ProjectService {
      * @param purchaseUid
      * @param pageNum
      * @param
-     * @return {id:项目ID,projectNo:项目编号,projectName:项目名称}
+     * @return {id:项目ID,projectNo:项目编号,projectName:合同标的}
      * @throws Exception
      */
     Page<Map<String, Object>> purchAbleByPage(List<String> projectNoList, String purchaseUid, int pageNum, int pageSizeString, String contractNo, String projectName) throws Exception;

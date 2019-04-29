@@ -44,7 +44,7 @@ public interface ProjectDao extends JpaRepository<Project, Serializable>, JpaSpe
     Project findByIdOrOrderId(@Param(value = "id") Integer id, @Param(value = "orderId") Integer orderId);
 
     /**
-     * 判断项目名称是否重复
+     * 判断合同标的是否重复
      *
      * @param projectName
      * @return Long

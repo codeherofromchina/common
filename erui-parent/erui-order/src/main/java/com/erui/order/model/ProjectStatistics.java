@@ -73,7 +73,7 @@ public class ProjectStatistics {
     private String inquiryNo;
     //项目号
     private String projectNo;
-    //项目名称
+    //合同标的
     private String projectName;
     //海外销售合同号
     private String contractNoOs;

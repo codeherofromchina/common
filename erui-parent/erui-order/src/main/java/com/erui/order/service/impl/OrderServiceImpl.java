@@ -2797,7 +2797,7 @@ public class OrderServiceImpl implements OrderService {
             if (StringUtils.isNotBlank(strArr[2])) {
                 project.setStartDate(DateUtil.parseString2DateNoException(strArr[2], "yyyy-MM-dd hh:mm:ss"));
             }
-            //项目名称
+            //合同标的
             if (StringUtils.isNotBlank(strArr[3])) {
                 project.setProjectName(strArr[3]);
             }
@@ -2924,9 +2924,9 @@ public class OrderServiceImpl implements OrderService {
             String stringRC2 = sheet1.getRow(2).getCell(2).getStringCellValue().replace("执行分公司", company.getName());
             sheet1.getRow(2).getCell(2).setCellValue(stringRC2);
         }
-        //项目名称
+        //合同标的
         if (orderDec.getProject() != null && orderDec.getProject().getProjectName() != null) {
-            String stringR2C6 = sheet1.getRow(2).getCell(6).getStringCellValue().replace("项目名称", orderDec.getProject().getProjectName());
+            String stringR2C6 = sheet1.getRow(2).getCell(6).getStringCellValue().replace("合同标的", orderDec.getProject().getProjectName());
             sheet1.getRow(2).getCell(6).setCellValue(stringR2C6);
         }
         //销售合同号

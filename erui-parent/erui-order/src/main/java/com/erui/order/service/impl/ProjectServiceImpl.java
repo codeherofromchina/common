@@ -600,7 +600,7 @@ public class ProjectServiceImpl implements ProjectService {
                 if (StringUtil.isNotBlank(condition.getProjectNo())) {
                     searchList.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
                 }
-                //根据项目名称模糊查询
+                //根据合同标的模糊查询
                 if (StringUtil.isNotBlank(condition.getProjectName())) {
                     searchList.add(cb.like(root.get("projectName").as(String.class), "%" + condition.getProjectName() + "%"));
                 }
@@ -985,7 +985,7 @@ public class ProjectServiceImpl implements ProjectService {
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
-                //根据项目名称模糊查询
+                //根据合同标的模糊查询
                 if (StringUtil.isNotBlank(condition.getProjectName())) {
                     list.add(cb.like(root.get("projectName").as(String.class), "%" + condition.getProjectName() + "%"));
                 }
@@ -1167,7 +1167,7 @@ public class ProjectServiceImpl implements ProjectService {
                     Map<String, String> map = new HashMap();
                     map.put("areaCode", "86");
                     map.put("to", "[\"" + data.getString("mobile") + "\"]");    //项目经理手机号
-                    map.put("content", "您好，项目名称：" + project.getProjectName() + "，商务技术经办人：" + project.getBusinessName() + "，已申请项目执行，请及时处理。感谢您对我们的支持与信任！");
+                    map.put("content", "您好，合同标的：" + project.getProjectName() + "，商务技术经办人：" + project.getBusinessName() + "，已申请项目执行，请及时处理。感谢您对我们的支持与信任！");
                     map.put("subType", "0");
                     map.put("groupSending", "0");
                     map.put("useType", "订单");
@@ -1219,10 +1219,10 @@ public class ProjectServiceImpl implements ProjectService {
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("toUser=").append(userNo);
                     if (!rejectFlag) {
-                        stringBuffer.append("&message=您好！" + order.getProject().getBusinessName() + "的项目，已申请项目审批。项目名称：" + order.getProject().getProjectName() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                        stringBuffer.append("&message=您好！" + order.getProject().getBusinessName() + "的项目，已申请项目审批。合同标的：" + order.getProject().getProjectName() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
                                 "" + sendTime02 + "");
                     } else {
-                        stringBuffer.append("&message=您好！" + order.getProject().getBusinessName() + "的项目，已申请的项目审核未通过。项目名称：" + order.getProject().getProjectName() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                        stringBuffer.append("&message=您好！" + order.getProject().getBusinessName() + "的项目，已申请的项目审核未通过。合同标的：" + order.getProject().getProjectName() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
                                 "" + sendTime02 + "");
                     }
                     stringBuffer.append("&type=userNo");
