@@ -570,7 +570,7 @@ public class ProjectServiceImpl implements ProjectService {
         }else{
             projectUpdate.setAuditingStatus(4);//审核完成
         }
-        auditBackLogHandle(projectUpdate, false, auditUserId);
+        auditBackLogHandle(projectUpdate, false, null, auditUserId, false);
         // 记录审核日志
         CheckLog checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.PROJECT.getCode(), projectUpdate.getId(), CheckLog.AuditProcessingEnum.NEW_PRO_BUSINESS_SUBMIT.getProcess(),
                 projectUpdate.getBusinessUid(), projectUpdate.getBusinessName(),
@@ -1289,6 +1289,7 @@ public class ProjectServiceImpl implements ProjectService {
             Integer auditingStatus_i = 2; // 操作完后的项目审核状态
             String auditingProcess_i = null; // 操作完后的项目审核进度
             String auditingUserId_i = null; // 操作完后的项目审核人
+            boolean isComeMore = Boolean.FALSE;// 是否来自并行的审批，且并行还没走完。
             Integer orderCategory = project.getOrderCategory();//订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单 6 国内订单
             if(orderCategory == null) orderCategory = 0;
             CheckLog checkLog_i = null; // 审核日志
@@ -1363,6 +1364,8 @@ public class ProjectServiceImpl implements ProjectService {
                                 auditingUserId_i = null;
                                 auditingStatus_i = 4;
                             }
+                        }else {
+                            isComeMore = true; //并行未走完
                         }
                         break;
                     case 206: // 事业部总经理审批
@@ -1417,13 +1420,15 @@ public class ProjectServiceImpl implements ProjectService {
             project.setAuditingProcess(auditingProcess_i);
             project.setAuditingUserId(auditingUserId_i);
             project.setAuditingStatus(auditingStatus_i);
-            for (String user : notifyUserList) {
-                sendDingtalk(project.getOrder(), user, rejectFlag);
+            if(!isComeMore){//并行走完发送钉钉
+                for (String user : notifyUserList) {
+                    sendDingtalk(project.getOrder(), user, rejectFlag);
+                }
             }
             project.setAudiRemark(auditorIds.toString());
             projectDao.save(project);
 
-            auditBackLogHandle(project, rejectFlag, auditingUserId_i);
+            auditBackLogHandle(project, rejectFlag, auditorId, auditingUserId_i, isComeMore);
 
             return true;
         }
@@ -1646,24 +1651,28 @@ public class ProjectServiceImpl implements ProjectService {
         project.setAudiRemark(auditorIds.toString());
         projectDao.save(project);
 
-        auditBackLogHandle(project, rejectFlag, auditingUserId_i);
+        auditBackLogHandle(project, rejectFlag, auditorId, auditingUserId_i, false);
 
         return true;
     }
 
-    private void auditBackLogHandle(Project project, boolean rejectFlag, String auditingUserId) {
+    private void auditBackLogHandle(Project project, boolean rejectFlag, String auditorId,String auditingUserId, boolean isComeMore) {
         try {
             // 删除上一个待办，上一个待办可能是以下几种情况
             BackLog backLog2 = new BackLog();
-            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_AUDIT.getNum());
             backLog2.setHostId(project.getOrder().getId());
-            backLogService.updateBackLogByDelYn(backLog2);
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_REJECT.getNum());
             backLogService.updateBackLogByDelYn(backLog2);
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_REJECT2.getNum());
             backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_AUDIT.getNum());    //功能访问路径标识
+            if (isComeMore) {
+                backLogService.updateBackLogByDelYnNew(backLog2, auditorId);
+            } else {
+                backLogService.updateBackLogByDelYn(backLog2);
+            }
 
-            if (StringUtils.isNotBlank(auditingUserId)) {
+            if (StringUtils.isNotBlank(auditingUserId)&& !isComeMore) {
                 Integer[] userIdArr = Arrays.stream(auditingUserId.split(",")).map(vo -> Integer.parseInt(vo)).toArray(Integer[]::new);
                 // 推送待办事件
                 String infoContent = project.getProjectName();
