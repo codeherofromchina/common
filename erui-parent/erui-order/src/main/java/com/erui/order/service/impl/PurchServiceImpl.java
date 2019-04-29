@@ -998,8 +998,10 @@ public class PurchServiceImpl implements PurchService {
             attachmentService.addAttachments(purch.getAttachments(), save.getId(), Attachment.AttachmentCategory.PURCH.getCode());
         }
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-            if (save.getPurchAuditerId() != null) {
-                sendDingtalk(purch, purch.getPurchAuditerId().toString(), false);
+            if (save.getAuditingUserId() != null) {
+                for (String user : save.getAuditingUserId().split(",")) {
+                    sendDingtalk(save, user, false);
+                }
             }
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
             checkLogService.insert(checkLog_i);
@@ -1353,10 +1355,12 @@ public class PurchServiceImpl implements PurchService {
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
             checkLogService.insert(checkLog_i);
-            if (save.getPurchAuditerId() != null) {
-                sendDingtalk(purch, purch.getPurchAuditerId().toString(), false);
+            if (save.getAuditingUserId() != null) {
+                for (String user : save.getAuditingUserId().split(",")) {
+                    sendDingtalk(save, user, false);
+                }
             }
-            auditBackLogHandle(dbPurch, false, dbPurch.getAuditingUserId(), "", false);
+            auditBackLogHandle(save, false, save.getAuditingUserId(), "", false);
         }
         if (save.getStatus() == 2) {
             List<Project> projects = save.getProjects();
