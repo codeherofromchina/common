@@ -1665,7 +1665,7 @@ public class ProjectServiceImpl implements ProjectService {
             backLogService.updateBackLogByDelYn(backLog2);
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_REJECT2.getNum());
             backLogService.updateBackLogByDelYn(backLog2);
-            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_AUDIT.getNum());    //功能访问路径标识
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_AUDIT.getNum()); //功能访问路径标识
             if (isComeMore) {
                 backLogService.updateBackLogByDelYnNew(backLog2, auditorId);
             } else {
