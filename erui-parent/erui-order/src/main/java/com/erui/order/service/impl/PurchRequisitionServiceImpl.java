@@ -354,17 +354,17 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             backLogService.updateBackLogByDelYn(backLog);
 
             //项目中采购申请提交以后  通知采购经办人办理采购申请        (采购申请只发送一次，全部采购完成删除)
-            BackLog newBackLog = new BackLog();
-            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHORDER.getMsg());  //功能名称
-            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHORDER.getNum());    //功能访问路径标识
-            newBackLog.setReturnNo("");  //返回单号    返回空，两个标签
-            String contractNo = save.getContractNo();   //销售合同号
-            String projectNo = save.getProjectNo(); //项目号
-            newBackLog.setInformTheContent(contractNo + " | " + projectNo);  //提示内容
-            newBackLog.setHostId(save.getId());    //父ID，列表页id
-            Integer purchaseUid = save.getPurchaseUid(); //采购经办人id
-            newBackLog.setUid(purchaseUid);   ////经办人id
-            backLogService.addBackLogByDelYn(newBackLog);
+//            BackLog newBackLog = new BackLog();
+//            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHORDER.getMsg());  //功能名称
+//            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHORDER.getNum());    //功能访问路径标识
+//            newBackLog.setReturnNo("");  //返回单号    返回空，两个标签
+//            String contractNo = save.getContractNo();   //销售合同号
+//            String projectNo = save.getProjectNo(); //项目号
+//            newBackLog.setInformTheContent(contractNo + " | " + projectNo);  //提示内容
+//            newBackLog.setHostId(save.getId());    //父ID，列表页id
+//            Integer purchaseUid = save.getPurchaseUid(); //采购经办人id
+//            newBackLog.setUid(purchaseUid);   ////经办人id
+//            backLogService.addBackLogByDelYn(newBackLog);
 
             try {
                 // TODO 采购申请通知：采购申请单下达后通知采购经办人
