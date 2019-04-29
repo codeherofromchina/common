@@ -230,11 +230,11 @@ public class OrderV2ServiceImpl implements OrderV2Service {
                 // 调用业务流，开启业务审核流程系统 // 非国内订单审批流程
                 Map<String, Object> bpmInitVar = new HashMap<>();
                 bpmInitVar.put("order_amount", addOrderVo.getTotalPriceUsd().doubleValue());
-                String financing_approval = "N";
+                String task_fn_check = "N";
                 if (addOrderVo.getFinancing() != null && addOrderVo.getFinancing() == 1) {
-                    financing_approval = "Y";
+                    task_fn_check = "Y";
                 }
-                bpmInitVar.put("financing_approval", financing_approval);
+                bpmInitVar.put("task_fn_check", task_fn_check);
                 JSONObject processResp = null;
                 switch (addOrderVo.getOrderCategory()) {
                     case 1:
@@ -434,13 +434,13 @@ public class OrderV2ServiceImpl implements OrderV2Service {
             Map<String, Object> bpmInitVar = new HashMap<>();
             bpmInitVar.put("order_amount", addOrderVo.getTotalPriceUsd().doubleValue()); // 订单金额
             // 国内订单
-            String financing_approval = "N";
+            String task_fn_check = "N";
             if (addOrderVo.getFinancing() != null && addOrderVo.getFinancing() == 1) {
                 // 判断是否需要融资审批
-                financing_approval = "Y";
+                task_fn_check = "Y";
             }
-            bpmInitVar.put("financing_approval", financing_approval);
-            bpmInitVar.put("logistics_approval", "Y"); // 是否需要物流审批，现在是都需要物流审批
+            bpmInitVar.put("task_fn_check", task_fn_check);
+            bpmInitVar.put("task_lg_check", "Y"); // 是否需要物流审批，现在是都需要物流审批
             switch (addOrderVo.getOrderCategory()) {
                 case 1:
                     // 预投订单
