@@ -148,7 +148,6 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                 JSONObject jsonObject = JSONObject.parseObject(userInfo);
                 Integer code = jsonObject.getInteger("code");
                 String userNo = null;
-                String userName = null;  //商务经办人手机号
                 if (code == 1) {
                     JSONObject data = jsonObject.getJSONObject("data");
                     //获取通知者姓名员工编号

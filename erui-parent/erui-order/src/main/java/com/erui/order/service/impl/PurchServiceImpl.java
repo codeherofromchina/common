@@ -168,7 +168,7 @@ public class PurchServiceImpl implements PurchService {
             List<PurchGoods> purchGoodsList = puch.getPurchGoodsList();
             if (purchGoodsList.size() > 0) {
                 for (PurchGoods purchGoods : purchGoodsList) {
-                    if (purchGoods.getPurchContractGoods()!=null){
+                    if (purchGoods.getPurchContractGoods() != null) {
                         purchGoods.setPcgId(purchGoods.getPurchContractGoods().getId());
                         purchGoods.getPurchContractGoods().setPurchGoods(null);
                         purchGoods.getPurchContractGoods().setGoods(null);
@@ -483,6 +483,7 @@ public class PurchServiceImpl implements PurchService {
             e.printStackTrace();
         }
     }
+
     //钉钉通知 审批人
     public void updateSupplierStatus(Integer purchId, String status) {
         //获取token
@@ -523,7 +524,6 @@ public class PurchServiceImpl implements PurchService {
                 if (code == 1) {
                     JSONObject data = jsonObject.getJSONObject("data");
                     //获取通知者姓名员工编号
-                    //userName = data.getString("name");
                     userNo = data.getString("user_no");
                     Long startTime = System.currentTimeMillis();
                     Date sendTime = new Date(startTime);
