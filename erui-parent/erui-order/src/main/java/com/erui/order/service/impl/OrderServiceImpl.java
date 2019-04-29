@@ -836,7 +836,11 @@ public class OrderServiceImpl implements OrderService {
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT2.getNum());
             backLogService.updateBackLogByDelYn(backLog2);
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_AUDIT.getNum());
-            backLogService.updateBackLogByDelYn(backLog2);
+            if (isComeMore) {
+                backLogService.updateBackLogByDelYnNew(backLog2, auditorId);
+            } else {
+                backLogService.updateBackLogByDelYn(backLog2);
+            }
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_AUDIT2.getNum());  //功能访问路径标识
             if (isComeMore) {
                 backLogService.updateBackLogByDelYnNew(backLog2, auditorId);
