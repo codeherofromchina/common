@@ -195,10 +195,10 @@ public class HttpRequest {
                     public void run() {
                         String jsonParam = "{\"purch_id\":\"" + 1098 + "\",\"status\":\"DRAFT\"}";
                         Map<String, String> header = new HashMap<>();
-                        header.put("Cookie", "eruitoken=9264d783bddd7ad2ba7571421314873e_018410");
+                        header.put("Cookie", " eruitoken=4948dc03f3e0a2fd6f7a791997de9b1b_018410");
                         header.put("Content-Type", "application/json");
                         header.put("accept", "*/*");
-                        String s1 = HttpRequest.sendPost("http://api.eruitest.com/V3/Purch/Purch/modify", jsonParam, header);
+                        String s1 = HttpRequest.sendPost("http://api2.erui.com/V3/Purch/Purch/modify", jsonParam, header);
                         System.out.println("返回状态" + s1);
                     }
                 }).start();
