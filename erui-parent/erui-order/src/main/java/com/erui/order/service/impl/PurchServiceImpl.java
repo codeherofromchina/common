@@ -168,12 +168,12 @@ public class PurchServiceImpl implements PurchService {
             List<PurchGoods> purchGoodsList = puch.getPurchGoodsList();
             if (purchGoodsList.size() > 0) {
                 for (PurchGoods purchGoods : purchGoodsList) {
-                    purchGoods.setgId(purchGoods.getGoods().getId());
                     if (purchGoods.getPurchContractGoods()!=null){
                         purchGoods.setPcgId(purchGoods.getPurchContractGoods().getId());
                         purchGoods.getPurchContractGoods().setPurchGoods(null);
                         purchGoods.getPurchContractGoods().setGoods(null);
                     }
+                    purchGoods.setgId(purchGoods.getGoods().getId());
                     purchGoods.getGoods().setPurchGoods(null);
                 }
             }
