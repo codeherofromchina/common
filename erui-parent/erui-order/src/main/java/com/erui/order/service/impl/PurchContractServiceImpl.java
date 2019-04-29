@@ -490,6 +490,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                 map.put("lowercasePrice", purchContract.getLowercasePrice());
                 map.put("capitalizedPrice", purchContract.getCapitalizedPrice());
                 map.put("type", purchContract.getType());
+                map.put("currencyBn", purchContract.getCurrencyBn());
                 list.add(map);
             }
             result = new PageImpl<Map<String, Object>>(list, pageRequest, pageList.getTotalElements());

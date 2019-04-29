@@ -178,7 +178,7 @@ public interface OrderService {
      * @param rejectFlag
      * @param auditingUserId
      */
-    void auditBackLogHandle(Order order, boolean rejectFlag, String auditingUserId);
+    void auditBackLogHandle(Order order, boolean rejectFlag, String auditingUserId, String auditorId, boolean isComeMore);
 
     void addOrderContract(XSSFWorkbook workbook, Map<String, Object> results);
 

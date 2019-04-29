@@ -653,6 +653,7 @@ public class OrderServiceImpl implements OrderService {
     public boolean audit(Order order, String auditorId, String auditorName, AddOrderVo addOrderVo) throws Exception {
         // rejectFlag true:驳回项目   false:审核项目
         StringBuilder auditorIds = null;
+        boolean isComeMore = Boolean.FALSE;// 是否来自并行的审批，且并行还没走完。
         if (order.getAudiRemark() != null) {
             auditorIds = new StringBuilder(order.getAudiRemark());
         } else {
@@ -775,6 +776,7 @@ public class OrderServiceImpl implements OrderService {
                         auditingProcess_i = "201"; // 无下一审核进度和审核人
                         auditingUserId_i = order.getTechnicalId().toString();
                     } else {
+                        isComeMore = true;
                         String replaceProcess = auditingProcess.replace("105", "");
                         auditingProcess_i = StringUtils.strip(replaceProcess, ",");
                         auditingUserId_i = StringUtils.strip(replace, ",");
@@ -790,6 +792,7 @@ public class OrderServiceImpl implements OrderService {
                         auditingProcess_i = "201"; // 无下一审核进度和审核人
                         auditingUserId_i = order.getTechnicalId().toString();//事业部负责人审核
                     } else {
+                        isComeMore = true;
                         String replaceProcess = auditingProcess.replace("106", "");
                         auditingProcess_i = StringUtils.strip(replaceProcess, ",");
                         auditingUserId_i = StringUtils.strip(replace2, ",");
@@ -811,37 +814,37 @@ public class OrderServiceImpl implements OrderService {
         order.setAuditingStatus(auditingStatus_i);
         order.setAudiRemark(auditorIds.toString());
         //并行时发送钉钉通知和待办
-        if (auditingUserId_i != null) {
-            if ("105,106".equals(auditingProcess_i)) {
-                String[] split = auditingUserId_i.split(",");
-                for (int n = 0; n < split.length; n++) {
-                    sendDingtalk(order, split[n], rejectFlag, 1);
-                }
-            } else {
-                sendDingtalk(order, auditingUserId_i, rejectFlag, 1);
+        if (auditingUserId_i != null && !isComeMore) {
+            String[] split = auditingUserId_i.split(",");
+            for (int n = 0; n < split.length; n++) {
+                sendDingtalk(order, split[n], rejectFlag, 1);
             }
         }
         orderDao.save(order);
-        auditBackLogHandle(order, rejectFlag, auditingUserId_i);
+        auditBackLogHandle(order, rejectFlag, auditingUserId_i, auditorId , isComeMore);
         return true;
     }
 
 
-    public void auditBackLogHandle(Order order, boolean rejectFlag, String auditingUserId) {
+    public void auditBackLogHandle(Order order, boolean rejectFlag, String auditingUserId, String auditorId, boolean isComeMore) {
         try {
             // 删除上一个待办
             BackLog backLog2 = new BackLog();
-            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_AUDIT.getNum());
             backLog2.setHostId(order.getId());
-            backLogService.updateBackLogByDelYn(backLog2);
-            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_AUDIT2.getNum());
-            backLogService.updateBackLogByDelYn(backLog2);
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT.getNum());
             backLogService.updateBackLogByDelYn(backLog2);
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT2.getNum());
             backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT.getNum());
+            backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT2.getNum());  //功能访问路径标识
+            if (isComeMore) {
+                backLogService.updateBackLogByDelYnNew(backLog2, auditorId);
+            } else {
+                backLogService.updateBackLogByDelYn(backLog2);
+            }
 
-            if (StringUtils.isNotBlank(auditingUserId) && !"201".equals(order.getAuditingProcess())) {
+            if (StringUtils.isNotBlank(auditingUserId) && !isComeMore) {
                 Integer[] userIdArr = Arrays.stream(auditingUserId.split(",")).map(vo -> Integer.parseInt(vo)).toArray(Integer[]::new);
                 // 推送待办事件
                 String region = order.getRegion();   //所属地区
@@ -1130,7 +1133,7 @@ public class OrderServiceImpl implements OrderService {
             backLog.setHostId(order.getId());
             backLogService.updateBackLogByDelYn(backLog);
 
-            auditBackLogHandle(orderUpdate, false, orderUpdate.getAuditingUserId());
+            auditBackLogHandle(orderUpdate, false, orderUpdate.getAuditingUserId(), null, false);
         }
         return order.getId();
     }
@@ -1434,7 +1437,7 @@ public class OrderServiceImpl implements OrderService {
             backLog.setHostId(order.getId());
             backLogService.updateBackLogByDelYn(backLog);
             // 推送审核内容
-            auditBackLogHandle(order1, false, order1.getAuditingUserId());
+            auditBackLogHandle(order1, false, order1.getAuditingUserId(), null, false);
 
         }
         return order1.getId();
