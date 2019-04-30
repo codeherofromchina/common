@@ -57,6 +57,7 @@ public class OrderServiceImpl implements OrderService {
         if (StringUtils.isNotBlank(auditingProcess2)) {
             if (auditingProcess2.equals(auditingProcess)) {
                 auditingStatus = 4;
+                auditingProcess2 = "";
             } else {
                 auditingProcess2 = auditingProcess2.replace(auditingProcess, "");
                 while (auditingProcess2.indexOf(",,") != -1) {
