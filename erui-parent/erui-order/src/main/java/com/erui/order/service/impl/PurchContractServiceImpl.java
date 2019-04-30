@@ -8,6 +8,10 @@ import com.erui.order.entity.*;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.PurchContractService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -501,7 +505,6 @@ public class PurchContractServiceImpl implements PurchContractService {
         return result;
     }
 
-
     /**
      * 查询所有可采购合同的id列表
      *
@@ -666,5 +669,260 @@ public class PurchContractServiceImpl implements PurchContractService {
         // 总价款
         son.setTotalPrice(purchasePrice.multiply(new BigDecimal(purchaseNum.intValue())));
         son.setUpdateTime(new Date());
+    }
+
+    /**
+     * 填充导出简易采购合同模板
+     *
+     * @param workbook
+     * @param purchContractId
+     * @throws Exception
+     */
+    @Override
+    public void simpleContractExcelData(XSSFWorkbook workbook, Integer purchContractId) throws Exception {
+        PurchContract purchContract = purchContractDao.findOne(purchContractId);
+        if(purchContract == null) return;
+
+        Date aa = new Date();
+        Calendar c = Calendar.getInstance();
+
+        Sheet sheet = workbook.getSheetAt(0);
+        Row row = sheet.getRow(1);
+        Cell cell = row.getCell(0);
+        // 合同编号
+        if(purchContract.getPurchContractNo() != null){
+            cell.setCellValue(cell.getStringCellValue().replace("purchContractNo", purchContract.getPurchContractNo()));
+        }
+        // 签订地点
+        if(purchContract.getSigningPlace() != null){
+            cell.setCellValue(cell.getStringCellValue().replace("signingPlace", purchContract.getSigningPlace()));
+        }
+        // 签订日期
+        if(purchContract.getSigningDate() != null){
+            Date signingDate = purchContract.getSigningDate();
+            c.setTime(signingDate);
+            cell.setCellValue(cell.getStringCellValue().replace("year", c.get(Calendar.YEAR) + ""));
+            cell.setCellValue(cell.getStringCellValue().replace("month", c.get(Calendar.MONTH)+1 + ""));
+            cell.setCellValue(cell.getStringCellValue().replace("day", c.get(Calendar.DAY_OF_MONTH) + ""));
+        }
+
+        row = sheet.getRow(4);
+        // 合计（含16%增值税专用发票）小写：
+        if(purchContract.getLowercasePrice() != null){
+            cell = row.getCell(0);
+            cell.setCellValue(cell.getStringCellValue().replace("lowercasePrice", purchContract.getLowercasePrice().toString()));
+        }
+        // （大写）
+        if(purchContract.getCapitalizedPrice() != null){
+            cell = row.getCell(0);
+            cell.setCellValue(cell.getStringCellValue().replace("capitalizedPrice", purchContract.getCapitalizedPrice()));
+        }
+
+        row = sheet.getRow(5);
+        // 1、货物皆为符合__的合格产品
+        if(purchContract.getPurchContractSimple().getProductRequirement() != null){
+            cell = row.getCell(1);
+            cell.setCellValue(cell.getStringCellValue().replace("productRequirement", purchContract.getPurchContractSimple().getProductRequirement()));
+        }
+        // 1、质保期自__ 。
+        if(purchContract.getPurchContractSimple().getWarrantyPeriod() != null){
+            cell = row.getCell(1);
+            cell.setCellValue(cell.getStringCellValue().replace("warrantyPeriod", purchContract.getPurchContractSimple().getWarrantyPeriod()));
+        }
+
+        row = sheet.getRow(7);
+        // 3、将货物于__前运送至
+        if(purchContract.getPurchContractSimple().getShippingDate() != null){
+            cell = row.getCell(1);
+            Date shippingDate = purchContract.getPurchContractSimple().getShippingDate();
+            c.setTime(shippingDate);
+            cell.setCellValue(cell.getStringCellValue().replace("year", c.get(Calendar.YEAR) + ""));
+            cell.setCellValue(cell.getStringCellValue().replace("month", c.get(Calendar.MONTH)+1 + ""));
+            cell.setCellValue(cell.getStringCellValue().replace("day", c.get(Calendar.DAY_OF_MONTH) + ""));
+        }
+        // 3、指定的地点：__。
+        if(purchContract.getPurchContractSimple().getDesignatedLocation() != null){
+            cell = row.getCell(1);
+            cell.setCellValue(cell.getStringCellValue().replace("designatedLocation", purchContract.getPurchContractSimple().getDesignatedLocation()));
+        }
+
+        row = sheet.getRow(8);
+        // 4、费用负担：__运
+        if(purchContract.getPurchContractSimple().getCostBurden() != null){
+            cell = row.getCell(1);
+            cell.setCellValue(cell.getStringCellValue().replace("costBurden", purchContract.getPurchContractSimple().getCostBurden()));
+        }
+
+        row = sheet.getRow(9);
+        // 5、合同第1条在__处检验
+        if(purchContract.getPurchContractSimple().getInspectionAt()!= null){
+            cell = row.getCell(1);
+            cell.setCellValue(cell.getStringCellValue().replace("inspectionAt", purchContract.getPurchContractSimple().getInspectionAt()));
+        }
+        // 5、并在__日内提出异议
+        if(purchContract.getPurchContractSimple().getWithinDays()!= null){
+            cell = row.getCell(1);
+            cell.setCellValue(cell.getStringCellValue().replace("withinDays", purchContract.getPurchContractSimple().getWithinDays()));
+        }
+
+        row = sheet.getRow(10);
+        // 6、结算方式及时间：__。
+        if(purchContract.getPurchContractSimple().getMethodAndTime()!= null){
+            cell = row.getCell(1);
+            cell.setCellValue(cell.getStringCellValue().replace("methodAndTime", purchContract.getPurchContractSimple().getMethodAndTime()));
+        }
+
+        row = sheet.getRow(13);
+        // 9、附《__技术协议》
+        if(purchContract.getPurchContractSimple().getAgreementName()!= null){
+            cell = row.getCell(1);
+            cell.setCellValue(cell.getStringCellValue().replace("agreementName", purchContract.getPurchContractSimple().getAgreementName()));
+        }
+
+
+        row = sheet.getRow(14);
+        // 出卖人：
+        if(purchContract.getPurchContractSignatoriesList().get(0).getSellerBuyer()!= null){
+            cell = row.getCell(0);
+            cell.setCellValue(cell.getStringCellValue().replace("sellerBuyer", purchContract.getPurchContractSignatoriesList().get(0).getSellerBuyer()));
+        }
+        // 买受人：
+        if(purchContract.getPurchContractSignatoriesList().get(1).getSellerBuyer()!= null){
+            cell = row.getCell(4);
+            cell.setCellValue(cell.getStringCellValue().replace("sellerBuyer", purchContract.getPurchContractSignatoriesList().get(1).getSellerBuyer()));
+        }
+
+        row = sheet.getRow(15);
+        // 法定代表人或授权代表：
+        if(purchContract.getPurchContractSignatoriesList().get(0).getLegalRepresentative()!= null){
+            cell = row.getCell(0);
+            cell.setCellValue(cell.getStringCellValue().replace("legalRepresentative", purchContract.getPurchContractSignatoriesList().get(0).getLegalRepresentative()));
+        }
+        // 法定代表人或授权代表：
+        if(purchContract.getPurchContractSignatoriesList().get(1).getLegalRepresentative()!= null){
+            cell = row.getCell(4);
+            cell.setCellValue(cell.getStringCellValue().replace("legalRepresentative", purchContract.getPurchContractSignatoriesList().get(1).getLegalRepresentative()));
+        }
+
+        row = sheet.getRow(16);
+        // 地址：
+        if(purchContract.getPurchContractSignatoriesList().get(0).getAddress()!= null){
+            cell = row.getCell(0);
+            cell.setCellValue(cell.getStringCellValue().replace("address", purchContract.getPurchContractSignatoriesList().get(0).getAddress()));
+        }
+        // 地址：
+        if(purchContract.getPurchContractSignatoriesList().get(1).getAddress()!= null){
+            cell = row.getCell(4);
+            cell.setCellValue(cell.getStringCellValue().replace("address", purchContract.getPurchContractSignatoriesList().get(1).getAddress()));
+        }
+
+        row = sheet.getRow(17);
+        // 开户行：
+        if(purchContract.getPurchContractSignatoriesList().get(0).getOpeningBank()!= null){
+            cell = row.getCell(0);
+            cell.setCellValue(cell.getStringCellValue().replace("openingBank", purchContract.getPurchContractSignatoriesList().get(0).getOpeningBank()));
+        }
+        // 开户行：
+        if(purchContract.getPurchContractSignatoriesList().get(1).getOpeningBank()!= null){
+            cell = row.getCell(4);
+            cell.setCellValue(cell.getStringCellValue().replace("openingBank", purchContract.getPurchContractSignatoriesList().get(1).getOpeningBank()));
+        }
+
+        row = sheet.getRow(18);
+        // 账号：
+        if(purchContract.getPurchContractSignatoriesList().get(0).getAccountNumber()!= null){
+            cell = row.getCell(0);
+            cell.setCellValue(cell.getStringCellValue().replace("accountNumber", purchContract.getPurchContractSignatoriesList().get(0).getAccountNumber()));
+        }
+        // 账号：
+        if(purchContract.getPurchContractSignatoriesList().get(1).getAccountNumber()!= null){
+            cell = row.getCell(4);
+            cell.setCellValue(cell.getStringCellValue().replace("accountNumber", purchContract.getPurchContractSignatoriesList().get(1).getAccountNumber()));
+        }
+
+        row = sheet.getRow(19);
+        // 统一社会信用代码证：
+        if(purchContract.getPurchContractSignatoriesList().get(0).getCreditCode()!= null){
+            cell = row.getCell(0);
+            cell.setCellValue(cell.getStringCellValue().replace("creditCode", purchContract.getPurchContractSignatoriesList().get(0).getCreditCode()));
+        }
+        // 统一社会信用代码证：
+        if(purchContract.getPurchContractSignatoriesList().get(1).getCreditCode()!= null){
+            cell = row.getCell(4);
+            cell.setCellValue(cell.getStringCellValue().replace("creditCode", purchContract.getPurchContractSignatoriesList().get(1).getCreditCode()));
+        }
+
+        row = sheet.getRow(20);
+        // 电话/传真
+        if(purchContract.getPurchContractSignatoriesList().get(0).getTelephoneFax()!= null){
+            cell = row.getCell(0);
+            cell.setCellValue(cell.getStringCellValue().replace("telephoneFax", purchContract.getPurchContractSignatoriesList().get(0).getTelephoneFax()));
+        }
+        // 电话/传真
+        if(purchContract.getPurchContractSignatoriesList().get(1).getTelephoneFax()!= null){
+            cell = row.getCell(4);
+            cell.setCellValue(cell.getStringCellValue().replace("telephoneFax", purchContract.getPurchContractSignatoriesList().get(1).getTelephoneFax()));
+        }
+
+        List<PurchContractGoods> goodsList = purchContract.getPurchContractGoodsList();
+
+        row = sheet.getRow(3);
+        // 商品信息
+        if(goodsList.get(0) != null){
+            row.getCell(1).setCellValue(goodsList.get(0).getGoods().getNameZh());
+            row.getCell(2).setCellValue(goodsList.get(0).getGoods().getModel());
+            row.getCell(3).setCellValue(goodsList.get(0).getPurchaseNum());
+            row.getCell(4).setCellValue(goodsList.get(0).getGoods().getUnit());
+            row.getCell(5).setCellValue(goodsList.get(0).getPurchasePrice() + "");
+            row.getCell(6).setCellValue(goodsList.get(0).getPurchaseTotalPrice() + "");
+        }
+        if(goodsList.size() > 1){
+            for (int i = 1; i< goodsList.size(); i++){
+                insertRow(sheet, i+2, 1);
+                row = sheet.getRow(3+i);
+                row.getCell(0).setCellValue(i+1);
+                row.getCell(1).setCellValue(goodsList.get(i).getGoods().getNameZh());
+                row.getCell(2).setCellValue(goodsList.get(i).getGoods().getModel());
+                row.getCell(3).setCellValue(goodsList.get(i).getPurchaseNum());
+                row.getCell(4).setCellValue(goodsList.get(i).getGoods().getUnit());
+                row.getCell(5).setCellValue(goodsList.get(i).getPurchasePrice() + "");
+                row.getCell(6).setCellValue(goodsList.get(i).getPurchaseTotalPrice() + "");
+
+            }
+        }
+
+    }
+
+    /**
+     * Excel 实现行的插入
+     *
+     */
+    private static void insertRow(Sheet sheet, int starRow, int rows) {
+
+        sheet.shiftRows(starRow + 1, sheet.getLastRowNum(), rows,true,false);
+        starRow = starRow - 1;
+        for (int i = 0; i < rows; i++) {
+
+            Row sourceRow = null;
+            Row targetRow = null;
+            Cell sourceCell = null;
+            Cell targetCell = null;
+            short m;
+
+            starRow = starRow + 1;
+            sourceRow = sheet.getRow(starRow);
+            targetRow = sheet.createRow(starRow + 1);
+            targetRow.setHeight(sourceRow.getHeight());
+
+            for (m = sourceRow.getFirstCellNum(); m < sourceRow.getLastCellNum(); m++) {
+
+                sourceCell = sourceRow.getCell(m);
+                targetCell = targetRow.createCell(m);
+
+                targetCell.setCellStyle(sourceCell.getCellStyle());
+                targetCell.setCellType(sourceCell.getCellType());
+
+            }
+        }
     }
 }
