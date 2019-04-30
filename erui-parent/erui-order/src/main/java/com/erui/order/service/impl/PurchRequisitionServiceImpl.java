@@ -324,7 +324,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 
         // 处理附件信息
         // Set<Attachment> attachments = attachmentService.handleParamAttachment(null, purchRequisition.getAttachmentSet(), null, null);
-        //purchRequisitionAdd.setAttachmentSet(purchRequisition.getAttachmentSet());
+        // purchRequisitionAdd.setAttachmentSet(purchRequisition.getAttachmentSet());
         ArrayList<Goods> list = new ArrayList<>();
         Map<Integer, Goods> goodsMap = project.getOrder().getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
         purchRequisition.getGoodsList().stream().forEach(dcGoods -> {
