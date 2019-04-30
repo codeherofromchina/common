@@ -177,6 +177,14 @@ public class ProjectV2ServiceImpl implements ProjectV2Service {
                     Map<String, Object> localVariables = new HashMap<>();
                     localVariables.put("audit_status","APPROVED");
                     BpmUtils.completeTask(project.getTaskId(), eruiToken, null, localVariables, "同意");
+                    // 设置下一流程进度，主要是因为当前项目操作中，异步回调此项目设置失败，再这里直接设置了
+                    projectUpdate.setAuditingProcess("task_pc,task_lg,task_pu");
+                    projectUpdate.setAuditingStatus(2); // 审核中
+                    String callerId = null;
+                    if (StringUtils.isNotBlank(eruiToken) && eruiToken.length() >= 6) {
+                        callerId = eruiToken.substring(eruiToken.length() - 6);
+                    }
+                    projectUpdate.setAudiRemark(callerId); // 设置审核人
                 }
             } else {
                 // 其他分支，错误
