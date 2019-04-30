@@ -294,7 +294,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean insertPurchRequisition(PurchRequisition purchRequisition) throws Exception {
-        //获取token
+        // 获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
         Project project = projectDao.findOne(purchRequisition.getProId());
         if (StringUtils.isNotBlank(purchRequisition.getProjectNo()) && purchRequisitionDao.countByProjectNo(purchRequisition.getProjectNo()) > 0) {
