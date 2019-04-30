@@ -1,5 +1,6 @@
 package com.erui.boss.web.order;
 
+import com.alibaba.fastjson.JSONObject;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.ThreadLocalUtil;
@@ -71,7 +72,6 @@ public class ProjectV2Controller {
         Project proStatus = projectV2Service.findById(project.getId());
         String errorMsg = null;
         try {
-
             if (proStatus == null) {
                 errorMsg = "项目不存在";
                 return new Result<>(ResultStatusEnum.FAIL).setMsg(errorMsg);

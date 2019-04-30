@@ -440,7 +440,6 @@ public class OrderV2ServiceImpl implements OrderV2Service {
                 task_fn_check = "Y";
             }
             bpmInitVar.put("task_fn_check", task_fn_check);
-            bpmInitVar.put("task_lg_check", "Y"); // 是否需要物流审批，现在是都需要物流审批
             switch (addOrderVo.getOrderCategory()) {
                 case 1:
                     // 预投订单
