@@ -130,7 +130,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     }
 
     //钉钉通知 审批人
-    private void sendDingtalk(PurchRequisition purchRequisition, String user, boolean rejectFlag) {
+    private void sendDingtalk(PurchRequisition purchRequisition, String user, boolean isSubClerk) {
         //获取token
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         new Thread(new Runnable() {
@@ -163,8 +163,11 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                     //发送钉钉通知
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("toUser=").append(userNo);
-                    if (!rejectFlag) {
+                    if (!isSubClerk) {
                         stringBuffer.append("&message=您好！项目号:" + purchRequisition.getProjectNo() + "已申请采购。请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                                "" + sendTime02 + "");
+                    }else{
+                        stringBuffer.append("&message=您好！项目号:" + purchRequisition.getProjectNo() + "已生成采购申请。请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
                                 "" + sendTime02 + "");
                     }
                     stringBuffer.append("&type=userNo");
