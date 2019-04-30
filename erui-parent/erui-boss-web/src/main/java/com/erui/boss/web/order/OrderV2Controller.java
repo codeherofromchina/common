@@ -140,9 +140,11 @@ public class OrderV2Controller {
     }
 
     /**
-     * 查询订单流程的所有节点
+     * 查询流程的所有审批节点
      *
-     * @param params
+     * @param params tenant      租户
+     *               category    业务流程类别
+     *               sub_category业务流程模块类别
      * @return
      */
     @RequestMapping(value = "nodes", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})

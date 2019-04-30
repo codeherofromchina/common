@@ -21,6 +21,14 @@ public class BpmStatusNodeServiceImpl implements BpmStatusNodeService {
     @Autowired
     private BpmStatusNodeMapper bpmStatusNodeMapper;
 
+    /**
+     * 查询流程的所有审批节点
+     *
+     * @param params tenant      租户
+     *               category    业务流程类别
+     *               sub_category业务流程模块类别
+     * @return
+     */
     @Override
     public List<BpmStatusNode> findNodeByCategory(Map<String, String> params) {
         List<BpmStatusNode> nodes = new ArrayList<>();
