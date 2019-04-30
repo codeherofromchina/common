@@ -7,6 +7,7 @@ import com.erui.order.v2.model.OrderWithBLOBs;
 import com.erui.order.v2.service.OrderService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +19,7 @@ import java.util.List;
  * @Auther 王晓丹
  * @Date 2019/4/28 下午2:17
  */
-@Service
+@Service("orderServiceImplV2")
 @Transactional(timeout = 500)
 public class OrderServiceImpl implements OrderService {
     @Autowired

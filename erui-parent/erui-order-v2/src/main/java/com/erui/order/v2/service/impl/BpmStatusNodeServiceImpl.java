@@ -4,6 +4,7 @@ import com.erui.order.v2.dao.BpmStatusNodeMapper;
 import com.erui.order.v2.model.BpmStatusNode;
 import com.erui.order.v2.service.BpmStatusNodeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,7 +15,7 @@ import java.util.Map;
 /**
  * Created by Sui Yingying on 2019/04/28.
  */
-@Service
+@Service("bpmStatusNodeServiceImplV2")
 @Transactional
 public class BpmStatusNodeServiceImpl implements BpmStatusNodeService {
     @Autowired

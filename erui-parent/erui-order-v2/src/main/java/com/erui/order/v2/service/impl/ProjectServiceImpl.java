@@ -5,6 +5,7 @@ import com.erui.order.v2.model.*;
 import com.erui.order.v2.service.ProjectService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,7 +15,7 @@ import java.util.List;
  * @Auther 王晓丹
  * @Date 2019/4/28 下午2:20
  */
-@Service
+@Service("projectServiceImplV2")
 @Transactional
 public class ProjectServiceImpl implements ProjectService {
     @Autowired
