@@ -16,6 +16,7 @@ import com.erui.order.event.PurchDoneCheckEvent;
 import com.erui.order.event.TasksAddEvent;
 import com.erui.order.requestVo.PurchParam;
 import com.erui.order.service.*;
+import com.erui.order.util.BpmUtils;
 import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
@@ -819,28 +820,31 @@ public class PurchServiceImpl implements PurchService {
         String eruiToken = (String) ThreadLocalUtil.getObject();
         Date now = new Date();
         String lastedByPurchNo = purchDao.findLastedByPurchNo();
-        Long count = purchDao.findCountByPurchNo(lastedByPurchNo);
-        if (count != null && count > 1) {
-            throw new Exception(String.format("%s%s%s", "采购合同号重复", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Repeat purchase contract number"));
+
+        for (int n = 0; n < 20; n++) {
+            lastedByPurchNo = StringUtil.genPurchNo(lastedByPurchNo);
+            // 判断最多20此，如果还是重复则报错
+            Long count = purchDao.findCountByPurchNo(lastedByPurchNo);
+            if (count != null && count == 0) {
+                break;
+            } else if (n == 19) {
+                throw new Exception(String.format("%s%s%s", "采购合同号重复", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Repeat purchase contract number"));
+            }
+            // 设置基础数据 自动生成采购合同号
         }
-        // 设置基础数据 自动生成采购合同号
-        purch.setPurchNo(StringUtil.genPurchNo(lastedByPurchNo));
+        purch.setPurchNo(lastedByPurchNo);
         purch.setSigningDate(NewDateUtil.getDate(purch.getSigningDate()));
         purch.setArrivalDate(NewDateUtil.getDate(purch.getArrivalDate()));
         purch.setCreateTime(now);
 
-        // 处理结算方式,新增，所以讲所有id设置为null，并添加新增时间
+        // 处理结算方式,新增，所以将所有id设置为null，并添加新增时间
         purch.getPurchPaymentList().parallelStream().forEach(vo -> {
             vo.setId(null);
             vo.setCreateTime(now);
         });
-        // 处理附件信息
-        //List<Attachment> attachments = attachmentService.handleParamAttachment(null, purch.getAttachments(), purch.getCreateUserId(), purch.getCreateUserName());
-        //purch.setAttachments(attachments);
         // 处理商品信息
         List<PurchGoods> purchGoodsList = new ArrayList<>();
         Set<Project> projectSet = new HashSet<>();
-        //List<Goods> updateGoods = new ArrayList<>();
         for (PurchGoods purchGoods : purch.getPurchGoodsList()) {
             // 检查是否传入采购数量或者替换商品
             Integer purchaseNum = purchGoods.getPurchaseNum(); // 获取采购数量
@@ -891,18 +895,12 @@ public class PurchServiceImpl implements PurchService {
         purch.setPurchGoodsList(purchGoodsList);
         List<Project> projectList = new ArrayList<>(projectSet);
         purch.setProjects(projectList);
-        // 保存采购单
-       /* if (purch.getProjects().size() > 0 && purch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
-            purch.setStatus(3);
-        }*/
         // 采购审批添加部分
         if (purch.getStatus() == Purch.StatusEnum.READY.getCode()) {
             purch.setAuditingStatus(0);
         } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-            purch.setAuditingProcess("21,22");
+            // 提交采购
             purch.setAuditingStatus(1);
-            purch.setAuditingUserId(String.format("%d,%d", purch.getPurchAuditerId(), purch.getBusinessAuditerId()));
-
         }
         CheckLog checkLog_i = null; //审批流日志
 
@@ -916,10 +914,13 @@ public class PurchServiceImpl implements PurchService {
             if (save.getPurchAuditerId() != null) {
                 sendDingtalk(purch, purch.getPurchAuditerId().toString(), false);
             }
-            checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
-            checkLogService.insert(checkLog_i);
-            // 待办
-            auditBackLogHandle(save, false, save.getAuditingUserId(), "", false);
+            // 提交业务流的采购合同订单流程
+            Map<String, Object> bpmInitVar = new HashMap<>();
+            bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
+            bpmInitVar.put("task_la_check", StringUtils.equals("1", purch.getContractVersion()) ? "Y" : "N"); // 标准版本
+            JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
+
+            save.setProcessId(processResp.getString("instanceId"));
         }
         if (save.getStatus() == 2) {
             List<Project> projects = save.getProjects();
@@ -1217,9 +1218,7 @@ public class PurchServiceImpl implements PurchService {
         if (purch.getStatus() == Purch.StatusEnum.READY.getCode()) {
             dbPurch.setAuditingStatus(0);
         } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-            dbPurch.setAuditingProcess("21,22");
             dbPurch.setAuditingStatus(1);
-            dbPurch.setAuditingUserId(String.format("%d,%d", purch.getPurchAuditerId(), purch.getBusinessAuditerId()));
         }
         CheckLog checkLog_i = null; //审批流日志
 
@@ -1239,7 +1238,13 @@ public class PurchServiceImpl implements PurchService {
             if (save.getPurchAuditerId() != null) {
                 sendDingtalk(purch, purch.getPurchAuditerId().toString(), false);
             }
-            auditBackLogHandle(dbPurch, false, dbPurch.getAuditingUserId(), "", false);
+            // 启动采购合同订单流程实例（purchase_order）
+            Map<String, Object> bpmInitVar = new HashMap<>();
+            bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
+            bpmInitVar.put("task_la_check", StringUtils.equals("1", purch.getContractVersion()) ? "Y" : "N"); // 标准版本
+            JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
+
+            save.setProcessId(processResp.getString("instanceId"));
         }
         if (save.getStatus() == 2) {
             List<Project> projects = save.getProjects();
@@ -1255,7 +1260,6 @@ public class PurchServiceImpl implements PurchService {
             }
 
         }
-
 
         // 检查项目是否已经采购完成
         List<Integer> projectIdList = projectSet.parallelStream().map(Project::getId).collect(Collectors.toList());
