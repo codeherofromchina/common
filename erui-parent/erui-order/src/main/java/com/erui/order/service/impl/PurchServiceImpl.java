@@ -911,9 +911,6 @@ public class PurchServiceImpl implements PurchService {
             attachmentService.addAttachments(purch.getAttachments(), save.getId(), Attachment.AttachmentCategory.PURCH.getCode());
         }
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-            if (save.getPurchAuditerId() != null) {
-                sendDingtalk(purch, purch.getPurchAuditerId().toString(), false);
-            }
             // 提交业务流的采购合同订单流程
             Map<String, Object> bpmInitVar = new HashMap<>();
             bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
@@ -921,6 +918,8 @@ public class PurchServiceImpl implements PurchService {
             JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
 
             save.setProcessId(processResp.getString("instanceId"));
+            save.setAuditingProcess("task_pu,task_pm"); // 第一个节点通知失败，写固定前两个并行的节点
+            save.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
         }
         if (save.getStatus() == 2) {
             List<Project> projects = save.getProjects();
@@ -1233,11 +1232,6 @@ public class PurchServiceImpl implements PurchService {
         attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbPurch.getId(), Attachment.AttachmentCategory.PURCH.getCode());
 
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-            checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
-            checkLogService.insert(checkLog_i);
-            if (save.getPurchAuditerId() != null) {
-                sendDingtalk(purch, purch.getPurchAuditerId().toString(), false);
-            }
             // 启动采购合同订单流程实例（purchase_order）
             Map<String, Object> bpmInitVar = new HashMap<>();
             bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
@@ -1245,6 +1239,8 @@ public class PurchServiceImpl implements PurchService {
             JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
 
             save.setProcessId(processResp.getString("instanceId"));
+            save.setAuditingProcess("task_pu,task_pm"); // 第一个节点通知失败，写固定前两个并行的节点
+            save.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
         }
         if (save.getStatus() == 2) {
             List<Project> projects = save.getProjects();
