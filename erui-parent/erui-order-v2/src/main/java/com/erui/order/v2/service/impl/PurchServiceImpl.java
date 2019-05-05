@@ -18,7 +18,7 @@ import java.util.List;
  * @Date 2019/4/28 下午2:17
  */
 @Service("purchServiceImplV2")
-@Transactional(timeout = 500)
+@Transactional
 public class PurchServiceImpl implements PurchService {
     @Autowired
     private PurchMapper purchMapper;
@@ -54,6 +54,7 @@ public class PurchServiceImpl implements PurchService {
         if (StringUtils.isNotBlank(auditingProcess2)) {
             if (auditingProcess2.equals(auditingProcess)) {
                 auditingStatus = 4;
+                auditingProcess2 = "";
             } else {
                 auditingProcess2 = auditingProcess2.replace(auditingProcess, "");
                 while (auditingProcess2.indexOf(",,") != -1) {
