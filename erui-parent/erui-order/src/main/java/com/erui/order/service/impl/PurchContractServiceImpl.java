@@ -803,9 +803,18 @@ public class PurchContractServiceImpl implements PurchContractService {
             end = start + purchContract.getPurchContractSimple().getInspectionAt().length() + 4;
             richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 inspectionAt 字段加下划线
 
+            int redStart = end + "处检验，".length();
+            int redEnd = redStart + purchContract.getPurchContractSimple().getWithinDays().length() + 4 + "日内提出异议".length();
+            Font redFont = ExcelUploadUtil.getFont(workbook, 10, "宋体");
+            richString.applyFont(redEnd, content.length(), redFont);
+            redFont.setColor(Font.COLOR_RED);
+            richString.applyFont(redStart, redEnd, redFont);// 给并在 withinDays 日内提出异议字段设置红色字体
+
             start = end + "处检验，并在".length();
             end = start + purchContract.getPurchContractSimple().getWithinDays().length() + 2;
-            richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 withinDays 字段加下划线
+            richString.applyFont(end, redEnd, redFont);
+            redFont.setUnderline(Font.U_SINGLE);
+            richString.applyFont(start, end, redFont);// 给 withinDays 字段加下划线
 
             cell.setCellValue(richString);
         }
