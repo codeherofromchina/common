@@ -1,17 +1,14 @@
 package com.erui.order.dao;
 
-import com.erui.order.entity.Order;
 import com.erui.order.entity.Purch;
 import com.erui.order.model.SaleStatistics;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by wangxiaodan on 2018/4/2.
