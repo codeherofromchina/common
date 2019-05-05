@@ -80,7 +80,8 @@ public class ProjectV2Controller {
             ThreadLocalUtil.setObject(eruiToken);
 
             Order order = proStatus.getOrder();
-            if (!"task_pm".equals(order.getAuditingProcess())) {
+            if (StringUtils.isNotBlank(project.getTaskId()) && !"task_pm".equals(order.getAuditingProcess())) {
+                // 项目完成任务时需要判断当前任务是否在task_pm节点上
                 // 订单未在项目负责人审批，则项目办理失败
                 return new Result<>(ResultStatusEnum.PROJECT_NOT_EXIST);
             }
