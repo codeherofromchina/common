@@ -863,7 +863,6 @@ public class PurchServiceImpl implements PurchService {
             // 必须是已创建采购申请单并未完成采购的项目
             if (Project.PurchReqCreateEnum.valueOfCode(project.getPurchReqCreate()) != Project.PurchReqCreateEnum.SUBMITED) {
                 throw new Exception(String.format("%s%s%s", "项目必须提交采购申请", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The project must submit a purchase application"));
-
             }
             if (project.getPurchDone()) {
                 throw new Exception(String.format("%s%s%s", "项目采购已完成，不能再次采购", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project procurement has been completed and can not be repurchased"));
@@ -916,7 +915,6 @@ public class PurchServiceImpl implements PurchService {
             bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
             bpmInitVar.put("task_la_check", StringUtils.equals("1", purch.getContractVersion()) ? "Y" : "N"); // 标准版本
             JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
-
             save.setProcessId(processResp.getString("instanceId"));
             save.setAuditingProcess("task_pu,task_pm"); // 第一个节点通知失败，写固定前两个并行的节点
             save.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
@@ -1232,13 +1230,20 @@ public class PurchServiceImpl implements PurchService {
         attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbPurch.getId(), Attachment.AttachmentCategory.PURCH.getCode());
 
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-            // 启动采购合同订单流程实例（purchase_order）
-            Map<String, Object> bpmInitVar = new HashMap<>();
-            bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
-            bpmInitVar.put("task_la_check", StringUtils.equals("1", purch.getContractVersion()) ? "Y" : "N"); // 标准版本
-            JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
-
-            save.setProcessId(processResp.getString("instanceId"));
+            String taskId = purch.getTaskId();
+            if (StringUtils.isBlank(taskId)) {
+                // 启动采购合同订单流程实例（purchase_order）
+                Map<String, Object> bpmInitVar = new HashMap<>();
+                bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
+                bpmInitVar.put("task_la_check", StringUtils.equals("1", purch.getContractVersion()) ? "Y" : "N"); // 标准版本
+                JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
+                save.setProcessId(processResp.getString("instanceId"));
+            } else {
+                // 完善订单任务调用
+                Map<String, Object> localVariables = new HashMap<>();
+                localVariables.put("audit_status","APPROVED");
+                BpmUtils.completeTask(taskId, eruiToken, null, localVariables, "同意");
+            }
             save.setAuditingProcess("task_pu,task_pm"); // 第一个节点通知失败，写固定前两个并行的节点
             save.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
         }

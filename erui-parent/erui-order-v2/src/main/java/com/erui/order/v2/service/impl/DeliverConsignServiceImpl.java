@@ -3,6 +3,7 @@ package com.erui.order.v2.service.impl;
 import com.erui.order.v2.dao.DeliverConsignMapper;
 import com.erui.order.v2.model.*;
 import com.erui.order.v2.service.DeliverConsignService;
+import com.erui.order.v2.service.EmployeeService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -22,6 +23,8 @@ import java.util.List;
 public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Autowired
     private DeliverConsignMapper deliverConsignMapper;
+    @Autowired
+    private EmployeeService employeeService;
 
     /**
      * 根据业务流的实例ID查找出口通知单信息
@@ -66,12 +69,14 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             auditingStatus = 4;
         }
         // 设置审核人
+        // 通过工号查找用户ID
+        Long userId = employeeService.findIdByUserNo(assignee);
         if (StringUtils.isNotBlank(audiRemark)) {
-            if (StringUtils.isNotBlank(assignee) && !audiRemark.contains("," + assignee + ",")) {
-                audiRemark += "," + assignee + ",";
+            if (userId != null && !audiRemark.contains("," + userId + ",")) {
+                audiRemark += "," + userId + ",";
             }
-        } else if (StringUtils.isNotBlank(assignee)) {
-            audiRemark = "," + assignee + ",";
+        } else if (userId != null) {
+            audiRemark = "," + userId + ",";
         }
         // 更新修正后的状态
         DeliverConsign deliverConsignSelective = new DeliverConsign();

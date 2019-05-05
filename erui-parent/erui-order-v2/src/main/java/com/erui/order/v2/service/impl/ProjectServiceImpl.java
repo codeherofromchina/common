@@ -2,6 +2,7 @@ package com.erui.order.v2.service.impl;
 
 import com.erui.order.v2.dao.ProjectMapper;
 import com.erui.order.v2.model.*;
+import com.erui.order.v2.service.EmployeeService;
 import com.erui.order.v2.service.ProjectService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,8 @@ import java.util.List;
 public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private ProjectMapper projectMapper;
+    @Autowired
+    private EmployeeService employeeService;
 
 
     public Project findProjectByProcessId(String processId) {
@@ -59,12 +62,14 @@ public class ProjectServiceImpl implements ProjectService {
             auditingStatus = 4;
         }
         // 设置审核人
+        // 通过工号查找用户ID
+        Long userId = employeeService.findIdByUserNo(assignee);
         if (StringUtils.isNotBlank(audiRemark)) {
-            if (StringUtils.isNotBlank(assignee) && !audiRemark.contains("," + assignee + ",")) {
-                audiRemark += "," + assignee + ",";
+            if (userId != null && !audiRemark.contains("," + userId + ",")) {
+                audiRemark += "," + userId + ",";
             }
-        } else if (StringUtils.isNotBlank(assignee)) {
-            audiRemark = "," + assignee + ",";
+        } else if (userId != null) {
+            audiRemark = "," + userId + ",";
         }
         // 更新修正后的状态
         Project projectSelective = new Project();
