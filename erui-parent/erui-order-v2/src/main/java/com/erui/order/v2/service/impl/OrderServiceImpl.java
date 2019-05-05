@@ -70,7 +70,7 @@ public class OrderServiceImpl implements OrderService {
         }
         // 设置审核人
         if (StringUtils.isNotBlank(audiRemark)) {
-            if (StringUtils.isNotBlank(assignee)) {
+            if (StringUtils.isNotBlank(assignee) && !audiRemark.contains("," + assignee + ",")) {
                 audiRemark += "," + assignee + ",";
             }
         } else if (StringUtils.isNotBlank(assignee)) {

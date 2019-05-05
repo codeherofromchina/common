@@ -54,6 +54,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if (StringUtils.isNotBlank(auditingProcess2)) {
             if (auditingProcess2.equals(auditingProcess)) {
                 auditingStatus = 4;
+                auditingProcess2 = "";
             } else {
                 auditingProcess2 = auditingProcess2.replace(auditingProcess, "");
                 while (auditingProcess2.indexOf(",,") != -1) {
@@ -66,7 +67,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         // 设置审核人
         if (StringUtils.isNotBlank(audiRemark)) {
-            if (StringUtils.isNotBlank(assignee)) {
+            if (StringUtils.isNotBlank(assignee) && !audiRemark.contains("," + assignee + ",")) {
                 audiRemark += "," + assignee + ",";
             }
         } else if (StringUtils.isNotBlank(assignee)) {
