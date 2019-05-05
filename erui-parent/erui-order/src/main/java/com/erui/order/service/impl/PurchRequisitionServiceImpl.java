@@ -130,7 +130,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     }
 
     //钉钉通知 审批人
-    private void sendDingtalk(PurchRequisition purchRequisition, String user, boolean rejectFlag) {
+    private void sendDingtalk(PurchRequisition purchRequisition, String user, boolean isSubClerk) {
         //获取token
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         new Thread(new Runnable() {
@@ -163,8 +163,11 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                     //发送钉钉通知
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("toUser=").append(userNo);
-                    if (!rejectFlag) {
+                    if (!isSubClerk) {
                         stringBuffer.append("&message=您好！项目号:" + purchRequisition.getProjectNo() + "已申请采购。请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                                "" + sendTime02 + "");
+                    }else{
+                        stringBuffer.append("&message=您好！项目号:" + purchRequisition.getProjectNo() + "已生成采购申请。请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
                                 "" + sendTime02 + "");
                     }
                     stringBuffer.append("&type=userNo");
@@ -291,7 +294,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean insertPurchRequisition(PurchRequisition purchRequisition) throws Exception {
-        //获取token
+        // 获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
         Project project = projectDao.findOne(purchRequisition.getProId());
         if (StringUtils.isNotBlank(purchRequisition.getProjectNo()) && purchRequisitionDao.countByProjectNo(purchRequisition.getProjectNo()) > 0) {
@@ -321,7 +324,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 
         // 处理附件信息
         // Set<Attachment> attachments = attachmentService.handleParamAttachment(null, purchRequisition.getAttachmentSet(), null, null);
-        //purchRequisitionAdd.setAttachmentSet(purchRequisition.getAttachmentSet());
+        // purchRequisitionAdd.setAttachmentSet(purchRequisition.getAttachmentSet());
         ArrayList<Goods> list = new ArrayList<>();
         Map<Integer, Goods> goodsMap = project.getOrder().getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
         purchRequisition.getGoodsList().stream().forEach(dcGoods -> {
