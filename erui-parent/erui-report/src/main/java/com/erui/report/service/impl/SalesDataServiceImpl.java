@@ -12,7 +12,6 @@ import com.erui.report.util.AnalyzeTypeEnum;
 import com.erui.report.util.SetList;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -21,11 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.function.DoubleToIntFunction;
 import java.util.stream.Collectors;
 
 @Service
@@ -1038,10 +1035,10 @@ public class SalesDataServiceImpl extends BaseService<SalesDataMapper> implement
         //查询各大区每天的拜访次数
         List<Map<String, Object>> dataList = readMapper.selectVisitCountGrupByAreaAndVisitTime(params);
         //查询各大区有多少员工
-        List<Map<String, Object>> employeeList = readMapper.selectEmployeeCountGroupByArea();
-        Map<String, Integer> eMap = employeeList.stream().collect(Collectors.toMap(m -> m.get("area").toString(), m -> Integer.parseInt(m.get("employeeCount").toString())));
+        List<Map<String, Object>> userList = readMapper.selectUserCountGroupByArea();
+        Map<String, Integer> eMap = userList.stream().collect(Collectors.toMap(m -> m.get("area").toString(), m -> Integer.parseInt(m.get("userCount").toString())));
         //获取大区集合
-        List<String> areaList = employeeList.stream().map(m -> m.get("area").toString()).collect(Collectors.toList());
+        List<String> areaList = userList.stream().map(m -> m.get("area").toString()).collect(Collectors.toList());
 
         if (params.get("type").equals("week")) {//处理为周的数据
 

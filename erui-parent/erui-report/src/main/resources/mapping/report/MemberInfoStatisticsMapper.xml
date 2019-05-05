@@ -84,14 +84,14 @@
         FROM
         erui_buyer.buyer_visit AS bv,
         erui_buyer.buyer b,
-        erui_sys.employee t1,
-        erui_sys.org_member t2,
-        erui_sys.org t3
+        erui_sys.user t1,
+        erui_sys.group_user t2,
+        erui_sys.group t3
         WHERE
         bv.created_by = t1.id
         AND b.id = bv.buyer_id
-        AND t1.id = t2.employee_id
-        AND t2.org_id = t3.id
+        AND t1.id = t2.user_id
+        AND t2.group_id = t3.id
         AND bv.visit_at BETWEEN #{startTime} AND #{endTime}
         AND t3.deleted_flag = 'N'
         AND t1.deleted_flag = 'N'
@@ -418,7 +418,7 @@
         FROM
         erui_order.`order` AS t1
         LEFT JOIN
-        erui_sys.org t3 ON t1.business_unit_id = t3.id
+        erui_sys.group t3 ON t1.business_unit_id = t3.id
         AND t3.deleted_flag = 'N',
         erui_order.`project` AS t2
         WHERE

@@ -569,8 +569,8 @@
     </select>
 
     <!-- 查询各大区有多少员工-->
-    <select id="selectEmployeeCountGroupByArea" resultType="java.util.Map">
-        SELECT count(DISTINCT(member.employee_id))  as employeeCount ,areasCh.name as area
+    <select id="selectUserCountGroupByArea" resultType="java.util.Map">
+        SELECT count(DISTINCT(member.user_id))  as userCount ,areasCh.name as area
         FROM   erui_sys.country_member  AS member
         LEFT JOIN  erui_operation.market_area_country AS areasBn
         on  member.country_bn=areasBn.country_bn

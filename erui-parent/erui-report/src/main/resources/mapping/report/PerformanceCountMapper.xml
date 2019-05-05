@@ -95,7 +95,7 @@
 
     <!--查询人员 销售业绩明细 -->
     <select id="selectObtainerPerformance" parameterType="java.util.Map" resultType="java.util.Map">
-      SELECT p.area AS area ,p.execute_company AS country ,p.obtainer AS employee,
+      SELECT p.area AS area ,p.execute_company AS country ,p.obtainer AS user,
       (case WHEN s.station IS NULL THEN '无' ELSE s.station END )as job ,
       SUM(IFNULL(p.project_amount,0))/10000 AS totalPerformance ,
       SUM((CASE WHEN p.sign_company='易瑞' THEN IFNULL(p.project_amount,0) ELSE 0 END ))/10000 AS eruiPerformance,
