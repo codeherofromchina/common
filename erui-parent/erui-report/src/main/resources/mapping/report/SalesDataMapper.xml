@@ -248,7 +248,7 @@
         AND t3.log_inquiry_id = t1.id
         ) AS a
         LEFT JOIN
-        `erui_sys`.`org` `e` ON `a`.`org_id` = `e`.`id`
+        `erui_sys`.`user` `e` ON `a`.`org_id` = `e`.`id`
         AND `e`.`deleted_flag` = 'N'
         GROUP BY `e`.`name`
         HAVING `e`.`name` IS NOT NULL
