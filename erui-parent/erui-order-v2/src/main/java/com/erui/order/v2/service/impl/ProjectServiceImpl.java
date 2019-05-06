@@ -105,4 +105,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
 
+    @Override
+    public void updateProcessCompleted(String processInstanceId) {
+
+    }
 }

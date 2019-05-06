@@ -110,4 +110,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignSelective.setTaskId(taskId);
         deliverConsignMapper.updateByPrimaryKeySelective(deliverConsignSelective);
     }
+
+    @Override
+    public void updateProcessCompleted(String processInstanceId) {
+
+    }
 }

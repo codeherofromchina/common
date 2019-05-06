@@ -42,8 +42,8 @@ public class BpmNotifyController {
      *
      * @param params
      */
-    @RequestMapping(value = "onCompleted", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result onCompleted(@RequestBody Map<String, String> params) {
+    @RequestMapping(value = "taskCompleted", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result taskCompleted(@RequestBody Map<String, String> params) {
         // 验证安全性，// 如果秘钥不正确，返回失败
         if (!validate(params.get("key"))) {
             return new Result<>(ResultStatusEnum.FAIL);
@@ -73,11 +73,45 @@ public class BpmNotifyController {
         return result;
     }
 
+
+
+    /**
+     * 业务流实例完成通知
+     *
+     * @param params
+     */
+    @RequestMapping(value = "processCompleted", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result completedCompleted(@RequestBody Map<String, String> params) {
+        // 验证安全性，// 如果秘钥不正确，返回失败
+        if (!validate(params.get("key"))) {
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
+        Result<Object> result = new Result<>();
+        // 检查参数
+        String processInstanceId = params.get("processInstanceId");
+        String businessKey = params.get("businessKey");
+        if (StringUtils.isAnyBlank(businessKey, processInstanceId)) {
+            result.setStatus(ResultStatusEnum.PARAM_ERROR);
+        }
+        if (businessKey.startsWith("order:")) {
+            // 订单审核流程
+            orderService.updateProcessCompleted(processInstanceId);
+            projectService.updateProcessCompleted(processInstanceId);
+        } else if (businessKey.startsWith("deliver_consign:")) {
+            // 订舱审核流程
+            deliverConsignService.updateProcessCompleted(processInstanceId);
+        } else if (businessKey.startsWith("purch:")) {
+            // 采购审核流程
+            purchService.updateProcessCompleted(processInstanceId);
+        }
+        return result;
+    }
+
     /**
      * 任务新建通知，新增流程进度
      */
-    @RequestMapping(value = "onCreated", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result onCreated(@RequestBody BpmTaskRuntime bpmTaskRuntime) {
+    @RequestMapping(value = "taskCreated", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result taskCreated(@RequestBody BpmTaskRuntime bpmTaskRuntime) {
         // 验证安全性
         if (!validate(bpmTaskRuntime.getKey())) {
             // 如果秘钥不正确，什么也不返回

@@ -32,4 +32,10 @@ public interface OrderService {
      * @param auditingProcess
      */
     void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId);
+
+    /**
+     * 业务流实例执行结束更新
+     * @param processInstanceId
+     */
+    void updateProcessCompleted(String processInstanceId);
 }

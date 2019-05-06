@@ -111,4 +111,9 @@ public class PurchServiceImpl implements PurchService {
         purchSelective.setTaskId(taskId);
         purchMapper.updateByPrimaryKeySelective(purchSelective);
     }
+
+    @Override
+    public void updateProcessCompleted(String processInstanceId) {
+
+    }
 }

@@ -115,4 +115,9 @@ public class OrderServiceImpl implements OrderService {
         orderSelective.setTaskId(taskId);
         orderMapper.updateByPrimaryKeySelective(orderSelective);
     }
+
+    @Override
+    public void updateProcessCompleted(String processInstanceId) {
+        // 空实现
+    }
 }
