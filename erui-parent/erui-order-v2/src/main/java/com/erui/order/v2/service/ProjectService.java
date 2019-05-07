@@ -2,6 +2,8 @@ package com.erui.order.v2.service;
 
 import com.erui.order.v2.model.Project;
 
+import java.util.List;
+
 /**
  * @Auther 王晓丹
  * @Date 2019/4/28 下午2:16
@@ -37,4 +39,11 @@ public interface ProjectService {
      * @return
      */
     Project findProjectByOrderId(Integer orderId);
+
+    /**
+     * 查找所有采购相关的项目列表
+     * @param purchId
+     * @return
+     */
+    List<Project> findProjectsByPurchId(Integer purchId);
 }

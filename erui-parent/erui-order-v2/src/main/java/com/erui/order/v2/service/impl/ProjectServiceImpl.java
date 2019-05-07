@@ -1,6 +1,7 @@
 package com.erui.order.v2.service.impl;
 
 import com.erui.order.v2.dao.ProjectMapper;
+import com.erui.order.v2.dao.PurchProjectMapper;
 import com.erui.order.v2.model.*;
 import com.erui.order.v2.service.EmployeeService;
 import com.erui.order.v2.service.ProjectService;
@@ -10,7 +11,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Auther 王晓丹
@@ -21,6 +24,8 @@ import java.util.List;
 public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private ProjectMapper projectMapper;
+    @Autowired
+    private PurchProjectMapper purchProjectMapper;
     @Autowired
     private EmployeeService employeeService;
 
@@ -119,5 +124,29 @@ public class ProjectServiceImpl implements ProjectService {
             return projects.get(0);
         }
         return null;
+    }
+
+    /**
+     * 查找所有采购相关的项目列表
+     * @param purchId
+     * @return
+     */
+    @Override
+    public List<Project> findProjectsByPurchId(Integer purchId) {
+        List<Project> projects = null;
+        PurchProjectExample purchProjectExample = new PurchProjectExample();
+        purchProjectExample.createCriteria().andPurchIdEqualTo(purchId);
+        List<PurchProjectKey> purchProjectKeys = purchProjectMapper.selectByExample(purchProjectExample);
+        if (purchProjectKeys != null && purchProjectKeys.size() > 0) {
+            List<Integer> projectIds = purchProjectKeys.stream().map(vo -> vo.getProjectId()).collect(Collectors.toList());
+            ProjectExample projectExample = new ProjectExample();
+            projectExample.createCriteria().andIdIn(projectIds);
+            projects = projectMapper.selectByExample(projectExample);
+        }
+
+        if (projects == null) {
+            projects = new ArrayList<>();
+        }
+        return projects;
     }
 }

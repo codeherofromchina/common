@@ -3,6 +3,7 @@ package com.erui.order.v2.service.impl;
 import com.erui.order.v2.dao.PurchMapper;
 import com.erui.order.v2.model.*;
 import com.erui.order.v2.service.EmployeeService;
+import com.erui.order.v2.service.ProjectService;
 import com.erui.order.v2.service.PurchService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,8 @@ public class PurchServiceImpl implements PurchService {
     private PurchMapper purchMapper;
     @Autowired
     private EmployeeService employeeService;
+    @Autowired
+    private ProjectService projectService;
 
     /**
      * 根据业务流的实例ID查找订单信息
@@ -114,6 +117,18 @@ public class PurchServiceImpl implements PurchService {
 
     @Override
     public void updateProcessCompleted(String processInstanceId) {
-
+        // 查询采购
+        Purch purch = findPurchByProcessId(processInstanceId);
+        if (purch == null) {
+            return;
+        }
+        List<Project> projects = projectService.findProjectsByPurchId(purch.getId());
+        if (projects.size() > 0) {
+            Integer orderCategory = projects.get(0).getOrderCategory();
+            Integer status = purch.getStatus();
+            if (orderCategory != null && orderCategory == 6 && status != null && status > 1) {
+                purch.setStatus(Purch.StatusEnum.DONE.getCode());
+            }
+        }
     }
 }

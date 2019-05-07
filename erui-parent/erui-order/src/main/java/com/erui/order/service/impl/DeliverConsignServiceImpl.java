@@ -727,7 +727,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     public String createDeliverDetailNo() {
         SimpleDateFormat simpleDateFormats = new SimpleDateFormat("yyyy");
-
         //查询最近插入的产品放行单
         String deliverDetailNo = deliverDetailDao.findDeliverDetailNo();
         if (deliverDetailNo == null) {
@@ -743,7 +742,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 return formats + String.format("%04d", 1);     //第一个
             }
         }
-
     }
 
     //  出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)

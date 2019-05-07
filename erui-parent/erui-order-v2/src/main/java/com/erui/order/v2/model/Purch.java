@@ -603,4 +603,48 @@ public class Purch {
     public void setRemarks(String remarks) {
         this.remarks = remarks;
     }
+
+
+    /**
+     * 采购状态枚举
+     */
+    public static enum StatusEnum {
+        READY(1, "未进行/保存"), BEING(2, "进行中/提交"), DONE(3, "已完成");
+
+        private int code;
+        private String msg;
+
+        private StatusEnum(int code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+
+        /**
+         * 通过code码获取采购状态信息
+         *
+         * @param code
+         * @return
+         */
+        public static StatusEnum fromCode(Integer code) {
+            if (code != null) {
+                int code02 = code; // 拆箱一次
+                for (StatusEnum s : StatusEnum.values()) {
+                    if (code02 == s.code) {
+                        return s;
+                    }
+                }
+            }
+            return null;
+        }
+
+    }
+
 }
