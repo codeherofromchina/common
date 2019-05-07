@@ -79,7 +79,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                 }
             }
             attachment1.copyBaseInfoTo(attachment);
-            //设置附件关联id 和附件类型
+            // 设置附件关联id 和附件类型
             attachment.setRelObjId(relObjId);
             attachment.setCategory(category);
             addAttachments.add(attachment);

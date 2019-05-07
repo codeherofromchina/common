@@ -2,10 +2,16 @@ package com.erui.power.model;
 
 import java.util.Date;
 
-public class Employee {
+public class User {
     private Long id;
 
+    private String tenant;
+
     private String userNo;
+
+    private String name;
+
+    private String nickName;
 
     private String email;
 
@@ -13,13 +19,9 @@ public class Employee {
 
     private String passwordHash;
 
-    private String name;
+    private String post;
 
-    private String nameEn;
-
-    private String showName;
-
-    private String employeeFlag;
+    private String userFlag;
 
     private String citizenship;
 
@@ -37,25 +39,13 @@ public class Employee {
 
     private String status;
 
+    private String passwordStatus;
+
     private Long createdBy;
 
     private Date createdAt;
 
     private String deletedFlag;
-
-    private String feedback;
-
-    private String imToken;
-
-    private String loginStatus;
-
-    private String organization;
-
-    private String passwordStatus;
-
-    private String profession;
-
-    private String password;
 
     public Long getId() {
         return id;
@@ -65,12 +55,36 @@ public class Employee {
         this.id = id;
     }
 
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
+    }
+
     public String getUserNo() {
         return userNo;
     }
 
     public void setUserNo(String userNo) {
         this.userNo = userNo;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
     }
 
     public String getEmail() {
@@ -97,36 +111,20 @@ public class Employee {
         this.passwordHash = passwordHash;
     }
 
-    public String getName() {
-        return name;
+    public String getPost() {
+        return post;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setPost(String post) {
+        this.post = post;
     }
 
-    public String getNameEn() {
-        return nameEn;
+    public String getUserFlag() {
+        return userFlag;
     }
 
-    public void setNameEn(String nameEn) {
-        this.nameEn = nameEn;
-    }
-
-    public String getShowName() {
-        return showName;
-    }
-
-    public void setShowName(String showName) {
-        this.showName = showName;
-    }
-
-    public String getEmployeeFlag() {
-        return employeeFlag;
-    }
-
-    public void setEmployeeFlag(String employeeFlag) {
-        this.employeeFlag = employeeFlag;
+    public void setUserFlag(String userFlag) {
+        this.userFlag = userFlag;
     }
 
     public String getCitizenship() {
@@ -193,6 +191,14 @@ public class Employee {
         this.status = status;
     }
 
+    public String getPasswordStatus() {
+        return passwordStatus;
+    }
+
+    public void setPasswordStatus(String passwordStatus) {
+        this.passwordStatus = passwordStatus;
+    }
+
     public Long getCreatedBy() {
         return createdBy;
     }
@@ -215,61 +221,5 @@ public class Employee {
 
     public void setDeletedFlag(String deletedFlag) {
         this.deletedFlag = deletedFlag;
-    }
-
-    public String getFeedback() {
-        return feedback;
-    }
-
-    public void setFeedback(String feedback) {
-        this.feedback = feedback;
-    }
-
-    public String getImToken() {
-        return imToken;
-    }
-
-    public void setImToken(String imToken) {
-        this.imToken = imToken;
-    }
-
-    public String getLoginStatus() {
-        return loginStatus;
-    }
-
-    public void setLoginStatus(String loginStatus) {
-        this.loginStatus = loginStatus;
-    }
-
-    public String getOrganization() {
-        return organization;
-    }
-
-    public void setOrganization(String organization) {
-        this.organization = organization;
-    }
-
-    public String getPasswordStatus() {
-        return passwordStatus;
-    }
-
-    public void setPasswordStatus(String passwordStatus) {
-        this.passwordStatus = passwordStatus;
-    }
-
-    public String getProfession() {
-        return profession;
-    }
-
-    public void setProfession(String profession) {
-        this.profession = profession;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 }
