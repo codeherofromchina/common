@@ -117,6 +117,19 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public Order findOrderById(Integer orderId) {
+        OrderWithBLOBs orderWithBLOBs = orderMapper.selectByPrimaryKey(orderId);
+        return orderWithBLOBs;
+    }
+
+
+    @Override
+    public void updateById(Integer id,Order order) {
+        order.setId(id);
+        orderMapper.updateByPrimaryKey(order);
+    }
+
+    @Override
     public void updateProcessCompleted(String processInstanceId) {
         // 空实现
     }

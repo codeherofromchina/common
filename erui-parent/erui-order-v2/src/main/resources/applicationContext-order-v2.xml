@@ -10,7 +10,13 @@
     <context:annotation-config />
     <context:component-scan base-package="com.erui.order.v2"/>
     <context:property-placeholder ignore-unresolvable="true" location="classpath:jdbc-order-v2.properties"/>
-
+    <bean id="orderV2Prop" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="locations">
+            <array>
+                <value>classpath:orderv2.conf</value>
+            </array>
+        </property>
+    </bean>
 
     <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
           destroy-method="close">

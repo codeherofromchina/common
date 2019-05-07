@@ -38,4 +38,17 @@ public interface OrderService {
      * @param processInstanceId
      */
     void updateProcessCompleted(String processInstanceId);
+
+    /**
+     * 通过ID查找订单
+     * @param orderId
+     * @return
+     */
+    Order findOrderById(Integer orderId);
+
+    /**
+     * 更新订单
+     * @param order
+     */
+    void updateById(Integer id,Order order);
 }

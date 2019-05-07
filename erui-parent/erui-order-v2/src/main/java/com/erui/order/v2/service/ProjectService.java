@@ -30,4 +30,11 @@ public interface ProjectService {
      * @param processInstanceId
      */
     void updateProcessCompleted(String processInstanceId);
+
+    /**
+     * 根据订单号查找项目
+     * @param orderId
+     * @return
+     */
+    Project findProjectByOrderId(Integer orderId);
 }

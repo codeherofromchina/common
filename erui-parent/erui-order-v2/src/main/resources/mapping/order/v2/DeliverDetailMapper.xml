@@ -187,7 +187,7 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.erui.order.v2.model.DeliverDetailWithBLOBs" >
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.erui.order.v2.model.DeliverDetailWithBLOBs" >
     insert into deliver_detail (id, deliver_detail_no, deliver_notice_id, 
       billing_date, carrier_co, driver, 
       plate_no, pickup_date, contact_tel, 

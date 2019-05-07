@@ -582,4 +582,41 @@ public class DeliverDetail {
     public void setSubmenuId(Integer submenuId) {
         this.submenuId = submenuId;
     }
+
+
+    /**
+     * 出库到物流的状态1：出库保存/草稿 2：出库提交 3：出库质检保存  4：出库质检提交 5：确认出库 6：完善物流状态中 7：项目完结
+     */
+    public static enum StatusEnum {
+        SAVED_OUTSTOCK(1, "出库保存"), SUBMITED_OUTSTOCK(2, "出库提交"), SAVED_OUT_INSPECT(3, "出库质检保存"),
+        SUBMITED_OUT_INSPECT(4, "出库质检提交"), PROCESS_LOGI_PERSON(5, "确认出库"), PROCESS_LOGI(6, "完善物流状态中"), DONE_PROJECT(7, "项目完结");
+
+        private int statusCode;
+        private String statusMsg;
+
+        StatusEnum(int statusCode, String statusMsg) {
+            this.statusCode = statusCode;
+            this.statusMsg = statusMsg;
+        }
+
+        public int getStatusCode() {
+            return statusCode;
+        }
+
+        public String getStatusMsg() {
+            return statusMsg;
+        }
+
+        public static StatusEnum fromStatusCode(Integer statusCode) {
+            if (statusCode != null) {
+                int sInt = statusCode.intValue();
+                for (StatusEnum se : StatusEnum.values()) {
+                    if (se.statusCode == sInt) {
+                        return se;
+                    }
+                }
+            }
+            return null;
+        }
+    }
 }

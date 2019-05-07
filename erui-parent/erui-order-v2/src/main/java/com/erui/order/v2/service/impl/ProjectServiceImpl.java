@@ -109,4 +109,15 @@ public class ProjectServiceImpl implements ProjectService {
     public void updateProcessCompleted(String processInstanceId) {
 
     }
+
+    @Override
+    public Project findProjectByOrderId(Integer orderId) {
+        ProjectExample example = new ProjectExample();
+        example.createCriteria().andOrderIdEqualTo(orderId);
+        List<Project> projects = projectMapper.selectByExample(example);
+        if (projects != null && projects.size() > 0){
+            return projects.get(0);
+        }
+        return null;
+    }
 }
