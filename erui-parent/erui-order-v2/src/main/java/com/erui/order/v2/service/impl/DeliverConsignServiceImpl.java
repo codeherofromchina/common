@@ -80,12 +80,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             return;
         }
         // 更新审核进度，如果审核进度为空，则更新审核状态为通过
-        Integer auditingStatus = deliverConsign.getAuditingStatus(); // 2:审核中  4：审核完成
         String auditingProcess2 = deliverConsign.getAuditingProcess();
         String audiRemark = deliverConsign.getAudiRemark();
         if (StringUtils.isNotBlank(auditingProcess2)) {
             if (auditingProcess2.equals(auditingProcess)) {
-                auditingStatus = 4;
                 auditingProcess2 = "";
             } else {
                 auditingProcess2 = auditingProcess2.replace(auditingProcess, "");
@@ -94,8 +92,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 }
                 auditingProcess2 = StringUtils.strip(auditingProcess2, ",");
             }
-        } else {
-            auditingStatus = 4;
         }
         // 设置审核人
         // 通过工号查找用户ID
@@ -110,7 +106,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         // 更新修正后的状态
         DeliverConsign deliverConsignSelective = new DeliverConsign();
         deliverConsignSelective.setId(deliverConsign.getId());
-        deliverConsignSelective.setAuditingStatus(auditingStatus);
+
         deliverConsignSelective.setAuditingProcess(auditingProcess2);
         deliverConsignSelective.setAudiRemark(audiRemark);
         deliverConsignMapper.updateByPrimaryKeySelective(deliverConsignSelective);
@@ -195,6 +191,12 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        // 更新修正后的状态
+        DeliverConsign deliverConsignSelective = new DeliverConsign();
+        deliverConsignSelective.setId(deliverConsign.getId());
+        deliverConsignSelective.setAuditingStatus(4);
+        deliverConsignMapper.updateByPrimaryKeySelective(deliverConsignSelective);
     }
 
 

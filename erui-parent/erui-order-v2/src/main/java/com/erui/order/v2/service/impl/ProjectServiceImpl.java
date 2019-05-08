@@ -49,12 +49,10 @@ public class ProjectServiceImpl implements ProjectService {
             return;
         }
         // 更新审核进度，如果审核进度为空，则更新审核状态为通过
-        Integer auditingStatus = project.getAuditingStatus(); // 2:审核中  4：审核完成
         String auditingProcess2 = project.getAuditingProcess();
         String audiRemark = project.getAudiRemark();
         if (StringUtils.isNotBlank(auditingProcess2)) {
             if (auditingProcess2.equals(auditingProcess)) {
-                auditingStatus = 4;
                 auditingProcess2 = "";
             } else {
                 auditingProcess2 = auditingProcess2.replace(auditingProcess, "");
@@ -63,8 +61,6 @@ public class ProjectServiceImpl implements ProjectService {
                 }
                 auditingProcess2 = StringUtils.strip(auditingProcess2, ",");
             }
-        } else {
-            auditingStatus = 4;
         }
         // 设置审核人
         // 通过工号查找用户ID
@@ -79,7 +75,6 @@ public class ProjectServiceImpl implements ProjectService {
         // 更新修正后的状态
         Project projectSelective = new Project();
         projectSelective.setId(project.getId());
-        projectSelective.setAuditingStatus(auditingStatus);
         projectSelective.setAuditingProcess(auditingProcess2);
         projectSelective.setAudiRemark(audiRemark);
         projectMapper.updateByPrimaryKeySelective(projectSelective);
@@ -112,7 +107,16 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public void updateProcessCompleted(String processInstanceId) {
-
+        // 查询项目
+        Project project = findProjectByProcessId(processInstanceId);
+        if (project == null) {
+            return;
+        }
+        // 更新项目的审核状态、审核进度和当前任务
+        Project projectSelective = new Project();
+        projectSelective.setId(project.getId());
+        projectSelective.setAuditingStatus(4);
+        projectMapper.updateByPrimaryKeySelective(projectSelective);
     }
 
     @Override

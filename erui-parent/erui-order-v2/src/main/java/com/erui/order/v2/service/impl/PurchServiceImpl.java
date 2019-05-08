@@ -54,12 +54,10 @@ public class PurchServiceImpl implements PurchService {
             return;
         }
         // 更新审核进度，如果审核进度为空，则更新审核状态为通过
-        Integer auditingStatus = purch.getAuditingStatus(); // 2:审核中  4：审核完成
         String auditingProcess2 = purch.getAuditingProcess();
         String audiRemark = purch.getAudiRemark();
         if (StringUtils.isNotBlank(auditingProcess2)) {
             if (auditingProcess2.equals(auditingProcess)) {
-                auditingStatus = 4;
                 auditingProcess2 = "";
             } else {
                 auditingProcess2 = auditingProcess2.replace(auditingProcess, "");
@@ -68,8 +66,6 @@ public class PurchServiceImpl implements PurchService {
                 }
                 auditingProcess2 = StringUtils.strip(auditingProcess2, ",");
             }
-        } else {
-            auditingStatus = 4;
         }
         // 设置审核人
         // 通过工号查找用户ID
@@ -84,7 +80,6 @@ public class PurchServiceImpl implements PurchService {
         // 更新修正后的状态
         Purch purchSelective = new Purch();
         purchSelective.setId(purch.getId());
-        purchSelective.setAuditingStatus(auditingStatus);
         purchSelective.setAuditingProcess(auditingProcess2);
         purchSelective.setAudiRemark(audiRemark);
         purchMapper.updateByPrimaryKeySelective(purchSelective);
@@ -122,13 +117,18 @@ public class PurchServiceImpl implements PurchService {
         if (purch == null) {
             return;
         }
+
+        Purch purchSelective = new Purch();
+        purchSelective.setId(purch.getId());
         List<Project> projects = projectService.findProjectsByPurchId(purch.getId());
         if (projects.size() > 0) {
             Integer orderCategory = projects.get(0).getOrderCategory();
             Integer status = purch.getStatus();
             if (orderCategory != null && orderCategory == 6 && status != null && status > 1) {
-                purch.setStatus(Purch.StatusEnum.DONE.getCode());
+                purchSelective.setStatus(Purch.StatusEnum.DONE.getCode());
             }
         }
+        purchSelective.setAuditingStatus(4); // 设置为审核完成 4：审核完成
+        purchMapper.updateByPrimaryKeySelective(purchSelective);
     }
 }
