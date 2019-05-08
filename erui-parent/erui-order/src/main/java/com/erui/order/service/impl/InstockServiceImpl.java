@@ -140,7 +140,6 @@ public class InstockServiceImpl implements InstockService {
                 return cb.and(predicates);
             }
         }, request);
-
         // 转换为控制层需要的数据
         List<Map<String, Object>> returnList = new ArrayList<>();
         if (page.hasContent() && page.getContent().size() > 0) {
@@ -187,7 +186,6 @@ public class InstockServiceImpl implements InstockService {
                 if (purchNoList != null && purchNoList.size() > 0) {
                     map.put("purchNo", StringUtils.join(removeRepeat(purchNoList), ","));   //采购合同号
                 }
-
                 returnList.add(map);
             }
         }
