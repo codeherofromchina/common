@@ -768,15 +768,15 @@ public class PurchContractServiceImpl implements PurchContractService {
         richString = new XSSFRichTextString(content);
 
         start = "交货时间、方式、地点：出卖人负责将货物于".length();
-        end = start + (c.get(Calendar.YEAR)+"").length() + 2;
+        end = start + (purchContractSimple.getShippingDate() == null?" ":c.get(Calendar.YEAR)+"").length() + 2;
         richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 year 字段加下划线
 
         start = end + "年".length();
-        end = start + (c.get(Calendar.MONTH)+1+"").length() + 2;
+        end = start + (purchContractSimple.getShippingDate() == null?" ":c.get(Calendar.MONTH)+1+"").length() + 2;
         richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 month 字段加下划线
 
         start = end + "月".length();
-        end = start + (c.get(Calendar.DAY_OF_MONTH)+"").length() + 2;
+        end = start + (purchContractSimple.getShippingDate() == null?" ":c.get(Calendar.DAY_OF_MONTH)+"").length() + 2;
         richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 day 字段加下划线
 
         start = end + "日前运送至买受人指定的地点：".length();
