@@ -2,6 +2,7 @@ package com.erui.order.service;
 
 import com.erui.order.entity.PurchContract;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.data.domain.Page;
 
 import java.util.Map;
@@ -70,4 +71,13 @@ public interface PurchContractService {
      * @return
      */
     void simpleContractExcelData(XSSFWorkbook workbook, Integer purchContractId) throws Exception;
+
+    /**
+     * 查询采购合同详情信息
+     *
+     * @param purchContractId 采购合同ID
+     * @return
+     */
+    void standardContractWordData(XWPFDocument doc, Integer purchContractId) throws Exception;
+
 }
