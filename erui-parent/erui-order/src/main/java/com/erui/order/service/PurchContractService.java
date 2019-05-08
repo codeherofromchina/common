@@ -65,7 +65,7 @@ public interface PurchContractService {
     Page<Map<String, Object>> purchAbleByPage(String agentId, int pageNum, int pageSizeString, String purchContractNo, Integer supplierId, String supplierName, Integer type) throws Exception;
 
     /**
-     * 查询采购合同详情信息
+     * 导出简易采购合同Excel
      *
      * @param purchContractId 采购合同ID
      * @return
@@ -73,7 +73,7 @@ public interface PurchContractService {
     void simpleContractExcelData(XSSFWorkbook workbook, Integer purchContractId) throws Exception;
 
     /**
-     * 查询采购合同详情信息
+     * 导出标准采购合同word
      *
      * @param purchContractId 采购合同ID
      * @return

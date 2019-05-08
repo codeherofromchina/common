@@ -694,6 +694,8 @@ public class PurchContractServiceImpl implements PurchContractService {
         PurchContract purchContract = purchContractDao.findOne(purchContractId);
         if(purchContract == null) return;
 
+        PurchContractSimple purchContractSimple = purchContract.getPurchContractSimple();
+        
         Calendar c = Calendar.getInstance();
         Sheet sheet = workbook.getSheetAt(0);
         Row row = sheet.getRow(1);
@@ -704,16 +706,16 @@ public class PurchContractServiceImpl implements PurchContractService {
 
         XSSFRichTextString richString = null;
         // 合同编号
-        if(purchContract.getPurchContractNo() != null){
-            cell.setCellValue(cell.getStringCellValue().replace("purchContractNo", purchContract.getPurchContractNo()));
-        }
+        cell.setCellValue(cell.getStringCellValue().replace("purchContractNo", formatNullStr(purchContract.getPurchContractNo())));
         // 签订地点
-        if(purchContract.getSigningPlace() != null){
-            cell.setCellValue(cell.getStringCellValue().replace("signingPlace", purchContract.getSigningPlace()));
-        }
+        cell.setCellValue(cell.getStringCellValue().replace("signingPlace", formatNullStr(purchContract.getSigningPlace())));
         // 签订日期
-        if(purchContract.getSigningDate() != null){
-            Date signingDate = purchContract.getSigningDate();
+
+        if(purchContract.getSigningDate() == null){
+            cell.setCellValue(cell.getStringCellValue().replace("year", " "));
+            cell.setCellValue(cell.getStringCellValue().replace("month",  " "));
+            cell.setCellValue(cell.getStringCellValue().replace("day", " "));
+        }else {Date signingDate = purchContract.getSigningDate();
             c.setTime(signingDate);
             cell.setCellValue(cell.getStringCellValue().replace("year", c.get(Calendar.YEAR) + ""));
             cell.setCellValue(cell.getStringCellValue().replace("month", c.get(Calendar.MONTH)+1 + ""));
@@ -721,223 +723,216 @@ public class PurchContractServiceImpl implements PurchContractService {
         }
 
         row = sheet.getRow(4);
+        //含16%增值税专用发票
+        cell = row.getCell(0);
+        cell.setCellValue(cell.getStringCellValue().replace("16", purchContract.getTaxPoint()==null?"":dropZero(purchContract.getTaxPoint().toString())));
         // 合计（含16%增值税专用发票）小写：
-        if(purchContract.getLowercasePrice() != null){
-            cell = row.getCell(0);
-            cell.setCellValue(cell.getStringCellValue().replace("lowercasePrice", purchContract.getLowercasePrice().toString()));
-        }
+        cell = row.getCell(0);
+        cell.setCellValue(cell.getStringCellValue().replace("lowercasePrice", purchContract.getLowercasePrice()==null?"":purchContract.getLowercasePrice().toString()));
         // （大写）
-        if(purchContract.getCapitalizedPrice() != null){
-            cell = row.getCell(0);
-            cell.setCellValue(cell.getStringCellValue().replace("capitalizedPrice", purchContract.getCapitalizedPrice()));
-        }
+        cell = row.getCell(0);
+        cell.setCellValue(cell.getStringCellValue().replace("capitalizedPrice", formatNullStr(purchContract.getCapitalizedPrice())));
 
         row = sheet.getRow(5);
         // 1、货物皆为符合__的合格产品   1、质保期自__ 。
-        if(purchContract.getPurchContractSimple().getProductRequirement() != null && purchContract.getPurchContractSimple().getWarrantyPeriod() != null){
-            cell = row.getCell(1);
-            content = cell.getStringCellValue().replace("productRequirement", purchContract.getPurchContractSimple().getProductRequirement());
-            content = content.replace("warrantyPeriod", purchContract.getPurchContractSimple().getWarrantyPeriod());
-            richString = new XSSFRichTextString(content);
+        cell = row.getCell(1);
+        content = cell.getStringCellValue().replace("productRequirement", formatNullStr(purchContractSimple.getProductRequirement()));
+        content = content.replace("warrantyPeriod", formatNullStr(purchContractSimple.getWarrantyPeriod()));
+        richString = new XSSFRichTextString(content);
 
-            start = "质量标准: 出卖人保证提供的货物皆为符合".length();
-            end = start + purchContract.getPurchContractSimple().getProductRequirement().length() + 2;
-            richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 productRequirement 字段加下划线
+        start = "质量标准: 出卖人保证提供的货物皆为符合".length();
+        end = start + formatNullStr(purchContractSimple.getProductRequirement()).length() + 2;
+        richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 productRequirement 字段加下划线
 
-            start = end + "的合格产品，质保期自".length();
-            end = start + purchContract.getPurchContractSimple().getWarrantyPeriod().length() + 2;
-            richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 warrantyPeriod 字段加下划线
+        start = end + "的合格产品，质保期自".length();
+        end = start + formatNullStr(purchContractSimple.getWarrantyPeriod()).length() + 2;
+        richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 warrantyPeriod 字段加下划线
 
-            cell.setCellValue(richString);
-        }
+        cell.setCellValue(richString);
 
         row = sheet.getRow(7);
         // 3、将货物于__前运送至   3、指定的地点：__。
-        if(purchContract.getPurchContractSimple().getShippingDate() != null && purchContract.getPurchContractSimple().getDesignatedLocation() != null){
-            cell = row.getCell(1);
-            Date shippingDate = purchContract.getPurchContractSimple().getShippingDate();
+        cell = row.getCell(1);
+        if(purchContractSimple.getShippingDate() == null){
+            content = cell.getStringCellValue().replace("year", " ");
+            content = content.replace("month", " ");
+            content = content.replace("day", " ");
+        }else{
+            Date shippingDate = purchContractSimple.getShippingDate();
             c.setTime(shippingDate);
             content = cell.getStringCellValue().replace("year", c.get(Calendar.YEAR) + "");
             content = content.replace("month", c.get(Calendar.MONTH)+1 + "");
             content = content.replace("day", c.get(Calendar.DAY_OF_MONTH) + "");
-            content = content.replace("designatedLocation", " "+purchContract.getPurchContractSimple().getDesignatedLocation());
-            richString = new XSSFRichTextString(content);
-
-            start = "交货时间、方式、地点：出卖人负责将货物于".length();
-            end = start + (c.get(Calendar.YEAR)+"").length() + 2;
-            richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 year 字段加下划线
-
-            start = end + "年".length();
-            end = start + (c.get(Calendar.MONTH)+1+"").length() + 2;
-            richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 month 字段加下划线
-
-            start = end + "月".length();
-            end = start + (c.get(Calendar.DAY_OF_MONTH)+"").length() + 2;
-            richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 day 字段加下划线
-
-            start = end + "日前运送至买受人指定的地点：".length();
-            end = start + purchContract.getPurchContractSimple().getDesignatedLocation().length() + 2;
-            richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 designatedLocation 字段加下划线
-
-            cell.setCellValue(richString);
         }
+        content = content.replace("designatedLocation", " "+formatNullStr(purchContractSimple.getDesignatedLocation()));
+        richString = new XSSFRichTextString(content);
+
+        start = "交货时间、方式、地点：出卖人负责将货物于".length();
+        end = start + (c.get(Calendar.YEAR)+"").length() + 2;
+        richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 year 字段加下划线
+
+        start = end + "年".length();
+        end = start + (c.get(Calendar.MONTH)+1+"").length() + 2;
+        richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 month 字段加下划线
+
+        start = end + "月".length();
+        end = start + (c.get(Calendar.DAY_OF_MONTH)+"").length() + 2;
+        richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 day 字段加下划线
+
+        start = end + "日前运送至买受人指定的地点：".length();
+        end = start + formatNullStr(purchContractSimple.getDesignatedLocation()).length() + 2;
+        richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 designatedLocation 字段加下划线
+
+        cell.setCellValue(richString);
 
         row = sheet.getRow(8);
         // 4、费用负担：__运
-        if(purchContract.getPurchContractSimple().getCostBurden() != null){
-            cell = row.getCell(1);
-            content = cell.getStringCellValue().replace("costBurden", purchContract.getPurchContractSimple().getCostBurden());
-            richString = new XSSFRichTextString(content);
+        cell = row.getCell(1);
+        content = cell.getStringCellValue().replace("costBurden", formatNullStr(purchContractSimple.getCostBurden()));
+        richString = new XSSFRichTextString(content);
 
-            start = "运输方式及到达站（港）和费用负担：".length();
-            end = start + purchContract.getPurchContractSimple().getCostBurden().length() + 2;
-            richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 costBurden 字段加下划线
+        start = "运输方式及到达站（港）和费用负担：".length();
+        end = start + formatNullStr(purchContractSimple.getCostBurden()).length() + 2;
+        richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 costBurden 字段加下划线
 
-            cell.setCellValue(richString);
-        }
+        cell.setCellValue(richString);
 
         row = sheet.getRow(9);
         // 5、合同第1条在__处检验  5、并在__日内提出异议
-        if(purchContract.getPurchContractSimple().getInspectionAt()!= null && purchContract.getPurchContractSimple().getWithinDays()!= null){
-            cell = row.getCell(1);
-            content = cell.getStringCellValue().replace("inspectionAt", purchContract.getPurchContractSimple().getInspectionAt());
-            content = content.replace("withinDays", purchContract.getPurchContractSimple().getWithinDays());
-            richString = new XSSFRichTextString(content);
+        cell = row.getCell(1);
+        content = cell.getStringCellValue().replace("inspectionAt", formatNullStr(purchContractSimple.getInspectionAt()));
+        content = content.replace("withinDays", formatNullStr(purchContractSimple.getWithinDays()));
+        richString = new XSSFRichTextString(content);
 
-            start = "产品检验以及所有权转移： 按本合同第1条在".length();
-            end = start + purchContract.getPurchContractSimple().getInspectionAt().length() + 4;
-            richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 inspectionAt 字段加下划线
+        start = "产品检验以及所有权转移： 按本合同第1条在".length();
+        end = start + formatNullStr(purchContractSimple.getInspectionAt()).length() + 4;
+        richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 inspectionAt 字段加下划线
 
-            int redStart = end + "处检验，".length();
-            int redEnd = redStart + purchContract.getPurchContractSimple().getWithinDays().length() + 4 + "日内提出异议".length();
-            Font redFont = ExcelUploadUtil.getFont(workbook, 10, "宋体");
-            richString.applyFont(redEnd, content.length(), redFont);
-            redFont.setColor(Font.COLOR_RED);
-            richString.applyFont(redStart, redEnd, redFont);// 给并在 withinDays 日内提出异议字段设置红色字体
+        int redStart = end + "处检验，".length();
+        int redEnd = redStart + formatNullStr(purchContractSimple.getWithinDays()).length() + 4 + "日内提出异议".length();
+        Font redFont = ExcelUploadUtil.getFont(workbook, 10, "宋体");
+        richString.applyFont(redEnd, content.length(), redFont);
+        redFont.setColor(Font.COLOR_RED);
+        richString.applyFont(redStart, redEnd, redFont);// 给并在 withinDays 日内提出异议字段设置红色字体
 
-            start = end + "处检验，并在".length();
-            end = start + purchContract.getPurchContractSimple().getWithinDays().length() + 2;
-            richString.applyFont(end, redEnd, redFont);
-            redFont.setUnderline(Font.U_SINGLE);
-            richString.applyFont(start, end, redFont);// 给 withinDays 字段加下划线
+        start = end + "处检验，并在".length();
+        end = start + formatNullStr(purchContractSimple.getWithinDays()).length() + 2;
+        richString.applyFont(end, redEnd, redFont);
+        redFont.setUnderline(Font.U_SINGLE);
+        richString.applyFont(start, end, redFont);// 给 withinDays 字段加下划线
 
-            cell.setCellValue(richString);
-        }
+        cell.setCellValue(richString);
 
         row = sheet.getRow(10);
         // 6、结算方式及时间：__。
-        if(purchContract.getPurchContractSimple().getMethodAndTime()!= null){
-            cell = row.getCell(1);
-            content = cell.getStringCellValue().replace("methodAndTime", purchContract.getPurchContractSimple().getMethodAndTime());
-            richString = new XSSFRichTextString(content);
+        cell = row.getCell(1);
+        content = cell.getStringCellValue().replace("methodAndTime", formatNullStr(purchContractSimple.getMethodAndTime()));
+        richString = new XSSFRichTextString(content);
 
-            start = "结算方式及时间：".length();
-            end = start + purchContract.getPurchContractSimple().getMethodAndTime().length() + 2;
-            richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 methodAndTime 字段加下划线
+        start = "结算方式及时间：".length();
+        end = start + purchContractSimple.getMethodAndTime().length() + 2;
+        richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 methodAndTime 字段加下划线
 
-            cell.setCellValue(richString);
-        }
+        cell.setCellValue(richString);
 
         row = sheet.getRow(13);
         // 9、附《__技术协议》
-        if(purchContract.getPurchContractSimple().getAgreementName()!= null){
-            cell = row.getCell(1);
-            content = cell.getStringCellValue().replace("agreementName", purchContract.getPurchContractSimple().getAgreementName());
-            richString = new XSSFRichTextString(content);
+        cell = row.getCell(1);
+        content = cell.getStringCellValue().replace("agreementName", formatNullStr(purchContractSimple.getAgreementName()));
+        richString = new XSSFRichTextString(content);
 
-            start = ("其他：\n" +
-                    "1、本合同一式 肆 份，具有同等法律效力，买受人执 贰 份，出卖人执 贰 份。\n" +
-                    "2、本合同自双方签字盖章之日起生效到双方完全履行完各自的义务为止。\n" +
-                    "附《").length();
-            end = start + purchContract.getPurchContractSimple().getAgreementName().length() + 2;
-            richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 agreementName 字段加下划线
+        start = ("其他：\n" +
+                "1、本合同一式 肆 份，具有同等法律效力，买受人执 贰 份，出卖人执 贰 份。\n" +
+                "2、本合同自双方签字盖章之日起生效到双方完全履行完各自的义务为止。\n" +
+                "附《").length();
+        end = start + purchContractSimple.getAgreementName().length() + 2;
+        richString = ExcelUploadUtil.setSingle(richString, ExcelUploadUtil.getFont(workbook, 10, "宋体"), start, end, content.length());// 给 agreementName 字段加下划线
 
-            cell.setCellValue(richString);
-        }
+        cell.setCellValue(richString);
 
 
         row = sheet.getRow(14);
         // 出卖人：
         if(purchContract.getPurchContractSignatoriesList().get(0).getSellerBuyer()!= null){
             cell = row.getCell(0);
-            cell.setCellValue(cell.getStringCellValue().replace("sellerBuyer", purchContract.getPurchContractSignatoriesList().get(0).getSellerBuyer()));
+            cell.setCellValue(cell.getStringCellValue().replace("sellerBuyer", formatNullStr(purchContract.getPurchContractSignatoriesList().get(0).getSellerBuyer())));
         }
         // 买受人：
         if(purchContract.getPurchContractSignatoriesList().get(1).getSellerBuyer()!= null){
             cell = row.getCell(4);
-            cell.setCellValue(cell.getStringCellValue().replace("sellerBuyer", purchContract.getPurchContractSignatoriesList().get(1).getSellerBuyer()));
+            cell.setCellValue(cell.getStringCellValue().replace("sellerBuyer", formatNullStr(purchContract.getPurchContractSignatoriesList().get(1).getSellerBuyer())));
         }
 
         row = sheet.getRow(15);
         // 法定代表人或授权代表：
         if(purchContract.getPurchContractSignatoriesList().get(0).getLegalRepresentative()!= null){
             cell = row.getCell(0);
-            cell.setCellValue(cell.getStringCellValue().replace("legalRepresentative", purchContract.getPurchContractSignatoriesList().get(0).getLegalRepresentative()));
+            cell.setCellValue(cell.getStringCellValue().replace("legalRepresentative", formatNullStr(purchContract.getPurchContractSignatoriesList().get(0).getLegalRepresentative())));
         }
         // 法定代表人或授权代表：
         if(purchContract.getPurchContractSignatoriesList().get(1).getLegalRepresentative()!= null){
             cell = row.getCell(4);
-            cell.setCellValue(cell.getStringCellValue().replace("legalRepresentative", purchContract.getPurchContractSignatoriesList().get(1).getLegalRepresentative()));
+            cell.setCellValue(cell.getStringCellValue().replace("legalRepresentative", formatNullStr(purchContract.getPurchContractSignatoriesList().get(1).getLegalRepresentative())));
         }
 
         row = sheet.getRow(16);
         // 地址：
         if(purchContract.getPurchContractSignatoriesList().get(0).getAddress()!= null){
             cell = row.getCell(0);
-            cell.setCellValue(cell.getStringCellValue().replace("address", purchContract.getPurchContractSignatoriesList().get(0).getAddress()));
+            cell.setCellValue(cell.getStringCellValue().replace("address", formatNullStr(purchContract.getPurchContractSignatoriesList().get(0).getAddress())));
         }
         // 地址：
         if(purchContract.getPurchContractSignatoriesList().get(1).getAddress()!= null){
             cell = row.getCell(4);
-            cell.setCellValue(cell.getStringCellValue().replace("address", purchContract.getPurchContractSignatoriesList().get(1).getAddress()));
+            cell.setCellValue(cell.getStringCellValue().replace("address", formatNullStr(purchContract.getPurchContractSignatoriesList().get(1).getAddress())));
         }
 
         row = sheet.getRow(17);
         // 开户行：
         if(purchContract.getPurchContractSignatoriesList().get(0).getOpeningBank()!= null){
             cell = row.getCell(0);
-            cell.setCellValue(cell.getStringCellValue().replace("openingBank", purchContract.getPurchContractSignatoriesList().get(0).getOpeningBank()));
+            cell.setCellValue(cell.getStringCellValue().replace("openingBank", formatNullStr(purchContract.getPurchContractSignatoriesList().get(0).getOpeningBank())));
         }
         // 开户行：
         if(purchContract.getPurchContractSignatoriesList().get(1).getOpeningBank()!= null){
             cell = row.getCell(4);
-            cell.setCellValue(cell.getStringCellValue().replace("openingBank", purchContract.getPurchContractSignatoriesList().get(1).getOpeningBank()));
+            cell.setCellValue(cell.getStringCellValue().replace("openingBank", formatNullStr(purchContract.getPurchContractSignatoriesList().get(1).getOpeningBank())));
         }
 
         row = sheet.getRow(18);
         // 账号：
         if(purchContract.getPurchContractSignatoriesList().get(0).getAccountNumber()!= null){
             cell = row.getCell(0);
-            cell.setCellValue(cell.getStringCellValue().replace("accountNumber", purchContract.getPurchContractSignatoriesList().get(0).getAccountNumber()));
+            cell.setCellValue(cell.getStringCellValue().replace("accountNumber", formatNullStr(purchContract.getPurchContractSignatoriesList().get(0).getAccountNumber())));
         }
         // 账号：
         if(purchContract.getPurchContractSignatoriesList().get(1).getAccountNumber()!= null){
             cell = row.getCell(4);
-            cell.setCellValue(cell.getStringCellValue().replace("accountNumber", purchContract.getPurchContractSignatoriesList().get(1).getAccountNumber()));
+            cell.setCellValue(cell.getStringCellValue().replace("accountNumber", formatNullStr(purchContract.getPurchContractSignatoriesList().get(1).getAccountNumber())));
         }
 
         row = sheet.getRow(19);
         // 统一社会信用代码证：
         if(purchContract.getPurchContractSignatoriesList().get(0).getCreditCode()!= null){
             cell = row.getCell(0);
-            cell.setCellValue(cell.getStringCellValue().replace("creditCode", purchContract.getPurchContractSignatoriesList().get(0).getCreditCode()));
+            cell.setCellValue(cell.getStringCellValue().replace("creditCode", formatNullStr(purchContract.getPurchContractSignatoriesList().get(0).getCreditCode())));
         }
         // 统一社会信用代码证：
         if(purchContract.getPurchContractSignatoriesList().get(1).getCreditCode()!= null){
             cell = row.getCell(4);
-            cell.setCellValue(cell.getStringCellValue().replace("creditCode", purchContract.getPurchContractSignatoriesList().get(1).getCreditCode()));
+            cell.setCellValue(cell.getStringCellValue().replace("creditCode", formatNullStr(purchContract.getPurchContractSignatoriesList().get(1).getCreditCode())));
         }
 
         row = sheet.getRow(20);
         // 电话/传真
         if(purchContract.getPurchContractSignatoriesList().get(0).getTelephoneFax()!= null){
             cell = row.getCell(0);
-            cell.setCellValue(cell.getStringCellValue().replace("telephoneFax", purchContract.getPurchContractSignatoriesList().get(0).getTelephoneFax()));
+            cell.setCellValue(cell.getStringCellValue().replace("telephoneFax", formatNullStr(purchContract.getPurchContractSignatoriesList().get(0).getTelephoneFax())));
         }
         // 电话/传真
         if(purchContract.getPurchContractSignatoriesList().get(1).getTelephoneFax()!= null){
             cell = row.getCell(4);
-            cell.setCellValue(cell.getStringCellValue().replace("telephoneFax", purchContract.getPurchContractSignatoriesList().get(1).getTelephoneFax()));
+            cell.setCellValue(cell.getStringCellValue().replace("telephoneFax", formatNullStr(purchContract.getPurchContractSignatoriesList().get(1).getTelephoneFax())));
         }
 
         List<PurchContractGoods> goodsList = purchContract.getPurchContractGoodsList();
@@ -947,10 +942,10 @@ public class PurchContractServiceImpl implements PurchContractService {
         if(goodsList.get(0) != null){
             row.getCell(1).setCellValue(goodsList.get(0).getGoods().getNameZh());
             row.getCell(2).setCellValue(goodsList.get(0).getGoods().getModel());
-            row.getCell(3).setCellValue(goodsList.get(0).getPurchaseNum());
+            row.getCell(3).setCellValue((goodsList.get(0).getPurchaseNum()==null?"":goodsList.get(0).getPurchaseNum())+"");
             row.getCell(4).setCellValue(goodsList.get(0).getGoods().getUnit());
-            row.getCell(5).setCellValue(goodsList.get(0).getPurchasePrice() + "");
-            row.getCell(6).setCellValue(goodsList.get(0).getPurchaseTotalPrice() + "");
+            row.getCell(5).setCellValue((goodsList.get(0).getPurchasePrice()==null?"":goodsList.get(0).getPurchasePrice()) + "");
+            row.getCell(6).setCellValue((goodsList.get(0).getPurchaseTotalPrice()==null?"":goodsList.get(0).getPurchaseTotalPrice()) + "");
             row.getCell(7).setCellValue(purchContract.getGoodsRemarks() != null?purchContract.getGoodsRemarks():"");
         }
         if(goodsList.size() > 1){
@@ -960,10 +955,10 @@ public class PurchContractServiceImpl implements PurchContractService {
                 row.getCell(0).setCellValue(i+1);
                 row.getCell(1).setCellValue(goodsList.get(i).getGoods().getNameZh());
                 row.getCell(2).setCellValue(goodsList.get(i).getGoods().getModel());
-                row.getCell(3).setCellValue(goodsList.get(i).getPurchaseNum());
+                row.getCell(3).setCellValue((goodsList.get(i).getPurchaseNum()==null?"":goodsList.get(i).getPurchaseNum())+"");
                 row.getCell(4).setCellValue(goodsList.get(i).getGoods().getUnit());
-                row.getCell(5).setCellValue(goodsList.get(i).getPurchasePrice() + "");
-                row.getCell(6).setCellValue(goodsList.get(i).getPurchaseTotalPrice() + "");
+                row.getCell(5).setCellValue((goodsList.get(i).getPurchasePrice()==null?"":goodsList.get(i).getPurchasePrice()) + "");
+                row.getCell(6).setCellValue((goodsList.get(i).getPurchaseTotalPrice()==null?"":goodsList.get(i).getPurchaseTotalPrice()) + "");
 
             }
             // 合并备注字段
@@ -1016,7 +1011,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run.setBold(true);// 字体加粗
         run.setTextPosition(val);
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, signatoriesList.get(0).getSellerBuyer()); // 出卖人
+        WordUploadUtil.setfont(run, font, family, formatNullStr(signatoriesList.get(0).getSellerBuyer())); // 出卖人
 
         run = page.createRun();
         run.setTextPosition(val);
@@ -1024,7 +1019,7 @@ public class PurchContractServiceImpl implements PurchContractService {
 
         run = page.createRun();
         run.setTextPosition(val);
-        WordUploadUtil.setfont(run, font, family, purchContract.getPurchContractNo()); // 合同编号
+        WordUploadUtil.setfont(run, font, family, formatNullStr(purchContract.getPurchContractNo())); // 合同编号
 
         page = doc.createParagraph();// 换行
         run = page.createRun();
@@ -1036,7 +1031,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run.setBold(true);// 字体加粗
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, signatoriesList.get(1).getSellerBuyer()); // 买受人
+        WordUploadUtil.setfont(run, font, family, formatNullStr(signatoriesList.get(1).getSellerBuyer())); // 买受人
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1044,7 +1039,7 @@ public class PurchContractServiceImpl implements PurchContractService {
 
         run = page.createRun();
         run.setTextPosition(val); 
-        WordUploadUtil.setfont(run, font, family, purchContract.getSigningPlace()); // 签订地点
+        WordUploadUtil.setfont(run, font, family, formatNullStr(purchContract.getSigningPlace())); // 签订地点
 
         page = doc.createParagraph();// 换行
         run = page.createRun();
@@ -1053,9 +1048,13 @@ public class PurchContractServiceImpl implements PurchContractService {
 
         run = page.createRun();
         run.setTextPosition(val);
-        Date signingDate = purchContract.getSigningDate();
-        c.setTime(signingDate);
-        WordUploadUtil.setfont(run, font, family, c.get(Calendar.YEAR) + "年"+(c.get(Calendar.MONTH)+1) + "月"+c.get(Calendar.DAY_OF_MONTH) + "日"); // 签订时间
+        if(purchContract.getSigningDate() == null){
+            WordUploadUtil.setfont(run, font, family, " 年 月 日"); // 签订时间
+        }else{
+            Date signingDate = purchContract.getSigningDate();
+            c.setTime(signingDate);
+            WordUploadUtil.setfont(run, font, family, c.get(Calendar.YEAR) + "年"+(c.get(Calendar.MONTH)+1) + "月"+c.get(Calendar.DAY_OF_MONTH) + "日"); // 签订时间
+        }
 
         page = doc.createParagraph();// 换行
         run = page.createRun();
@@ -1065,7 +1064,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " "+purchContractStandard.getUsedForBuyer()+" "); // 基础信息、用于买受人__，且出卖人
+        WordUploadUtil.setfont(run, font, family, " "+formatNullStr(purchContractStandard.getUsedForBuyer())+" "); // 基础信息、用于买受人__，且出卖人
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1087,10 +1086,10 @@ public class PurchContractServiceImpl implements PurchContractService {
         for(int i = 0; i< goodsList.size(); i++){
             listChild.add(goodsList.get(i).getGoods().getNameZh());// 标的名称
             listChild.add(goodsList.get(i).getGoods().getModel());// 规格型号
-            listChild.add(goodsList.get(i).getPurchaseNum() + "");// 数量
+            listChild.add((goodsList.get(i).getPurchaseNum()==null?"":goodsList.get(i).getPurchaseNum()) + "");// 数量
             listChild.add(goodsList.get(i).getGoods().getUnit());// 单位
-            listChild.add(goodsList.get(i).getPurchasePrice() + "");// 单价(元)
-            listChild.add(goodsList.get(i).getPurchaseTotalPrice() + "");// 金额(元)
+            listChild.add((goodsList.get(i).getPurchasePrice()==null?"":goodsList.get(i).getPurchasePrice()) + "");// 单价(元)
+            listChild.add((goodsList.get(i).getPurchaseTotalPrice()==null?"":goodsList.get(i).getPurchaseTotalPrice()) + "");// 金额(元)
             if(i == 0){
                 listChild.add(purchContract.getGoodsRemarks()!= null?purchContract.getGoodsRemarks():"");// 备注
             }else{
@@ -1109,7 +1108,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         cellParagraphRunC.setFontSize(font); //设置表格内容字号
         cellParagraphRunC.setFontFamily(family);
         cellParagraphRunC.setTextPosition(val);
-        cellParagraphRunC.setText("合计人民币金额:（大写） "+purchContract.getCapitalizedPrice()+"         （含16%增值税）；小写:￥"+purchContract.getLowercasePrice()); //单元格段落加载内容
+        cellParagraphRunC.setText("合计人民币金额:（大写） "+formatNullStr(purchContract.getCapitalizedPrice())+"       （含"+(purchContract.getTaxPoint()==null?"":dropZero(purchContract.getTaxPoint().toString()))+"%增值税）；小写:￥"+(purchContract.getLowercasePrice()==null?"":purchContract.getLowercasePrice())); //单元格段落加载内容
         WordUploadUtil.mergeCellsHorizontal(comTable, goodsList.size() + 1, 0, 6);
         WordUploadUtil.mergeCellsVertically(comTable, 6, 1, goodsList.size());
 
@@ -1127,7 +1126,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " "+purchContractStandard.getStandardAndRequire()); // 第二条、质量标准及要求__
+        WordUploadUtil.setfont(run, font, family, " "+formatNullStr(purchContractStandard.getStandardAndRequire())); // 第二条、质量标准及要求__
 
         page = doc.createParagraph();// 换行
         run = page.createRun();
@@ -1159,7 +1158,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, purchContractStandard.getMeetRequire()); // 第四条、产品包装标准、包装费用与包装物回收__
+        WordUploadUtil.setfont(run, font, family, formatNullStr(purchContractStandard.getMeetRequire())); // 第四条、产品包装标准、包装费用与包装物回收__
 
         page = doc.createParagraph();// 换行
         run = page.createRun();
@@ -1180,7 +1179,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, purchContractStandard.getWarrantyPeriod() + "。"); // 第五条、质保与售后__
+        WordUploadUtil.setfont(run, font, family, formatNullStr(purchContractStandard.getWarrantyPeriod()) + "。"); // 第五条、质保与售后__
 
         page = doc.createParagraph();// 换行
         run = page.createRun();
@@ -1211,9 +1210,13 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        Date deliveryDate = purchContractStandard.getDeliveryDate();
-        c.setTime(deliveryDate);
-        WordUploadUtil.setfont(run, font, family, " " + c.get(Calendar.YEAR) + "年"+(c.get(Calendar.MONTH)+1) + "月"+c.get(Calendar.DAY_OF_MONTH) + "日" + " "); // 第六条、出卖人负责于__（前）
+        if(purchContractStandard.getDeliveryDate() == null){
+            WordUploadUtil.setfont(run, font, family, " " + "年 月 日" + " "); // 第六条、出卖人负责于__（前）
+        }else {
+            Date deliveryDate = purchContractStandard.getDeliveryDate();
+            c.setTime(deliveryDate);
+            WordUploadUtil.setfont(run, font, family, " " + c.get(Calendar.YEAR) + "年"+(c.get(Calendar.MONTH)+1) + "月"+c.get(Calendar.DAY_OF_MONTH) + "日" + " "); // 第六条、出卖人负责于__（前）
+        }
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1222,7 +1225,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " " + purchContractStandard.getDeliveryPlace() + " 。 "); // 第六条、交货地点:__。
+        WordUploadUtil.setfont(run, font, family, " " + formatNullStr(purchContractStandard.getDeliveryPlace()) + " 。 "); // 第六条、交货地点:__。
 
         page = doc.createParagraph();// 换行
         run = page.createRun();
@@ -1248,7 +1251,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " " + purchContractStandard.getInspectionPeriod() + " "); // 第七条、检验期为__天(月)
+        WordUploadUtil.setfont(run, font, family, " " + formatNullStr(purchContractStandard.getInspectionPeriod()) + " "); // 第七条、检验期为__天(月)
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1262,7 +1265,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " " + purchContractStandard.getDataVersion() + " "); // 第七条、技术资料包括__版本
+        WordUploadUtil.setfont(run, font, family, " " + formatNullStr(purchContractStandard.getDataVersion()) + " "); // 第七条、技术资料包括__版本
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1292,7 +1295,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, purchContractStandard.getMethodAndTime() + " "); // 第八条、结算方式及时间__
+        WordUploadUtil.setfont(run, font, family, formatNullStr(purchContractStandard.getMethodAndTime()) + " "); // 第八条、结算方式及时间__
 
         page = doc.createParagraph();// 换行
         run = page.createRun();
@@ -1436,7 +1439,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " " + purchContractStandard.getInboxAddressS() + " "); // 第十二条、收信地址为__
+        WordUploadUtil.setfont(run, font, family, " " + formatNullStr(purchContractStandard.getInboxAddressS()) + " "); // 第十二条、收信地址为__
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1445,7 +1448,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " " + purchContractStandard.getAddresseeS() + " "); // 第十二条、收信人为__
+        WordUploadUtil.setfont(run, font, family, " " + formatNullStr(purchContractStandard.getAddresseeS()) + " "); // 第十二条、收信人为__
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1454,7 +1457,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " " + purchContractStandard.getTelephoneS() + " "); // 第十二条、电话为__
+        WordUploadUtil.setfont(run, font, family, " " + formatNullStr(purchContractStandard.getTelephoneS()) + " "); // 第十二条、电话为__
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1463,7 +1466,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " " + purchContractStandard.getInboxAddressS() + " "); // 第十二条、电子邮件收件邮箱地址为__
+        WordUploadUtil.setfont(run, font, family, " " + formatNullStr(purchContractStandard.getInboxAddressS()) + " "); // 第十二条、电子邮件收件邮箱地址为__
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1477,7 +1480,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " " + purchContractStandard.getInboxAddressB() + " "); // 第十二条、收信地址为__
+        WordUploadUtil.setfont(run, font, family, " " + formatNullStr(purchContractStandard.getInboxAddressB()) + " "); // 第十二条、收信地址为__
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1486,7 +1489,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " " + purchContractStandard.getAddresseeB() + " "); // 第十二条、收信人为__
+        WordUploadUtil.setfont(run, font, family, " " + formatNullStr(purchContractStandard.getAddresseeB()) + " "); // 第十二条、收信人为__
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1495,7 +1498,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " " + purchContractStandard.getTelephoneB() + " "); // 第十二条、电话为__
+        WordUploadUtil.setfont(run, font, family, " " + formatNullStr(purchContractStandard.getTelephoneB()) + " "); // 第十二条、电话为__
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1504,7 +1507,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " " + purchContractStandard.getInboxAddressB() + " "); // 第十二条、电子邮件收件邮箱地址为__
+        WordUploadUtil.setfont(run, font, family, " " + formatNullStr(purchContractStandard.getInboxAddressB()) + " "); // 第十二条、电子邮件收件邮箱地址为__
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1551,7 +1554,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " " + purchContractStandard.getSolution() + " "); // 第十五条、按下列第__种方式解决
+        WordUploadUtil.setfont(run, font, family, " " + formatNullStr(purchContractStandard.getSolution()) + " "); // 第十五条、按下列第__种方式解决
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1565,7 +1568,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " " + purchContractStandard.getBoardArbitration() + " "); // 第十五条、提交__仲裁委员会仲裁
+        WordUploadUtil.setfont(run, font, family, " " + formatNullStr(purchContractStandard.getBoardArbitration()) + " "); // 第十五条、提交__仲裁委员会仲裁
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1600,7 +1603,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " " + purchContractStandard.getFewCopies() + " "); // 第十六条、本合同一式__份
+        WordUploadUtil.setfont(run, font, family, " " + formatNullStr(purchContractStandard.getFewCopies()) + " "); // 第十六条、本合同一式__份
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1609,7 +1612,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " " + purchContractStandard.getSellerFewCopies() + " "); // 第十六条、出卖人执__份
+        WordUploadUtil.setfont(run, font, family, " " + formatNullStr(purchContractStandard.getSellerFewCopies()) + " "); // 第十六条、出卖人执__份
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1618,7 +1621,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " " + purchContractStandard.getBuyerFewCopies() + " "); // 第十六条、买受人执__份
+        WordUploadUtil.setfont(run, font, family, " " + formatNullStr(purchContractStandard.getBuyerFewCopies()) + " "); // 第十六条、买受人执__份
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1637,7 +1640,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " " + purchContractStandard.getAppendicesName1() + " "); // 第十六条、合同附件：1.__
+        WordUploadUtil.setfont(run, font, family, " " + formatNullStr(purchContractStandard.getAppendicesName1()) + " "); // 第十六条、合同附件：1.__
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1646,7 +1649,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         run = page.createRun();
         run.setTextPosition(val); 
         run.setUnderline(UnderlinePatterns.SINGLE);// 加下划线
-        WordUploadUtil.setfont(run, font, family, " " + purchContractStandard.getAppendicesName2() + " "); // 第十六条、合同附件：2.__
+        WordUploadUtil.setfont(run, font, family, " " + formatNullStr(purchContractStandard.getAppendicesName2()) + " "); // 第十六条、合同附件：2.__
 
         run = page.createRun();
         run.setTextPosition(val); 
@@ -1662,47 +1665,47 @@ public class PurchContractServiceImpl implements PurchContractService {
 
         r1 = p1.createRun();
         r1.setTextPosition(val);
-        WordUploadUtil.setfont(r1,font,family, "单位名称（章）："+signatoriesList.get(0).getSellerBuyer());
+        WordUploadUtil.setfont(r1,font,family, "单位名称（章）："+formatNullStr(signatoriesList.get(0).getSellerBuyer()));
         r1.addBreak();//换行
 
         r1 = p1.createRun();
         r1.setTextPosition(val);
-        WordUploadUtil.setfont(r1,font,family, "地址："+signatoriesList.get(0).getAddress());
+        WordUploadUtil.setfont(r1,font,family, "地址："+formatNullStr(signatoriesList.get(0).getAddress()));
         r1.addBreak();//换行
 
         r1 = p1.createRun();
         r1.setTextPosition(val);
-        WordUploadUtil.setfont(r1,font,family, "邮政编码："+signatoriesList.get(0).getPostalCode());
+        WordUploadUtil.setfont(r1,font,family, "邮政编码："+formatNullStr(signatoriesList.get(0).getPostalCode()));
         r1.addBreak();//换行
 
         r1 = p1.createRun();
         r1.setTextPosition(val);
-        WordUploadUtil.setfont(r1,font,family, "法定代表人："+signatoriesList.get(0).getLegalRepresentative());
+        WordUploadUtil.setfont(r1,font,family, "法定代表人："+formatNullStr(signatoriesList.get(0).getLegalRepresentative()));
         r1.addBreak();//换行
 
         r1 = p1.createRun();
         r1.setTextPosition(val);
-        WordUploadUtil.setfont(r1,font,family, "委托代理人："+signatoriesList.get(0).getAgent());
+        WordUploadUtil.setfont(r1,font,family, "委托代理人："+formatNullStr(signatoriesList.get(0).getAgent()));
         r1.addBreak();//换行
 
         r1 = p1.createRun();
         r1.setTextPosition(val);
-        WordUploadUtil.setfont(r1,font,family, "电话："+signatoriesList.get(0).getTelephoneFax());
+        WordUploadUtil.setfont(r1,font,family, "电话："+formatNullStr(signatoriesList.get(0).getTelephoneFax()));
         r1.addBreak();//换行
 
         r1 = p1.createRun();
         r1.setTextPosition(val);
-        WordUploadUtil.setfont(r1,font,family, "开户行："+signatoriesList.get(0).getOpeningBank());
+        WordUploadUtil.setfont(r1,font,family, "开户行："+formatNullStr(signatoriesList.get(0).getOpeningBank()));
         r1.addBreak();//换行
 
         r1 = p1.createRun();
         r1.setTextPosition(val);
-        WordUploadUtil.setfont(r1,font,family, "账号："+signatoriesList.get(0).getAccountNumber());
+        WordUploadUtil.setfont(r1,font,family, "账号："+formatNullStr(signatoriesList.get(0).getAccountNumber()));
         r1.addBreak();//换行
 
         r1 = p1.createRun();
         r1.setTextPosition(val);
-        WordUploadUtil.setfont(r1,font,family, "税号："+signatoriesList.get(0).getDutyParagraph());
+        WordUploadUtil.setfont(r1,font,family, "税号："+formatNullStr(signatoriesList.get(0).getCreditCode()));
 
         XWPFParagraph p2 = tb.getRow(0).getCell(1).getParagraphs().get(0);
         p2.setAlignment(ParagraphAlignment.LEFT);
@@ -1713,47 +1716,47 @@ public class PurchContractServiceImpl implements PurchContractService {
 
         r2 = p2.createRun();
         r2.setTextPosition(val);
-        WordUploadUtil.setfont(r2,font,family, "单位名称（章）："+signatoriesList.get(1).getSellerBuyer());
+        WordUploadUtil.setfont(r2,font,family, "单位名称（章）："+formatNullStr(signatoriesList.get(1).getSellerBuyer()));
         r2.addBreak();//换行
 
         r2 = p2.createRun();
         r2.setTextPosition(val);
-        WordUploadUtil.setfont(r2,font,family, "地址："+signatoriesList.get(1).getAddress());
+        WordUploadUtil.setfont(r2,font,family, "地址："+formatNullStr(signatoriesList.get(1).getAddress()));
         r2.addBreak();//换行
 
         r2 = p2.createRun();
         r2.setTextPosition(val);
-        WordUploadUtil.setfont(r2,font,family, "邮政编码："+signatoriesList.get(1).getPostalCode());
+        WordUploadUtil.setfont(r2,font,family, "邮政编码："+formatNullStr(signatoriesList.get(1).getPostalCode()));
         r2.addBreak();//换行
 
         r2 = p2.createRun();
         r2.setTextPosition(val);
-        WordUploadUtil.setfont(r2,font,family, "法定代表人："+signatoriesList.get(1).getLegalRepresentative());
+        WordUploadUtil.setfont(r2,font,family, "法定代表人："+formatNullStr(signatoriesList.get(1).getLegalRepresentative()));
         r2.addBreak();//换行
 
         r2 = p2.createRun();
         r2.setTextPosition(val);
-        WordUploadUtil.setfont(r2,font,family, "委托代理人："+signatoriesList.get(1).getAgent());
+        WordUploadUtil.setfont(r2,font,family, "委托代理人："+formatNullStr(signatoriesList.get(1).getAgent()));
         r2.addBreak();//换行
 
         r2 = p2.createRun();
         r2.setTextPosition(val);
-        WordUploadUtil.setfont(r2,font,family, "电话："+signatoriesList.get(1).getTelephoneFax());
+        WordUploadUtil.setfont(r2,font,family, "电话："+formatNullStr(signatoriesList.get(1).getTelephoneFax()));
         r2.addBreak();//换行
 
         r2 = p2.createRun();
         r2.setTextPosition(val);
-        WordUploadUtil.setfont(r2,font,family, "开户行："+signatoriesList.get(1).getOpeningBank());
+        WordUploadUtil.setfont(r2,font,family, "开户行："+formatNullStr(signatoriesList.get(1).getOpeningBank()));
         r2.addBreak();//换行
 
         r2 = p2.createRun();
         r2.setTextPosition(val);
-        WordUploadUtil.setfont(r2,font,family, "账号："+signatoriesList.get(1).getAccountNumber());
+        WordUploadUtil.setfont(r2,font,family, "账号："+formatNullStr(signatoriesList.get(1).getAccountNumber()));
         r2.addBreak();//换行
 
         r2 = p2.createRun();
         r2.setTextPosition(val);
-        WordUploadUtil.setfont(r2,font,family, "税号："+signatoriesList.get(1).getDutyParagraph());
+        WordUploadUtil.setfont(r2,font,family, "统一社会信用代码证："+formatNullStr(signatoriesList.get(1).getCreditCode()));
 
         //表格属性
         CTTbl ttbl = tb.getCTTbl();
@@ -1764,6 +1767,23 @@ public class PurchContractServiceImpl implements PurchContractService {
         //设置表格宽度为非自动
         tblWidth.setType(STTblWidth.DXA);
 
+    }
+
+    // null转""
+    private String formatNullStr(String str){
+        if(str == null){
+            str = "";
+        }
+        return str;
+    }
+
+    // 去掉后面无用的零
+    private String dropZero(String str){
+        if(str.indexOf(".") > 0){
+            str = str.replaceAll("0+?$", "");//去掉后面无用的零
+            str = str.replaceAll("[.]$", "");//如小数点后面全是零则去掉小数点
+        }
+        return str;
     }
 
 
