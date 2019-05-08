@@ -172,6 +172,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "销售业绩统计");
         return workbook;
     }
+
     @Override
     public Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics condition, Set<String> countries, int pageNum, int pageSize) {
         LOGGER.info("查询商品统计基本信息");
@@ -650,6 +651,8 @@ public class StatisticsServiceImpl implements StatisticsService {
             projectGood01.setCurrencyBn("USD");
             projectGood01.setProjectName(p.getProjectName());
             projectGood01.setTotalPrice(p.getTotalPrice());
+            projectGood01.setProfit(p.getProfit());
+            projectGood01.setCountry(p.getCountry());
             projectGoodsStatistics.add(projectGood01);
             count++;
             if (p.getGoodsList() != null) {
@@ -673,17 +676,17 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         }
         String[] header = new String[]{"序号", "项目创建日期", "项目开始日期", "销售合同号", "订单类别", "海外销类型", "询单号", "项目号",// "未用易瑞签约原因",
-                "是否通过代理商获取", "代理商代码", "PO号", "合同标的", "海外销售合同号", "物流报价单号", "产品分类", "执行分公司", "事业部",
+                "是否通过代理商获取", "代理商代码", "PO号", "合同标的", "海外销售合同号", "物流报价单号", "产品分类", "执行分公司", "事业部", "国家",
                 "所属地区", "CRM客户代码", "客户类型", "品名中文", "品名外文", "规格", "数量", "单位", "项目金额", "币种",
-                "收款方式", "回款时间", "回款金额", "初步利润率%", "授信情况", "执行单约定交付日期",
-                "要求采购到货日期", "执行单变更后日期", "分销部(获取人所在分类销售)", "市场经办人", "获取人", "商务技术经办人", "贸易术语",
-                "项目状态", "流程进度"};
+                "收款方式", "回款时间", "回款金额", "初步利润率%", "利润额", "授信情况", "执行单约定交付日期",
+                "要求采购到货日期", "执行单变更后日期", /*"分销部(获取人所在分类销售)", "市场经办人",*/ "获取人", "商务技术经办人", "贸易术语",
+                "项目状态"/*, "流程进度"*/};
         String[] keys = new String[]{"id", "createTime", "startDate", "contractNo", "orderCategory", "overseasSales", "inquiryNo", "projectNo",// "nonReson",
-                "agent", "agentNo", "poNo", "projectName", "contractNoOs", "logiQuoteNo", "proCate", "execCoName", "businessUnitName",
+                "agent", "agentNo", "poNo", "projectName", "contractNoOs", "logiQuoteNo", "proCate", "execCoName", "businessUnitName", "country",
                 "regionZh", "crmCode", "customerType", "nameZh", "nameEn", "model", "contractGoodsNum", "unit", "totalPrice", "currencyBn",
-                "paymentModeBnName", "paymentDate", "currencyBnMoney", "profitPercent", "grantType", "deliveryDate",
-                "requirePurchaseDate", "exeChgDate", "distributionDeptName", "agentName", "acquireId", "businessName", "tradeTerms",
-                "projectStatus", "processProgress"};
+                "paymentModeBnName", "paymentDate", "currencyBnMoney", "profitPercent", "profit", "grantType", "deliveryDate",
+                "requirePurchaseDate", "exeChgDate", /*"distributionDeptName", "agentName",*/ "acquireId", "businessName", "tradeTerms",
+                "projectStatus"/*, "processProgress"*/};
         BuildExcel buildExcel = new BuildExcelImpl();
         Object objArr = JSON.toJSON(projectGoodsStatistics);
         HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "项目商品信息统计");
@@ -718,13 +721,13 @@ public class StatisticsServiceImpl implements StatisticsService {
         projectGoods.setDeliveryDate(proStatistics.getDeliveryDate());
         projectGoods.setRequirePurchaseDate(proStatistics.getRequirePurchaseDate());
         projectGoods.setExeChgDate(proStatistics.getExeChgDate());
-        projectGoods.setDistributionDeptName(proStatistics.getDistributionDeptName());
-        projectGoods.setAgentName(proStatistics.getAgentName());
+        //projectGoods.setDistributionDeptName(proStatistics.getDistributionDeptName());
+        //projectGoods.setAgentName(proStatistics.getAgentName());
         projectGoods.setAcquireId(proStatistics.getAcquireId());
         projectGoods.setBusinessName(proStatistics.getBusinessName());
         projectGoods.setTradeTerms(proStatistics.getTradeTerms());
         projectGoods.setProjectStatus(proStatistics.getProjectStatusName());
-        projectGoods.setProcessProgress(proStatistics.getProcessProgressName());
+        //projectGoods.setProcessProgress(proStatistics.getProcessProgressName());
         return projectGoods;
     }
 
