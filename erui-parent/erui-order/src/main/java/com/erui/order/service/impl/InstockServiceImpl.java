@@ -120,9 +120,7 @@ public class InstockServiceImpl implements InstockService {
                 }
                 // 仓库经办人
                 if (StringUtil.isNotBlank(condition.get("wareHouseman"))) {
-
                     Integer wareHouseman = Integer.parseInt(condition.get("wareHouseman"));
-
                     list.add(cb.equal(root.get("uid").as(Integer.class), wareHouseman));
 
                 }
@@ -144,7 +142,7 @@ public class InstockServiceImpl implements InstockService {
         }, request);
 
         // 转换为控制层需要的数据
-        List<Map<String, Object>> list = new ArrayList<>();
+        List<Map<String, Object>> returnList = new ArrayList<>();
         if (page.hasContent()) {
             for (Instock instock : page.getContent()) {
                 Map<String, Object> map = new HashMap<>();
@@ -155,19 +153,21 @@ public class InstockServiceImpl implements InstockService {
                 List<String> purchNoList = new ArrayList<>();
                 // 销售合同号 和 项目号
                 List<InstockGoods> instockGoodsList = instock.getInstockGoodsList();
-                instockGoodsList.stream().forEach(instockGoods -> {
-                    if (StringUtil.isNotBlank(instockGoods.getContractNo())) {
-                        contractNoList.add(instockGoods.getContractNo());
-                    }
-                    PurchGoods purchGoods = instockGoods.getInspectApplyGoods().getPurchGoods();
-                    Goods goods = purchGoods.getGoods();
-                    purchNoList.add(purchGoods.getPurch().getPurchNo());
+                if (instockGoodsList != null && instockGoodsList.size() > 0) {
+                    instockGoodsList.stream().forEach(instockGoods -> {
+                        if (StringUtil.isNotBlank(instockGoods.getContractNo())) {
+                            contractNoList.add(instockGoods.getContractNo());
+                        }
+                        PurchGoods purchGoods = instockGoods.getInspectApplyGoods().getPurchGoods();
+                        Goods goods = purchGoods.getGoods();
+                        purchNoList.add(purchGoods.getPurch().getPurchNo());
 
-                    if (StringUtil.isNotBlank(goods.getProjectNo())) {
-                        projectNoList.add(goods.getProjectNo());
-                    }
+                        if (StringUtil.isNotBlank(goods.getProjectNo())) {
+                            projectNoList.add(goods.getProjectNo());
+                        }
 
-                });
+                    });
+                }
               /*  Set<String> cNoList = new HashSet<>(contractNoList);
                 Set<String> pNoList = new HashSet<>(projectNoList);
                 Set<String> prNoList = new HashSet<>(purchNoList);*/
@@ -183,14 +183,14 @@ public class InstockServiceImpl implements InstockService {
                 map.put("uname", instock.getUname());
                 map.put("uid", instock.getUid());
                 map.put("outCheck", instock.getOutCheck());//是否外检（ 0：否   1：是）
-                if (purchNoList.size() > 0) {
+                if (purchNoList != null && purchNoList.size() > 0) {
                     map.put("purchNo", StringUtils.join(removeRepeat(purchNoList), ","));   //采购合同号
                 }
 
-                list.add(map);
+                returnList.add(map);
             }
         }
-        PageImpl<Map<String, Object>> resultPage = new PageImpl<Map<String, Object>>(list, request, page.getTotalElements());
+        PageImpl<Map<String, Object>> resultPage = new PageImpl<Map<String, Object>>(returnList, request, page.getTotalElements());
 
         return resultPage;
     }
