@@ -132,7 +132,7 @@ public class ProjectV2ServiceImpl implements ProjectV2Service {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean updateProject(Project project) throws Exception {
+    public boolean updateProject(Project project, Integer userId) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
         Project projectUpdate = findById(project.getId());
         Order order = projectUpdate.getOrder();
@@ -181,11 +181,13 @@ public class ProjectV2ServiceImpl implements ProjectV2Service {
                     // 设置下一流程进度，主要是因为当前项目操作中，异步回调此项目设置失败，再这里直接设置了
                     projectUpdate.setAuditingProcess("task_pc,task_lg,task_pu");
                     projectUpdate.setAuditingStatus(2); // 审核中
-                    String callerId = null;
-                    if (StringUtils.isNotBlank(eruiToken) && eruiToken.length() >= 6) {
-                        callerId = eruiToken.substring(eruiToken.length() - 6);
+                    String audiRemark = projectUpdate.getAudiRemark();
+                    if (StringUtils.isBlank(audiRemark)) {
+                        audiRemark = "";
                     }
-                    projectUpdate.setAudiRemark(callerId); // 设置审核人
+                    if (userId != null) {
+                        projectUpdate.setAudiRemark(audiRemark + "," + String.valueOf(userId) + ","); // 设置审核人
+                    }
                 }
             } else {
                 // 其他分支，错误

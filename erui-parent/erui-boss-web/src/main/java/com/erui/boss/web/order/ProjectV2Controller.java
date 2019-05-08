@@ -78,6 +78,12 @@ public class ProjectV2Controller {
             }
             String eruiToken = CookiesUtil.getEruiToken(request);
             ThreadLocalUtil.setObject(eruiToken);
+            Object sessionUserIdObj = request.getSession().getAttribute("userid");
+            Integer userId = null;
+            if (sessionUserIdObj != null && StringUtils.isNumeric(String.valueOf(sessionUserIdObj))) {
+                userId = Integer.parseInt(String.valueOf(sessionUserIdObj));
+            }
+
 
             Order order = proStatus.getOrder();
             if (StringUtils.isNotBlank(project.getTaskId()) && !"task_pm".equals(order.getAuditingProcess())) {
@@ -86,7 +92,7 @@ public class ProjectV2Controller {
                 return new Result<>(ResultStatusEnum.PROJECT_NOT_EXIST);
             }
 
-            if (projectV2Service.updateProject(project)) {
+            if (projectV2Service.updateProject(project, userId)) {
                 return new Result<>();
             } else {
                 errorMsg = "项目状态错误";
