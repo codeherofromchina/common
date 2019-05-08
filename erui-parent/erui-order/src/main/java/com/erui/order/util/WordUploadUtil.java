@@ -173,9 +173,9 @@ public class WordUploadUtil {
         CTTcPr tcPr = cttc.isSetTcPr() ? cttc.getTcPr() : cttc.addNewTcPr();
         return tcPr;
     }
-    //导出
+    // 导出
     public static void export(XWPFDocument doc){
-        //导出
+        // 导出
         FileOutputStream out = null;
         try {
             out = new FileOutputStream("E:/报告.docx");
