@@ -140,10 +140,9 @@ public class InstockServiceImpl implements InstockService {
                 return cb.and(predicates);
             }
         }, request);
-
         // 转换为控制层需要的数据
         List<Map<String, Object>> returnList = new ArrayList<>();
-        if (page.hasContent()) {
+        if (page.hasContent() && page.getContent().size() > 0) {
             for (Instock instock : page.getContent()) {
                 Map<String, Object> map = new HashMap<>();
                 map.put("id", instock.getId());
@@ -168,11 +167,12 @@ public class InstockServiceImpl implements InstockService {
 
                     });
                 }
-              /*  Set<String> cNoList = new HashSet<>(contractNoList);
-                Set<String> pNoList = new HashSet<>(projectNoList);
-                Set<String> prNoList = new HashSet<>(purchNoList);*/
-                map.put("contractNos", StringUtils.join(removeRepeat(contractNoList), ","));
-                map.put("projectNos", StringUtils.join(removeRepeat(projectNoList), ","));
+                if (contractNoList != null && contractNoList.size() > 0) {
+                    map.put("contractNos", StringUtils.join(removeRepeat(contractNoList), ","));
+                }
+                if (projectNoList != null && projectNoList.size() > 0) {
+                    map.put("projectNos", StringUtils.join(removeRepeat(projectNoList), ","));
+                }
                 map.put("department", instock.getDepartment());
                 // 供应商名称
                 map.put("supplierName", instock.getSupplierName());
@@ -186,7 +186,6 @@ public class InstockServiceImpl implements InstockService {
                 if (purchNoList != null && purchNoList.size() > 0) {
                     map.put("purchNo", StringUtils.join(removeRepeat(purchNoList), ","));   //采购合同号
                 }
-
                 returnList.add(map);
             }
         }
