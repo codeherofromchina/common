@@ -84,7 +84,6 @@ public class InstockServiceImpl implements InstockService {
     @Transactional(readOnly = true)
     public Page<Map<String, Object>> listByPage(Map<String, String> condition, int pageNum, int pageSize) {
         PageRequest request = new PageRequest(pageNum, pageSize, Sort.Direction.DESC, "id");
-
         Page<Instock> page = instockDao.findAll(new Specification<Instock>() {
             @Override
             public Predicate toPredicate(Root<Instock> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -127,7 +126,6 @@ public class InstockServiceImpl implements InstockService {
                     list.add(cb.equal(root.get("uid").as(Integer.class), wareHouseman));
 
                 }
-
                 // 销售合同号 、 项目号查询
                 if (StringUtils.isNotBlank(condition.get("projectNo")) || StringUtils.isNotBlank(condition.get("contractNo"))) {
                     Set<Integer> a = queryProjectNoAndContractNo(condition.get("projectNo"), condition.get("contractNo"));
