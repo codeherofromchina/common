@@ -95,7 +95,7 @@ public class WordUploadUtil {
         }
         return doc;
     }
-    //统一设置表格样式和宽度
+    // 统一设置表格样式和宽度
     public static void exchange(XWPFDocument doc, int cells){
         List<XWPFTable> list = doc.getTables();
         for (XWPFTable xwpfTable : list) {
