@@ -28,7 +28,7 @@ public class DeliverdetailServiceImpl implements DeliverdetailService {
     public String findNewestDeliverDetailNo() {
         PageHelper.offsetPage(0, 1, false);
         DeliverDetailExample example = new DeliverDetailExample();
-        example.setOrderByClause("order by deliver_detail_no desc");
+        example.setOrderByClause("deliver_detail_no desc");
 
         List<DeliverDetail> deliverDetails = deliverDetailMapper.selectByExample(example);
         if (deliverDetails != null && deliverDetails.size() > 0) {
