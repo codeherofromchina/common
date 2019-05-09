@@ -247,7 +247,7 @@
         AND t3.log_inquiry_id = t1.id
         ) AS a
         LEFT JOIN
-        `erui_sys`.`org` `e` ON `a`.`org_id` = `e`.`id`
+        `erui_sys`.`group` `e` ON `a`.`org_id` = `e`.`id`
         AND `e`.`deleted_flag` = 'N'
         GROUP BY `e`.`name`
         HAVING `e`.`name` IS NOT NULL
@@ -568,9 +568,9 @@
     </select>
 
     <!-- 查询各大区有多少员工-->
-    <select id="selectEmployeeCountGroupByArea" resultType="java.util.Map">
-        SELECT count(DISTINCT(member.employee_id))  as employeeCount ,areasCh.name as area
-        FROM   erui_sys.country_member  AS member
+    <select id="selectUserCountGroupByArea" resultType="java.util.Map">
+        SELECT count(DISTINCT(member.user_id))  as userCount ,areasCh.name as area
+        FROM   erui_sys.country_user  AS member
         LEFT JOIN  erui_operation.market_area_country AS areasBn
         on  member.country_bn=areasBn.country_bn
 		LEFT JOIN erui_operation.market_area    AS areasCh

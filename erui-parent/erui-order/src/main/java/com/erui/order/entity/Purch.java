@@ -24,11 +24,6 @@ public class Purch {
     @Column(name = "purch_no")
     private String purchNo;
 
-    /**
-     * 采购合同id
-     */
-    @Column(name = "purch_contract_id")
-    private Integer purchContractId;
     // 采购经办人ID
     @Column(name = "agent_id")
     private Integer agentId;
@@ -266,15 +261,6 @@ public class Purch {
     @JoinColumn(name = "purch_id")
     @OrderBy("id asc")
     private List<PurchGoods> purchGoodsList = new ArrayList<>();
-
-
-    public Integer getPurchContractId() {
-        return purchContractId;
-    }
-
-    public void setPurchContractId(Integer purchContractId) {
-        this.purchContractId = purchContractId;
-    }
 
     public Integer getChairmanBoardId() {
         return chairmanBoardId;
@@ -931,14 +917,14 @@ public class Purch {
         this.setSupplierName(purch.getSupplierName());
         this.setTotalPrice(purch.getTotalPrice());
         this.setCurrencyBn(purch.getCurrencyBn());
-        //this.setPayType(purch.getPayType());
-        //this.setOtherPayTypeMsg(purch.getOtherPayTypeMsg());
-        //this.setProductedDate(purch.getProductedDate()); // 工厂生产完成时间
-        //this.setPayFactoryDate(purch.getPayFactoryDate()); // 给工厂付款时间
-        //this.setPayDepositDate(purch.getPayDepositDate()); //质保金支付时间
-        //this.setPayDepositExpired(purch.getPayDepositExpired()); // 质保金到期时间
-        //this.setInvoiceNo(purch.getInvoiceNo()); // 发票号
-        //this.setAccountDate(purch.getAccountDate()); // 挂账时间
+        this.setPayType(purch.getPayType());
+        this.setOtherPayTypeMsg(purch.getOtherPayTypeMsg());
+        this.setProductedDate(purch.getProductedDate()); // 工厂生产完成时间
+        this.setPayFactoryDate(purch.getPayFactoryDate()); // 给工厂付款时间
+        this.setPayDepositDate(purch.getPayDepositDate()); //质保金支付时间
+        this.setPayDepositExpired(purch.getPayDepositExpired()); // 质保金到期时间
+        this.setInvoiceNo(purch.getInvoiceNo()); // 发票号
+        this.setAccountDate(purch.getAccountDate()); // 挂账时间
         this.setRemarks(purch.getRemarks()); // 备注
 
         this.setPurchAuditerId(purch.getPurchAuditerId());

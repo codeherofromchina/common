@@ -33,19 +33,10 @@ public class PurchPayment {
     @Column(name = "receipt_date")
     private Date receiptDate;
 
-    private Integer days;
 
     @Column(name = "create_time")
     @JsonIgnore
     private Date createTime;
-
-    public Integer getDays() {
-        return days;
-    }
-
-    public void setDays(Integer days) {
-        this.days = days;
-    }
 
     public Integer getId() {
         return id;

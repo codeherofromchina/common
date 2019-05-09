@@ -40,25 +40,20 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
     @Autowired
     private InspectApplyDao inspectApplyDao;
-
     @Autowired
     private InspectApplyGoodsDao inspectApplyGoodsDao;
-
     @Autowired
     private PurchDao purchDao;
-
+    @Autowired
+    private PurchServiceImpl purchServiceImpl;
     @Autowired
     private PurchGoodsDao purchGoodsDao;
-
     @Autowired
     private GoodsDao goodsDao;
-
     @Autowired
     private AttachmentService attachmentService;
-
     @Autowired
     private InspectReportDao inspectReportDao;
-
     @Autowired
     private InspectApplyTmpAttachDao inspectApplyTmpAttachDao;
 
@@ -70,9 +65,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
     @Autowired
     private BackLogService backLogService;
-
-    @Autowired
-    private PurchContractDao purchContractDao;
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
@@ -319,23 +311,17 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     public void checkPurchHasDone(Purch purch) {
         List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
         boolean doneFlag = true;
-        boolean purchContractStatus = true;
         for (PurchGoods pg : purchGoodsList) {
             if (pg.getGoodNum() < pg.getPurchaseNum()) {
                 doneFlag = false;
                 break;
             }
         }
-        //当已采购数量不小于采购合同数量时采购完成 采购合同完成
-        for (PurchGoods pg : purchGoodsList) {
-            if (pg.getPurchContractGoods().getPurchaseNum() < pg.getPurchContractGoods().getPurchasedNum()) {
-                purchContractStatus = false;
-                break;
-            }
-        }
         if (doneFlag) {
             purch.setStatus(Purch.StatusEnum.DONE.getCode());
             purchDao.save(purch);
+            //当全部采购完成时设置供应商状态为COMPLETED
+            purchServiceImpl.updateSupplierStatus(purch.getId(), "COMPLETED");
             try {
                 // 删除办理报检单待办事项列表
                 //全部质检合格以后，删除   “办理报检单”  待办提示
@@ -346,13 +332,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-        }
-        if (purchContractStatus) {
-            if (purch.getPurchContractId() != null) {
-                PurchContract purchContract = purchContractDao.findOne(purch.getPurchContractId());
-                purchContract.setStatus(4);
-                purchContractDao.save(purchContract);
-            }
+        } else {
+            //当部分采购时设置供应商状态为PART_RECEIPT
+            purchServiceImpl.updateSupplierStatus(purch.getId(), "PART_RECEIPT");
         }
     }
 
