@@ -195,6 +195,30 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Order findByContractNoOrId(String contractNo, Integer id) {
+        Order order = orderDao.findByContractNoOrId(contractNo, id);
+        if (order != null) {
+            if (order.getProject() != null && order.getProject().getAuditingStatus() != null && order.getProject().getAuditingStatus() == 4) {
+                order.setProAuditStatus(1);
+            }
+            Integer size = order.getGoodsList().size();
+            if (size > 0) {
+                List<Goods> goodsList = order.getGoodsList();
+                for (Goods goods : goodsList) {
+                    goods.setPurchGoods(null);
+                }
+            }
+            List<Attachment> orderAttachment = attachmentDao.findByRelObjIdAndCategory(id, Attachment.AttachmentCategory.ORDER.getCode());
+            if (orderAttachment != null && orderAttachment.size() > 0) {
+                order.setAttachmentSet(orderAttachment);
+            }
+            order.getAttachmentSet().size();
+            return order;
+        }
+        return null;
+    }
 
     // 2019-01-30 增加需求，如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
     private String[] getCountryHeaderByRole() {
@@ -821,7 +845,7 @@ public class OrderServiceImpl implements OrderService {
             }
         }
         orderDao.save(order);
-        auditBackLogHandle(order, rejectFlag, auditingUserId_i, auditorId , isComeMore);
+        auditBackLogHandle(order, rejectFlag, auditingUserId_i, auditorId, isComeMore);
         return true;
     }
 

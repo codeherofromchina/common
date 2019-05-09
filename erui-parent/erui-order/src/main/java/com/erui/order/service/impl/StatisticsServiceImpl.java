@@ -422,59 +422,6 @@ public class StatisticsServiceImpl implements StatisticsService {
                                 }
                             }
                         }
-                        //第一种方法
-                        /*Map<String, Integer> map = new HashMap<>();
-                        for (int i = 0; i < proCateList.size(); i++) {
-                            *//*
-                         * map.containsKey(Object findKey)
-                         * 方法介绍： 如果此映射包含指定键的映射关系，则返回 true。
-                         * 说明：map已经包含了findKey的映射关系 则返回true 否则返回false
-                         *//*
-                            if (map.containsKey(proCateList.get(i))) {
-                                int tempCount = map.get(proCateList.get(i));
-                                map.put(proCateList.get(i), ++tempCount);
-                            } else {
-                                map.put(proCateList.get(i), 1);
-                            }
-                        }
-                         * Map的遍历操作 map.entrySet().iterator(); map.getKey() map.getValue()
-                         *//*
-                        Iterator<Map.Entry<String, Integer>> it = map.entrySet().iterator();
-                        int count = 0; // 全局记录某数字出现的最多的次数
-                        String maxCount = proCateList.get(0); // 默认出现最多的字符是第一个
-                        while (it.hasNext()) {
-                            Map.Entry<String, Integer> en = it.next();
-                            int tempCount = en.getValue();
-                            if (tempCount > count) {
-                                count = tempCount;
-                                maxCount = en.getKey();
-                            }
-                        }*/
-                        //第二种方法
-                     /* TreeMap<String, Integer> mapCate1 = goodsList.stream().map(vo -> {
-                            TreeMap<String, Integer> mapcate2 = new TreeMap<>();
-                            mapcate2.put(vo.getProType(), 1);
-                            return mapcate2;
-                        }).reduce((map1, map2) -> {
-                            String protype = map2.keySet().toArray(new String[1])[0];
-                            if (map1.containsKey(protype)) {
-                                Integer integer = map1.get(protype);
-                                integer += 1;
-                                map1.put(protype, integer);
-                            } else {
-                                map1.put(protype, 1);
-                            }
-                            return map1;
-                        }).get();
-
-                        String resultProtype = null;
-                        int num = 0;
-                        for (Map.Entry<String, Integer> entry : mapCate1.entrySet()) {
-                            if (entry.getValue() > num) {
-                                num = entry.getValue();
-                                resultProtype = entry.getKey();
-                            }
-                        }*/
                     }
                 }
                 orderIds.add(order.getId());
