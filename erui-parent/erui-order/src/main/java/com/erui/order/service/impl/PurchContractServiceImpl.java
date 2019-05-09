@@ -723,7 +723,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         }
 
         row = sheet.getRow(4);
-        //含16%增值税专用发票
+        // 含16%增值税专用发票
         cell = row.getCell(0);
         cell.setCellValue(cell.getStringCellValue().replace("16", purchContract.getTaxPoint()==null?"":dropZero(purchContract.getTaxPoint().toString())));
         // 合计（含16%增值税专用发票）小写：
