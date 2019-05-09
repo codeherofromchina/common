@@ -178,7 +178,6 @@ public class InstockServiceImpl implements InstockService {
                 // 供应商名称
                 map.put("supplierName", instock.getSupplierName());
                 // 入库时间
-
                 map.put("instockDate", instock.getInstockDate() != null ? new SimpleDateFormat("yyyy-MM-dd").format(instock.getInstockDate()) : null);
                 map.put("status", instock.getStatus());
                 map.put("uname", instock.getUname());
