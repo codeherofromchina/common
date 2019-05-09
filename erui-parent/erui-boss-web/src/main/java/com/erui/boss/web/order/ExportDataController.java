@@ -11,6 +11,7 @@ import com.erui.comm.util.excel.BuildExcelImpl;
 import com.erui.comm.util.excel.ExcelCustomStyle;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
+import com.erui.order.entity.PurchContract;
 import com.erui.order.model.GoodsStatistics;
 import com.erui.order.model.SaleStatistics;
 import com.erui.order.requestVo.OrderListCondition;
@@ -543,7 +544,11 @@ public class ExportDataController {
         }
         OutputStream out = null;
         try {
-            // 拿到模板文件
+            PurchContract purchContract= purchContractService.findDetailInfo(Integer.parseInt(id));
+            if(purchContract == null){
+                LOGGER.error("采购合同不存在 {}", id);
+                return; // 参数错误，无法下载
+            }
             // 获取模板文件内容
             String fileName = ExcelUploadTypeEnum.getByType(20).getTable();
             String contextRealPath = request.getSession().getServletContext().getRealPath(EXCEL_TEMPLATE_PATH);
@@ -551,12 +556,12 @@ public class ExportDataController {
             FileInputStream tps = new FileInputStream(file);
             final XSSFWorkbook workbook = new XSSFWorkbook(tps);
             out = response.getOutputStream();
-            String encode = URLEncoder.encode(fileName, "UTF-8");
+            String encode = URLEncoder.encode(purchContract.getPurchContractNo()+"简易合同", "UTF-8");
             // 输出到客户端
             response.reset();
             response.setContentType("application/octet-stream;charset=UTF-8");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + encode
-                    + DateUtil.format(DateUtil.SHORT_FORMAT_STR, new Date()) + EXCEL_SUFFIX + "\"");
+                    + EXCEL_SUFFIX + "\"");
             // 填充数据
             purchContractService.simpleContractExcelData(workbook, Integer.parseInt(id));
             // 输出Excel内容，生成Excel文件
@@ -597,15 +602,19 @@ public class ExportDataController {
         OutputStream out = null;
         try {
             // 拿到文件名字
-            String fileName = WordUploadTypeEnum.getByType(1).getTable();
+            PurchContract purchContract= purchContractService.findDetailInfo(Integer.parseInt(id));
+            if(purchContract == null){
+                LOGGER.error("采购合同不存在 {}", id);
+                return;
+            }
             final XWPFDocument doc = new XWPFDocument();
             out = response.getOutputStream();
-            String encode = URLEncoder.encode(fileName, "UTF-8");
+            String encode = URLEncoder.encode(purchContract.getPurchContractNo()+"标准合同", "UTF-8");
             // 输出到客户端
             response.reset();
             response.setContentType("application/octet-stream;charset=UTF-8");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + encode
-                    + DateUtil.format(DateUtil.SHORT_FORMAT_STR, new Date()) + WORD_SUFFIX + "\"");
+                    + WORD_SUFFIX + "\"");
             // 填充数据
             purchContractService.standardContractWordData(doc, Integer.parseInt(id));
             // 输出Word内容，生成Word文件

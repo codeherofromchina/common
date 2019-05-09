@@ -95,7 +95,7 @@ public class WordUploadUtil {
         }
         return doc;
     }
-    //统一设置表格样式和宽度
+    // 统一设置表格样式和宽度
     public static void exchange(XWPFDocument doc, int cells){
         List<XWPFTable> list = doc.getTables();
         for (XWPFTable xwpfTable : list) {
@@ -146,7 +146,7 @@ public class WordUploadUtil {
     }
 
 
-    //横向合并单元格
+    // 横向合并单元格
     public static void mergeCellsHorizontal(XWPFTable table, int row, int fromCell,int toCell){
         for (int cellIndex = fromCell; cellIndex <= toCell; cellIndex++) {
             XWPFTableCell cell = table.getRow(row).getCell(cellIndex);
@@ -157,7 +157,7 @@ public class WordUploadUtil {
             }
         }
     }
-    //纵向合并单元格
+    // 纵向合并单元格
     public static void mergeCellsVertically(XWPFTable table, int col, int fromRow,int toRow) {
         for (int rowIndex = fromRow; rowIndex <= toRow; rowIndex++) {
             XWPFTableCell cell = table.getRow(rowIndex).getCell(col);
@@ -173,9 +173,9 @@ public class WordUploadUtil {
         CTTcPr tcPr = cttc.isSetTcPr() ? cttc.getTcPr() : cttc.addNewTcPr();
         return tcPr;
     }
-    //导出
+    // 导出
     public static void export(XWPFDocument doc){
-        //导出
+        // 导出
         FileOutputStream out = null;
         try {
             out = new FileOutputStream("E:/报告.docx");
