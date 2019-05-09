@@ -2,6 +2,7 @@ package com.erui.report.dao;
 
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +27,14 @@ public interface OrderStatisticsMapper {
      * @return
      */
     List<Map<String, Object>> yearAreaPerformance(@Param("startYear") Integer startYear, @Param("endYear") Integer endYear);
+
+
+    /**
+     * 查询订单中项目列表
+     * @param params
+     * @return
+     */
+    BigDecimal projectTotalMoney(Map<String, String> params);
 
     /**
      * 查询订单中项目列表

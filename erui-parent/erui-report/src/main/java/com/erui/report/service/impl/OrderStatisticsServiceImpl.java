@@ -109,6 +109,19 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
         return result;
     }
 
+
+    /**
+     * 业务业绩统计 - 项目列表 -- 项目金额合计
+     *
+     * @return
+     */
+    @Override
+    public BigDecimal projectTotalMoney(Map<String, String> params) {
+        BigDecimal totalMoney = readMapper.projectTotalMoney(params);
+
+        return totalMoney;
+    }
+
     /**
      * 业务业绩统计 - 项目列表
      *

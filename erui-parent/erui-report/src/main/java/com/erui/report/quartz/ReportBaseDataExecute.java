@@ -8,7 +8,7 @@ import java.util.Properties;
 /**
  * Created by wangxiaodan on 2019/3/18.
  */
-public class ReportBaseQuartz {
+public class ReportBaseDataExecute {
     private Connection conn;
 
 
@@ -26,35 +26,36 @@ public class ReportBaseQuartz {
 
 
     public static void main(String[] args) {
-        ReportBaseQuartz quartz = new ReportBaseQuartz();
+        ReportBaseDataExecute quartz = new ReportBaseDataExecute();
         quartz.start();
-
     }
 
     public void start()  {
-        try {
-            init();
-            // 销售大区业绩统计数据定时完善
-            fullAreaPerformance();
-            // 订单业务数据业绩定时完善
-            fullOrderList();
-            // 会员地区信息表定时完善
-            fullBuyerCountryInfo();
-            // 会员事业部统计表定时完善
-            fullBuyerOrgInfo();
-            // 获取人基本信息表定时完善
-            fullAcquiringUserBaseInfo();
-            // 日报信息定时完善
-            // 事业部日报信息定时完善
-            fullDataForOrgDailyInfo();
-            // 国家日报信息定时完善
-            fullDataForCountryDailyInfo();
+        new Thread(() -> {
+            try {
+                init();
+                // 销售大区业绩统计数据定时完善
+                fullAreaPerformance();
+                // 订单业务数据业绩定时完善
+                fullOrderList();
+                // 会员地区信息表定时完善
+                fullBuyerCountryInfo();
+                // 会员事业部统计表定时完善
+                fullBuyerOrgInfo();
+                // 获取人基本信息表定时完善
+                fullAcquiringUserBaseInfo();
+                // 日报信息定时完善
+                // 事业部日报信息定时完善
+                fullDataForOrgDailyInfo();
+                // 国家日报信息定时完善
+                fullDataForCountryDailyInfo();
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        } finally {
-            destroy();
-        }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            } finally {
+                destroy();
+            }
+        }).start();
     }
 
     /**
