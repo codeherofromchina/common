@@ -607,13 +607,14 @@ public class MemberInfoServiceImpl implements MemberInfoService {
 
         int headerListSize = headerList.size();
         int row01Size = row01.size();
-        if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
-            headerList = headerList.subList(headerListSize > 10 ? headerListSize - 10 : 0, headerListSize);
-            row01 = row01.subList(row01Size > 10 ? row01Size - 10 : 0, row01Size);
-        } else {
-            headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
-            row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
-        }
+        // 导出excel中要全部数据
+//        if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
+//            headerList = headerList.subList(headerListSize > 10 ? headerListSize - 10 : 0, headerListSize);
+//            row01 = row01.subList(row01Size > 10 ? row01Size - 10 : 0, row01Size);
+//        } else {
+//            headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
+//            row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
+//        }
 
 
         headerList.add(0, "");
