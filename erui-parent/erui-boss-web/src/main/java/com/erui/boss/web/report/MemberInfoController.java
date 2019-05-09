@@ -90,7 +90,7 @@ public class MemberInfoController {
             new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
             return null;
         }
-        String fileName = "会员数据统计-人均效能统计-" + java.lang.System.currentTimeMillis() + ".xls";
+        String fileName = "会员数据统计-人均效能统计-" + System.currentTimeMillis() + ".xls";
         try {
             HttpUtils.setExcelResponseHeader(response, fileName.toString());
             wb.write(response.getOutputStream());
@@ -166,7 +166,7 @@ public class MemberInfoController {
             new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
             return null;
         }
-        String fileName = "会员数据统计-客户拜访统计-" + java.lang.System.currentTimeMillis() + ".xls";
+        String fileName = "会员数据统计-客户拜访统计-" + System.currentTimeMillis() + ".xls";
         try {
             HttpUtils.setExcelResponseHeader(response, fileName.toString());
             wb.write(response.getOutputStream());
@@ -275,7 +275,7 @@ public class MemberInfoController {
             new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
             return null;
         }
-        String fileName = "会员数据统计-会员统计-" + java.lang.System.currentTimeMillis() + ".xls";
+        String fileName = "会员数据统计-会员统计-" + System.currentTimeMillis() + ".xls";
         try {
             HttpUtils.setExcelResponseHeader(response, fileName.toString());
             wb.write(response.getOutputStream());
@@ -349,7 +349,7 @@ public class MemberInfoController {
             new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
             return null;
         }
-        String fileName = "会员数据统计-会员统计-" + java.lang.System.currentTimeMillis() + ".xls";
+        String fileName = "会员数据统计-会员统计-" + System.currentTimeMillis() + ".xls";
         try {
             HttpUtils.setExcelResponseHeader(response, fileName.toString());
             wb.write(response.getOutputStream());
@@ -427,7 +427,7 @@ public class MemberInfoController {
             new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
             return null;
         }
-        String fileName = "会员数据统计-会员签约主体-" + java.lang.System.currentTimeMillis() + ".xls";
+        String fileName = "会员数据统计-会员签约主体-" + System.currentTimeMillis() + ".xls";
         try {
             HttpUtils.setExcelResponseHeader(response, fileName.toString());
             wb.write(response.getOutputStream());
@@ -488,7 +488,7 @@ public class MemberInfoController {
             new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
             return null;
         }
-        String fileName = "会员数据统计-成单客户-" + java.lang.System.currentTimeMillis() + ".xls";
+        String fileName = "会员数据统计-成单客户-" + System.currentTimeMillis() + ".xls";
         try {
             HttpUtils.setExcelResponseHeader(response, fileName.toString());
             wb.write(response.getOutputStream());

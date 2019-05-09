@@ -98,7 +98,7 @@ public interface SalesDataMapper {
      *
      * @return
      */
-    List<Map<String, Object>> selectEmployeeCountGroupByArea();
+    List<Map<String, Object>> selectUserCountGroupByArea();
 
 
 }

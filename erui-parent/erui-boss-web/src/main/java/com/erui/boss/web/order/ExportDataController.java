@@ -6,32 +6,29 @@ import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.data.date.DateUtil;
-import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.excel.BuildExcel;
 import com.erui.comm.util.excel.BuildExcelImpl;
 import com.erui.comm.util.excel.ExcelCustomStyle;
-import com.erui.comm.util.pinyin4j.Pinyin4j;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
+import com.erui.order.entity.PurchContract;
 import com.erui.order.model.GoodsStatistics;
 import com.erui.order.model.SaleStatistics;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.requestVo.ProjectListCondition;
-import com.erui.order.service.OrderService;
-import com.erui.order.service.ProjectService;
-import com.erui.order.service.PurchService;
-import com.erui.order.service.StatisticsService;
+import com.erui.order.service.*;
 import com.erui.report.util.ExcelUploadTypeEnum;
+import com.erui.report.util.WordUploadTypeEnum;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
@@ -62,6 +59,8 @@ public class ExportDataController {
     private ProjectService projectService;
     @Autowired
     private PurchService purchService;
+    @Autowired
+    private PurchContractService purchContractService;
 
     /**
      * 导出销售业绩统计信息
@@ -257,9 +256,9 @@ public class ExportDataController {
             }
 
         }
-      /*  String[] header = new String[]{"销售合同号", "项目号", "项目名称", "执行分公司", "分销部", "事业部", "商务技术经办人", "所属地区",
+      /*  String[] header = new String[]{"销售合同号", "项目号", "合同标的", "执行分公司", "分销部", "事业部", "商务技术经办人", "所属地区",
                 "项目创建日期","项目开始日期", "执行单约定交付日期", "执行单变更后日期", "要求采购到货日期", "项目状态", "流程进度"};*/
-        String[] header = new String[]{"销售合同号", "项目号", "项目名称", "执行事业部", "商务技术经办人", "项目创建日期", "项目开始日期", "项目状态", "流程进度"};
+        String[] header = new String[]{"销售合同号", "项目号", "合同标的", "执行事业部", "商务技术经办人", "项目创建日期", "项目开始日期", "项目状态", "流程进度"};
    /*     String[] keys = new String[]{"contractNo", "projectNo", "projectName", "execCoName", "distributionDeptName", "businessUnitName", "businessName", "region",
                 "createTime", "startDate", "deliveryDate", "exeChgDate", "requirePurchaseDate", "projectStatusName", "processProgressName"};*/
         String[] keys = new String[]{"contractNo", "projectNo", "projectName", "businessUnitName", "businessName", "createTime", "startDate", "projectStatusName", "processProgressName"};
@@ -527,7 +526,119 @@ public class ExportDataController {
         }
     }
 
+
+
+    /**
+     * 导出简易采购合同excel
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "/exportPurchContractSimple", method = RequestMethod.GET)
+    public void exportPurchContractSimple(HttpServletRequest request, HttpServletResponse response) {
+        String id = request.getParameter("id");
+        if (StringUtils.isBlank(id) || !StringUtils.isNumeric(id)) {
+            LOGGER.error("参数不正确 {}", id);
+            return; // 参数错误，无法下载
+        }
+        OutputStream out = null;
+        try {
+            PurchContract purchContract= purchContractService.findDetailInfo(Integer.parseInt(id));
+            if(purchContract == null){
+                LOGGER.error("采购合同不存在 {}", id);
+                return; // 参数错误，无法下载
+            }
+            // 获取模板文件内容
+            String fileName = ExcelUploadTypeEnum.getByType(20).getTable();
+            String contextRealPath = request.getSession().getServletContext().getRealPath(EXCEL_TEMPLATE_PATH);
+            File file = new File(contextRealPath, fileName + EXCEL_SUFFIX);
+            FileInputStream tps = new FileInputStream(file);
+            final XSSFWorkbook workbook = new XSSFWorkbook(tps);
+            out = response.getOutputStream();
+            String encode = URLEncoder.encode(purchContract.getPurchContractNo()+"简易合同", "UTF-8");
+            // 输出到客户端
+            response.reset();
+            response.setContentType("application/octet-stream;charset=UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + encode
+                    + EXCEL_SUFFIX + "\"");
+            // 填充数据
+            purchContractService.simpleContractExcelData(workbook, Integer.parseInt(id));
+            // 输出Excel内容，生成Excel文件
+            if (workbook != null) {
+                workbook.write(out);
+            }
+
+        } catch (final Exception e) {
+            LOGGER.error("异常" + e.getMessage(), e);
+        } finally {
+            try {
+                // 最后记得关闭输出流
+                response.flushBuffer();
+                if (out != null) {
+                    out.flush();
+                    out.close();
+                }
+            } catch (final IOException e) {
+                LOGGER.error("异常" + e.getMessage(), e);
+            }
+        }
+    }
+
+    /**
+     * 导出标准采购合同word
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "/exportPurchContractStandard", method = RequestMethod.GET)
+    public void exportPurchContractStandard(HttpServletRequest request, HttpServletResponse response) {
+        String id = request.getParameter("id");
+        if (StringUtils.isBlank(id) || !StringUtils.isNumeric(id)) {
+            LOGGER.error("参数不正确 {}", id);
+            return; // 参数错误，无法下载
+        }
+        OutputStream out = null;
+        try {
+            // 拿到文件名字
+            PurchContract purchContract= purchContractService.findDetailInfo(Integer.parseInt(id));
+            if(purchContract == null){
+                LOGGER.error("采购合同不存在 {}", id);
+                return;
+            }
+            final XWPFDocument doc = new XWPFDocument();
+            out = response.getOutputStream();
+            String encode = URLEncoder.encode(purchContract.getPurchContractNo()+"标准合同", "UTF-8");
+            // 输出到客户端
+            response.reset();
+            response.setContentType("application/octet-stream;charset=UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + encode
+                    + WORD_SUFFIX + "\"");
+            // 填充数据
+            purchContractService.standardContractWordData(doc, Integer.parseInt(id));
+            // 输出Word内容，生成Word文件
+            if (doc != null) {
+                doc.write(out);
+            }
+
+        } catch (final Exception e) {
+            LOGGER.error("异常" + e.getMessage(), e);
+        } finally {
+            try {
+                // 最后记得关闭输出流
+                response.flushBuffer();
+                if (out != null) {
+                    out.flush();
+                    out.close();
+                }
+            } catch (final IOException e) {
+                LOGGER.error("异常" + e.getMessage(), e);
+            }
+        }
+    }
+
     private static final String EXCEL_TEMPLATE_PATH = "/WEB-INF/template/excel";
     private static final String EXCEL_SUFFIX = ".xlsx";
-    private static final String EXCEL_SUFFIX02 = ".xls";
+    private static final String WORD_SUFFIX = ".docx";
 }

@@ -195,6 +195,30 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Order findByContractNoOrId(String contractNo, Integer id) {
+        Order order = orderDao.findByContractNoOrId(contractNo, id);
+        if (order != null) {
+            if (order.getProject() != null && order.getProject().getAuditingStatus() != null && order.getProject().getAuditingStatus() == 4) {
+                order.setProAuditStatus(1);
+            }
+            Integer size = order.getGoodsList().size();
+            if (size > 0) {
+                List<Goods> goodsList = order.getGoodsList();
+                for (Goods goods : goodsList) {
+                    goods.setPurchGoods(null);
+                }
+            }
+            List<Attachment> orderAttachment = attachmentDao.findByRelObjIdAndCategory(id, Attachment.AttachmentCategory.ORDER.getCode());
+            if (orderAttachment != null && orderAttachment.size() > 0) {
+                order.setAttachmentSet(orderAttachment);
+            }
+            order.getAttachmentSet().size();
+            return order;
+        }
+        return null;
+    }
 
     // 2019-01-30 增加需求，如果登录用户存在o34角色（国家负责人角色），则用户只能查看他所在国家的订单内容
     private String[] getCountryHeaderByRole() {
@@ -653,6 +677,7 @@ public class OrderServiceImpl implements OrderService {
     public boolean audit(Order order, String auditorId, String auditorName, AddOrderVo addOrderVo) throws Exception {
         // rejectFlag true:驳回项目   false:审核项目
         StringBuilder auditorIds = null;
+        boolean isComeMore = Boolean.FALSE;// 是否来自并行的审批，且并行还没走完。
         if (order.getAudiRemark() != null) {
             auditorIds = new StringBuilder(order.getAudiRemark());
         } else {
@@ -717,7 +742,7 @@ public class OrderServiceImpl implements OrderService {
                             auditorIds.append("," + auditingUserId_i + ",");
                         }
                     } else {
-                        //订单金额大于3万小于20万 交给地区总经理审核
+                        // 订单金额大于3万小于20万 交给地区总经理审核
                         auditingProcess_i = "102";
                         if (order.getAreaLeaderId() != null)
                             auditingUserId_i = order.getAreaLeaderId().toString();
@@ -767,60 +792,6 @@ public class OrderServiceImpl implements OrderService {
                     auditorIds.append("," + auditingUserId_i + ",");
                     break;
                 case 105://法务审核
-                    Map<String, Integer> companyMap = new ImmutableMap.Builder<String, Integer>()
-                            .put("Erui International USA, LLC", 1)
-                            .put("Erui International (Canada) Co., Ltd.", 2)
-                            .put("Erui Intemational Electronic Commerce (HK) Co., Lirnited", 3)
-                            .put("PT ERUI INTERNATIONAL INDONESIA", 4)
-                            .put("Erui Intemational Electronic Commerce (Peru) S.A.C", 5)
-                            .build();
-                    // 添加销售合同号
-                    String contractNo = null;
-                    if (StringUtils.isBlank(order.getContractNo())) {
-                        if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())) {
-                            String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
-                            String lastContractNo = orderDao.findLastContractNo(prefix);
-                            if (StringUtils.isBlank(lastContractNo)) {
-                                contractNo = StringUtil.genContractNo(null);
-                            } else {
-                                contractNo = StringUtil.genContractNo(lastContractNo);
-                            }
-
-                        } else if (companyMap.containsKey(order.getSigningCo())) {
-                            String prefix = "YRHWX" + DateUtil.format("yyyyMMdd", new Date());
-                            String lastContractNo = orderDao.findLastContractNo(prefix);
-                            if (StringUtils.isBlank(lastContractNo)) {
-                                contractNo = StringUtil.genContractNo02(null);
-                            } else {
-                                contractNo = StringUtil.genContractNo02(lastContractNo);
-                            }
-                        }
-                    } else if (order.getOrderCategory() == 6 && StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", order.getSigningCo())
-                            && StringUtils.isBlank(order.getContractNo())) {
-                        String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
-                        String lastContractNo = orderDao.findLastContractNo(prefix);
-                        if (StringUtils.isBlank(lastContractNo)) {
-                            contractNo = StringUtil.genContractNo(null);
-                        } else {
-                            contractNo = StringUtil.genContractNo(lastContractNo);
-                        }
-                    }
-                    if (!StringUtils.isBlank(contractNo)) {
-                        // 判断销售合同号不能重复
-                        List<Integer> contractNoProjectIds = orderDao.findByContractNo(contractNo);
-                        if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
-                            Integer orderId = order.getId();
-                            for (Integer oId : contractNoProjectIds) {
-                                if (oId.intValue() != orderId.intValue()) {
-                                    return false;
-                                }
-                            }
-                        }
-                        order.setContractNo(contractNo);
-                        //填写商品销售合同号
-                        order.getGoodsList().forEach(vo -> vo.setContractNo(order.getContractNo()));
-                        order.getProject().setContractNo(contractNo);
-                    }
                     String replace = StringUtils.strip(auditingUserId.replaceFirst(order.getLegalAuditerId().toString(), ""));
                     if ("".equals(replace)) { // 跟他并行审核的都已经审核完成
                         //订单审核完成后项目才能办理项目
@@ -829,6 +800,7 @@ public class OrderServiceImpl implements OrderService {
                         auditingProcess_i = "201"; // 无下一审核进度和审核人
                         auditingUserId_i = order.getTechnicalId().toString();
                     } else {
+                        isComeMore = true;
                         String replaceProcess = auditingProcess.replace("105", "");
                         auditingProcess_i = StringUtils.strip(replaceProcess, ",");
                         auditingUserId_i = StringUtils.strip(replace, ",");
@@ -844,6 +816,7 @@ public class OrderServiceImpl implements OrderService {
                         auditingProcess_i = "201"; // 无下一审核进度和审核人
                         auditingUserId_i = order.getTechnicalId().toString();//事业部负责人审核
                     } else {
+                        isComeMore = true;
                         String replaceProcess = auditingProcess.replace("106", "");
                         auditingProcess_i = StringUtils.strip(replaceProcess, ",");
                         auditingUserId_i = StringUtils.strip(replace2, ",");
@@ -865,37 +838,41 @@ public class OrderServiceImpl implements OrderService {
         order.setAuditingStatus(auditingStatus_i);
         order.setAudiRemark(auditorIds.toString());
         //并行时发送钉钉通知和待办
-        if (auditingUserId_i != null) {
-            if ("105,106".equals(auditingProcess_i)) {
-                String[] split = auditingUserId_i.split(",");
-                for (int n = 0; n < split.length; n++) {
-                    sendDingtalk(order, split[n], rejectFlag, 1);
-                }
-            } else {
-                sendDingtalk(order, auditingUserId_i, rejectFlag, 1);
+        if (auditingUserId_i != null && !isComeMore) {
+            String[] split = auditingUserId_i.split(",");
+            for (int n = 0; n < split.length; n++) {
+                sendDingtalk(order, split[n], rejectFlag, 1);
             }
         }
         orderDao.save(order);
-        auditBackLogHandle(order, rejectFlag, auditingUserId_i);
+        auditBackLogHandle(order, rejectFlag, auditingUserId_i, auditorId, isComeMore);
         return true;
     }
 
 
-    public void auditBackLogHandle(Order order, boolean rejectFlag, String auditingUserId) {
+    public void auditBackLogHandle(Order order, boolean rejectFlag, String auditingUserId, String auditorId, boolean isComeMore) {
         try {
             // 删除上一个待办
             BackLog backLog2 = new BackLog();
-            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_AUDIT.getNum());
             backLog2.setHostId(order.getId());
-            backLogService.updateBackLogByDelYn(backLog2);
-            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_AUDIT2.getNum());
-            backLogService.updateBackLogByDelYn(backLog2);
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT.getNum());
             backLogService.updateBackLogByDelYn(backLog2);
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT2.getNum());
             backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_AUDIT.getNum());
+            if (isComeMore) {
+                backLogService.updateBackLogByDelYnNew(backLog2, auditorId);
+            } else {
+                backLogService.updateBackLogByDelYn(backLog2);
+            }
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_AUDIT2.getNum());  //功能访问路径标识
+            if (isComeMore) {
+                backLogService.updateBackLogByDelYnNew(backLog2, auditorId);
+            } else {
+                backLogService.updateBackLogByDelYn(backLog2);
+            }
 
-            if (StringUtils.isNotBlank(auditingUserId) && !"201".equals(order.getAuditingProcess())) {
+            if (StringUtils.isNotBlank(auditingUserId) && !isComeMore) {
                 Integer[] userIdArr = Arrays.stream(auditingUserId.split(",")).map(vo -> Integer.parseInt(vo)).toArray(Integer[]::new);
                 // 推送待办事件
                 String region = order.getRegion();   //所属地区
@@ -905,13 +882,14 @@ public class OrderServiceImpl implements OrderService {
                 String infoContent = String.format("%s | %s", bnMapZhRegion.get(region), bnMapZhCountry.get(country));
                 String crmCode = order.getCrmCode();
                 String auditprocess = order.getAuditingProcess() == null ? "-1" : order.getAuditingProcess();
-                BackLog.ProjectStatusEnum pse = rejectFlag ? ("100".equals(auditprocess) ? BackLog.ProjectStatusEnum.ORDER_REJECT2 : BackLog.ProjectStatusEnum.ORDER_REJECT) : ("201".equals(auditprocess) ? BackLog.ProjectStatusEnum.ORDER_AUDIT2 : BackLog.ProjectStatusEnum.ORDER_AUDIT);
+                BackLog.ProjectStatusEnum pse = rejectFlag ? ("100".equals(auditprocess) ? BackLog.ProjectStatusEnum.ORDER_REJECT2 : BackLog.ProjectStatusEnum.ORDER_REJECT) : ("201".equals(auditprocess) ? BackLog.ProjectStatusEnum.PROJECT_EXECUTE : BackLog.ProjectStatusEnum.ORDER_AUDIT);
                 applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
                         pse,
                         crmCode,
                         infoContent,
                         order.getId(),
                         0,
+                        "201".equals(auditprocess) ? "项目" : "订单",
                         userIdArr));
             }
 
@@ -959,6 +937,56 @@ public class OrderServiceImpl implements OrderService {
                 && !StringUtils.equals(order.getSigningCo(), addOrderVo.getSigningCo())) {
             order.setContractNo("");
 
+        }
+        Map<String, Integer> companyMap = new ImmutableMap.Builder<String, Integer>()
+                .put("Erui International USA, LLC", 1)
+                .put("Erui International (Canada) Co., Ltd.", 2)
+                .put("Erui Intemational Electronic Commerce (HK) Co., Lirnited", 3)
+                .put("PT ERUI INTERNATIONAL INDONESIA", 4)
+                .put("Erui Intemational Electronic Commerce (Peru) S.A.C", 5)
+                .build();
+        // 添加销售合同号
+        String contractNo = null;
+        if (StringUtils.isBlank(order.getContractNo())) {
+            if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", addOrderVo.getSigningCo())) {
+                String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
+                String lastContractNo = orderDao.findLastContractNo(prefix);
+                if (StringUtils.isBlank(lastContractNo)) {
+                    contractNo = StringUtil.genContractNo(null);
+                } else {
+                    contractNo = StringUtil.genContractNo(lastContractNo);
+                }
+            } else if (companyMap.containsKey(addOrderVo.getSigningCo())) {
+                String prefix = "YRHWX" + DateUtil.format("yyyyMMdd", new Date());
+                String lastContractNo = orderDao.findLastContractNo(prefix);
+                if (StringUtils.isBlank(lastContractNo)) {
+                    contractNo = StringUtil.genContractNo02(null);
+                } else {
+                    contractNo = StringUtil.genContractNo02(lastContractNo);
+                }
+            }
+        } else if (addOrderVo.getOrderCategory() == 6 && StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", addOrderVo.getSigningCo())
+                && StringUtils.isBlank(order.getContractNo())) {
+            String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
+            String lastContractNo = orderDao.findLastContractNo(prefix);
+            if (StringUtils.isBlank(lastContractNo)) {
+                contractNo = StringUtil.genContractNo(null);
+            } else {
+                contractNo = StringUtil.genContractNo(lastContractNo);
+            }
+        }
+        if (!StringUtils.isBlank(contractNo)) {
+            // 判断销售合同号不能重复
+            List<Integer> contractNoProjectIds = orderDao.findByContractNo(contractNo);
+            if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
+                Integer orderId = order.getId();
+                for (Integer oId : contractNoProjectIds) {
+                    if (oId.intValue() != orderId.intValue()) {
+                        return null;
+                    }
+                }
+            }
+            order.setContractNo(contractNo);
         }
         addOrderVo.copyBaseInfoTo(order);
         order.setOrderPayments(addOrderVo.getContractDesc());
@@ -1078,6 +1106,7 @@ public class OrderServiceImpl implements OrderService {
                 projectAdd = orderUpdate.getProject();
             }
             projectAdd.setOrder(orderUpdate);
+            projectAdd.setContractNo(order.getContractNo());
             //projectAdd.setExecCoName(orderUpdate.getExecCoName());
             projectAdd.setBusinessUid(orderUpdate.getTechnicalId());
             projectAdd.setExecCoName(orderUpdate.getExecCoName());
@@ -1102,6 +1131,7 @@ public class OrderServiceImpl implements OrderService {
             goodsList1.parallelStream().forEach(goods1 -> {
                 goods1.setProject(project);
                 goods1.setProjectNo(project.getProjectNo());
+                goods1.setContractNo(order.getContractNo());
             });
             goodsDao.save(goodsList1);
             //添加项目利润核算单信息
@@ -1132,7 +1162,7 @@ public class OrderServiceImpl implements OrderService {
             backLog.setHostId(order.getId());
             backLogService.updateBackLogByDelYn(backLog);
 
-            auditBackLogHandle(orderUpdate, false, orderUpdate.getAuditingUserId());
+            auditBackLogHandle(orderUpdate, false, orderUpdate.getAuditingUserId(), null, false);
         }
         return order.getId();
     }
@@ -1197,6 +1227,56 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderPayments(addOrderVo.getContractDesc());
         order.setCreateTime(new Date());
         order.setDeleteFlag(false);
+        Map<String, Integer> companyMap = new ImmutableMap.Builder<String, Integer>()
+                .put("Erui International USA, LLC", 1)
+                .put("Erui International (Canada) Co., Ltd.", 2)
+                .put("Erui Intemational Electronic Commerce (HK) Co., Lirnited", 3)
+                .put("PT ERUI INTERNATIONAL INDONESIA", 4)
+                .put("Erui Intemational Electronic Commerce (Peru) S.A.C", 5)
+                .build();
+        // 添加销售合同号
+        String contractNo = null;
+        if (StringUtils.isBlank(addOrderVo.getContractNo())) {
+            if (StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", addOrderVo.getSigningCo())) {
+                String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
+                String lastContractNo = orderDao.findLastContractNo(prefix);
+                if (StringUtils.isBlank(lastContractNo)) {
+                    contractNo = StringUtil.genContractNo(null);
+                } else {
+                    contractNo = StringUtil.genContractNo(lastContractNo);
+                }
+            } else if (companyMap.containsKey(addOrderVo.getSigningCo())) {
+                String prefix = "YRHWX" + DateUtil.format("yyyyMMdd", new Date());
+                String lastContractNo = orderDao.findLastContractNo(prefix);
+                if (StringUtils.isBlank(lastContractNo)) {
+                    contractNo = StringUtil.genContractNo02(null);
+                } else {
+                    contractNo = StringUtil.genContractNo02(lastContractNo);
+                }
+            }
+        } else if (addOrderVo.getOrderCategory() == 6 && StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", addOrderVo.getSigningCo())
+                && StringUtils.isBlank(addOrderVo.getContractNo())) {
+            String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
+            String lastContractNo = orderDao.findLastContractNo(prefix);
+            if (StringUtils.isBlank(lastContractNo)) {
+                contractNo = StringUtil.genContractNo(null);
+            } else {
+                contractNo = StringUtil.genContractNo(lastContractNo);
+            }
+        }
+        if (!StringUtils.isBlank(contractNo)) {
+            // 判断销售合同号不能重复
+            List<Integer> contractNoProjectIds = orderDao.findByContractNo(contractNo);
+            if (contractNoProjectIds != null && contractNoProjectIds.size() > 0) {
+                Integer orderId = order.getId();
+                for (Integer oId : contractNoProjectIds) {
+                    if (oId.intValue() != orderId.intValue()) {
+                        return null;
+                    }
+                }
+            }
+            order.setContractNo(contractNo);
+        }
         //订单商品添加
         List<PGoods> pGoodsList = addOrderVo.getGoodDesc();
         Goods goods = null;
@@ -1209,6 +1289,7 @@ public class OrderServiceImpl implements OrderService {
                 // 已经存在的sku，返回错误
                 throw new MyException("同一sku不可以重复添加&&The same sku can not be added repeatedly");
             }
+            goods.setContractNo(order.getContractNo());
             goods.setSku(sku);
             goods.setOutstockNum(0);
             goods.setMeteType(pGoods.getMeteType());
@@ -1332,7 +1413,7 @@ public class OrderServiceImpl implements OrderService {
             addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null, signingDate);
             // 订单提交时推送项目信息
             Project project = new Project();
-            //project.setProjectNo(UUID.randomUUID().toString());
+            project.setContractNo(order.getContractNo());
             project.setOrder(order1);
             project.setBusinessUid(order1.getTechnicalId());
             project.setExecCoName(order1.getExecCoName());
@@ -1385,7 +1466,7 @@ public class OrderServiceImpl implements OrderService {
             backLog.setHostId(order.getId());
             backLogService.updateBackLogByDelYn(backLog);
             // 推送审核内容
-            auditBackLogHandle(order1, false, order1.getAuditingUserId());
+            auditBackLogHandle(order1, false, order1.getAuditingUserId(), null, false);
 
         }
         return order1.getId();
@@ -2748,7 +2829,7 @@ public class OrderServiceImpl implements OrderService {
             if (StringUtils.isNotBlank(strArr[2])) {
                 project.setStartDate(DateUtil.parseString2DateNoException(strArr[2], "yyyy-MM-dd hh:mm:ss"));
             }
-            //项目名称
+            //合同标的
             if (StringUtils.isNotBlank(strArr[3])) {
                 project.setProjectName(strArr[3]);
             }
@@ -2875,9 +2956,9 @@ public class OrderServiceImpl implements OrderService {
             String stringRC2 = sheet1.getRow(2).getCell(2).getStringCellValue().replace("执行分公司", company.getName());
             sheet1.getRow(2).getCell(2).setCellValue(stringRC2);
         }
-        //项目名称
+        //合同标的
         if (orderDec.getProject() != null && orderDec.getProject().getProjectName() != null) {
-            String stringR2C6 = sheet1.getRow(2).getCell(6).getStringCellValue().replace("项目名称", orderDec.getProject().getProjectName());
+            String stringR2C6 = sheet1.getRow(2).getCell(6).getStringCellValue().replace("合同标的", orderDec.getProject().getProjectName());
             sheet1.getRow(2).getCell(6).setCellValue(stringR2C6);
         }
         //销售合同号
@@ -3223,7 +3304,6 @@ public class OrderServiceImpl implements OrderService {
                     sheet1.getRow(27).getCell(10).setCellValue(stringR27C10);
                     String stringR26C10 = sheet1.getRow(26).getCell(1).getStringCellValue().replace("审核人：", "审核人： " + cl.getAuditingUserName());
                     sheet1.getRow(26).getCell(1).setCellValue(stringR26C10);
-
                 }
                 //物流审核取走时间
                 if (cl.getAuditingProcess() == 206) {

@@ -22,6 +22,14 @@ public interface PurchService {
     Purch findBaseInfo(Integer id);
 
     /**
+     * 根据id查询采购基本信息
+     *
+     * @param purchNo
+     * @return
+     */
+    List<Purch> findByPurchNo(String purchNo);
+
+    /**
      * 根据条件分页查询采购信息列表
      *
      * @param condition

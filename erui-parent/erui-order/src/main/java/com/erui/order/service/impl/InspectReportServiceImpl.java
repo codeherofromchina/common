@@ -6,6 +6,7 @@ import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
@@ -41,24 +42,36 @@ public class InspectReportServiceImpl implements InspectReportService {
     private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
     @Autowired
     private ApplicationContext applicationContext;
+
     @Autowired
     private InspectReportDao inspectReportDao;
+
     @Autowired
     private InspectApplyDao inspectApplyDao;
+
     @Autowired
     private AttachmentService attachmentService;
+
     @Autowired
     private PurchDao purchDao;
-    @Autowired
-    private PurchServiceImpl purchServiceImpl;
+
     @Autowired
     private GoodsDao goodsDao;
+
     @Autowired
     private InstockDao instockDao;
+
     @Autowired
     private PurchGoodsDao purchGoodsDao;
+
+    @Autowired
+    private PurchServiceImpl purchServiceImpl;
+
     @Autowired
     private BackLogService backLogService;
+
+    @Autowired
+    private PurchContractDao purchContractDao;
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
@@ -443,6 +456,19 @@ public class InspectReportServiceImpl implements InspectReportService {
                     break;
                 }
             }
+            //采购订单付款方式
+            List<PurchPayment> purchPaymentList = purch.getPurchPaymentList();
+            Date doneDate = dbInspectReport.getDoneDate();
+            for (PurchPayment pay : purchPaymentList) {
+                //当付款方式为质保金时回执付款日期 当前质检日期加上质保金天数
+                if (pay.getType() == 5) {
+                    //加的天数
+                    int days = pay.getDays();
+                    Date dateAfter = DateUtil.getDateAfter(doneDate, days);
+                    pay.setReceiptDate(dateAfter);
+                }
+            }
+            purch.setPurchPaymentList(purchPaymentList);
             if (doneFlag) {
                 purch.setStatus(Purch.StatusEnum.DONE.getCode());
                 purchDao.save(purch);
@@ -457,8 +483,8 @@ public class InspectReportServiceImpl implements InspectReportService {
             } else {
                 //当部分采购时设置供应商状态为PART_RECEIPT
                 purchServiceImpl.updateSupplierStatus(purch.getId(), "PART_RECEIPT");
+                purchDao.save(purch);
             }
-
             // 推送数据到入库部门
             Instock instock = new Instock();
             instock.setInspectReport(dbInspectReport);
@@ -507,7 +533,7 @@ public class InspectReportServiceImpl implements InspectReportService {
 
                 //获取token
                 String eruiToken = (String) ThreadLocalUtil.getObject();
-                if (org.apache.commons.lang3.StringUtils.isNotBlank(eruiToken)) {
+                if (StringUtils.isNotBlank(eruiToken)) {
                     Map<String, String> header = new HashMap<>();
                     header.put(CookiesUtil.TOKEN_NAME, eruiToken);
                     header.put("Content-Type", "application/json");

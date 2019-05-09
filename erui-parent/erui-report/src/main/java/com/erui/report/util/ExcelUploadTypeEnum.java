@@ -23,7 +23,8 @@ public enum ExcelUploadTypeEnum {
     CHECK_PROFIT(16, "报价利润核算单", new String[]{"序号" }),
     ORDER_CONTRACT(17, "国际销售合同签订审批表V3.0", new String[]{"序号" }),
     PROCUREMENT_CONTRACT_TEMP(18, "采购合同签订审批表", new String[]{"序号" }),
-    WEBINFO_PV_UV_TEMP(19, "平台日流量报告", new String[]{"Date", "Country", "Users", "Pageviews", "Sessions", "Avg. Session Duration", "Bounce Rate" });
+    WEBINFO_PV_UV_TEMP(19, "平台日流量报告", new String[]{"Date", "Country", "Users", "Pageviews", "Sessions", "Avg. Session Duration", "Bounce Rate" }),
+    PROCUREMENT_CONTRACT_SIMPLE_TEMP(20, "1.0简易合同模板（新）", new String[]{"序号" });
 
     private int type;
     private int column;

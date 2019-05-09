@@ -1044,7 +1044,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         auditingUserId_i = StringUtils.strip(replace2, ",");
                     }
                     break;
-                case 34://物流负责人审核
+                case 34:// 物流负责人审核
                     // 由物流负责人指派订舱专员和操作专员
                     deliverConsign.setBookingOfficer(rDeliverConsign.getBookingOfficer());
                     deliverConsign.setBookingOfficerId(rDeliverConsign.getBookingOfficerId());
@@ -1327,7 +1327,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(eruiToken)) {
+        if (StringUtils.isNotBlank(eruiToken)) {
             Map<String, String> header = new HashMap<>();
             header.put(CookiesUtil.TOKEN_NAME, eruiToken);
             header.put("Content-Type", "application/json");

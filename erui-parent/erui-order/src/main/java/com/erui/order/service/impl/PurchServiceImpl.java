@@ -60,6 +60,10 @@ public class PurchServiceImpl implements PurchService {
     @Autowired
     private PurchGoodsDao purchGoodsDao;
     @Autowired
+    private PurchContractGoodsDao purchContractGoodsDao;
+    @Autowired
+    private PurchContractDao purchContractDao;
+    @Autowired
     private PurchPaymentDao purchPaymentDao;
     @Autowired
     private OrderDao orderDao;
@@ -82,7 +86,65 @@ public class PurchServiceImpl implements PurchService {
 
     @Override
     public Purch findBaseInfo(Integer id) {
-        return purchDao.findOne(id);
+        if (id != null && id > 0) {
+            Purch puch = purchDao.findOne(id);
+            puch.getPurchPaymentList().size(); /// 获取合同结算类型信息
+            List<Attachment> attachments = attachmentDao.findByRelObjIdAndCategory(puch.getId(), Attachment.AttachmentCategory.PURCH.getCode());
+            if (attachments != null && attachments.size() > 0) {
+                puch.setAttachments(attachments);
+                puch.getAttachments().size(); // 获取采购的附件信息
+            }
+            List<PurchGoods> purchGoodsList = puch.getPurchGoodsList();
+            if (purchGoodsList.size() > 0) {
+                for (PurchGoods purchGoods : purchGoodsList) {
+                    purchGoods.getGoods().setPurchGoods(null);
+                }
+            }
+            return puch;
+        }
+        return null;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Purch> findByPurchNo(String purchNo) {
+        if (purchNo != null) {
+            List<Purch> puchList = purchDao.findByPurchNo(purchNo);
+            if (puchList != null && puchList.size() > 0) {
+                for (Purch purch : puchList) {
+                    purch.setPurchGoodsList(null);
+                }
+            }
+            return puchList;
+        }
+        return null;
+    }
+
+    private boolean findByPurchNo2(String purchNo) {
+        if (purchNo != null) {
+            List<Purch> puchList = purchDao.findByPurchNo(purchNo);
+            if (puchList != null && puchList.size() > 0) {
+                boolean doneFlag = true;
+                for (Purch purch : puchList) {
+                    if (purch.getStatus() != 3) {
+                        doneFlag = false;
+                        break;
+                    }
+                }
+                if (doneFlag) {
+                    if (puchList != null && puchList.size() > 0) {
+                        Integer purchContractId = puchList.get(0).getPurchContractId() == null ? 0 : puchList.get(0).getPurchContractId();
+                        if (purchContractId > 0) {
+                            PurchContract purchContract = purchContractDao.findOne(purchContractId);
+                            purchContract.setStatus(4);
+                            purchContractDao.save(purchContract);
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
 
@@ -106,6 +168,12 @@ public class PurchServiceImpl implements PurchService {
             List<PurchGoods> purchGoodsList = puch.getPurchGoodsList();
             if (purchGoodsList.size() > 0) {
                 for (PurchGoods purchGoods : purchGoodsList) {
+                    if (purchGoods.getPurchContractGoods() != null) {
+                        purchGoods.setPcgId(purchGoods.getPurchContractGoods().getId());
+                        purchGoods.getPurchContractGoods().setPurchGoods(null);
+                        purchGoods.getPurchContractGoods().setGoods(null);
+                    }
+                    purchGoods.setgId(purchGoods.getGoods().getId());
                     purchGoods.getGoods().setPurchGoods(null);
                 }
             }
@@ -120,7 +188,6 @@ public class PurchServiceImpl implements PurchService {
         }
         return null;
     }
-
 
     /**
      * 查询采购页面详情信息
@@ -208,7 +275,7 @@ public class PurchServiceImpl implements PurchService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean audit(Integer purchId, String auditorId, String auditorName, PurchParam paramPurch) {
-        Purch purch = findDetailInfo(purchId);
+        Purch purch = findBaseInfo(purchId);
         //@param rejectFlag true:驳回项目   false:审核项目
         StringBuilder auditorIds = null;
         if (purch.getAudiRemark() != null) {
@@ -252,7 +319,7 @@ public class PurchServiceImpl implements PurchService {
             switch (curAuditProcess) {
                 case 21: // 采购经理审核核
                     if (purch.getAuditingProcess().indexOf("22") == -1) {//同级事业部项目负责人是否已审核
-                        if (purch.getContractVersion() != null && "1".equals(purch.getContractVersion())) {//是否为标准版合同，是标准则越过法务审批
+                        if (purch.getContractVersion() != null && ("1".equals(purch.getContractVersion()) || "2".equals(purch.getContractVersion()))) {//是否为标准版合同，是标准则越过法务审批
                             auditingProcess_i = "24";
                             auditingUserId_i = purch.getFinanceAuditerId() + "";
                         } else {//需要法务、财务审批
@@ -267,7 +334,7 @@ public class PurchServiceImpl implements PurchService {
                     break;
                 case 22://商务技术职称改为->事业部项目负责人审核
                     if (purch.getAuditingProcess().indexOf("21") == -1) {//同级采购经理是否已审批
-                        if (purch.getContractVersion() != null && "1".equals(purch.getContractVersion())) {//是否为标准版合同，是标准则越过法务审批
+                        if (purch.getContractVersion() != null && ("1".equals(purch.getContractVersion()) || "2".equals(purch.getContractVersion()))) {//是否为标准版合同，是标准则越过法务审批
                             auditingProcess_i = "24";
                             auditingUserId_i = purch.getFinanceAuditerId() + "";
                         } else {//需要法务、财务审批
@@ -344,28 +411,16 @@ public class PurchServiceImpl implements PurchService {
         if (auditingStatus_i == 4 && "999".equals(auditingProcess_i)) {
             //审批完成时调取采购供应商接口
             updateSupplierStatus(purch.getId(), "DRAFT");
+            //当是国内订单审完成时时采购完成
             if (purch.getProjects().size() > 0 && purch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
                 purch.setStatus(Purch.StatusEnum.DONE.getCode()); // TODO 这里是何意？
             }
         }
         purch.setAudiRemark(auditorIds.toString());
         purchDao.save(purch);
+
         auditBackLogHandle(purch, rejectFlag, auditingUserId_i, auditorId, isComeMore);
-
         return true;
-    }
-
-    //调用php接口修改采购供应商状态
-    public void updateSupplierStatus(Integer purchId, String status) {
-        //获取token
-        final String eruiToken = (String) ThreadLocalUtil.getObject();
-        String jsonParam = "{\"purch_id\":\"" + purchId + "\",\"status\":\"" + status + "\"}";
-        Map<String, String> header = new HashMap<>();
-        header.put("Cookie", "eruitoken=" + eruiToken);
-        header.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
-        //发送钉钉通知
-        String s1 = HttpRequest.sendPost(supplierStatus, jsonParam, header);
-        logger.info("修改供应商状态返回状态" + s1);
     }
 
     /**
@@ -385,6 +440,7 @@ public class PurchServiceImpl implements PurchService {
                 backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCH_AUDIT.getNum());    //功能访问路径标识
                 backLogService.updateBackLogByDelYn(backLog2);
             }
+
             if (auditingUserId != null && !isComeMore) {//并行未走完不用推送待办
                 for (String user : auditingUserId.split(",")) {
                     // 推送待办事件
@@ -429,6 +485,19 @@ public class PurchServiceImpl implements PurchService {
     }
 
     //钉钉通知 审批人
+    public void updateSupplierStatus(Integer purchId, String status) {
+        //获取token
+        final String eruiToken = (String) ThreadLocalUtil.getObject();
+        String jsonParam = "{\"purch_id\":\"" + purchId + "\",\"status\":\"" + status + "\"}";
+        Map<String, String> header = new HashMap<>();
+        header.put("Cookie", "eruitoken=" + eruiToken);
+        header.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+        //发送钉钉通知
+        String s1 = HttpRequest.sendPost(supplierStatus, jsonParam, header);
+        logger.info("修改供应商状态返回状态" + s1);
+    }
+
+    //钉钉通知 审批人
     private void sendDingtalk(Purch purch, String user, boolean rejectFlag) {
         //获取token
         final String eruiToken = (String) ThreadLocalUtil.getObject();
@@ -455,7 +524,6 @@ public class PurchServiceImpl implements PurchService {
                 if (code == 1) {
                     JSONObject data = jsonObject.getJSONObject("data");
                     //获取通知者姓名员工编号
-                    //userName = data.getString("name");
                     userNo = data.getString("user_no");
                     Long startTime = System.currentTimeMillis();
                     Date sendTime = new Date(startTime);
@@ -486,7 +554,7 @@ public class PurchServiceImpl implements PurchService {
      * @return
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional()
     public Page<Purch> findByPage(final Purch condition) {
         PageRequest request = new PageRequest(condition.getPage() - 1, condition.getRows(), Sort.Direction.DESC, "id");
 
@@ -562,6 +630,7 @@ public class PurchServiceImpl implements PurchService {
 
         if (page.hasContent()) {
             page.getContent().stream().forEach(vo -> {
+                findByPurchNo2(vo.getPurchNo());
                 List<String> projectNoList = new ArrayList<>();
                 List<String> contractNoList = new ArrayList<>();
                 vo.getProjects().stream().forEach(project -> {
@@ -641,9 +710,9 @@ public class PurchServiceImpl implements PurchService {
         row = sheet.getRow(7);
         tmpStr = row.getCell(1).getStringCellValue();
         String contractVersion = purch.getContractVersion();
-        if ("1".equals(contractVersion)) {
+        if ("1".equals(purch.getContractVersion()) || "2".equals(purch.getContractVersion())) {
             row.getCell(1).setCellValue(tmpStr.replace(unCheckedStr + "标准版本", checkedStr + "标准版本")); // 合同版本 --  □标准版本    □非标版本
-        } else if ("2".equals(contractVersion)) {
+        } else if ("3".equals(contractVersion)) {
             row.getCell(1).setCellValue(tmpStr.replace(unCheckedStr + "非标版本", checkedStr + "非标版本")); // 合同版本 --  □标准版本    □非标版本
         }
 
@@ -713,7 +782,7 @@ public class PurchServiceImpl implements PurchService {
         row.getCell(1).setCellValue(priceMode); // 定价方式
         row.getCell(3).setCellValue(saveMode); // 节约方式
 
-        row = sheet.getRow(13);
+        /*row = sheet.getRow(13);
         Integer payType = purch.getPayType();
         switch (payType) {
             case 1:
@@ -724,7 +793,7 @@ public class PurchServiceImpl implements PurchService {
                 break;
             default:
                 row.getCell(1).setCellValue("其他"); // 付款方式
-        }
+        }*/
         Date arraivalDate = purch.getPurChgDate();
         if (arraivalDate == null) {
             arraivalDate = purch.getArrivalDate();
@@ -828,29 +897,23 @@ public class PurchServiceImpl implements PurchService {
     public boolean insert(Purch purch) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
         Date now = new Date();
-        String lastedByPurchNo = purchDao.findLastedByPurchNo();
+        /*String lastedByPurchNo = purchDao.findLastedByPurchNo();
         Long count = purchDao.findCountByPurchNo(lastedByPurchNo);
         if (count != null && count > 1) {
             throw new Exception(String.format("%s%s%s", "采购合同号重复", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Repeat purchase contract number"));
-        }
-        // 设置基础数据 自动生成采购合同号
-        purch.setPurchNo(StringUtil.genPurchNo(lastedByPurchNo));
+        }*/
+        // 设置基础数据 StringUtil.genPurchNo(lastedByPurchNo) 采购合同号修改为由采购合同带出
         purch.setSigningDate(NewDateUtil.getDate(purch.getSigningDate()));
         purch.setArrivalDate(NewDateUtil.getDate(purch.getArrivalDate()));
         purch.setCreateTime(now);
-
         // 处理结算方式,新增，所以讲所有id设置为null，并添加新增时间
         purch.getPurchPaymentList().parallelStream().forEach(vo -> {
             vo.setId(null);
             vo.setCreateTime(now);
         });
-        // 处理附件信息
-        //List<Attachment> attachments = attachmentService.handleParamAttachment(null, purch.getAttachments(), purch.getCreateUserId(), purch.getCreateUserName());
-        //purch.setAttachments(attachments);
         // 处理商品信息
         List<PurchGoods> purchGoodsList = new ArrayList<>();
         Set<Project> projectSet = new HashSet<>();
-        //List<Goods> updateGoods = new ArrayList<>();
         for (PurchGoods purchGoods : purch.getPurchGoodsList()) {
             // 检查是否传入采购数量或者替换商品
             Integer purchaseNum = purchGoods.getPurchaseNum(); // 获取采购数量
@@ -861,21 +924,31 @@ public class PurchServiceImpl implements PurchService {
             }
             // 获取要采购的商品
             Goods goods = goodsDao.findOne(purchGoods.getgId());
+            //获取采购合同商品
+            PurchContractGoods purchContractGoods = purchContractGoodsDao.findOne(purchGoods.getPcgId());
             if (goods == null || goods.getExchanged()) {
                 // 给定的商品不存在或者是被替换的商品，则错误
                 throw new Exception(String.format("%s%s%s", "商品不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Goods do not exist"));
             }
+            //项目
             Project project = goods.getProject();
-            // 必须是已创建采购申请单并未完成采购的项目
+            //采购合同
+            PurchContract purchContract = purchContractGoods.getPurchContract();
+            // 必须是已创建采购申请单并未完成采购的项目 修改为 必须是已经创建采购合同并且为完成采购的项目
             if (Project.PurchReqCreateEnum.valueOfCode(project.getPurchReqCreate()) != Project.PurchReqCreateEnum.SUBMITED) {
                 throw new Exception(String.format("%s%s%s", "项目必须提交采购申请", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The project must submit a purchase application"));
 
+            }
+            if (purchContract.getStatus() != 2 && purchContract.getStatus() != 3) {
+                throw new Exception(String.format("%s%s%s", "采购合同必须为未执行或执行中状态", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The purchContract must unsubmit"));
             }
             if (project.getPurchDone()) {
                 throw new Exception(String.format("%s%s%s", "项目采购已完成，不能再次采购", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project procurement has been completed and can not be repurchased"));
             }
             projectSet.add(project);
-            PurchGoods son = handleAddNewPurchGoods(project, purch, goods, purchGoods);
+            PurchGoods son = handleAddNewPurchGoods(project, purch, goods, purchGoods, purchContractGoods);
+            purchGoods.setPurchContractGoods(purchContractGoods);
+            purchGoods.setPurchContract(purchContractGoods.getPurchContract());
             purchGoodsList.add(purchGoods);
             if (son != null) {
                 purchGoodsList.add(son);
@@ -884,15 +957,21 @@ public class PurchServiceImpl implements PurchService {
             if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                 // 如果是提交则设置商品的已采购数量并更新
                 goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
+                //提交时更新采购合同已采购数量
+                purchContractGoods.setPurchasedNum(purchContractGoods.getPurchaseNum() + intPurchaseNum);
                 // 完善商品的项目执行跟踪信息
                 setGoodsTraceData(goods, purch);
                 if (!goods.getOrder().getOrderCategory().equals(6)) {
                     applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3, eruiToken));
                 }
+                //当采购订单提交时采购合同更新为执行中
+                purchContract.setStatus(3);
             }
-            // 增加预采购数量
-            goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
+            // 增加采购合同预采购数量
+            //goods.setPrePurchContractNum(goods.getPrePurchContractNum() + intPurchaseNum);
+            purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + intPurchaseNum);
             // 直接更新商品，放置循环中存在多次修改同一个商品错误
+            purchContractGoodsDao.save(purchContractGoods);
             goodsDao.save(goods);
         }
         if (purchGoodsList.size() == 0) {
@@ -901,10 +980,6 @@ public class PurchServiceImpl implements PurchService {
         purch.setPurchGoodsList(purchGoodsList);
         List<Project> projectList = new ArrayList<>(projectSet);
         purch.setProjects(projectList);
-        // 保存采购单
-       /* if (purch.getProjects().size() > 0 && purch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
-            purch.setStatus(3);
-        }*/
         // 采购审批添加部分
         if (purch.getStatus() == Purch.StatusEnum.READY.getCode()) {
             purch.setAuditingStatus(0);
@@ -918,13 +993,14 @@ public class PurchServiceImpl implements PurchService {
 
         Purch save = purchDao.save(purch);
         // 添加附件
-        //purchRequisition1.setAttachmentList(purchRequisition.getAttachmentList());
         if (purch.getAttachments() != null && purch.getAttachments().size() > 0) {
             attachmentService.addAttachments(purch.getAttachments(), save.getId(), Attachment.AttachmentCategory.PURCH.getCode());
         }
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-            if (save.getPurchAuditerId() != null) {
-                sendDingtalk(purch, purch.getPurchAuditerId().toString(), false);
+            if (save.getAuditingUserId() != null) {
+                for (String user : save.getAuditingUserId().split(",")) {
+                    sendDingtalk(save, user, false);
+                }
             }
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
             checkLogService.insert(checkLog_i);
@@ -977,7 +1053,7 @@ public class PurchServiceImpl implements PurchService {
     @Transactional(rollbackFor = Exception.class)
     public boolean update(Purch purch) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        Purch dbPurch = findDetailInfo(purch.getId());
+        Purch dbPurch = findBaseInfo(purch.getId());
         // 之前的采购必须不能为空且未提交状态
         if (dbPurch == null || dbPurch.getDeleteFlag()) {
             throw new Exception(String.format("%s%s%s", "采购信息不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Procurement information does not exist"));
@@ -988,7 +1064,7 @@ public class PurchServiceImpl implements PurchService {
         // 设置基本信息
         dbPurch.setBaseInfo(purch);
         dbPurch.setUpdateTime(now);
-
+        dbPurch.setPurchContractId(purch.getPurchContractId());
         // 处理结算方式
         Map<Integer, PurchPayment> collect = dbPurch.getPurchPaymentList().parallelStream().collect(Collectors.toMap(PurchPayment::getId, vo -> vo));
         List<PurchPayment> paymentList = purch.getPurchPaymentList().parallelStream().filter(vo -> {
@@ -1006,6 +1082,7 @@ public class PurchServiceImpl implements PurchService {
             payment2.setType(payment.getType());
             payment2.setMoney(payment.getMoney());
             payment2.setTitle(payment.getTitle());
+            payment2.setDays(payment.getDays());
             return payment2;
         }).collect(Collectors.toList());
         dbPurch.setPurchPaymentList(paymentList);
@@ -1013,19 +1090,17 @@ public class PurchServiceImpl implements PurchService {
         if (collect.size() > 0) {
             purchPaymentDao.delete(collect.values());
         }
-        // 处理附件信息
-        //List<Attachment> attachmentlist = attachmentService.handleParamAttachment(dbPurch.getAttachments(), purch.getAttachments(), purch.getCreateUserId(), purch.getCreateUserName());
-        //dbPurch.setAttachments(attachmentlist);
-
         // 处理商品
         List<PurchGoods> purchGoodsList = new ArrayList<>(); // 声明最终采购商品容器
         Set<Project> projectSet = new HashSet<>(); // 声明项目的容器
         // 数据库现在的采购商品信息
         Map<Integer, PurchGoods> dbPurchGoodsMap = dbPurch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(PurchGoods::getId, vo -> vo));
         Set<Integer> existId = new HashSet<>();
+        Set<Integer> existPurchContractId = new HashSet<>();
         // 处理参数中的采购商品信息
         for (PurchGoods pg : purch.getPurchGoodsList()) {
             Integer pgId = pg.getId();
+            Integer cId = pg.getPcgId();
             if (pgId == null) { // 新增加的采购商品信息
                 // 检查是否传入采购数量或者替换商品
                 Integer purchaseNum = pg.getPurchaseNum(); // 获取采购数量
@@ -1036,27 +1111,39 @@ public class PurchServiceImpl implements PurchService {
                 }
                 // 获取要采购的商品
                 Goods goods = goodsDao.findOne(pg.getgId());
+                // 获取要采购合同的商品
+                PurchContractGoods purchContractGoods = purchContractGoodsDao.findOne(pg.getPcgId());
+                //获取采购合同
+                PurchContract purchContract = purchContractGoods.getPurchContract();
                 if (goods == null || goods.getExchanged()) {
                     throw new Exception(String.format("%s%s%s", "商品不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Goods do not exist"));
                 }
+                //获取项目
                 Project project = goods.getProject();
                 // 必须是已创建采购申请单并未完成采购的项目
                 if (Project.PurchReqCreateEnum.valueOfCode(project.getPurchReqCreate()) != Project.PurchReqCreateEnum.SUBMITED) {
                     throw new Exception(String.format("%s%s%s", "项目必须提交采购申请", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The project must submit a purchase application"));
+                }
+                if (purchContract.getStatus() != 2 && purchContract.getStatus() != 3) {
+                    throw new Exception(String.format("%s%s%s", "采购合同必须为未执行或执行中状态", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The purchContract must submit"));
                 }
                 if (project.getPurchDone()) {
                     throw new Exception(String.format("%s%s%s", "项目采购已完成，不能再次采购", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project procurement has been completed and can not be repurchased"));
                 }
                 projectSet.add(project);
                 // 查看是否存在替换商品
-                PurchGoods son = handleAddNewPurchGoods(project, dbPurch, goods, pg);
+                PurchGoods son = handleAddNewPurchGoods(project, dbPurch, goods, pg, purchContractGoods);
+                pg.setPurchContractGoods(purchContractGoods);
+                pg.setPurchContract(purchContractGoods.getPurchContract());
                 purchGoodsList.add(pg);
                 if (son != null) {
                     purchGoodsList.add(son);
                 }
                 Integer intPurchaseNum = pg.getPurchaseNum();
                 // 更新商品的采购数量和预采购数量
-                if (purch.getStatus() == Purch.StatusEnum.DONE.getCode()) {
+                if (purch.getStatus() == Purch.StatusEnum.BEING.getCode() && (purch.getAuditingStatus() == 0 || purch.getAuditingStatus() == null)) {
+                    // 更新采购合同已预采购数量
+                    purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + intPurchaseNum);
                     // 更新已采购数量
                     goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
                     // 设置商品的项目跟踪信息
@@ -1065,7 +1152,9 @@ public class PurchServiceImpl implements PurchService {
                         applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3, eruiToken));
                     }
                 }
-                goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
+                //goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
+                purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + intPurchaseNum);
+                purchContractGoodsDao.save(purchContractGoods);
                 goodsDao.save(goods);
             } else if (dbPurchGoodsMap.containsKey(pgId)) {
                 Integer paramPurchaseNum = pg.getPurchaseNum();
@@ -1105,7 +1194,10 @@ public class PurchServiceImpl implements PurchService {
                 }
                 // 编辑原来的采购商品
                 PurchGoods purchGoods = dbPurchGoodsMap.remove(pgId);
+                //商品
                 existId.add(pgId);
+                //采购合同
+                existPurchContractId.add(cId);
                 Project project = purchGoods.getProject();
 
                 boolean hasSon = false;
@@ -1149,36 +1241,56 @@ public class PurchServiceImpl implements PurchService {
                 }
                 purchGoodsList.add(purchGoods);
 
-                int purchaseNum = purchGoods.getPurchaseNum();
+                int purchaseNum = pg.getPurchaseNum();
                 // 从数据库查询一次商品做修改
                 Goods goods = goodsDao.findOne(purchGoods.getGoods().getId());
+                // 从数据库查询一次商品做修改
+                PurchContractGoods purchContractGoods = purchContractGoodsDao.findOne(cId);
+                //采购合同
+                PurchContract purchContract = purchContractGoods.getPurchContract();
                 if (hasSon) {
                     // 处理替换商品
                     PurchGoods son = pg.getSon();
                     handleExchangedPurchGoods(project, goods, dbPurch, purchGoods, son);
                     purchGoodsList.add(son);
                 }
+                // 判断采购合同是否超限,采购合同预采购数量大于合同数量，则错误
+                if (purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum > purchContractGoods.getPurchaseNum()) {
+                    throw new Exception(String.format("%s%s%s", "采购数量超过合同数量【sku :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Quantity of purchase exceeds the number of contracts [SKU: " + goods.getSku() + "]"));
+
+                }
                 // 提交则修改商品的已采购数量
-                if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+                if (purch.getStatus() == Purch.StatusEnum.BEING.getCode() && (dbPurch.getAuditingStatus() == 0 || dbPurch.getAuditingStatus() == null)) {
                     goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
+                    //设置采购合同预采购商品数量
+                    purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
+                    //设置采购已采购商品数量
+                    purchContractGoods.setPurchasedNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
                     // 设置商品的项目跟踪信息
                     setGoodsTraceData(goods, purch);
                     if (!goods.getOrder().getOrderCategory().equals(6)) {
                         applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3, eruiToken));
                     }
-                }
-                // 判断采购是否超限,预采购数量大于合同数量，则错误
-                if (goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum > goods.getContractGoodsNum()) {
-                    throw new Exception(String.format("%s%s%s", "采购数量超过合同数量【sku :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Quantity of purchase exceeds the number of contracts [SKU: " + goods.getSku() + "]"));
-
+                    purchContract.setStatus(3);
+                } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode() && dbPurch.getAuditingStatus() == 3) {
+                    goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
+                    //设置采购合同预采购商品数量
+                    purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
+                    //设置采购已采购商品数量
+                    purchContractGoods.setPurchasedNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
+                    // 设置商品的项目跟踪信息
+                    setGoodsTraceData(goods, purch);
                 }
                 if (purchaseNum > 0 &&
                         (purchGoods.getPurchasePrice() == null || purchGoods.getPurchasePrice().compareTo(BigDecimal.ZERO) != 1)) {
                     throw new Exception(String.format("%s%s%s", "要采购的商品单价错误【sku :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unit price error to be purchased [SKU: " + goods.getSku() + "]"));
 
                 }
-
-                goods.setPrePurchsedNum(goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum);
+                //goods.setPrePurchsedNum(goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum);
+                if (purch.getStatus() == Purch.StatusEnum.READY.getCode()) {
+                    purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
+                }
+                purchContractGoodsDao.save(purchContractGoods);
                 goodsDao.save(goods);
             } else {
                 throw new Exception(String.format("%s%s%s", "不存在的采购商品信息", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Non existent procurement of commodity information"));
@@ -1246,10 +1358,12 @@ public class PurchServiceImpl implements PurchService {
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
             checkLogService.insert(checkLog_i);
-            if (save.getPurchAuditerId() != null) {
-                sendDingtalk(purch, purch.getPurchAuditerId().toString(), false);
+            if (save.getAuditingUserId() != null) {
+                for (String user : save.getAuditingUserId().split(",")) {
+                    sendDingtalk(save, user, false);
+                }
             }
-            auditBackLogHandle(dbPurch, false, dbPurch.getAuditingUserId(), "", false);
+            auditBackLogHandle(save, false, save.getAuditingUserId(), "", false);
         }
         if (save.getStatus() == 2) {
             List<Project> projects = save.getProjects();
@@ -1265,8 +1379,6 @@ public class PurchServiceImpl implements PurchService {
             }
 
         }
-
-
         // 检查项目是否已经采购完成
         List<Integer> projectIdList = projectSet.parallelStream().map(Project::getId).collect(Collectors.toList());
         checkProjectPurchDone(projectIdList);
@@ -1274,7 +1386,7 @@ public class PurchServiceImpl implements PurchService {
     }
 
     // 处理新增采购信息，如果采购信息有替换的商品，则返回处理后的替换信息
-    private PurchGoods handleAddNewPurchGoods(Project project, Purch purch, Goods goods, PurchGoods newPurchGoods) throws Exception {
+    private PurchGoods handleAddNewPurchGoods(Project project, Purch purch, Goods goods, PurchGoods newPurchGoods, PurchContractGoods purchContractGoods) throws Exception {
         // 设置新采购的基本信息
         String contractNo = project.getContractNo();
         String projectNo = project.getProjectNo();
@@ -1284,15 +1396,26 @@ public class PurchServiceImpl implements PurchService {
         newPurchGoods.setProjectNo(projectNo);
         newPurchGoods.setPurch(purch);
         newPurchGoods.setGoods(goods);
+        newPurchGoods.setPurchContract(purchContractGoods.getPurchContract());
+        newPurchGoods.setPurchContractGoods(purchContractGoods);
         Integer purchaseNum = newPurchGoods.getPurchaseNum();
         purchaseNum = purchaseNum != null && purchaseNum > 0 ? purchaseNum : 0;
+        Integer prePurchaseNum = purchContractGoods.getPrePurchContractNum();
+        //预采购合同数量
+        prePurchaseNum = prePurchaseNum != null && prePurchaseNum > 0 ? prePurchaseNum : 0;
         newPurchGoods.setPurchaseNum(purchaseNum);
-        // 判断采购是否超限,预采购数量大于合同数量，则错误
-        if (goods.getPrePurchsedNum() + purchaseNum > goods.getContractGoodsNum()) {
+        // 判断采购是否超限,预采购数量大于采购合同数量，则错误
+        if (prePurchaseNum + purchaseNum > purchContractGoods.getPurchaseNum()) {
             throw new Exception(String.format("%s%s%s", "采购数量超过合同数量【sk" +
                     "u :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Quantity of purchase exceeds the number of contracts [SKU: " + goods.getSku() + "]"));
 
         }
+        // 判断采购是否超限,预采购数量大于订单合同数量，则错误
+       /* if (goods.getPrePurchContractNum() + purchaseNum > goods.getContractGoodsNum()) {
+            throw new Exception(String.format("%s%s%s", "采购数量超过合同数量【sk" +
+                    "u :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Quantity of purchase exceeds the number of contracts [SKU: " + goods.getSku() + "]"));
+
+        }*/
         if (purchaseNum > 0 &&
                 (newPurchGoods.getPurchasePrice() == null || newPurchGoods.getPurchasePrice().compareTo(BigDecimal.ZERO) != 1)) {
             throw new Exception(String.format("%s%s%s", "要采购的商品单价错误【sku :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unit price error to be purchased [SKU: " + goods.getSku() + "]"));

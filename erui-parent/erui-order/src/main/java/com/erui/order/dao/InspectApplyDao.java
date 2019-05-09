@@ -17,7 +17,7 @@ public interface InspectApplyDao extends JpaRepository<InspectApply, Serializabl
      * @param parchId 采购单ID
      * @return
      */
-    List<InspectApply> findByPurchIdAndMasterOrderByCreateTimeAsc(Integer parchId,Boolean master);
+    List<InspectApply> findByPurchIdAndMasterOrderByCreateTimeAsc(Integer parchId, Boolean master);
 
     /**
      * 获取主报检单的所有子报检单

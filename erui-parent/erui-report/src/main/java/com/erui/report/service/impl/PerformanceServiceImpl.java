@@ -238,7 +238,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
                     Map<String, Object> rm = new HashMap<>();
                     rm.put("area", m.get("area").toString());
                     rm.put("country", "全部");
-                    rm.put("employee","全部");
+                    rm.put("user","全部");
                     rm.put("month", params.get("month"));
                     List<String> buyerList = new ArrayList<>();
                     buyerList.add(m.get("buyerCode").toString());
@@ -261,7 +261,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
                     Map<String, Object> rm = new HashMap<>();
                     rm.put("area", params.get("area"));
                     rm.put("country", m.get("country").toString());
-                    rm.put("employee","全部");
+                    rm.put("user","全部");
                     rm.put("month", params.get("month"));
                     List<String> buyerList = new ArrayList<>();
                     buyerList.add(m.get("buyerCode").toString());
@@ -288,7 +288,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
                         map.put("area",p.getTwoLevelDepartment());
                         map.put("country",p.getThreeLevelDepartment());
                         map.put("month",params.get("month"));
-                        map.put("employee",p.getNameCh());
+                        map.put("user",p.getNameCh());
                         if(p.getIncrBuyerCount()!=null) {
                             map.put("incrBuyerCount", p.getIncrBuyerCount());
                         }else {
@@ -309,7 +309,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
                     map.put("area",p.getTwoLevelDepartment());
                     map.put("country",p.getThreeLevelDepartment());
                     map.put("month",params.get("month"));
-                    map.put("employee",p.getNameCh());
+                    map.put("user",p.getNameCh());
                     map.put("incrBuyerCount",0);
                     map.put("buyerCodeList",buyerList);
                     resultList.add(map);
@@ -343,7 +343,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
                 } else {
 
                     m.put("country", "全部");
-                    m.put("employee", "全部");
+                    m.put("user", "全部");
                     m.put("month", params.get("month"));
                     m.put("job", "--");
                     m.put("totalPerformance", RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("totalPerformance").toString()),
@@ -371,7 +371,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
                     rMap.put("eruiPerformance", RateUtil.doubleChainRateTwo(eruiPerformance, 1));
                     rMap.put("otherPerformance", RateUtil.doubleChainRateTwo(otherPerformance, 1));
                 } else {
-                    m.put("employee", "全部");
+                    m.put("user", "全部");
                     m.put("month", params.get("month"));
                     m.put("job", "--");
                     m.put("totalPerformance", RateUtil.doubleChainRateTwo(Double.parseDouble(m.get("totalPerformance").toString()),
@@ -405,7 +405,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
                     Map<String, Object> m = new HashMap<>();
                     m.put("area", p.getTwoLevelDepartment());
                     m.put("country", p.getThreeLevelDepartment());
-                    m.put("employee", p.getNameCh());
+                    m.put("user", p.getNameCh());
                     m.put("job", p.getStation());
                     m.put("totalPerformance", p.getSalesmanPerformance());
                     m.put("eruiPerformance", p.getSalesmanPerformance());
@@ -500,7 +500,7 @@ public class PerformanceServiceImpl extends BaseService<PerformanceCountMapper> 
                 XSSFCell cell1 = row1.createCell(1);
                 cell1.setCellValue(m.get("country").toString());
                 XSSFCell cell2 = row1.createCell(2);
-                cell2.setCellValue(m.get("employee").toString());
+                cell2.setCellValue(m.get("user").toString());
                 XSSFCell cell3 = row1.createCell(3);
                 cell3.setCellValue(m.get("job").toString());
                 XSSFCell cell4 = row1.createCell(4);

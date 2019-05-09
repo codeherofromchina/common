@@ -40,20 +40,25 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
     @Autowired
     private InspectApplyDao inspectApplyDao;
+
     @Autowired
     private InspectApplyGoodsDao inspectApplyGoodsDao;
+
     @Autowired
     private PurchDao purchDao;
-    @Autowired
-    private PurchServiceImpl purchServiceImpl;
+
     @Autowired
     private PurchGoodsDao purchGoodsDao;
+
     @Autowired
     private GoodsDao goodsDao;
+
     @Autowired
     private AttachmentService attachmentService;
+
     @Autowired
     private InspectReportDao inspectReportDao;
+
     @Autowired
     private InspectApplyTmpAttachDao inspectApplyTmpAttachDao;
 
@@ -64,7 +69,13 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     private InspectReportServiceImpl inspectReportServiceImpl;
 
     @Autowired
+    private PurchServiceImpl purchServiceImpl;
+
+    @Autowired
     private BackLogService backLogService;
+
+    @Autowired
+    private PurchContractDao purchContractDao;
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
@@ -385,7 +396,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             applyGoods.setInspectNum(iaGoods.getInspectNum());
             applyGoods.setHeight(iaGoods.getHeight());
             applyGoods.setLwh(iaGoods.getLwh());
-
             // 保证每次从数据库获取
             PurchGoods purchGoods = purchGoodsDao.findOne(applyGoods.getPurchGoods().getId());
             // 报检数量大于采购数量
@@ -970,7 +980,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(eruiToken)) {
+        if (StringUtils.isNotBlank(eruiToken)) {
             Map<String, String> header = new HashMap<>();
             header.put(CookiesUtil.TOKEN_NAME, eruiToken);
             header.put("Content-Type", "application/json");

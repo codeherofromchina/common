@@ -1,5 +1,6 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
@@ -62,6 +63,9 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
+
+    @Value("#{orderProp[MEMBER_LIST]}")
+    private String memberList;  //查询人员信息调用接口
 
 
     @Transactional(readOnly = true)
@@ -126,7 +130,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     }
 
     //钉钉通知 审批人
-    private void sendDingtalk(PurchRequisition purchRequisition, String user, boolean rejectFlag) {
+    private void sendDingtalk(PurchRequisition purchRequisition, String user, boolean isSubClerk) {
         //获取token
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         new Thread(new Runnable() {
@@ -148,7 +152,6 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                 JSONObject jsonObject = JSONObject.parseObject(userInfo);
                 Integer code = jsonObject.getInteger("code");
                 String userNo = null;
-                String userName = null;  //商务经办人手机号
                 if (code == 1) {
                     JSONObject data = jsonObject.getJSONObject("data");
                     //获取通知者姓名员工编号
@@ -160,8 +163,11 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                     //发送钉钉通知
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("toUser=").append(userNo);
-                    if (!rejectFlag) {
+                    if (!isSubClerk) {
                         stringBuffer.append("&message=您好！项目号:" + purchRequisition.getProjectNo() + "已申请采购。请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                                "" + sendTime02 + "");
+                    }else{
+                        stringBuffer.append("&message=您好！项目号:" + purchRequisition.getProjectNo() + "已生成采购申请。请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
                                 "" + sendTime02 + "");
                     }
                     stringBuffer.append("&type=userNo");
@@ -176,6 +182,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updatePurchRequisition(PurchRequisition purchRequisition) throws Exception {
+        //获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
         Project project = projectDao.findOne(purchRequisition.getProId());
         PurchRequisition prt = findById(purchRequisition.getId(), project.getOrder().getId());
         if (!purchRequisition.getProjectNo().equals(prt.getProjectNo())) {
@@ -253,20 +261,26 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 
 
             //项目中采购申请提交以后  通知采购经办人办理采购订单
-            BackLog newBackLog = new BackLog();
-            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHORDER.getMsg());  //功能名称
-            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHORDER.getNum());    //功能访问路径标识
-            newBackLog.setReturnNo("");  //返回单号    返回空，两个标签
-            String contractNo = save.getContractNo();   //销售合同号
-            String projectNo = save.getProjectNo();//项目号
-            newBackLog.setInformTheContent(contractNo + " | " + projectNo);  //提示内容
-            newBackLog.setHostId(save.getId());    //父ID，列表页id   项目id
-            Integer purchaseUid = save.getPurchaseUid();//采购经办人id
-            newBackLog.setUid(purchaseUid);   ////经办人id
-            backLogService.addBackLogByDelYn(newBackLog);
+//            BackLog newBackLog = new BackLog();
+//            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHORDER.getMsg());  //功能名称
+//            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHORDER.getNum());    //功能访问路径标识
+//            newBackLog.setReturnNo("");  //返回单号    返回空，两个标签
+//            String contractNo = save.getContractNo();   //销售合同号
+//            String projectNo = save.getProjectNo();//项目号
+//            newBackLog.setInformTheContent(contractNo + " | " + projectNo);  //提示内容
+//            newBackLog.setHostId(save.getId());    //父ID，列表页id   项目id
+//            Integer purchaseUid = save.getPurchaseUid();//采购经办人id
+//            newBackLog.setUid(purchaseUid);   ////经办人id
+//            backLogService.addBackLogByDelYn(newBackLog);
 
 
             try {
+                List<Integer>userList = getUserList(eruiToken, "O38");
+                if(userList != null && userList.size() >0){
+                    for (Integer user : userList){
+                        sendDingtalk(purchRequisition1, user.toString(), true);
+                    }
+                }
                 //TODO 采购申请通知：采购申请单下达后通知采购经办人
                 sendSms(project1);
             } catch (Exception e) {
@@ -280,6 +294,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean insertPurchRequisition(PurchRequisition purchRequisition) throws Exception {
+        // 获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
         Project project = projectDao.findOne(purchRequisition.getProId());
         if (StringUtils.isNotBlank(purchRequisition.getProjectNo()) && purchRequisitionDao.countByProjectNo(purchRequisition.getProjectNo()) > 0) {
             throw new MyException("项目号已存在&&The project No. already exists");
@@ -307,8 +323,8 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionAdd.setRemarks(purchRequisition.getRemarks());
 
         // 处理附件信息
-        //Set<Attachment> attachments = attachmentService.handleParamAttachment(null, purchRequisition.getAttachmentSet(), null, null);
-        //purchRequisitionAdd.setAttachmentSet(purchRequisition.getAttachmentSet());
+        // Set<Attachment> attachments = attachmentService.handleParamAttachment(null, purchRequisition.getAttachmentSet(), null, null);
+        // purchRequisitionAdd.setAttachmentSet(purchRequisition.getAttachmentSet());
         ArrayList<Goods> list = new ArrayList<>();
         Map<Integer, Goods> goodsMap = project.getOrder().getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
         purchRequisition.getGoodsList().stream().forEach(dcGoods -> {
@@ -331,7 +347,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         purchRequisitionAdd.setStatus(purchRequisition.getStatus());
         PurchRequisition purchRequisition1 = purchRequisitionDao.save(purchRequisitionAdd);
         // 添加附件
-        //purchRequisition1.setAttachmentList(purchRequisition.getAttachmentList());
+        // purchRequisition1.setAttachmentList(purchRequisition.getAttachmentList());
         if (purchRequisition.getAttachmentSet() != null && purchRequisition.getAttachmentSet().size() > 0) {
             attachmentService.addAttachments(purchRequisition.getAttachmentSet(), purchRequisition1.getId(), Attachment.AttachmentCategory.PURCHREQUEST.getCode());
         }
@@ -354,19 +370,25 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             backLogService.updateBackLogByDelYn(backLog);
 
             //项目中采购申请提交以后  通知采购经办人办理采购申请        (采购申请只发送一次，全部采购完成删除)
-            BackLog newBackLog = new BackLog();
-            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHORDER.getMsg());  //功能名称
-            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHORDER.getNum());    //功能访问路径标识
-            newBackLog.setReturnNo("");  //返回单号    返回空，两个标签
-            String contractNo = save.getContractNo();   //销售合同号
-            String projectNo = save.getProjectNo(); //项目号
-            newBackLog.setInformTheContent(contractNo + " | " + projectNo);  //提示内容
-            newBackLog.setHostId(save.getId());    //父ID，列表页id
-            Integer purchaseUid = save.getPurchaseUid(); //采购经办人id
-            newBackLog.setUid(purchaseUid);   ////经办人id
-            backLogService.addBackLogByDelYn(newBackLog);
+//            BackLog newBackLog = new BackLog();
+//            newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHORDER.getMsg());  //功能名称
+//            newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHORDER.getNum());    //功能访问路径标识
+//            newBackLog.setReturnNo("");  //返回单号    返回空，两个标签
+//            String contractNo = save.getContractNo();   //销售合同号
+//            String projectNo = save.getProjectNo(); //项目号
+//            newBackLog.setInformTheContent(contractNo + " | " + projectNo);  //提示内容
+//            newBackLog.setHostId(save.getId());    //父ID，列表页id
+//            Integer purchaseUid = save.getPurchaseUid(); //采购经办人id
+//            newBackLog.setUid(purchaseUid);   ////经办人id
+//            backLogService.addBackLogByDelYn(newBackLog);
 
             try {
+                List<Integer>userList = getUserList(eruiToken, "O38");
+                if(userList != null && userList.size() >0){
+                    for (Integer user : userList){
+                        sendDingtalk(purchRequisition1, user.toString(), true);
+                    }
+                }
                 // TODO 采购申请通知：采购申请单下达后通知采购经办人
                 sendSms(project1);
             } catch (Exception e) {
@@ -376,6 +398,42 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
         return true;
     }
 
+    //根据角色获取人员列表
+    private List<Integer>getUserList(String eruiToken, String roleNo){
+        //获取人员id
+        List<Integer> listAll = new ArrayList<>(); //分单员id
+
+        if (StringUtils.isNotBlank(eruiToken)) {
+            Map<String, String> header = new HashMap<>();
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+            try {
+                //获取物流分单员
+                String jsonParam = "{\"role_no\":\""+roleNo+"\"}";
+                String s2 = HttpRequest.sendPost(memberList, jsonParam, header);
+                logger.info("人员详情返回信息：" + s2);
+
+                // 获取人员手机号
+                JSONObject jsonObjects = JSONObject.parseObject(s2);
+                Integer codes = jsonObjects.getInteger("code");
+                if (codes == 1) { //判断请求是否成功
+                    // 获取数据信息
+                    JSONArray data1 = jsonObjects.getJSONArray("data");
+                    for (int i = 0; i < data1.size(); i++) {
+                        JSONObject ob = (JSONObject) data1.get(i);
+                        listAll.add(ob.getInteger("id")); //获取人员id
+                    }
+                } else {
+                    throw new Exception("人员详情返回信息查询失败");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        return listAll;
+    }
 
     // 采购申请通知：采购申请单下达后通知采购经办人
     public void sendSms(Project project1) throws Exception {
@@ -421,10 +479,10 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
 
 
     /**
-     * @param condition { 销售合同号：contractNo,项目号：projectNo,项目名称：projectName,项目开始日期：startDate,下发采购日期：submitDate,
+     * @param condition { 销售合同号：contractNo,项目号：projectNo,合同标的：projectName,项目开始日期：startDate,下发采购日期：submitDate,
      *                  要求采购到货日期：requirePurchaseDate,商务技术经办人：businessName,页码：page,页大小：rows}
      * @return {
-     * contractNo:销售合同号,projectNo:项目号,projectName:项目名称,
+     * contractNo:销售合同号,projectNo:项目号,projectName:合同标的,
      * businessName:商务技术经办人,startDate:项目开始日期,
      * submitDate:下发采购日期,requirePurchaseDate:要求采购到货日期,status:状态
      * }
@@ -474,7 +532,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
                 if (StringUtils.isNotBlank(projectNo)) {
                     list.add(cb.like(projectPath.get("projectNo").as(String.class), "%" + projectNo + "%"));
                 }
-                // 项目名称查询
+                // 合同标的查询
                 String projectName = condition.get("projectName");
                 if (StringUtils.isNotBlank(projectName)) {
                     list.add(cb.like(projectPath.get("projectName").as(String.class), "%" + projectName + "%"));
@@ -517,7 +575,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             Project project = pr.getProject();
             Map<String, Object> map = new HashMap<>();
             map.put("projectId", project.getId()); // 项目ID
-            map.put("projectName", project.getProjectName()); // 项目名称
+            map.put("projectName", project.getProjectName()); // 合同标的
             map.put("projectNo", project.getProjectNo()); // 项目号
             map.put("contractNo", project.getContractNo()); // 销售合同号
             map.put("businessName", project.getBusinessName()); // 商务技术经办人

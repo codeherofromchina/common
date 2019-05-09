@@ -93,6 +93,6 @@ public class EscapeUnescape {
         System.out.println(tmp);  
         System.out.println("testing unescape :" + tmp);  
         System.out.println(unescape());
-        System.out.println(isoToUTF(tmp));  
+        System.out.println(isoToUTF(tmp));
     }  
 }
