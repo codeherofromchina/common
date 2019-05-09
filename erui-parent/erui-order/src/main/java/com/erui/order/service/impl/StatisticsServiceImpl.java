@@ -555,7 +555,6 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }
             }
         }
-
         return dataList;
     }
 
