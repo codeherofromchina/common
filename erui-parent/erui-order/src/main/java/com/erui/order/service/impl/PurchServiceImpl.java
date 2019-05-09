@@ -1141,11 +1141,11 @@ public class PurchServiceImpl implements PurchService {
                 }
                 Integer intPurchaseNum = pg.getPurchaseNum();
                 // 更新商品的采购数量和预采购数量
-                if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-                    // 更新已采购数量
-                    goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
+                if (purch.getStatus() == Purch.StatusEnum.BEING.getCode() && (purch.getAuditingStatus() == 0 || purch.getAuditingStatus() == null)) {
                     // 更新采购合同已预采购数量
                     purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + intPurchaseNum);
+                    // 更新已采购数量
+                    goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
                     // 设置商品的项目跟踪信息
                     setGoodsTraceData(goods, purch);
                     if (!goods.getOrder().getOrderCategory().equals(6)) {
@@ -1254,38 +1254,42 @@ public class PurchServiceImpl implements PurchService {
                     handleExchangedPurchGoods(project, goods, dbPurch, purchGoods, son);
                     purchGoodsList.add(son);
                 }
+                // 判断采购合同是否超限,采购合同预采购数量大于合同数量，则错误
+                if (purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum > purchContractGoods.getPurchaseNum()) {
+                    throw new Exception(String.format("%s%s%s", "采购数量超过合同数量【sku :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Quantity of purchase exceeds the number of contracts [SKU: " + goods.getSku() + "]"));
+
+                }
                 // 提交则修改商品的已采购数量
-                if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+                if (purch.getStatus() == Purch.StatusEnum.BEING.getCode() && (dbPurch.getAuditingStatus() == 0 || dbPurch.getAuditingStatus() == null)) {
                     goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
-                    //设置采购已采购商品数量
-                    purchContractGoods.setPurchasedNum(purchContractGoods.getPurchasedNum() + purchaseNum);
                     //设置采购合同预采购商品数量
                     purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
+                    //设置采购已采购商品数量
+                    purchContractGoods.setPurchasedNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
                     // 设置商品的项目跟踪信息
                     setGoodsTraceData(goods, purch);
                     if (!goods.getOrder().getOrderCategory().equals(6)) {
                         applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 3, eruiToken));
                     }
                     purchContract.setStatus(3);
-                }
-                // 判断采购是否超限,预采购数量大于合同数量，则错误
-               /* if (goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum > goods.getContractGoodsNum()) {
-                    throw new Exception(String.format("%s%s%s", "采购数量超过合同数量【sku :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Quantity of purchase exceeds the number of contracts [SKU: " + goods.getSku() + "]"));
-
-                }*/
-                // 判断采购合同是否超限,采购合同预采购数量大于合同数量，则错误
-                if (purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum > purchContractGoods.getPurchaseNum()) {
-                    throw new Exception(String.format("%s%s%s", "采购数量超过合同数量【sku :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Quantity of purchase exceeds the number of contracts [SKU: " + goods.getSku() + "]"));
-
+                } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode() && dbPurch.getAuditingStatus() == 3) {
+                    goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
+                    //设置采购合同预采购商品数量
+                    purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
+                    //设置采购已采购商品数量
+                    purchContractGoods.setPurchasedNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
+                    // 设置商品的项目跟踪信息
+                    setGoodsTraceData(goods, purch);
                 }
                 if (purchaseNum > 0 &&
                         (purchGoods.getPurchasePrice() == null || purchGoods.getPurchasePrice().compareTo(BigDecimal.ZERO) != 1)) {
                     throw new Exception(String.format("%s%s%s", "要采购的商品单价错误【sku :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unit price error to be purchased [SKU: " + goods.getSku() + "]"));
 
                 }
-
                 //goods.setPrePurchsedNum(goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum);
-                purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
+                if (purch.getStatus() == Purch.StatusEnum.READY.getCode()) {
+                    purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
+                }
                 purchContractGoodsDao.save(purchContractGoods);
                 goodsDao.save(goods);
             } else {

@@ -35,12 +35,14 @@ public class ProjectStatistics {
         this.distributionDeptName = order.getDistributionDeptName();
         this.businessUnitName = project.getBusinessUnitName();
         this.region = order.getRegion();
+        this.country = order.getCountry();
         this.crmCode = order.getCrmCode();
         this.customerType = order.getCustomerType();
         this.orderType = order.getOrderType();
         this.totalPrice = project.getTotalPriceUsd();
         this.paymentModeBn = order.getPaymentModeBn();
         this.profitPercent = project.getProfitPercent();
+        this.profit = project.getProfit();
         this.grantType = order.getGrantType();
         if (project.getDeliveryDate() != null) {
             // this.deliveryDate = DateUtil.format(DateUtil.SHORT_FORMAT_STR, project.getDeliveryDate());
@@ -92,6 +94,8 @@ public class ProjectStatistics {
     //所属地区
     private String region;
     private String regionZh;
+    //国家
+    private String country;
     //CRM客户代码
     private String crmCode;
     //客户类型
@@ -116,6 +120,8 @@ public class ProjectStatistics {
     private String proCate; //产品分类
     //初步利润率
     private BigDecimal profitPercent;
+    //利润额
+    private BigDecimal profit;
     //授信情况
     private String grantType;
     //执行单约定交付日期
@@ -153,6 +159,22 @@ public class ProjectStatistics {
     private Integer orderCategory;
     //订单商品
     private List<Goods> goodsList = new ArrayList<>();
+
+    public BigDecimal getProfit() {
+        return profit;
+    }
+
+    public void setProfit(BigDecimal profit) {
+        this.profit = profit;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
 
     public Integer getSendDeptId() {
         return sendDeptId;

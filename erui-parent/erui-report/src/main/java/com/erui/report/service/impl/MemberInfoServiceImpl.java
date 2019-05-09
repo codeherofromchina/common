@@ -376,7 +376,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
             if (StringUtils.isBlank(name)) {
                 map.put("name", "其他");
             }
-            Long orgId = (Long) map.get("orgId");
+            Integer orgId = (Integer) map.get("orgId");
 
 
             BigDecimal inquiryNum = (BigDecimal) map.get("inquiryNum");

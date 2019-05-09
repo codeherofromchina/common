@@ -11,17 +11,20 @@ import com.erui.comm.util.excel.BuildExcelImpl;
 import com.erui.comm.util.excel.ExcelCustomStyle;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
+import com.erui.order.entity.PurchContract;
 import com.erui.order.model.GoodsStatistics;
 import com.erui.order.model.SaleStatistics;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.*;
 import com.erui.report.util.ExcelUploadTypeEnum;
+import com.erui.report.util.WordUploadTypeEnum;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -541,7 +544,11 @@ public class ExportDataController {
         }
         OutputStream out = null;
         try {
-            // 拿到模板文件
+            PurchContract purchContract= purchContractService.findDetailInfo(Integer.parseInt(id));
+            if(purchContract == null){
+                LOGGER.error("采购合同不存在 {}", id);
+                return; // 参数错误，无法下载
+            }
             // 获取模板文件内容
             String fileName = ExcelUploadTypeEnum.getByType(20).getTable();
             String contextRealPath = request.getSession().getServletContext().getRealPath(EXCEL_TEMPLATE_PATH);
@@ -549,12 +556,12 @@ public class ExportDataController {
             FileInputStream tps = new FileInputStream(file);
             final XSSFWorkbook workbook = new XSSFWorkbook(tps);
             out = response.getOutputStream();
-            String encode = URLEncoder.encode(fileName, "UTF-8");
+            String encode = URLEncoder.encode(purchContract.getPurchContractNo()+"简易合同", "UTF-8");
             // 输出到客户端
             response.reset();
             response.setContentType("application/octet-stream;charset=UTF-8");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + encode
-                    + DateUtil.format(DateUtil.SHORT_FORMAT_STR, new Date()) + EXCEL_SUFFIX + "\"");
+                    + EXCEL_SUFFIX + "\"");
             // 填充数据
             purchContractService.simpleContractExcelData(workbook, Integer.parseInt(id));
             // 输出Excel内容，生成Excel文件
@@ -578,7 +585,60 @@ public class ExportDataController {
         }
     }
 
+    /**
+     * 导出标准采购合同word
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "/exportPurchContractStandard", method = RequestMethod.GET)
+    public void exportPurchContractStandard(HttpServletRequest request, HttpServletResponse response) {
+        String id = request.getParameter("id");
+        if (StringUtils.isBlank(id) || !StringUtils.isNumeric(id)) {
+            LOGGER.error("参数不正确 {}", id);
+            return; // 参数错误，无法下载
+        }
+        OutputStream out = null;
+        try {
+            // 拿到文件名字
+            PurchContract purchContract= purchContractService.findDetailInfo(Integer.parseInt(id));
+            if(purchContract == null){
+                LOGGER.error("采购合同不存在 {}", id);
+                return;
+            }
+            final XWPFDocument doc = new XWPFDocument();
+            out = response.getOutputStream();
+            String encode = URLEncoder.encode(purchContract.getPurchContractNo()+"标准合同", "UTF-8");
+            // 输出到客户端
+            response.reset();
+            response.setContentType("application/octet-stream;charset=UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + encode
+                    + WORD_SUFFIX + "\"");
+            // 填充数据
+            purchContractService.standardContractWordData(doc, Integer.parseInt(id));
+            // 输出Word内容，生成Word文件
+            if (doc != null) {
+                doc.write(out);
+            }
+
+        } catch (final Exception e) {
+            LOGGER.error("异常" + e.getMessage(), e);
+        } finally {
+            try {
+                // 最后记得关闭输出流
+                response.flushBuffer();
+                if (out != null) {
+                    out.flush();
+                    out.close();
+                }
+            } catch (final IOException e) {
+                LOGGER.error("异常" + e.getMessage(), e);
+            }
+        }
+    }
+
     private static final String EXCEL_TEMPLATE_PATH = "/WEB-INF/template/excel";
     private static final String EXCEL_SUFFIX = ".xlsx";
-    private static final String EXCEL_SUFFIX02 = ".xls";
+    private static final String WORD_SUFFIX = ".docx";
 }

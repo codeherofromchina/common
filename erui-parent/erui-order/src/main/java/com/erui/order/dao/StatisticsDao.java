@@ -1,17 +1,14 @@
 package com.erui.order.dao;
 
-import com.erui.order.entity.Order;
 import com.erui.order.entity.Purch;
 import com.erui.order.model.SaleStatistics;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by wangxiaodan on 2018/4/2.
@@ -103,7 +100,7 @@ public interface StatisticsDao extends JpaRepository<Purch, Serializable> {
     List<Object> findDeliverConsignGoods(@Param("goodsIds") List<Integer> goodsIds);
 
     @Query(value = "select t2.id,sum(t1.money),max(t1.payment_date),t3.`name` ,count(1) , t2.currency_bn , t2.exchange_rate , sum(t1.discount)" +
-            " from `order` t2 left join order_account t1 on t1.order_id = t2.id and t1.del_yn=1 left join erui_sys.employee t3 on t3.id = t2.acquire_id " +
+            " from `order` t2 left join order_account t1 on t1.order_id = t2.id and t1.del_yn=1 left join erui_sys.user t3 on t3.id = t2.acquire_id " +
             " where t2.id in :orderIds  group by t2.id",nativeQuery = true)
     List<Object> findOrderAccount(@Param("orderIds") List<Integer> orderIds);
 
