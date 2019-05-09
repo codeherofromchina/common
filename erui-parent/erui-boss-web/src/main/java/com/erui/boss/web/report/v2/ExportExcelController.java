@@ -42,12 +42,20 @@ public class ExportExcelController {
     public void orderBuyerStatistics(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String startTime = request.getParameter("startTime");
         String endTime = request.getParameter("endTime");
+        String areaName = request.getParameter("areaName");
+        String countryName = request.getParameter("countryName");
         Map<String, Object> params = new HashMap<>();
         if (StringUtils.isNotBlank(startTime)) {
             params.put("startTime", startTime);
         }
         if (StringUtils.isNotBlank(endTime)) {
             params.put("endTime", endTime);
+        }
+        if (StringUtils.isNotBlank(areaName)) {
+            params.put("areaName", areaName);
+        }
+        if (StringUtils.isNotBlank(countryName)) {
+            params.put("countryName", countryName);
         }
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
 
@@ -122,12 +130,20 @@ public class ExportExcelController {
     public void registerBuyerList(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String registerStartTime = request.getParameter("registerStartTime");
         String registerEndTime = request.getParameter("registerEndTime");
+        String areaName = request.getParameter("areaName");
+        String countryName = request.getParameter("countryName");
         Map<String, String> params = new HashMap<>();
         if (StringUtils.isNotBlank(registerStartTime)) {
             params.put("registerStartTime", registerStartTime);
         }
         if (StringUtils.isNotBlank(registerEndTime)) {
             params.put("registerEndTime", registerEndTime);
+        }
+        if (StringUtils.isNotBlank(areaName)) {
+            params.put("areaName", areaName);
+        }
+        if (StringUtils.isNotBlank(countryName)) {
+            params.put("countryName", countryName);
         }
         HSSFWorkbook wb = buyerStatisticsService.genRegisterBuyerListExcel(params);
         String fileName = "业绩统计-会员统计" + System.currentTimeMillis() + ".xls";
@@ -146,12 +162,20 @@ public class ExportExcelController {
     public void membershipBuyerList(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String membershipStartTime = request.getParameter("membershipStartTime");
         String membershipEndTime = request.getParameter("membershipEndTime");
+        String areaName = request.getParameter("areaName");
+        String countryName = request.getParameter("countryName");
         Map<String, String> params = new HashMap<>();
         if (StringUtils.isNotBlank(membershipStartTime)) {
             params.put("membershipStartTime", membershipStartTime);
         }
         if (StringUtils.isNotBlank(membershipEndTime)) {
             params.put("membershipEndTime", membershipEndTime);
+        }
+        if (StringUtils.isNotBlank(areaName)) {
+            params.put("areaName", areaName);
+        }
+        if (StringUtils.isNotBlank(countryName)) {
+            params.put("countryName", countryName);
         }
         HSSFWorkbook wb = buyerStatisticsService.genMembershipBuyerListExcel(params);
         String fileName = "业绩统计-交易会员统计" + System.currentTimeMillis() + ".xls";
@@ -170,12 +194,20 @@ public class ExportExcelController {
     public void applyBuyerList(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String applyStartTime = request.getParameter("applyStartTime");
         String applyEndTime = request.getParameter("applyEndTime");
+        String areaName = request.getParameter("areaName");
+        String countryName = request.getParameter("countryName");
         Map<String, String> params = new HashMap<>();
         if (StringUtils.isNotBlank(applyStartTime)) {
             params.put("applyStartTime", applyStartTime);
         }
         if (StringUtils.isNotBlank(applyEndTime)) {
             params.put("applyEndTime", applyEndTime);
+        }
+        if (StringUtils.isNotBlank(areaName)) {
+            params.put("areaName", areaName);
+        }
+        if (StringUtils.isNotBlank(countryName)) {
+            params.put("countryName", countryName);
         }
         HSSFWorkbook wb = buyerStatisticsService.genApplyBuyerListExcel(params);
         String fileName = "业绩统计-入网会员统计" + System.currentTimeMillis() + ".xls";

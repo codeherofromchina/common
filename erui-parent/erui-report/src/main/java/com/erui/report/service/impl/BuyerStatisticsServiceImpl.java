@@ -226,6 +226,7 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
                 excelData.add(rowData);
                 seq++;
             }
+            excelData.remove(excelData.size() - 1);
             // 最后的总计
             Map<String, Long> totalMap = (Map<String, Long>) data.get("total");
             Object[] rowData = new Object[header.length];
