@@ -599,7 +599,6 @@ public class StatisticsServiceImpl implements StatisticsService {
             projectGood01.setProjectName(p.getProjectName());
             projectGood01.setTotalPrice(p.getTotalPrice());
             projectGood01.setProfit(p.getProfit());
-            projectGood01.setCountry(p.getCountry());
             projectGoodsStatistics.add(projectGood01);
             count++;
             if (p.getGoodsList() != null) {
@@ -658,6 +657,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         //projectGoods.setProCate(proStatistics.getProCate());
         projectGoods.setExecCoName(proStatistics.getExecCoName());
         projectGoods.setRegionZh(proStatistics.getRegionZh());
+        projectGoods.setCountry(findBnMapZhCountry().get(proStatistics.getCountry()));
         projectGoods.setCrmCode(proStatistics.getCrmCode());
         projectGoods.setCustomerType(proStatistics.getCustomerTypeName());
         projectGoods.setPaymentModeBn(proStatistics.getPaymentModeBn());
@@ -1054,11 +1054,21 @@ public class StatisticsServiceImpl implements StatisticsService {
                     }
                 }
                 Join<Project, Order> orderRoot = root.join("order");
-                String countriesStr = condition.get("countries");
-               /* if (StringUtils.isNotBlank(countriesStr)) {
+              /*  String countriesStr = condition.get("countries");
+                if (StringUtils.isNotBlank(countriesStr)) {
                     String[] countriesArr = countriesStr.split(",");
                     list.add(orderRoot.get("country").in(countriesArr));
                 }*/
+                // 区域
+                String region = condition.get("region");
+                if (StringUtil.isNotBlank(region)) {
+                    list.add(cb.equal(orderRoot.get("region").as(String.class), region));
+                }
+                // 国家
+                String country = condition.get("country");
+                if (StringUtil.isNotBlank(country)) {
+                    list.add(cb.equal(orderRoot.get("country").as(String.class), country));
+                }
                 //  crmCode名称
                 String crmCode = condition.get("crmCode");
                 if (StringUtil.isNotBlank(crmCode)) {
