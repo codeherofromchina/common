@@ -38,7 +38,7 @@ public interface MemberInfoService {
      * @return
      */
     Map<String, List<Object>> visitStatisticsByOrg(Map<String, Object> params);
-
+    HSSFWorkbook exportVisitStatisticsByOrg(Map<String, Object> params);
     /**
      * 按照地区统计客户拜访统计
      *
@@ -169,6 +169,5 @@ public interface MemberInfoService {
 
     //导出人均效能统计 - 国家统计
     HSSFWorkbook exportEfficiencyByCountry(Map<String, Object> params);
-
 
 }

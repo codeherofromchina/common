@@ -155,7 +155,7 @@ public class MemberInfoController {
         }
         HSSFWorkbook wb = null;
         if ("1".equals(type)) { // 事业部
-            wb = memberInfoService.exportVisitStatisticsByArea(params);
+            wb = memberInfoService.exportVisitStatisticsByOrg(params);
         } else if ("2".equals(type)) {// 地区
             /// 按照地区统计客户拜访统计
             wb = memberInfoService.exportVisitStatisticsByArea(params);
