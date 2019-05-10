@@ -117,8 +117,15 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
      */
     @Override
     public BigDecimal projectTotalMoney(Map<String, String> params) {
-        BigDecimal totalMoney = readMapper.projectTotalMoney(params);
+        Map<String, Object> map = readMapper.projectTotalMoney(params);
+        if (map == null) {
+            return BigDecimal.ZERO;
+        }
 
+        BigDecimal totalMoney = (BigDecimal) map.get("totalMoney");
+        if (totalMoney == null) {
+            return BigDecimal.ZERO;
+        }
         return totalMoney;
     }
 
