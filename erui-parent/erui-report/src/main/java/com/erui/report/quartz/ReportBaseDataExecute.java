@@ -32,31 +32,29 @@ public class ReportBaseDataExecute {
     }
 
     public void start()  {
-        new Thread(()->{
-            try {
-                init();
-                // 销售大区业绩统计数据定时完善
-                fullAreaPerformance();
-                // 订单业务数据业绩定时完善
-                fullOrderList();
-                // 会员地区信息表定时完善
-                fullBuyerCountryInfo();
-                // 会员事业部统计表定时完善
-                fullBuyerOrgInfo();
-                // 获取人基本信息表定时完善
-                fullAcquiringUserBaseInfo();
-                // 日报信息定时完善
-                // 事业部日报信息定时完善
-                fullDataForOrgDailyInfo();
-                // 国家日报信息定时完善
-                fullDataForCountryDailyInfo();
+        try {
+            init();
+            // 销售大区业绩统计数据定时完善
+            fullAreaPerformance();
+            // 订单业务数据业绩定时完善
+            fullOrderList();
+            // 会员地区信息表定时完善
+            fullBuyerCountryInfo();
+            // 会员事业部统计表定时完善
+            fullBuyerOrgInfo();
+            // 获取人基本信息表定时完善
+            fullAcquiringUserBaseInfo();
+            // 日报信息定时完善
+            // 事业部日报信息定时完善
+            fullDataForOrgDailyInfo();
+            // 国家日报信息定时完善
+            fullDataForCountryDailyInfo();
 
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            } finally {
-                destroy();
-            }
-        }).start();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            destroy();
+        }
     }
 
     /**

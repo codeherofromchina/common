@@ -27,6 +27,7 @@ public class BuyerStatisticsController {
 
     /**
      * 注册用户查询
+     *
      * @param req
      * @return
      */
@@ -44,6 +45,7 @@ public class BuyerStatisticsController {
 
     /**
      * 会员用户查询
+     *
      * @param req
      * @return
      */
@@ -59,6 +61,7 @@ public class BuyerStatisticsController {
 
     /**
      * 入网用户查询
+     *
      * @param req
      * @return
      */
@@ -73,9 +76,9 @@ public class BuyerStatisticsController {
     }
 
 
-
     /**
      * 开发会员统计  （订单会员统计）
+     *
      * @param req
      * @return
      */
@@ -94,17 +97,18 @@ public class BuyerStatisticsController {
     }
 
 
-
-
     @RequestMapping(value = "/timer/2019-03-21", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public String timer() {
+        double random = Math.random();
+        System.out.println("调用定时任务开始(" + random + ")");
         try {
             ReportBaseDataExecute reportBaseQuartz = new ReportBaseDataExecute();
             reportBaseQuartz.start();
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             return ex.getMessage();
         }
+        System.out.println("调用定时任务结束(" + random + ")");
         return "OK";
     }
 }
