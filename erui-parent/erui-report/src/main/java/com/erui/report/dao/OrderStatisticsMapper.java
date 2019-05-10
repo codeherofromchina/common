@@ -34,7 +34,7 @@ public interface OrderStatisticsMapper {
      * @param params
      * @return
      */
-    BigDecimal projectTotalMoney(Map<String, String> params);
+    Map<String, Object> projectTotalMoney(Map<String, String> params);
 
     /**
      * 查询订单中项目列表
