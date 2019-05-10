@@ -140,6 +140,10 @@ public class BuyerStatisticsController {
             if (pageNum != null) {
                 result.put("pageNum",String.valueOf(pageNum));
             }
+            Object pageSize = reqParams.get("pageSize");
+            if (pageSize != null) {
+                result.put("pageSize",String.valueOf(pageSize));
+            }
             // 其他字符参数
             for (Map.Entry<String,Object> entry : reqParams.entrySet()) {
                 Object value = entry.getValue();

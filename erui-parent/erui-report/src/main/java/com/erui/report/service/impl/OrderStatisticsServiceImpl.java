@@ -120,15 +120,7 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
         Map<String, String> p = new HashMap<>(params);
         p.remove("pageNum");
         p.remove("pageSize");
-        Map<String, Object> map = readMapper.projectTotalMoney(params);
-        if (map == null) {
-            return BigDecimal.ZERO;
-        }
-
-        BigDecimal totalMoney = (BigDecimal) map.get("totalMoney");
-        if (totalMoney == null) {
-            return BigDecimal.ZERO;
-        }
+        BigDecimal totalMoney = readMapper.projectTotalMoney(p);
         return totalMoney;
     }
 

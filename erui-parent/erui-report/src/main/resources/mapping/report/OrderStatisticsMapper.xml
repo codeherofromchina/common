@@ -36,7 +36,7 @@
     </select>
 
 
-    <select id="projectTotalMoney" resultType="java.util.Map">
+    <select id="projectTotalMoney" resultType="java.math.BigDecimal">
         SELECT
           SUM(IFNULL(money, 0)) AS totalMoney
         FROM
