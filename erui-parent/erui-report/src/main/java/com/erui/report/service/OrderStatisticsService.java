@@ -4,6 +4,7 @@ import com.erui.report.model.PerformanceIndicators;
 import com.github.pagehelper.PageInfo;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -28,6 +29,13 @@ public interface OrderStatisticsService {
      * @return
      */
     Map<String, Object> yearAreaPerformance(Integer startYear, Integer endYear);
+
+    /**
+     * 业务业绩统计 - 项目列表 -- 项目金额合计
+     *
+     * @return
+     */
+    BigDecimal projectTotalMoney(Map<String, String> params);
 
     /**
      * 业务业绩统计 - 项目列表
