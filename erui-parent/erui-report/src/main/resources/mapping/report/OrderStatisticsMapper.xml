@@ -48,6 +48,12 @@
             <if test="endTime != null and endTime != ''">
                 AND project_start_date <![CDATA[<=]]> #{endTime}
             </if>
+            <if test="areaBn != null and areaBn != ''">
+                AND area_bn = #{areaBn}
+            </if>
+            <if test="countryBn != null and countryBn != ''">
+                AND country_bn = #{countryBn}
+            </if>
         </where>
     </select>
 
@@ -79,6 +85,12 @@
             </if>
             <if test="endTime != null and endTime != ''">
                 AND project_start_date <![CDATA[<=]]> #{endTime}
+            </if>
+            <if test="areaBn != null and areaBn != ''">
+                AND area_bn = #{areaBn}
+            </if>
+            <if test="countryBn != null and countryBn != ''">
+                AND country_bn = #{countryBn}
             </if>
         </where>
     </select>
