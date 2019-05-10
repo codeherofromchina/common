@@ -109,6 +109,19 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
         return result;
     }
 
+
+    /**
+     * 业务业绩统计 - 项目列表 -- 项目金额合计
+     *
+     * @return
+     */
+    @Override
+    public BigDecimal projectTotalMoney(Map<String, String> params) {
+        BigDecimal totalMoney = readMapper.projectTotalMoney(params);
+
+        return totalMoney;
+    }
+
     /**
      * 业务业绩统计 - 项目列表
      *
@@ -133,7 +146,7 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
     @Override
     public HSSFWorkbook genProjectListExcel(Map<String, String> params) {
         List<Map<String, Object>> projectList = readMapper.projectList(params);
-        String[] header = {"序号", "项目开始日期", "销售合同号", "订单类别", "合同标的", "执行分公司", "事业部", "所属地区",
+        String[] header = {"序号", "项目开始日期", "销售合同号", "订单类别", "项目名称", "执行分公司", "事业部", "所属地区", "所属国家",
                 "CRM客户代码", "项目金额", "初步利润率%", "利润", "获取人", "商务技术经办人"};
         List<Object> excelData = new ArrayList<>();
         if (projectList != null && projectList.size() > 0) {
@@ -148,12 +161,13 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
                 rowData[5] = map.get("execCoName");
                 rowData[6] = map.get("orgName");
                 rowData[7] = map.get("areaName");
-                rowData[8] = map.get("crmCode");
-                rowData[9] = map.get("money");
-                rowData[10] = map.get("profitPercent");
-                rowData[11] = map.get("profit");
-                rowData[12] = map.get("acquiringUser");
-                rowData[13] = map.get("businessName");
+                rowData[8] = map.get("countryName");
+                rowData[9] = map.get("crmCode");
+                rowData[10] = map.get("money");
+                rowData[11] = map.get("profitPercent");
+                rowData[12] = map.get("profit");
+                rowData[13] = map.get("acquiringUser");
+                rowData[14] = map.get("businessName");
                 excelData.add(rowData);
                 seq++;
             }

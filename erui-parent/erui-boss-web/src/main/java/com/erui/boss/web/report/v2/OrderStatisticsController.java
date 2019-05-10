@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -79,7 +81,18 @@ public class OrderStatisticsController {
         int pageSize = NumberUtils.toInt(req.get("pageSize"), 20);
 
         PageInfo<Map<String, Object>> pageInfo = orderStatisticsService.projectList(pageNum, pageSize, req);
-        result.setData(pageInfo);
+        BigDecimal totalMoney = null;
+        long total = pageInfo.getTotal();
+        if (total > 0) { // 如果记录数大于0，则计算项目总金额
+            totalMoney = orderStatisticsService.projectTotalMoney(req);
+            totalMoney = totalMoney.setScale(2, BigDecimal.ROUND_DOWN);
+        } else {
+            totalMoney = BigDecimal.ZERO;
+        }
+        Map<String, Object> data = new HashMap<>();
+        data.put("totalMoney", totalMoney);
+        data.put("pageInfo", pageInfo);
+        result.setData(data);
         return result;
     }
 }

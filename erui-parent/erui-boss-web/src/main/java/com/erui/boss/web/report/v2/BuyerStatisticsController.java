@@ -101,7 +101,7 @@ public class BuyerStatisticsController {
         try {
             ReportBaseDataExecute reportBaseQuartz = new ReportBaseDataExecute();
             reportBaseQuartz.start();
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
             return ex.getMessage();
         }

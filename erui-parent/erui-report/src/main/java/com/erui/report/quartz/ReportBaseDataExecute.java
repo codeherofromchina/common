@@ -28,11 +28,10 @@ public class ReportBaseDataExecute {
     public static void main(String[] args) {
         ReportBaseDataExecute quartz = new ReportBaseDataExecute();
         quartz.start();
-
     }
 
     public void start()  {
-        new Thread(()->{
+        new Thread(() -> {
             try {
                 init();
                 // 销售大区业绩统计数据定时完善

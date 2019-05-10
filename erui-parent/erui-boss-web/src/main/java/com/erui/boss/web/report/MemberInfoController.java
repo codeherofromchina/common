@@ -154,7 +154,9 @@ public class MemberInfoController {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         HSSFWorkbook wb = null;
-        if ("1".equals(type)) { // 地区
+        if ("1".equals(type)) { // 事业部
+            wb = memberInfoService.exportVisitStatisticsByOrg(params);
+        } else if ("2".equals(type)) {// 地区
             /// 按照地区统计客户拜访统计
             wb = memberInfoService.exportVisitStatisticsByArea(params);
         } else { // 国家
@@ -168,7 +170,7 @@ public class MemberInfoController {
         }
         String fileName = "会员数据统计-客户拜访统计-" + System.currentTimeMillis() + ".xls";
         try {
-            HttpUtils.setExcelResponseHeader(response, fileName.toString());
+            HttpUtils.setExcelResponseHeader(response, fileName);
             wb.write(response.getOutputStream());
         } catch (Exception e) {
             e.printStackTrace();
