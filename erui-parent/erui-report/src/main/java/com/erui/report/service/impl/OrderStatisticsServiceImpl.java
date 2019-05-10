@@ -51,7 +51,7 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
                 xAxisData.add(String.valueOf(year02));
 
                 if (money != null) {
-                    money = money.divide(wanDollar).setScale(2,BigDecimal.ROUND_DOWN);
+                    money = money.divide(wanDollar).setScale(2, BigDecimal.ROUND_DOWN);
                 } else {
                     money = BigDecimal.ZERO;
                 }
@@ -75,7 +75,7 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
      * 查询年度整体业绩
      *
      * @param startYear 所统计的年份
-     * @param endYear 所统计的年份
+     * @param endYear   所统计的年份
      * @return
      */
     @Override
@@ -97,7 +97,7 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
                 xAxisData.add(areaName);
                 if (money != null) {
                     amountData.add(money.divide(wanDollar).setScale(2, BigDecimal.ROUND_DOWN));
-                }else {
+                } else {
                     amountData.add(BigDecimal.ZERO);
                 }
                 countData.add(count);
@@ -117,8 +117,10 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
      */
     @Override
     public BigDecimal projectTotalMoney(Map<String, String> params) {
-        BigDecimal totalMoney = readMapper.projectTotalMoney(params);
-
+        Map<String, String> p = new HashMap<>(params);
+        p.remove("pageNum");
+        p.remove("pageSize");
+        BigDecimal totalMoney = readMapper.projectTotalMoney(p);
         return totalMoney;
     }
 
@@ -140,6 +142,7 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
 
     /**
      * 生成
+     *
      * @param params
      * @return
      */

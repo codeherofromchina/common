@@ -98,12 +98,12 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
             acquiringUser.put("quoteNum", quoteNum);
             acquiringUser.put("orderNum", orderNum);
             if (orderNum != 0 && quoteNum != 0) {
-                acquiringUser.put("succRate", new BigDecimal(orderNum / (double) quoteNum).setScale(2, BigDecimal.ROUND_HALF_UP));
+                acquiringUser.put("succRate", new BigDecimal(orderNum / (double) quoteNum).setScale(4, BigDecimal.ROUND_HALF_UP));
+                acquiringUser.put("succRateStr", new BigDecimal(orderNum / (double) quoteNum).multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP) + "%");
             } else {
                 acquiringUser.put("succRate", BigDecimal.ZERO);
+                acquiringUser.put("succRateStr", BigDecimal.ZERO.setScale(2,BigDecimal.ROUND_DOWN) + "%");
             }
-
-
         }
         PageInfo<Map<String, Object>> pageInfo = new PageInfo<>(acquiringUserList);
         return pageInfo;
