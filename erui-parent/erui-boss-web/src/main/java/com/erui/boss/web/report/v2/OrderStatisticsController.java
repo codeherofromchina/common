@@ -84,9 +84,14 @@ public class OrderStatisticsController {
         int pageNum = NumberUtils.toInt(params.get("pageNum"), 1);
         int pageSize = NumberUtils.toInt(params.get("pageSize"), 20);
 
-        BigDecimal totalMoney = orderStatisticsService.projectTotalMoney(params);
-        totalMoney = totalMoney.setScale(2, BigDecimal.ROUND_DOWN);
+        BigDecimal totalMoney = null;
         PageInfo<Map<String, Object>> pageInfo = orderStatisticsService.projectList(pageNum, pageSize, params);
+        if (pageInfo.getTotal() > 0) {
+            totalMoney = orderStatisticsService.projectTotalMoney(params);
+            totalMoney = totalMoney.setScale(2, BigDecimal.ROUND_DOWN);
+        } else {
+            totalMoney = BigDecimal.ZERO;
+        }
         Map<String, Object> data = new HashMap<>();
         data.put("totalMoney", totalMoney);
         data.put("pageInfo", pageInfo);
