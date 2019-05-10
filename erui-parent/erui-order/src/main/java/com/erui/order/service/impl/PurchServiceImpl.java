@@ -1066,7 +1066,6 @@ public class PurchServiceImpl implements PurchService {
             // 设置基本信息
             dbPurch.setBaseInfo(purch);
             dbPurch.setUpdateTime(now);
-
             // 处理结算方式
             Map<Integer, PurchPayment> collect = dbPurch.getPurchPaymentList().parallelStream().collect(Collectors.toMap(PurchPayment::getId, vo -> vo));
             List<PurchPayment> paymentList = purch.getPurchPaymentList().parallelStream().filter(vo -> {
