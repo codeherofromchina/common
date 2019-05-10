@@ -558,7 +558,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
      * @return
      */
     private List<Integer>getUserListByRoleNo(String eruiToken, String roleNo){
-        //获取人员id
+        // 获取人员id
         List<Integer> listAll = new ArrayList<>(); //分单员id
 
         if (StringUtils.isNotBlank(eruiToken)) {
