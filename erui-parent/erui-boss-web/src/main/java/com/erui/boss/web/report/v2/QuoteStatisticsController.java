@@ -33,7 +33,7 @@ public class QuoteStatisticsController {
     @RequestMapping(value = "quotePerformance", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> quotePerformance(@RequestBody(required = true) Map<String, Object> req) {
         int pageNum = NumberUtils.toInt((String) req.get("pageNum"), 1);
-        int pageSize = NumberUtils.toInt((String) req.get("pageSize"), 1);
+        int pageSize = NumberUtils.toInt((String) req.get("pageSize"), 10);
         Map<String, Object> params = ParamsUtils.verifyParam(req, DateUtil.SHORT_FORMAT_STR, null);
         PageInfo<Map<String, Object>> pageInfo = quoteStatisticsService.quotePerformanceByPage(pageNum, pageSize, params);
         if (pageInfo == null) {
