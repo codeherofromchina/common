@@ -7,6 +7,7 @@ import com.erui.report.quartz.ReportBaseDataExecute;
 import com.erui.report.service.BuyerStatisticsService;
 import com.erui.report.util.ParamsUtils;
 import com.github.pagehelper.PageInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -32,13 +35,13 @@ public class BuyerStatisticsController {
      * @return
      */
     @RequestMapping(value = "registerBuyerList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> registerBuyerList(@RequestBody(required = true) Map<String, String> req) {
+    public Result<Object> registerBuyerList(@RequestBody(required = true) Map<String, Object> req) {
+        Map<String, String> params = reqCover(req); // 转换地区和国家的数组信息参数
+        int pageNum = NumberUtils.toInt(params.get("pageNum"), 1);
+        int pageSize = NumberUtils.toInt(params.get("pageSize"), 20);
 
-        int pageNum = NumberUtils.toInt(req.get("pageNum"), 1);
-        int pageSize = NumberUtils.toInt(req.get("pageSize"), 20);
 
-
-        PageInfo<Map<String, Object>> pageInfo = buyerStatisticsService.registerBuyerList(pageNum, pageSize, req);
+        PageInfo<Map<String, Object>> pageInfo = buyerStatisticsService.registerBuyerList(pageNum, pageSize, params);
         Result<Object> result = new Result<>(pageInfo);
         return result;
     }
@@ -50,11 +53,13 @@ public class BuyerStatisticsController {
      * @return
      */
     @RequestMapping(value = "membershipBuyerList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> membershipBuyerList(@RequestBody(required = true) Map<String, String> req) {
-        int pageNum = NumberUtils.toInt(req.get("pageNum"), 1);
-        int pageSize = NumberUtils.toInt(req.get("pageSize"), 20);
+    public Result<Object> membershipBuyerList(@RequestBody(required = true) Map<String, Object> req) {
+        Map<String, String> params = reqCover(req);
 
-        PageInfo<Map<String, Object>> pageInfo = buyerStatisticsService.membershipBuyerList(pageNum, pageSize, req);
+        int pageNum = NumberUtils.toInt(params.get("pageNum"), 1);
+        int pageSize = NumberUtils.toInt(params.get("pageSize"), 20);
+
+        PageInfo<Map<String, Object>> pageInfo = buyerStatisticsService.membershipBuyerList(pageNum, pageSize, params);
         Result<Object> result = new Result<>(pageInfo);
         return result;
     }
@@ -66,11 +71,12 @@ public class BuyerStatisticsController {
      * @return
      */
     @RequestMapping(value = "applyBuyerList", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> applyBuyerList(@RequestBody(required = true) Map<String, String> req) {
-        int pageNum = NumberUtils.toInt(req.get("pageNum"), 1);
-        int pageSize = NumberUtils.toInt(req.get("pageSize"), 20);
+    public Result<Object> applyBuyerList(@RequestBody(required = true) Map<String, Object> req) {
+        Map<String, String> params = reqCover(req);
+        int pageNum = NumberUtils.toInt(params.get("pageNum"), 1);
+        int pageSize = NumberUtils.toInt(params.get("pageSize"), 20);
 
-        PageInfo<Map<String, Object>> pageInfo = buyerStatisticsService.applyBuyerList(pageNum, pageSize, req);
+        PageInfo<Map<String, Object>> pageInfo = buyerStatisticsService.applyBuyerList(pageNum, pageSize, params);
         Result<Object> result = new Result<>(pageInfo);
         return result;
     }
@@ -85,7 +91,24 @@ public class BuyerStatisticsController {
     @RequestMapping(value = "orderBuyerStatistics", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderBuyerStatistics(@RequestBody(required = true) Map<String, Object> req) {
         Map<String, Object> params = ParamsUtils.verifyParam(req, DateUtil.SHORT_FORMAT_STR, null);
-
+        if (params == null) {
+            params = new HashMap<>();
+        }
+        // 提取国家和地区信息
+        Object obj = req.get("area_country");
+        if (obj != null && obj instanceof ArrayList) {
+            ArrayList areaCountry = (ArrayList)obj;
+            if (areaCountry.size() == 2) {
+                Object areaBn = areaCountry.get(0);
+                if (areaBn != null && StringUtils.isNotBlank(String.valueOf(areaBn))) {
+                    req.put("areaBn", String.valueOf(areaBn));
+                }
+                Object country = areaCountry.get(1);
+                if (country != null && StringUtils.isNotBlank(String.valueOf(country))) {
+                    req.put("countryBn", String.valueOf(country));
+                }
+            }
+        }
         Result<Object> result = new Result<>();
         Map<String, Object> data = buyerStatisticsService.orderBuyerStatistics(params);
         if (data == null || data.size() == 0) {
@@ -110,5 +133,44 @@ public class BuyerStatisticsController {
         }
         System.out.println("调用定时任务结束(" + random + ")");
         return "OK";
+    }
+
+
+    private Map<String,String> reqCover(Map<String,Object> reqParams) {
+        Map<String, String> result = new HashMap<>();
+        if (reqParams != null && reqParams.size() > 0) {
+            // 页码信息
+            Object pageNum = reqParams.get("pageNum");
+            if (pageNum != null) {
+                result.put("pageNum",String.valueOf(pageNum));
+            }
+            Object pageSize = reqParams.get("pageSize");
+            if (pageSize != null) {
+                result.put("pageSize",String.valueOf(pageSize));
+            }
+            // 其他字符参数
+            for (Map.Entry<String,Object> entry : reqParams.entrySet()) {
+                Object value = entry.getValue();
+                if (value instanceof String) {
+                    result.put(entry.getKey(), (String) value);
+                }
+            }
+            // 提取国家和地区信息
+            Object obj = reqParams.get("area_country");
+            if (obj != null && obj instanceof ArrayList) {
+                ArrayList areaCountry = (ArrayList)obj;
+                if (areaCountry.size() == 2) {
+                    Object areaBn = areaCountry.get(0);
+                    if (areaBn != null && StringUtils.isNotBlank(String.valueOf(areaBn))) {
+                        result.put("areaBn", String.valueOf(areaBn));
+                    }
+                    Object country = areaCountry.get(1);
+                    if (country != null && StringUtils.isNotBlank(String.valueOf(country))) {
+                        result.put("countryBn", String.valueOf(country));
+                    }
+                }
+            }
+        }
+        return result;
     }
 }

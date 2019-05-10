@@ -43,6 +43,5 @@ public interface PurchRequisitionService {
      * @return
      * @throws Exception
      */
-
     boolean updatePurchaseUid(List<PurchRequisition> list) throws Exception;
 }

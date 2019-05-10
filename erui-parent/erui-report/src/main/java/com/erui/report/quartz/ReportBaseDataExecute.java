@@ -28,7 +28,6 @@ public class ReportBaseDataExecute {
     public static void main(String[] args) {
         ReportBaseDataExecute quartz = new ReportBaseDataExecute();
         quartz.start();
-
     }
 
     public void start()  {
