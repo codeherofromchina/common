@@ -103,6 +103,15 @@ public class OrderStatisticsController {
     private Map<String,String> reqCover(Map<String,Object> reqParams) {
         Map<String, String> result = new HashMap<>();
         if (reqParams != null && reqParams.size() > 0) {
+            // 页码信息
+            Object pageNum = reqParams.get("pageNum");
+            if (pageNum != null) {
+                result.put("pageNum",String.valueOf(pageNum));
+            }
+            Object pageSize = reqParams.get("pageSize");
+            if (pageSize != null) {
+                result.put("pageSize",String.valueOf(pageSize));
+            }
             for (Map.Entry<String,Object> entry : reqParams.entrySet()) {
                 Object value = entry.getValue();
                 if (value instanceof String) {
