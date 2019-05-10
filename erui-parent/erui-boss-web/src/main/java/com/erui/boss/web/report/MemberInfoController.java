@@ -122,7 +122,7 @@ public class MemberInfoController {
             // 按照地区统计客户拜访统计
             data = memberInfoService.visitStatisticsByArea(params);
         } else { // 国家
-            /// 按照国家统计客户拜访统计
+            // 按照国家统计客户拜访统计
             data = memberInfoService.visitStatisticsByCountry(params);
         }
 
