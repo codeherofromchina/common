@@ -529,12 +529,16 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 // 可以看到列表的人
                 String eruiToken = (String) ThreadLocalUtil.getObject();
                 if (StringUtils.isNotBlank(eruiToken)) {
+                    List<Integer>userList = getUserListByRoleNo(eruiToken, "O42"); // 获取O42订舱负责人
                     Map<String, String> stringStringMap = getInstockServiceImpl.ssoUser(eruiToken);
                     String submenuId = stringStringMap.get("id");
-                    Predicate auditingUserId01 = cb.like(root.get("auditingUserId").as(String.class), "%" + submenuId + "%");
-                    Predicate auditingUserId02 = cb.equal(root.get("createUserId").as(Integer.class), Integer.parseInt(submenuId));
-                    Predicate auditingUserId03 = cb.like(root.get("audiRemark").as(String.class), "%" + submenuId + "%");
-                    searchList.add(cb.or(auditingUserId01, auditingUserId02, auditingUserId03));
+                    // O42订舱负责人角色下面的人可以看到所有列表信息
+                    if(userList == null || !userList.contains(Integer.parseInt(submenuId))){
+                        Predicate auditingUserId01 = cb.like(root.get("auditingUserId").as(String.class), "%" + submenuId + "%");
+                        Predicate auditingUserId02 = cb.equal(root.get("createUserId").as(Integer.class), Integer.parseInt(submenuId));
+                        Predicate auditingUserId03 = cb.like(root.get("audiRemark").as(String.class), "%" + submenuId + "%");
+                        searchList.add(cb.or(auditingUserId01, auditingUserId02, auditingUserId03));
+                    }
                 }
 
                 Predicate[] predicates = new Predicate[searchList.size()];
@@ -544,6 +548,49 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }, pageRequest);
 
         return pageList;
+    }
+
+    /**
+     *根据角色获取人员列表
+     *
+     * @param eruiToken
+     * @param roleNo
+     * @return
+     */
+    private List<Integer>getUserListByRoleNo(String eruiToken, String roleNo){
+        //获取人员id
+        List<Integer> listAll = new ArrayList<>(); //分单员id
+
+        if (StringUtils.isNotBlank(eruiToken)) {
+            Map<String, String> header = new HashMap<>();
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+            try {
+                //获取物流分单员
+                String jsonParam = "{\"role_no\":\""+roleNo+"\"}";
+                String s2 = HttpRequest.sendPost(memberList, jsonParam, header);
+                logger.info("人员详情返回信息：" + s2);
+
+                // 获取人员手机号
+                JSONObject jsonObjects = JSONObject.parseObject(s2);
+                Integer codes = jsonObjects.getInteger("code");
+                if (codes == 1) { //判断请求是否成功
+                    // 获取数据信息
+                    JSONArray data1 = jsonObjects.getJSONArray("data");
+                    for (int i = 0; i < data1.size(); i++) {
+                        JSONObject ob = (JSONObject) data1.get(i);
+                        listAll.add(ob.getInteger("id")); //获取人员id
+                    }
+                } else {
+                    throw new Exception("人员详情返回信息查询失败");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        return listAll;
     }
 
 
