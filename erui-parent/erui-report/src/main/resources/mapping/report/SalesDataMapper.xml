@@ -92,15 +92,15 @@
         t1.id AS inquiryId,
         t1.country_bn AS country_bn
         FROM
-        erui_rfq.inquiry t1, erui_rfq.final_quote t2, (SELECT
-        inquiry_id AS log_inquiry_id, MIN(out_at) AS log_create_at
+        erui_rfq.inquiry t1, erui_rfq.quote t2, (SELECT
+        inquiry_id AS log_inquiry_id, MAX(out_at) AS log_create_at
         FROM
         erui_rfq.inquiry_check_log
         WHERE
         out_node = 'MARKET_CONFIRMING'
         GROUP BY inquiry_id
         <if test="startTime!=null and endTime!=null">
-            HAVING MIN(out_at) BETWEEN #{startTime} and #{endTime}
+            HAVING MAX(out_at) BETWEEN #{startTime} and #{endTime}
         </if>
         ) AS t3
         WHERE
@@ -108,6 +108,7 @@
         AND t2.deleted_flag = 'N'
         AND t1.deleted_flag = 'N'
         AND t1.`status` != 'DRAFT'
+        AND t1.quote_status IN ('QUOTED' , 'COMPLETED')
         AND t3.log_inquiry_id = t1.id
 
         ) as a
