@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -105,14 +106,16 @@ public class OrderStatisticsController {
             }
             // 提取国家和地区信息
             Object obj = reqParams.get("area_country");
-            if (obj != null && obj.getClass().isArray()) {
-                Object[] areaCountry = (Object[])obj;
-                if (areaCountry.length == 2) {
-                    if (areaCountry[0] != null && StringUtils.isNotBlank(String.valueOf(areaCountry[0]))) {
-                        result.put("areaBn", String.valueOf(areaCountry[0]));
+            if (obj != null && obj instanceof ArrayList) {
+                ArrayList areaCountry = (ArrayList)obj;
+                if (areaCountry.size() == 2) {
+                    Object areaBn = areaCountry.get(0);
+                    if (areaBn != null && StringUtils.isNotBlank(String.valueOf(areaBn))) {
+                        result.put("areaBn", String.valueOf(areaBn));
                     }
-                    if (areaCountry[1] != null && StringUtils.isNotBlank(String.valueOf(areaCountry[1]))) {
-                        result.put("countryBn", String.valueOf(areaCountry[1]));
+                    Object country = areaCountry.get(1);
+                    if (country != null && StringUtils.isNotBlank(String.valueOf(country))) {
+                        result.put("countryBn", String.valueOf(country));
                     }
                 }
             }

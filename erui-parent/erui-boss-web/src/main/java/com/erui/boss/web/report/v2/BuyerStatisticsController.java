@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -92,14 +93,16 @@ public class BuyerStatisticsController {
         }
         // 提取国家和地区信息
         Object obj = req.get("area_country");
-        if (obj != null && obj.getClass().isArray()) {
-            Object[] areaCountry = (Object[])obj;
-            if (areaCountry.length == 2) {
-                if (areaCountry[0] != null && StringUtils.isNotBlank(String.valueOf(areaCountry[0]))) {
-                    params.put("areaBn", String.valueOf(areaCountry[0]));
+        if (obj != null && obj instanceof ArrayList) {
+            ArrayList areaCountry = (ArrayList)obj;
+            if (areaCountry.size() == 2) {
+                Object areaBn = areaCountry.get(0);
+                if (areaBn != null && StringUtils.isNotBlank(String.valueOf(areaBn))) {
+                    req.put("areaBn", String.valueOf(areaBn));
                 }
-                if (areaCountry[1] != null && StringUtils.isNotBlank(String.valueOf(areaCountry[1]))) {
-                    params.put("countryBn", String.valueOf(areaCountry[1]));
+                Object country = areaCountry.get(1);
+                if (country != null && StringUtils.isNotBlank(String.valueOf(country))) {
+                    req.put("countryBn", String.valueOf(country));
                 }
             }
         }
@@ -132,6 +135,12 @@ public class BuyerStatisticsController {
     private Map<String,String> reqCover(Map<String,Object> reqParams) {
         Map<String, String> result = new HashMap<>();
         if (reqParams != null && reqParams.size() > 0) {
+            // 页码信息
+            Object pageNum = reqParams.get("pageNum");
+            if (pageNum != null) {
+                result.put("pageNum",String.valueOf(pageNum));
+            }
+            // 其他字符参数
             for (Map.Entry<String,Object> entry : reqParams.entrySet()) {
                 Object value = entry.getValue();
                 if (value instanceof String) {
