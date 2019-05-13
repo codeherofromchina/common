@@ -33,6 +33,7 @@ public class ReportBaseDataExecute {
     public void start()  {
         try {
             init();
+            conn.setAutoCommit(false);
             // 销售大区业绩统计数据定时完善
             fullAreaPerformance();
             // 订单业务数据业绩定时完善
@@ -49,9 +50,15 @@ public class ReportBaseDataExecute {
             // 国家日报信息定时完善
             fullDataForCountryDailyInfo();
 
+            conn.commit();
 
         } catch (Exception ex) {
             ex.printStackTrace();
+            try {
+                conn.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         } finally {
             destroy();
         }
