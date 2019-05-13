@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -798,6 +800,13 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public Map<String, List<Object>> orderStatisticsWholeInfoGroupByCountry(Map<String, Object> params) {
         // 总询单数量
+        Map<String, List<Object>> result = orderStatisticsWholeInfoGroupByCountryLimit(params, 10);
+        return result;
+    }
+
+
+    private Map<String, List<Object>> orderStatisticsWholeInfoGroupByCountryLimit(Map<String, Object> params, int n) {
+        // 总询单数量
         List<Map<String, Object>> orderInfoGroupCountry = salesDataStatisticsMapper.orderStatisticsWholeInfoGroupByCountry(params);
         if (orderInfoGroupCountry == null || orderInfoGroupCountry.size() == 0) {
             return null;
@@ -806,14 +815,20 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Object> names = new ArrayList<>();
         List<Object> totalNums = new ArrayList<>();
         List<Object> totalAmounts = new ArrayList<>();
-        orderInfoGroupCountry.stream().limit(10).forEach(map -> {
+        Stream<Map<String, Object>> stream = orderInfoGroupCountry.stream();
+        Consumer<Map<String, Object>> action = map -> {
             String countryName = (String) map.get("countryName");
             BigDecimal totalAmount = (BigDecimal) map.get("totalAmount");
             Long totalNum = (Long) map.get("totalNum");
             names.add(countryName == null ? UNKNOW : countryName);
             totalNums.add(totalNum == null ? 0L : totalNum);
             totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount.setScale(4, BigDecimal.ROUND_DOWN));
-        });
+        };
+        if (n > 0) {
+            stream.limit(10).forEach(action);
+        } else {
+            stream.forEach(action);
+        }
         result.put("names", names);
         result.put("totalNums", totalNums);
         result.put("totalAmounts", totalAmounts);
@@ -822,7 +837,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
 
     @Override
     public HSSFWorkbook exportOrderStatisticsWholeInfoGroupByCountry(Map<String, Object> params) {
-        Map<String, List<Object>> map = orderStatisticsWholeInfoGroupByCountry(params);
+        Map<String, List<Object>> map = orderStatisticsWholeInfoGroupByCountryLimit(params, -1);
 
         List<Object> headerList = map.get("names");
         headerList.add(0, "");
