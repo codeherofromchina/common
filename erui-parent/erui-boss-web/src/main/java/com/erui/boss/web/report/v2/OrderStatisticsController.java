@@ -90,6 +90,7 @@ public class OrderStatisticsController {
             totalMoney = orderStatisticsService.projectTotalMoney(params);
             totalMoney = totalMoney.setScale(2, BigDecimal.ROUND_DOWN);
         } else {
+
             totalMoney = BigDecimal.ZERO;
         }
 //        Map<String, Object> data = new HashMap<>();
