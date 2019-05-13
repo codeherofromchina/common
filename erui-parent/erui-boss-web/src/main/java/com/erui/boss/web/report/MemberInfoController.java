@@ -92,7 +92,7 @@ public class MemberInfoController {
         }
         String fileName = "会员数据统计-人均效能统计-" + System.currentTimeMillis() + ".xls";
         try {
-            HttpUtils.setExcelResponseHeader(response, fileName.toString());
+            HttpUtils.setExcelResponseHeader(response, fileName);
             wb.write(response.getOutputStream());
         } catch (Exception e) {
             e.printStackTrace();
