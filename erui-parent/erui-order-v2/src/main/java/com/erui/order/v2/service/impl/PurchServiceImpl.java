@@ -131,4 +131,11 @@ public class PurchServiceImpl implements PurchService {
         purchSelective.setAuditingStatus(4); // 设置为审核完成 4：审核完成
         purchMapper.updateByPrimaryKeySelective(purchSelective);
     }
+
+
+    @Override
+    public Purch selectById(Integer id) {
+        Purch purch = purchMapper.selectByPrimaryKey(id);
+        return purch;
+    }
 }

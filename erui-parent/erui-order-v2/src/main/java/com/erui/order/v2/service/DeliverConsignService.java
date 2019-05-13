@@ -1,5 +1,8 @@
 package com.erui.order.v2.service;
 
+import com.erui.order.v2.model.DeliverConsign;
+import com.erui.order.v2.model.Purch;
+
 /**
  * @Auther 王晓丹
  * @Date 2019/4/28 下午3:34
@@ -27,4 +30,11 @@ public interface DeliverConsignService {
      * @param processInstanceId
      */
     void updateProcessCompleted(String processInstanceId);
+
+    /**
+     * 通过id查找出口通知单信息
+     * @param id
+     * @return
+     */
+    DeliverConsign selectById(Integer id);
 }

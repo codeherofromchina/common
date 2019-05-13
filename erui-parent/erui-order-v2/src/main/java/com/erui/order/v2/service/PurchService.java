@@ -1,5 +1,7 @@
 package com.erui.order.v2.service;
 
+import com.erui.order.v2.model.Purch;
+
 /**
  * @Auther 王晓丹
  * @Date 2019/4/28 下午2:16
@@ -28,4 +30,11 @@ public interface PurchService {
      * @param processInstanceId
      */
     void updateProcessCompleted(String processInstanceId);
+
+    /**
+     * 唯一标识查找采购
+     * @param id
+     * @return
+     */
+    Purch selectById(Integer id);
 }
