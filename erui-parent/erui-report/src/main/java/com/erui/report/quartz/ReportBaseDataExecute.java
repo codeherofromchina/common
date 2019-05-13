@@ -48,6 +48,8 @@ public class ReportBaseDataExecute {
             fullDataForOrgDailyInfo();
             // 国家日报信息定时完善
             fullDataForCountryDailyInfo();
+
+
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
