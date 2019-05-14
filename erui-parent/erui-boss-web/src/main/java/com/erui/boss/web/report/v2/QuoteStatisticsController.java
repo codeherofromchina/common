@@ -56,6 +56,8 @@ public class QuoteStatisticsController {
             totalRateStr = totalRate.setScale(2,BigDecimal.ROUND_DOWN) + "%";
         }
 
+
+
         Map<String, Object> data = new HashMap<>();
         data.put("pageInfo", pageInfo);
         data.put("totalQuoteNum", totalQuoteNum);
