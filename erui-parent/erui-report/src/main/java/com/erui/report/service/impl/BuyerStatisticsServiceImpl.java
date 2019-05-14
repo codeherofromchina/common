@@ -331,6 +331,7 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
         String[] header = {"序号", "客户代码", "第一次交易时间", "获取人", "国家", "地区"};
 //        List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryMembershipBuyerList(params);
         List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryAfter2019MembershipBuyerList(params);
+
         List<Object[]> excelData = new ArrayList<Object[]>();
         if (buyerList != null && buyerList.size() > 0) {
             int seq = 1;
@@ -355,7 +356,7 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
         ExcelCustomStyle.setContextStyle(workbook, 0, 1, excelData.size());
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
-        if (params.size() == 0) {
+        if (params.size() == 0 || StringUtils.isBlank(params.get("membershipStartTime")) || StringUtils.isBlank(params.get("membershipEndTime"))) {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "业绩统计-交易会员统计");
         } else {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "业绩统计-交易会员统计（" + params.get("membershipStartTime") + "--" + params.get("membershipEndTime") + "）");
