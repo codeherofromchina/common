@@ -352,9 +352,9 @@ public class InspectReportServiceImpl implements InspectReportService {
             }
             applyGoods.setUnqualifiedDesc(paramApplyGoods.getUnqualifiedDesc());
             // 如果有不合格商品，则必须有不合格类型
-//            if (!hegeFlag && StringUtils.isBlank(paramApplyGoods.getUnqualifiedType()) && unqualified > 0) {
-//                throw new Exception(String.format("%s%s%s", "商品(SKU:" + goods.getSku() + ")的不合格类型不能为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unqualified Types of Unqualified Commodities (SKU:" + goods.getSku() + ") can not be empty"));
-//            }
+            if (!hegeFlag && StringUtils.isBlank(paramApplyGoods.getUnqualifiedType()) && unqualified > 0) {
+                throw new Exception(String.format("%s%s%s", "商品(SKU:" + goods.getSku() + ")的不合格类型不能为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unqualified Types of Unqualified Commodities (SKU:" + goods.getSku() + ") can not be empty"));
+            }
             applyGoods.setUnqualifiedType(paramApplyGoods.getUnqualifiedType());
             // 设置采购商品的已合格数量
             if (statusEnum == InspectReport.StatusEnum.DONE) { // 提交动作
