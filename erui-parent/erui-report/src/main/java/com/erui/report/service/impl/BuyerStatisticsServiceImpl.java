@@ -171,12 +171,6 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
             totalMap.put("curCount", curCount);
             totalMap.put("aftCount", aftCount);
             result.put("total", totalMap);
-            // 将合计数据加入到列表的最后一行
-            Map<String, Object> map02 = new HashMap<>();
-            map02.put("aftNum", aftCount);
-            map02.put("num", curCount);
-            map02.put("befNum", befCount);
-            curStatisticsList.add(map02);
         }
         return result;
     }
@@ -242,6 +236,8 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
         ExcelCustomStyle.setContextStyle(workbook, 0, 1, excelData.size());
+        // 合并总计单元格
+        ExcelCustomStyle.mergedCell(workbook, 0, excelData.size(), excelData.size(), 0, 2);
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
         if (params.size() == 0) {
