@@ -500,13 +500,13 @@ public class PurchServiceImpl implements PurchService {
     private void sendNewDingtalk(Purch purch, String user, boolean rejectFlag, boolean isSendQualityInspect) {
         if(isSendQualityInspect){ // 采购订单提交需要给质检部门发送钉钉通知，设置商品质检类型
             //获取token
-            final String eruiToken = (String) ThreadLocalUtil.getObject();
-            List<Integer>userList = getUserListByRoleNo(eruiToken, "O42"); // 获取O42订舱负责人
-            if(userList != null){
-                for (Integer userId : userList) {
-                    sendDingtalk(purch, userId.toString(), false, true);
-                }
-            }
+//            final String eruiToken = (String) ThreadLocalUtil.getObject();
+//            List<Integer>userList = getUserListByRoleNo(eruiToken, "O42"); // 获取O42订舱负责人
+//            if(userList != null){
+//                for (Integer userId : userList) {
+//                    sendDingtalk(purch, userId.toString(), false, true);
+//                }
+//            }
         }
         sendDingtalk(purch, user, rejectFlag, false);
     }
