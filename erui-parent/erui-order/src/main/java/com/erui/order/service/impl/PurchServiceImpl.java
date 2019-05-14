@@ -1090,10 +1090,6 @@ public class PurchServiceImpl implements PurchService {
             if (collect.size() > 0) {
                 purchPaymentDao.delete(collect.values());
             }
-            // 处理附件信息
-            //List<Attachment> attachmentlist = attachmentService.handleParamAttachment(dbPurch.getAttachments(), purch.getAttachments(), purch.getCreateUserId(), purch.getCreateUserName());
-            //dbPurch.setAttachments(attachmentlist);
-
             // 处理商品
             List<PurchGoods> purchGoodsList = new ArrayList<>(); // 声明最终采购商品容器
             Set<Project> projectSet = new HashSet<>(); // 声明项目的容器
