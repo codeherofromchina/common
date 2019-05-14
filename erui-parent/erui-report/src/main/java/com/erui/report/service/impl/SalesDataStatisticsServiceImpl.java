@@ -1486,8 +1486,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             return null;
         }
         List<Map<String, Object>> donePriceList = salesDataStatisticsMapper.orderInfoDonePriceGroupbyOrg(params);
-        Map<Object, Map<String, Object>> planPriceMap02 = new HashMap<>(planPriceMap);
-        Map<String, List<Object>> result = _handleOrderInfoDoneRateDataByDay(donePriceList, planPriceMap02, ascFlag);
+        Map<String, List<Object>> result = _handleOrderInfoDoneRateDataByDay(donePriceList, planPriceMap, ascFlag);
         return result;
     }
 
@@ -1561,8 +1560,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             return null;
         }
         List<Map<String, Object>> donePriceList = salesDataStatisticsMapper.orderInfoDonePriceGroupbyArea(params);
-        Map<Object, Map<String, Object>> planPriceMap02 = new HashMap<>(planPriceMap);
-        Map<String, List<Object>> result = _handleOrderInfoDoneRateDataByDay(donePriceList, planPriceMap02, ascFlag);
+        Map<String, List<Object>> result = _handleOrderInfoDoneRateDataByDay(donePriceList, planPriceMap, ascFlag);
         return result;
     }
 
@@ -1755,7 +1753,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     /**
      * 处理完成率按天平均数据信息
      */
-    private Map<String, List<Object>> _handleOrderInfoDoneRateDataByDay(List<Map<String, Object>> donePriceList, Map<Object, Map<String, Object>> planPriceMap, boolean ascFlag) {
+    private Map<String, List<Object>> _handleOrderInfoDoneRateDataByDay(List<Map<String, Object>> donePriceList, Map<? extends Object, Map<String, Object>> planPriceMap, boolean ascFlag) {
         Map<String, List<Object>> result = new HashMap<>();
         Set<Object> keyList = new HashSet<>();
         keyList.addAll(planPriceMap.keySet());
