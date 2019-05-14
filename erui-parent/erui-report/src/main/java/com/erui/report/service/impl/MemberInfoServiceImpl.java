@@ -340,9 +340,9 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     @Override
     public HSSFWorkbook exportMembershipByCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = statisticsAddMembershipByCountry(params);
-        List<Object> headerList = map.get("nameList");
-        List<Object> row01 = map.get("numList");
-        List<Object> row02 = map.get("amounts");
+        List<Object> headerList = map.get("names");
+        List<Object> row01 = map.get("num");
+        List<Object> row02 = map.get("amount");
         if (headerList == null || headerList.size() == 0) {
             return null;
         }
