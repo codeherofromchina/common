@@ -80,18 +80,18 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         List<Object> headerList = map.get("nameList");
         List<Object> row01 = map.get("normalGradeList");
         List<Object> row02 = map.get("topGradeList");
-        int headerListSize = headerList.size();
-        int row01Size = row01.size();
-        int row02Size = row02.size();
-        if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
-            headerList = headerList.subList(headerListSize > 10 ? headerListSize - 10 : 0, headerListSize);
-            row01 = row01.subList(row01Size > 10 ? row01Size - 10 : 0, row01Size);
-            row02 = row02.subList(row02Size > 10 ? row02Size - 10 : 0, row02Size);
-        } else {
-            headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
-            row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
-            row02 = row02.subList(0, row02Size >= 10 ? 10 : row02Size);
-        }
+//        int headerListSize = headerList.size();
+//        int row01Size = row01.size();
+//        int row02Size = row02.size();
+//        if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
+//            headerList = headerList.subList(headerListSize > 10 ? headerListSize - 10 : 0, headerListSize);
+//            row01 = row01.subList(row01Size > 10 ? row01Size - 10 : 0, row01Size);
+//            row02 = row02.subList(row02Size > 10 ? row02Size - 10 : 0, row02Size);
+//        } else {
+//            headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
+//            row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
+//            row02 = row02.subList(0, row02Size >= 10 ? 10 : row02Size);
+//        }
         headerList.add(0, "");
         row01.add(0, "普通会员数量");
         row02.add(0, "高级会员数量");
@@ -195,7 +195,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
 
     @Override
     public HSSFWorkbook exportVisitStatisticsByCountry(Map<String, Object> params) {
-        Map<String, List<Object>> map = visitStatisticsByArea(params);
+        Map<String, List<Object>> map = visitStatisticsByCountry(params);
         List<Object> headerList = map.get("nameList");
         headerList.add(0, "");
 
@@ -340,25 +340,25 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     @Override
     public HSSFWorkbook exportMembershipByCountry(Map<String, Object> params) {
         Map<String, List<Object>> map = statisticsAddMembershipByCountry(params);
-        List<Object> headerList = map.get("nameList");
-        List<Object> row01 = map.get("numList");
-        List<Object> row02 = map.get("amounts");
+        List<Object> headerList = map.get("names");
+        List<Object> row01 = map.get("num");
+        List<Object> row02 = map.get("amount");
         if (headerList == null || headerList.size() == 0) {
             return null;
         }
 
-        int headerListSize = headerList.size();
-        int row01Size = row01.size();
-        int row02Size = row02.size();
-        if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
-            headerList = headerList.subList(headerListSize > 10 ? headerListSize - 10 : 0, headerListSize);
-            row01 = row01.subList(row01Size > 10 ? row01Size - 10 : 0, row01Size);
-            row02 = row02.subList(row02Size > 10 ? row02Size - 10 : 0, row02Size);
-        } else {
-            headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
-            row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
-            row02 = row02.subList(0, row02Size >= 10 ? 10 : row02Size);
-        }
+//        int headerListSize = headerList.size();
+//        int row01Size = row01.size();
+//        int row02Size = row02.size();
+//        if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
+//            headerList = headerList.subList(headerListSize > 10 ? headerListSize - 10 : 0, headerListSize);
+//            row01 = row01.subList(row01Size > 10 ? row01Size - 10 : 0, row01Size);
+//            row02 = row02.subList(row02Size > 10 ? row02Size - 10 : 0, row02Size);
+//        } else {
+//            headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
+//            row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
+//            row02 = row02.subList(0, row02Size >= 10 ? 10 : row02Size);
+//        }
 
         headerList.add(0, "");
         row01.add(0, "会员数量（个）");
@@ -507,16 +507,16 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         Map<String, List<Object>> map = signingBodyByCountry(params);
         List<Object> headerList = map.get("nameList");
         int headerListSize = headerList.size();
-        headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
+//        headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
         headerList.add(0, "");
 
         List<Object> row01 = map.get("eruiNumList");
-        int row01Size = row01.size();
-        row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
+//        int row01Size = row01.size();
+//        row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
         row01.add(0, "易瑞签约主体（个）");
         List<Object> row02 = map.get("otherNumList");
-        int row02Size = row02.size();
-        row02 = row02.subList(0, row02Size >= 10 ? 10 : row02Size);
+//        int row02Size = row02.size();
+//        row02 = row02.subList(0, row02Size >= 10 ? 10 : row02Size);
         row02.add(0, "其他签约主体（个）");
 
         // 填充数据
@@ -652,7 +652,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
                 "人均效能统计-国家统计");
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
-        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 1);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
         ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "人均效能统计-国家统计（" + params.get("startTime") + "-" + params.get("endTime") + "）");

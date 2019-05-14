@@ -111,6 +111,19 @@ public class PurchGoods {
 
     @Column(name = "create_time")
     private Date createTime;
+    /**
+     * 质量检验类型
+     */
+    @Column(name = "quality_inspect_type")
+    private String qualityInspectType;
+
+    public String getQualityInspectType() {
+        return qualityInspectType;
+    }
+
+    public void setQualityInspectType(String qualityInspectType) {
+        this.qualityInspectType = qualityInspectType;
+    }
 
     public PurchContractGoods getPurchContractGoods() {
         return purchContractGoods;

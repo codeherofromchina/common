@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -39,6 +41,29 @@ public class QuoteStatisticsController {
         if (pageInfo == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        return new Result<>(pageInfo);
+        // 查询总报价个数和订单个数
+        Map<String,Long> totalOutParams = new HashMap<>();
+        quoteStatisticsService.quotePerformance(params, totalOutParams);
+        Long totalQuoteNum = totalOutParams.get("totalQuoteNum"); // 总报价个数
+        Long totalOrderNum = totalOutParams.get("totalOrderNum"); // 总订单个数
+        BigDecimal totalRate = null;
+        String totalRateStr = null;
+        if (totalQuoteNum != null && totalOrderNum != null) {
+            totalRate = new BigDecimal(totalOrderNum / (double) totalQuoteNum).multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP);
+            totalRateStr = totalRate.setScale(2, BigDecimal.ROUND_HALF_UP) + "%";
+        } else {
+            totalRate = BigDecimal.ZERO;
+            totalRateStr = totalRate.setScale(2,BigDecimal.ROUND_DOWN) + "%";
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("pageInfo", pageInfo);
+        data.put("totalQuoteNum", totalQuoteNum);
+        data.put("totalOrderNum", totalOrderNum);
+        data.put("totalRate2", totalRate);
+        data.put("totalRate", totalRateStr);
+        data.put("totalRateStr", totalRateStr);
+        return new Result<>(data);
+
     }
 }

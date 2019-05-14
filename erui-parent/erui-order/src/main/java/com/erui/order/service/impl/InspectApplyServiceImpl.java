@@ -167,6 +167,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             iaGoods.setGoods(goods);
             iaGoods.setPurchGoods(purchGoods);
             iaGoods.setPurchaseNum(purchGoods.getPurchaseNum());
+            iaGoods.setQualityInspectType(purchGoods.getQualityInspectType()); // 质量检验类型
             // 报检数量
             Integer inspectNum = iaGoods.getInspectNum();
             if (inspectNum == null || inspectNum == 0) {
@@ -406,6 +407,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             if (inspectNum < 0 || inspectNum - oldInspectNum > purchGoods.getPurchaseNum() - purchGoods.getPreInspectNum()) {
                 throw new Exception(String.format("%s%s%s", "报检数量错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Error in number of inspection"));
             }
+            applyGoods.setQualityInspectType(purchGoods.getQualityInspectType()); // 质量检验类型
             // 如果是提交，则修改采购商品（父采购商品）中的已报检数量和商品（父商品）中的已报检数量
             if (dbInspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode()) {
                 purchGoods.setInspectNum(purchGoods.getInspectNum() + inspectNum);

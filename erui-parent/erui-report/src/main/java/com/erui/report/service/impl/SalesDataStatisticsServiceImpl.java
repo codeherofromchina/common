@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -798,6 +800,13 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     @Override
     public Map<String, List<Object>> orderStatisticsWholeInfoGroupByCountry(Map<String, Object> params) {
         // 总询单数量
+        Map<String, List<Object>> result = orderStatisticsWholeInfoGroupByCountryLimit(params, 10);
+        return result;
+    }
+
+
+    private Map<String, List<Object>> orderStatisticsWholeInfoGroupByCountryLimit(Map<String, Object> params, int n) {
+        // 总询单数量
         List<Map<String, Object>> orderInfoGroupCountry = salesDataStatisticsMapper.orderStatisticsWholeInfoGroupByCountry(params);
         if (orderInfoGroupCountry == null || orderInfoGroupCountry.size() == 0) {
             return null;
@@ -806,14 +815,20 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Object> names = new ArrayList<>();
         List<Object> totalNums = new ArrayList<>();
         List<Object> totalAmounts = new ArrayList<>();
-        orderInfoGroupCountry.stream().limit(10).forEach(map -> {
+        Stream<Map<String, Object>> stream = orderInfoGroupCountry.stream();
+        Consumer<Map<String, Object>> action = map -> {
             String countryName = (String) map.get("countryName");
             BigDecimal totalAmount = (BigDecimal) map.get("totalAmount");
             Long totalNum = (Long) map.get("totalNum");
             names.add(countryName == null ? UNKNOW : countryName);
             totalNums.add(totalNum == null ? 0L : totalNum);
             totalAmounts.add(totalAmount == null ? BigDecimal.ZERO : totalAmount.setScale(4, BigDecimal.ROUND_DOWN));
-        });
+        };
+        if (n > 0) {
+            stream.limit(10).forEach(action);
+        } else {
+            stream.forEach(action);
+        }
         result.put("names", names);
         result.put("totalNums", totalNums);
         result.put("totalAmounts", totalAmounts);
@@ -822,7 +837,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
 
     @Override
     public HSSFWorkbook exportOrderStatisticsWholeInfoGroupByCountry(Map<String, Object> params) {
-        Map<String, List<Object>> map = orderStatisticsWholeInfoGroupByCountry(params);
+        Map<String, List<Object>> map = orderStatisticsWholeInfoGroupByCountryLimit(params, -1);
 
         List<Object> headerList = map.get("names");
         headerList.add(0, "");
@@ -1006,15 +1021,15 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         Map<String, List<Object>> map = orderStatisticsProfitPercentGroupByCountry(params);
         List<Object> headerList = map.get("names");
         List<Object> row01 = map.get("profitPercents");
-        int headerListSize = headerList.size();
-        int row01Size = row01.size();
-        if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
-            headerList = headerList.subList(headerListSize > 10 ? headerListSize - 10 : 0, headerListSize);
-            row01 = row01.subList(row01Size > 10 ? row01Size - 10 : 0, row01Size);
-        } else {
-            headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
-            row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
-        }
+//        int headerListSize = headerList.size();
+//        int row01Size = row01.size();
+//        if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
+//            headerList = headerList.subList(headerListSize > 10 ? headerListSize - 10 : 0, headerListSize);
+//            row01 = row01.subList(row01Size > 10 ? row01Size - 10 : 0, row01Size);
+//        } else {
+//            headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
+//            row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
+//        }
         headerList.add(0, "");
         row01.add(0, "利润率（%）");
 
@@ -1179,22 +1194,22 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
         List<Object> row01 = map.get("quoteNums");
         List<Object> row02 = map.get("doneNums");
         List<Object> row03 = map.get("rates");
-        int headerListSize = headerList.size();
-        int row01Size = row01.size();
-        int row02Size = row02.size();
-        int row03Size = row03.size();
-        if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
-            // 如果是正序，取后10个国家到Excel
-            headerList = headerList.subList(headerListSize > 10 ? (headerListSize - 10) : 0, headerListSize);
-            row01 = row01.subList(row01Size > 10 ? (row01Size - 10) : 0, row01Size);
-            row02 = row02.subList(row02Size > 10 ? (row02Size - 10) : 0, row02Size);
-            row03 = row03.subList(row03Size > 10 ? (row03Size - 10) : 0, row03Size);
-        } else {
-            headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
-            row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
-            row02 = row02.subList(0, row02Size >= 10 ? 10 : row02Size);
-            row03 = row03.subList(0, row03Size >= 10 ? 10 : row03Size);
-        }
+//        int headerListSize = headerList.size();
+//        int row01Size = row01.size();
+//        int row02Size = row02.size();
+//        int row03Size = row03.size();
+//        if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
+//            // 如果是正序，取后10个国家到Excel
+//            headerList = headerList.subList(headerListSize > 10 ? (headerListSize - 10) : 0, headerListSize);
+//            row01 = row01.subList(row01Size > 10 ? (row01Size - 10) : 0, row01Size);
+//            row02 = row02.subList(row02Size > 10 ? (row02Size - 10) : 0, row02Size);
+//            row03 = row03.subList(row03Size > 10 ? (row03Size - 10) : 0, row03Size);
+//        } else {
+//            headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
+//            row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
+//            row02 = row02.subList(0, row02Size >= 10 ? 10 : row02Size);
+//            row03 = row03.subList(0, row03Size >= 10 ? 10 : row03Size);
+//        }
         headerList.add(0, "");
         row01.add(0, "累计报价数量");
         row02.add(0, "累计成单数量");
@@ -1471,8 +1486,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             return null;
         }
         List<Map<String, Object>> donePriceList = salesDataStatisticsMapper.orderInfoDonePriceGroupbyOrg(params);
-        Map<Object, Map<String, Object>> planPriceMap02 = new HashMap<>(planPriceMap);
-        Map<String, List<Object>> result = _handleOrderInfoDoneRateDataByDay(donePriceList, planPriceMap02, ascFlag);
+        Map<String, List<Object>> result = _handleOrderInfoDoneRateDataByDay(donePriceList, planPriceMap, ascFlag);
         return result;
     }
 
@@ -1546,8 +1560,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             return null;
         }
         List<Map<String, Object>> donePriceList = salesDataStatisticsMapper.orderInfoDonePriceGroupbyArea(params);
-        Map<Object, Map<String, Object>> planPriceMap02 = new HashMap<>(planPriceMap);
-        Map<String, List<Object>> result = _handleOrderInfoDoneRateDataByDay(donePriceList, planPriceMap02, ascFlag);
+        Map<String, List<Object>> result = _handleOrderInfoDoneRateDataByDay(donePriceList, planPriceMap, ascFlag);
         return result;
     }
 
@@ -1639,16 +1652,16 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
             return null;
         }
 
-        int headerListSize = headerList.size();
-        int row01Size = row01.size();
-
-        if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
-            headerList = headerList.subList(headerListSize > 10 ? headerListSize - 10 : 0, headerListSize);
-            row01 = row01.subList(row01Size > 10 ? row01Size - 10 : 0, row01Size);
-        } else {
-            headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
-            row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
-        }
+//        int headerListSize = headerList.size();
+//        int row01Size = row01.size();
+//
+//        if (params.get("sort") != null && "1".equals(String.valueOf(params.get("sort")))) {
+//            headerList = headerList.subList(headerListSize > 10 ? headerListSize - 10 : 0, headerListSize);
+//            row01 = row01.subList(row01Size > 10 ? row01Size - 10 : 0, row01Size);
+//        } else {
+//            headerList = headerList.subList(0, headerListSize >= 10 ? 10 : headerListSize);
+//            row01 = row01.subList(0, row01Size >= 10 ? 10 : row01Size);
+//        }
 
         headerList.add(0, "");
         row01.add(0, "完成率（%）");
@@ -1740,7 +1753,7 @@ public class SalesDataStatisticsServiceImpl implements SalesDataStatisticsServic
     /**
      * 处理完成率按天平均数据信息
      */
-    private Map<String, List<Object>> _handleOrderInfoDoneRateDataByDay(List<Map<String, Object>> donePriceList, Map<Object, Map<String, Object>> planPriceMap, boolean ascFlag) {
+    private Map<String, List<Object>> _handleOrderInfoDoneRateDataByDay(List<Map<String, Object>> donePriceList, Map<? extends Object, Map<String, Object>> planPriceMap, boolean ascFlag) {
         Map<String, List<Object>> result = new HashMap<>();
         Set<Object> keyList = new HashSet<>();
         keyList.addAll(planPriceMap.keySet());

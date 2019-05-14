@@ -229,6 +229,19 @@ public class Project {
      @JsonInclude(JsonInclude.Include.NON_DEFAULT)*/
     @Transient
     private List<Attachment> attachmentList = new ArrayList<>();
+    /**
+     * 质量检验类型
+     */
+    @Column(name = "quality_inspect_type")
+    private String qualityInspectType;
+
+    public String getQualityInspectType() {
+        return qualityInspectType;
+    }
+
+    public void setQualityInspectType(String qualityInspectType) {
+        this.qualityInspectType = qualityInspectType;
+    }
 
     public List<Attachment> getAttachmentList() {
         return attachmentList;

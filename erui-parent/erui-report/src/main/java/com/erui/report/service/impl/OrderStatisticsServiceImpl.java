@@ -149,7 +149,7 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
     @Override
     public HSSFWorkbook genProjectListExcel(Map<String, String> params) {
         List<Map<String, Object>> projectList = readMapper.projectList(params);
-        String[] header = {"序号", "项目开始日期", "销售合同号", "订单类别", "项目名称", "执行分公司", "事业部", "所属地区", "所属国家",
+        String[] header = {"序号", "项目开始日期", "销售合同号", "订单类别", "合同标的", "执行分公司", "事业部", "所属地区", "所属国家",
                 "CRM客户代码", "项目金额", "初步利润率%", "利润", "获取人", "商务技术经办人"};
         List<Object> excelData = new ArrayList<>();
         if (projectList != null && projectList.size() > 0) {

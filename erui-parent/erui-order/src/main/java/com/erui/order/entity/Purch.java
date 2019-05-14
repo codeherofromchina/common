@@ -266,7 +266,61 @@ public class Purch {
     @JoinColumn(name = "purch_id")
     @OrderBy("id asc")
     private List<PurchGoods> purchGoodsList = new ArrayList<>();
+    /**
+     * 质检部重新评估风险等级状态 0：还未重新评估 1：已重新评估
+     */
+    @Column(name = "quality_inspect_status")
+    private Integer qualityInspectStatus;
+    /**
+     * 设置质检类型的人员ID
+     */
+    @Column(name = "quality_leader_id")
+    @JsonIgnore
+    private Integer qualityLeaderId;
+    /**
+     * 设置质检类型的人员姓名
+     */
+    @Column(name = "quality_leader_name")
+    @JsonIgnore
+    private String qualityLeaderName;
+    /**
+     * 设置商品质检的时间
+     */
+    @Column(name = "quality_time")
+    @JsonIgnore
+    private Date qualityTime;
 
+    public Integer getQualityInspectStatus() {
+        return qualityInspectStatus;
+    }
+
+    public void setQualityInspectStatus(Integer qualityInspectStatus) {
+        this.qualityInspectStatus = qualityInspectStatus;
+    }
+
+    public Integer getQualityLeaderId() {
+        return qualityLeaderId;
+    }
+
+    public void setQualityLeaderId(Integer qualityLeaderId) {
+        this.qualityLeaderId = qualityLeaderId;
+    }
+
+    public String getQualityLeaderName() {
+        return qualityLeaderName;
+    }
+
+    public void setQualityLeaderName(String qualityLeaderName) {
+        this.qualityLeaderName = qualityLeaderName;
+    }
+
+    public Date getQualityTime() {
+        return qualityTime;
+    }
+
+    public void setQualityTime(Date qualityTime) {
+        this.qualityTime = qualityTime;
+    }
 
     public Integer getPurchContractId() {
         return purchContractId;

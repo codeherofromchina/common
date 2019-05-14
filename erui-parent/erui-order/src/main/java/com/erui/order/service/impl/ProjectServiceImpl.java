@@ -464,6 +464,21 @@ public class ProjectServiceImpl implements ProjectService {
         return true;
     }
 
+    /**
+     * 修改项目的商品风险等级
+     *
+     * @param project
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public boolean updateProjectQualityInspectType(Project project) throws Exception {
+        Project projectUpdate = findById(project.getId());
+        projectUpdate.setQualityInspectType(project.getQualityInspectType());
+        projectDao.save(projectUpdate);
+        return true;
+    }
+
 
     /**
      * 提交项目过程中检查审核相关参数

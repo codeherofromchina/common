@@ -172,7 +172,7 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
             Date startPrescription = (Date) performanceIndicatorInfo.get("startPrescription");
             Date endPrescription = (Date) performanceIndicatorInfo.get("endPrescription");
             BigDecimal quota = (BigDecimal) performanceIndicatorInfo.get("quota");
-            String country_bn = (String) performanceIndicatorInfo.get("country_bn");
+            String area_bn = (String) performanceIndicatorInfo.get("area_bn");
             String name = (String) performanceIndicatorInfo.get("name");
             name = StringUtils.isBlank(name) ? "其他" : name;
 
@@ -184,7 +184,7 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
                 }
                 BigDecimal totalPrice = quota.multiply(new BigDecimal(dayNum)).divide(new BigDecimal(diffNum),2,BigDecimal.ROUND_DOWN);
 
-                Map<String, Object> map = result.get(country_bn);
+                Map<String, Object> map = result.get(area_bn);
                 if (map == null) {
                     map = new HashMap<>();
                     map.put("name", name);
@@ -196,7 +196,7 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
                     Integer day = (Integer)map.get("dayNum");
                     map.put("dayNum", day + dayNum);
                 }
-                result.put(country_bn, map);
+                result.put(area_bn, map);
             }
         }
         return result;
@@ -228,7 +228,7 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
             Date startPrescription = (Date) performanceIndicatorInfo.get("startPrescription");
             Date endPrescription = (Date) performanceIndicatorInfo.get("endPrescription");
             BigDecimal quota = (BigDecimal) performanceIndicatorInfo.get("quota");
-            String area_bn = (String) performanceIndicatorInfo.get("area_bn");
+            String country_bn = (String) performanceIndicatorInfo.get("country_bn");
             String name = (String) performanceIndicatorInfo.get("name");
             name = StringUtils.isBlank(name) ? "其他" : name;
 
@@ -239,7 +239,7 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
                     continue;
                 }
                 BigDecimal totalPrice = quota.multiply(new BigDecimal(dayNum)).divide(new BigDecimal(diffNum),2,BigDecimal.ROUND_DOWN);
-                Map<String, Object> map = result.get(area_bn);
+                Map<String, Object> map = result.get(country_bn);
                 if (map == null) {
                     map = new HashMap<>();
                     map.put("name", name);
@@ -251,7 +251,7 @@ public class PerformanceIndicatorsServiceImpl extends BaseService<PerformanceInd
                     Integer day = (Integer)map.get("dayNum");
                     map.put("dayNum", day + dayNum);
                 }
-                result.put(area_bn, map);
+                result.put(country_bn, map);
             }
         }
         return result;

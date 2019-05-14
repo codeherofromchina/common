@@ -107,5 +107,12 @@ public interface ProjectService {
      */
     void addProfitData(XSSFWorkbook workbook, Map<String, Object> results);
 
+    /**
+     * 修改项目的商品风险等级
+     *
+     * @param project
+     * @return
+     */
+    boolean updateProjectQualityInspectType(Project project) throws Exception;
 
 }
