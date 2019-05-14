@@ -14,9 +14,10 @@ public interface QuoteStatisticsService {
     /**
      * 查询所有报价成单统计
      * @param params
+     * @param outParams  输出参数，输出总报价个数和订单个数
      * @return
      */
-    List<Map<String, Object>> quotePerformance(Map<String, Object> params);
+    List<Map<String, Object>> quotePerformance(Map<String, Object> params, Map<String, Long> outParams);
 
     /**
      * 报价成单统计分页查询
