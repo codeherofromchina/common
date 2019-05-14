@@ -286,5 +286,46 @@ public class PurchController {
         return new Result<>(ResultStatusEnum.FAIL);
     }
 
+    /**
+     * 质检部设置商品质检类型
+     *
+     * @param purch
+     * @return
+     */
+    @RequestMapping(value = "saveqit", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> saveqit(HttpServletRequest request, @RequestBody Purch purch) {
+        Object userId = request.getSession().getAttribute("userid");
+        Object userName = request.getSession().getAttribute("realname");
+        boolean continueFlag = true;
+        String errorMsg = null;
+        // 状态检查
+        Purch.StatusEnum statusEnum = Purch.StatusEnum.fromCode(purch.getStatus());
+        // 是保存
+        if (statusEnum == Purch.StatusEnum.BEING) {
+            continueFlag = false;
+            errorMsg = "数据的状态不正确";
+        }
+        // 查看采购号是否存在
+        if (StringUtils.isBlank(purch.getPurchNo())) {
+            continueFlag = false;
+            errorMsg = "采购合同号不能为空";
+        }
+        if (continueFlag) {
+            try {
+                purch.setQualityLeaderId(Integer.parseInt(userId.toString()));
+                purch.setQualityLeaderName(userName.toString());
+                boolean flag = purchService.saveQualityInspectType(purch);
+                if (flag) {
+                    return new Result<>();
+                }
+            } catch (Exception ex) {
+                logger.error("采购单操作失败：{}", purch, ex);
+                errorMsg = ex.getMessage();
+            }
+        }
+
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(errorMsg);
+    }
+
 
 }

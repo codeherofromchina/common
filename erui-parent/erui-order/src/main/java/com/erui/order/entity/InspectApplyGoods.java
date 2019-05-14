@@ -66,6 +66,11 @@ public class InspectApplyGoods {
 
     @Column(name = "unqualified_desc")
     private String unqualifiedDesc;
+    /**
+     * 不合格类型
+     */
+    @Column(name = "unqualified_type")
+    private String unqualifiedType;
 
     @Column(name = "instock_num")
     private Integer instockNum;
@@ -73,7 +78,27 @@ public class InspectApplyGoods {
 
     @Column(name = "create_time")
     private Date createTime;
+    /**
+     * 质量检验类型
+     */
+    @Column(name = "quality_inspect_type")
+    private String qualityInspectType;
 
+    public String getUnqualifiedType() {
+        return unqualifiedType;
+    }
+
+    public void setUnqualifiedType(String unqualifiedType) {
+        this.unqualifiedType = unqualifiedType;
+    }
+
+    public String getQualityInspectType() {
+        return qualityInspectType;
+    }
+
+    public void setQualityInspectType(String qualityInspectType) {
+        this.qualityInspectType = qualityInspectType;
+    }
 
     public Integer getId() {
         return id;

@@ -70,4 +70,12 @@ public interface PurchService {
 
     void fillTempExcelData(XSSFWorkbook workbook, int purchId) throws Exception;
 
+    /**
+     * 质检部设置商品质检类型
+     *
+     * @param purch
+     * @return
+     */
+    boolean saveQualityInspectType(Purch purch) throws Exception;
+
 }

@@ -1,5 +1,6 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
@@ -16,7 +17,6 @@ import com.erui.order.event.PurchDoneCheckEvent;
 import com.erui.order.event.TasksAddEvent;
 import com.erui.order.requestVo.PurchParam;
 import com.erui.order.service.*;
-import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -35,9 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -83,6 +80,8 @@ public class PurchServiceImpl implements PurchService {
     private String dingSendSms;  //发钉钉通知接口
     @Value("#{orderProp[SUPPLIER_STATUS]}")
     private String supplierStatus;  //采购商状态变更
+    @Value("#{orderProp[MEMBER_LIST]}")
+    private String memberList;  //查询人员信息调用接口
 
     @Override
     public Purch findBaseInfo(Integer id) {
@@ -315,6 +314,7 @@ public class PurchServiceImpl implements PurchService {
             auditingUserId_i = purch.getCreateUserId() + ""; // 要驳回给谁
             // 驳回的日志记录的下一处理流程和节点是当前要处理的节点信息
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), purch.getId(), curAuditProcess, Integer.parseInt(auditorId), auditorName, purch.getAuditingProcess().toString(), purch.getAuditingUserId().toString(), reason, "-1", 3);
+            purch.setQualityInspectStatus(0); // 如果是驳回则重置质检部重新评估风险等级状态 0：还未重新评估 1：已重新评估
         } else {
             switch (curAuditProcess) {
                 case 21: // 采购经理审核核
@@ -405,7 +405,7 @@ public class PurchServiceImpl implements PurchService {
         purch.setAuditingUserId(auditingUserId_i);
         if (auditingUserId_i != null && !isComeMore) {
             for (String user : auditingUserId_i.split(",")) {
-                sendDingtalk(purch, user, rejectFlag);
+                sendNewDingtalk(purch, user, rejectFlag, false);
             }
         }
         if (auditingStatus_i == 4 && "999".equals(auditingProcess_i)) {
@@ -496,9 +496,23 @@ public class PurchServiceImpl implements PurchService {
         String s1 = HttpRequest.sendPost(supplierStatus, jsonParam, header);
         logger.info("修改供应商状态返回状态" + s1);
     }
-
     //钉钉通知 审批人
-    private void sendDingtalk(Purch purch, String user, boolean rejectFlag) {
+    private void sendNewDingtalk(Purch purch, String user, boolean rejectFlag, boolean isSendQualityInspect) {
+        if(isSendQualityInspect){ // 采购订单提交需要给质检部门发送钉钉通知，设置商品质检类型
+            //获取token
+            final String eruiToken = (String) ThreadLocalUtil.getObject();
+            List<Integer>userList = getUserListByRoleNo(eruiToken, "O42"); // 获取O42订舱负责人
+            if(userList != null){
+                for (Integer userId : userList) {
+                    sendDingtalk(purch, userId.toString(), false, true);
+                }
+            }
+        }
+        sendDingtalk(purch, user, rejectFlag, false);
+    }
+
+    //钉钉通知 审批人 isSendQualityInspect 是否发给质检部门 true：是 false:不是
+    private void sendDingtalk(Purch purch, String user, boolean rejectFlag, boolean isSendQualityInspect) {
         //获取token
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         new Thread(new Runnable() {
@@ -531,12 +545,17 @@ public class PurchServiceImpl implements PurchService {
                     //发送钉钉通知
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("toUser=").append(userNo);
-                    if (!rejectFlag) {
-                        stringBuffer.append("&message=您好！" + purch.getAgentName() + "的采购合同，已申请合同审批。采购合同号:" + purch.getPurchNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                    if(isSendQualityInspect){
+                        stringBuffer.append("&message=您好！" + purch.getAgentName() + "的采购合同，已申请商品质检类型设置。采购合同号:" + purch.getPurchNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
                                 "" + sendTime02 + "");
-                    } else {
-                        stringBuffer.append("&message=您好！" + purch.getAgentName() + "的采购合同，已申请的合同审核未通过。采购合同号:" + purch.getPurchNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
-                                "" + sendTime02 + "");
+                    }else{
+                        if (!rejectFlag) {
+                            stringBuffer.append("&message=您好！" + purch.getAgentName() + "的采购合同，已申请合同审批。采购合同号:" + purch.getPurchNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                                    "" + sendTime02 + "");
+                        } else {
+                            stringBuffer.append("&message=您好！" + purch.getAgentName() + "的采购合同，已申请的合同审核未通过。采购合同号:" + purch.getPurchNo() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                                    "" + sendTime02 + "");
+                        }
                     }
                     stringBuffer.append("&type=userNo");
                     String s1 = HttpRequest.sendPost(dingSendSms, stringBuffer.toString(), header2);
@@ -545,6 +564,49 @@ public class PurchServiceImpl implements PurchService {
             }
         }).start();
 
+    }
+
+    /**
+     *根据角色获取人员列表
+     *
+     * @param eruiToken
+     * @param roleNo
+     * @return
+     */
+    private List<Integer>getUserListByRoleNo(String eruiToken, String roleNo){
+        // 获取人员id
+        List<Integer> listAll = new ArrayList<>(); //分单员id
+
+        if (StringUtils.isNotBlank(eruiToken)) {
+            Map<String, String> header = new HashMap<>();
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+            try {
+                //获取物流分单员
+                String jsonParam = "{\"role_no\":\""+roleNo+"\"}";
+                String s2 = HttpRequest.sendPost(memberList, jsonParam, header);
+                logger.info("人员详情返回信息：" + s2);
+
+                // 获取人员手机号
+                JSONObject jsonObjects = JSONObject.parseObject(s2);
+                Integer codes = jsonObjects.getInteger("code");
+                if (codes == 1) { //判断请求是否成功
+                    // 获取数据信息
+                    JSONArray data1 = jsonObjects.getJSONArray("data");
+                    for (int i = 0; i < data1.size(); i++) {
+                        JSONObject ob = (JSONObject) data1.get(i);
+                        listAll.add(ob.getInteger("id")); //获取人员id
+                    }
+                } else {
+                    throw new Exception("人员详情返回信息查询失败");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        return listAll;
     }
 
     /**
@@ -949,6 +1011,7 @@ public class PurchServiceImpl implements PurchService {
             PurchGoods son = handleAddNewPurchGoods(project, purch, goods, purchGoods, purchContractGoods);
             purchGoods.setPurchContractGoods(purchContractGoods);
             purchGoods.setPurchContract(purchContractGoods.getPurchContract());
+            purchGoods.setQualityInspectType(project.getQualityInspectType()); // 质检类型默认赋值项目中的
             purchGoodsList.add(purchGoods);
             if (son != null) {
                 purchGoodsList.add(son);
@@ -999,7 +1062,7 @@ public class PurchServiceImpl implements PurchService {
         if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
             if (save.getAuditingUserId() != null) {
                 for (String user : save.getAuditingUserId().split(",")) {
-                    sendDingtalk(save, user, false);
+                    sendNewDingtalk(save, user, false, true);
                 }
             }
             checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
@@ -1320,7 +1383,7 @@ public class PurchServiceImpl implements PurchService {
                 checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
                 checkLogService.insert(checkLog_i);
                 if (save.getPurchAuditerId() != null) {
-                    sendDingtalk(purch, purch.getPurchAuditerId().toString(), false);
+                    sendNewDingtalk(purch, purch.getPurchAuditerId().toString(), false, true);
                 }
                 auditBackLogHandle(dbPurch, false, dbPurch.getAuditingUserId(), "", false);
             }
@@ -1589,6 +1652,11 @@ public class PurchServiceImpl implements PurchService {
                 throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
 
             }
+            for(PurchGoods purchGoods : purchGoodsList){
+                if(purchGoods.getQualityInspectType() == null){
+                    purchGoods.setQualityInspectType(purchGoods.getProject().getQualityInspectType()); // 质检类型默认赋值项目中的
+                }
+            }
             dbPurch.setPurchGoodsList(purchGoodsList);
             List<Project> projectList = new ArrayList<>(projectSet);
             dbPurch.setProjects(projectList);
@@ -1648,7 +1716,7 @@ public class PurchServiceImpl implements PurchService {
                 checkLogService.insert(checkLog_i);
                 if (save.getAuditingUserId() != null) {
                     for (String user : save.getAuditingUserId().split(",")) {
-                        sendDingtalk(save, user, false);
+                        sendNewDingtalk(save, user, false, true);
                     }
                 }
                 auditBackLogHandle(save, false, save.getAuditingUserId(), "", false);
@@ -1892,6 +1960,33 @@ public class PurchServiceImpl implements PurchService {
      */
     private void checkProjectPurchDone(List<Integer> projectIds) throws Exception {
         applicationContext.publishEvent(new PurchDoneCheckEvent(this, projectIds, projectDao, backLogService, orderDao, purchRequisitionDao));
+    }
+
+    /**
+     * 质检部设置商品质检类型
+     *
+     * @param purch
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean saveQualityInspectType(Purch purch) throws Exception {
+        Purch purchdb = purchDao.findOne(purch.getId());
+        if(purchdb == null) return false;
+        if(purch.getPurchGoodsList() == null) return false;
+
+        Map<Integer, PurchGoods> purchGoodsListMap = purch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(PurchGoods::getId, vo -> vo));
+        List<PurchGoods>dbPurchGoodsList = purchdb.getPurchGoodsList();
+        for(PurchGoods purchGoods : dbPurchGoodsList){
+            purchGoods.setQualityInspectType(purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType());
+        }
+        purchdb.setPurchGoodsList(dbPurchGoodsList);
+        purchdb.setQualityTime(new Date());
+        purchdb.setQualityInspectStatus(1); // 质检部重新评估风险等级状态 0：还未重新评估 1：已重新评估
+        purchdb.setQualityLeaderId(purch.getQualityLeaderId());
+        purchdb.setQualityLeaderName(purch.getQualityLeaderName());
+        purchDao.save(purchdb);
+        return true;
     }
 
 }
