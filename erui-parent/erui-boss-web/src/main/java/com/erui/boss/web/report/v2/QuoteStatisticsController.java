@@ -64,5 +64,6 @@ public class QuoteStatisticsController {
         data.put("totalRate", totalRateStr);
         data.put("totalRateStr", totalRateStr);
         return new Result<>(data);
+
     }
 }
