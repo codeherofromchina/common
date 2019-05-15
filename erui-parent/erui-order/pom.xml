@@ -73,6 +73,11 @@
             <version>${parent.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.erui</groupId>
+            <artifactId>erui-order-v2</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
+        <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>RELEASE</version>

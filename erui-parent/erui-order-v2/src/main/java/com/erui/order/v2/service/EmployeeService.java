@@ -9,5 +9,11 @@ public interface EmployeeService {
      * @param userNo
      * @return
      */
-    public Long findIdByUserNo(String userNo);
+    Long findIdByUserNo(String userNo);
+    /**
+     * 通过员工ID查找员工号
+     * @param id
+     * @return
+     */
+    String findUserNoById(Long id);
 }

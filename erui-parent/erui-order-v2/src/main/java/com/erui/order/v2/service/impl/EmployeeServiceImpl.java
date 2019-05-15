@@ -37,4 +37,16 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         return null;
     }
+
+
+    @Override
+    public String findUserNoById(Long id) {
+        if (id != null) {
+            Employee employee = employeeMapper.selectByPrimaryKey(id);
+            if (employee != null) {
+                return employee.getUserNo();
+            }
+        }
+        return null;
+    }
 }

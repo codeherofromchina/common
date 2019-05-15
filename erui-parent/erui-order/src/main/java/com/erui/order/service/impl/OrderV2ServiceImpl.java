@@ -19,6 +19,7 @@ import com.erui.order.util.BpmUtils;
 import com.erui.order.util.CrmUtils;
 import com.erui.order.util.SsoUtils;
 import com.erui.order.util.exception.MyException;
+import com.erui.order.v2.service.EmployeeService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,6 +88,8 @@ public class OrderV2ServiceImpl implements OrderV2Service {
     private String sendSms;  //发短信接口
     @Value("#{orderProp[DING_SEND_SMS]}")
     private String dingSendSms;  //发钉钉通知接口
+    @Autowired
+    private EmployeeService employeeService;
 
 
     @Autowired
@@ -440,6 +443,17 @@ public class OrderV2ServiceImpl implements OrderV2Service {
                 task_fn_check = "Y";
             }
             bpmInitVar.put("task_fn_check", task_fn_check);
+            // 事业部项目负责人
+            Integer technicalId = order1.getTechnicalId();
+            String techicalUserNo = null;
+            if (technicalId != null) {
+                techicalUserNo = employeeService.findUserNoById(technicalId.longValue());
+            }
+            if (StringUtils.isNotBlank(techicalUserNo)) {
+                // ID -> userNo
+                bpmInitVar.put("assignee_pm",techicalUserNo);
+            }
+
             switch (addOrderVo.getOrderCategory()) {
                 case 1:
                     // 预投订单
