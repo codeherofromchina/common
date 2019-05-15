@@ -533,7 +533,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     Map<String, String> stringStringMap = getInstockServiceImpl.ssoUser(eruiToken);
                     String submenuId = stringStringMap.get("id");
 
-                    // O42订舱负责人角色下面的人可以看到所有列表信息
+                    // O42订舱负责人角色下面的人可以看到所有列表信息。
                     if(userList != null && userList.contains(Integer.parseInt(submenuId))){
                         Predicate[] predicates = new Predicate[userList.size()*2 + 1];
                         int i = 0;
