@@ -18,6 +18,8 @@ public class Area {
     @GeneratedValue(strategy = GenerationType.AUTO)*/
     private Integer id;
 
+
+
     /**
      * 地区名称，例如：北美
      */

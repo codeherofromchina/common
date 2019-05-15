@@ -51,6 +51,7 @@ public class ReportBaseDataExecute {
             fullDataForCountryDailyInfo();
 
             conn.commit();
+
         } catch (Exception ex) {
             ex.printStackTrace();
             try {

@@ -50,18 +50,22 @@ public class QuoteStatisticsController {
         String totalRateStr = null;
         if (totalQuoteNum != null && totalOrderNum != null) {
             totalRate = new BigDecimal(totalOrderNum / (double) totalQuoteNum).multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP);
-            totalRateStr = totalRate.multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP) + "%";
+            totalRateStr = totalRate.setScale(2, BigDecimal.ROUND_HALF_UP) + "%";
         } else {
             totalRate = BigDecimal.ZERO;
             totalRateStr = totalRate.setScale(2,BigDecimal.ROUND_DOWN) + "%";
         }
 
+
+
         Map<String, Object> data = new HashMap<>();
         data.put("pageInfo", pageInfo);
         data.put("totalQuoteNum", totalQuoteNum);
         data.put("totalOrderNum", totalOrderNum);
-        data.put("totalRate", totalRate);
+        data.put("totalRate2", totalRate);
+        data.put("totalRate", totalRateStr);
         data.put("totalRateStr", totalRateStr);
         return new Result<>(data);
+
     }
 }
