@@ -243,15 +243,19 @@ public class OrderV2ServiceImpl implements OrderV2Service {
                     case 1:
                         // 预投订单
                         processResp = BpmUtils.startProcessInstanceByKey("stocking_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        break;
                     case 3:
                         // 试用订单
                         processResp = BpmUtils.startProcessInstanceByKey("sample_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        break;
                     case 4:
                         // 现货订单
                         processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        break;
                     case 6:
                         // 国内订单
                         processResp = BpmUtils.startProcessInstanceByKey("domestic_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        break;
                     default:
                         // 非国内订单审批流程 process_order
                         processResp = BpmUtils.startProcessInstanceByKey("overseas_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
@@ -458,15 +462,19 @@ public class OrderV2ServiceImpl implements OrderV2Service {
                 case 1:
                     // 预投订单
                     processResp = BpmUtils.startProcessInstanceByKey("stocking_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    break;
                 case 3:
                     // 试用订单
                     processResp = BpmUtils.startProcessInstanceByKey("sample_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    break;
                 case 4:
                     // 现货订单
                     processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    break;
                 case 6:
                     // 国内订单
                     processResp = BpmUtils.startProcessInstanceByKey("domestic_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    break;
                 default:
                     // 非国内订单审批流程 process_order
                     processResp = BpmUtils.startProcessInstanceByKey("overseas_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
