@@ -105,6 +105,9 @@ public class CheckLogV2ServiceImpl implements CheckLogV2Service {
             String eruitoken = (String) ThreadLocalUtil.getObject();
             Order order = orderService.findById(orderId);
             String processId = order.getProcessId();
+            if (StringUtils.isBlank(processId)) {
+                return null;
+            }
             JSONObject jsonObject = BpmUtils.processLogs(processId, eruitoken, null);
 
             return jsonObject.getJSONArray("instanceLogs");
