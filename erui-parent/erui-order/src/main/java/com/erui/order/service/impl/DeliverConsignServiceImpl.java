@@ -532,8 +532,20 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     List<Integer>userList = getUserListByRoleNo(eruiToken, "O42"); // 获取O42订舱负责人
                     Map<String, String> stringStringMap = getInstockServiceImpl.ssoUser(eruiToken);
                     String submenuId = stringStringMap.get("id");
+
+                    Predicate[] predicates = new Predicate[]{};
                     // O42订舱负责人角色下面的人可以看到所有列表信息
-                    if(userList == null || !userList.contains(Integer.parseInt(submenuId))){
+                    if(userList != null && userList.contains(Integer.parseInt(submenuId))){
+                        int i = 0;
+                        for(Integer userId : userList){
+                            predicates[i] = cb.like(root.get("auditingUserId").as(String.class), "%" + userId + "%");
+                            i++;
+                            predicates[i] = cb.like(root.get("audiRemark").as(String.class), "%" + userId + "%");
+                            i++;
+                        }
+                        predicates[i] = cb.equal(root.get("createUserId").as(Integer.class), Integer.parseInt(submenuId));
+                        searchList.add(cb.or(predicates));
+                    }else{
                         Predicate auditingUserId01 = cb.like(root.get("auditingUserId").as(String.class), "%" + submenuId + "%");
                         Predicate auditingUserId02 = cb.equal(root.get("createUserId").as(Integer.class), Integer.parseInt(submenuId));
                         Predicate auditingUserId03 = cb.like(root.get("audiRemark").as(String.class), "%" + submenuId + "%");
