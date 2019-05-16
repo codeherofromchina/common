@@ -1359,9 +1359,7 @@ public class PurchServiceImpl implements PurchService {
             dbPurch.setStatus(3);
         }*/
             // 采购审批添加部分
-            if (purch.getStatus() == Purch.StatusEnum.READY.getCode()) {
-                dbPurch.setAuditingStatus(0);
-            } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+            if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                 dbPurch.setAuditingProcess("21,22");
                 dbPurch.setAuditingStatus(1);
                 dbPurch.setAuditingUserId(String.format("%d,%d", purch.getPurchAuditerId(), purch.getBusinessAuditerId()));
@@ -1691,9 +1689,7 @@ public class PurchServiceImpl implements PurchService {
             dbPurch.setStatus(3);
         }*/
             // 采购审批添加部分
-            if (purch.getStatus() == Purch.StatusEnum.READY.getCode()) {
-                dbPurch.setAuditingStatus(0);
-            } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+            if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                 dbPurch.setAuditingProcess("21,22");
                 dbPurch.setAuditingStatus(1);
                 dbPurch.setAuditingUserId(String.format("%d,%d", purch.getPurchAuditerId(), purch.getBusinessAuditerId()));

@@ -1034,9 +1034,7 @@ public class Purch {
             this.setCreateTime(new Date());
             this.setUpdateTime(new Date());
         }
-        if(purch.getStatus() == 2){
-            this.setStatus(purch.getStatus());
-        }
+        this.setStatus(purch.getStatus());
 
     }
 
