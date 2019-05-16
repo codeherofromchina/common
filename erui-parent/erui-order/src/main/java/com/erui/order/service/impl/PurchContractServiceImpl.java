@@ -121,7 +121,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         // 设置基本信息
         dbPurchContract.setBaseInfo(purchContract);
 
-        if (dbPurchContract.getPurchContractSimple() != null) {//简易合同
+        if (dbPurchContract.getPurchContractSimple() != null) { // 简易合同
             purchContract.getPurchContractSimple().setId(dbPurchContract.getPurchContractSimple().getId());
             purchContract.getPurchContractSimple().setUpdateTime(now);
             dbPurchContract.setPurchContractSimple(purchContract.getPurchContractSimple());
