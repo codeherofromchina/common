@@ -527,7 +527,7 @@ public class PurchServiceImpl implements PurchService {
                 header.put("accept", "*/*");
                 String userInfo = HttpRequest.sendPost(memberInformation, jsonParam, header);
                 logger.info("人员详情返回信息：" + userInfo);
-                //钉钉通知接口头信息
+                // 钉钉通知接口头信息
                 Map<String, String> header2 = new HashMap<>();
                 header2.put("Cookie", eruiToken);
                 header2.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
