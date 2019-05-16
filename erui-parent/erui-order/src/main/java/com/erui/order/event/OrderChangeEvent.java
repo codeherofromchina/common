@@ -31,49 +31,82 @@ public class OrderChangeEvent implements ApplicationListener<ChangeEvent> {
     private InspectReportDao inspectReportDao;
     @Autowired
     private InstockDao instockDao;
+    @Autowired
+    private DeliverDetailDao deliverDetailDao;
+    @Autowired
+    private IogisticsDataDao iogisticsDataDao;
 
     @Override
     public void onApplicationEvent(ChangeEvent changeEvent) {
         Integer orderId = changeEvent.getOrderId();
         Order oldOrder = orderDao.findOne(orderId);
         if (oldOrder != null) {
-
+            //订单状态为5为变更状态
             oldOrder.setStatus(5);
             orderDao.save(oldOrder);
+            //订舱管理和出库信息管理
             if (oldOrder.getDeliverConsign() != null && oldOrder.getDeliverConsign().size() > 0) {
                 for (DeliverConsign deliverConsign : oldOrder.getDeliverConsign()) {
-                    //订舱状态为5是变更状态
+                    //订舱状态为5为变更状态
                     deliverConsign.setStatus(5);
+                    if (deliverConsign.getDeliverDetail() != null) {
+                        DeliverDetail deliverDetail = deliverConsign.getDeliverDetail();
+                        //出库质检状态为5为变更状态
+                        deliverDetail.setStatus(5);
+                        deliverDetailDao.save(deliverDetail);
+                    }
                 }
                 deliverConsignDao.save(oldOrder.getDeliverConsign());
             }
+            //物流跟踪管理
+            List<IogisticsData> iogisticsDatas = iogisticsDataDao.findByContractNo(oldOrder.getContractNo());
+            if (iogisticsDatas != null && iogisticsDatas.size() > 0) {
+                for (IogisticsData iogisticsData : iogisticsDatas) {
+                    //物流跟踪状态为5为变更状态
+                    iogisticsData.setStatus(5);
+                }
+                iogisticsDataDao.save(iogisticsDatas);
+            }
             if (oldOrder.getProject() != null) {
+                //项目管理
                 Project oldProject = oldOrder.getProject();
                 oldProject.setProjectStatus("CHANGE");
                 projectDao.save(oldProject);
+                //采购申请管理
+                if (oldProject.getPurchReqCreate() == 3 && oldProject.getPurchRequisition() != null) {
+                    PurchRequisition oPurchRequisition = oldProject.getPurchRequisition();
+                    //采购申请状态为5为变更状态
+                    oPurchRequisition.setStatus(5);
+                    purchRequisitionDao.save(oPurchRequisition);
+                }
+              /*  PurchContractGoods purchContractGoods = new PurchContractGoods();
+                purchContractGoods.getPurchContract();*/
                 if (oldProject.getPurchs() != null && oldProject.getPurchs().size() > 0) {
                     List<InspectApply> inspectApplyList = null;
                     List<Integer> inspectReportList = null;
                     List<String> inspectApplyNos = null;
+                    //报检 和采购
                     for (Purch purch : oldProject.getPurchs()) {
-                        //采购状态状态为5是变更状态
+                        //采购状态状态为5为变更状态
                         purch.setStatus(5);
                         if (purch.getId() != null) {
                             inspectApplyList = inspectApplyDao.findByPurchIdAndMasterOrderByCreateTimeAsc(purch.getId(), true);
                         }
                     }
+                    purchDao.save(oldProject.getPurchs());
                     if (inspectApplyList != null && inspectApplyList.size() > 0) {
                         for (InspectApply inspect : inspectApplyList) {
                             inspectReportList.add(inspect.getId());
                             inspectApplyNos.add(inspect.getInspectApplyNo());
-                            //质检状态为5是变更状态
+                            //质检状态为5为变更状态
                             inspect.setStatus(5);
                         }
+                        inspectApplyDao.save(inspectApplyList);
                     }
                     if (inspectReportList != null && inspectReportList.size() > 0) {
                         List<InspectReport> inspectReports = inspectReportDao.findByInspectApplyIdInOrderByIdAsc(inspectReportList);
                         for (InspectReport inspectReport : inspectReports) {
-                            //报检状态为5是变更状态
+                            //报检状态为5为变更状态
                             inspectReport.setStatus(5);
                         }
                         inspectReportDao.save(inspectReports);
@@ -82,17 +115,12 @@ public class OrderChangeEvent implements ApplicationListener<ChangeEvent> {
                         List<Instock> instocks = instockDao.findByInspectApplyNo(inspectApplyNos);
                         if (instocks != null && instocks.size() > 0) {
                             for (Instock instock : instocks) {
-                                //入库状态为5是变更状态
+                                //入库状态为5为变更状态
                                 instock.setStatus(5);
                             }
+                            instockDao.save(instocks);
                         }
                     }
-                    purchDao.save(oldProject.getPurchs());
-                }
-                if (oldProject.getPurchReqCreate() == 3 && oldProject.getPurchRequisition() != null) {
-                    PurchRequisition oPurchRequisition = oldProject.getPurchRequisition();
-                    oPurchRequisition.setStatus(4);
-                    purchRequisitionDao.save(oPurchRequisition);
                 }
             }
         }
