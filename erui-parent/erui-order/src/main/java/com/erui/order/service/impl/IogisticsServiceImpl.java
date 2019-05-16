@@ -255,13 +255,13 @@ public class IogisticsServiceImpl implements IogisticsService {
             }
         }
         if (contractNoSet.size() != 0) {
-            save.setContractNo(org.apache.commons.lang3.StringUtils.join(contractNoSet, ",")); //销售合同号 拼接存库
+            save.setContractNo(StringUtils.join(contractNoSet, ",")); //销售合同号 拼接存库
         }
         if (deliverDetailNoSet.size() != 0) {
-            save.setDeliverDetailNo(org.apache.commons.lang3.StringUtils.join(deliverDetailNoSet, ",")); //产品放行单号 拼接存库
+            save.setDeliverDetailNo(StringUtils.join(deliverDetailNoSet, ",")); //产品放行单号 拼接存库
         }
         if (releaseDateSSet.size() != 0) {
-            save.setReleaseDateS(org.apache.commons.lang3.StringUtils.join(releaseDateSSet, ","));//放行日期 拼接存库
+            save.setReleaseDateS(StringUtils.join(releaseDateSSet, ","));//放行日期 拼接存库
         }
 
         IogisticsData save1 = iogisticsDataDao.save(save);
@@ -321,7 +321,7 @@ public class IogisticsServiceImpl implements IogisticsService {
 
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(eruiToken)) {
+        if (StringUtils.isNotBlank(eruiToken)) {
 
 
             Map<String, String> header = new HashMap<>();

@@ -18,7 +18,7 @@ public interface StatisticsService {
      * @param condition {"startDate":"订单签约日期开始时间","endDate":"订单签约日期结束时间","region":"地区","country":"国家"}
      * @return
      */
-    List<SaleStatistics> findSaleStatistics(SaleStatistics condition,Set<String> countries);
+    List<SaleStatistics> findSaleStatistics(SaleStatistics condition, Set<String> countries);
     HSSFWorkbook generateSaleStatisticsExcel(SaleStatistics condition, Set<String> countries);
 
     /**
@@ -26,16 +26,16 @@ public interface StatisticsService {
      * @param goodsStatistics
      * @return
      */
-    Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics goodsStatistics,Set<String> countries,int pageNum,int pageSize);
-    HSSFWorkbook generateGoodsStatisticsExcel(GoodsStatistics goodsStatistics,Set<String> countries);
+    Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics goodsStatistics, Set<String> countries, int pageNum, int pageSize);
+    HSSFWorkbook generateGoodsStatisticsExcel(GoodsStatistics goodsStatistics, Set<String> countries);
 
     /**
      * 查询商品统计信息
      * @param condition
      * @return
      */
-    List<ProjectStatistics> findProjectStatistics(Map<String,String> condition);
-    Page<ProjectStatistics> findProjectStatisticsByPage(Map<String,String> condition);
+    List<ProjectStatistics> findProjectStatistics(Map<String, String> condition);
+    Page<ProjectStatistics> findProjectStatisticsByPage(Map<String, String> condition);
     HSSFWorkbook generateProjectStatisticsExcel(Map<String, String> condition);
 
     HSSFWorkbook generateProjectDescStatisticsExcel(Map<String, String> condition);

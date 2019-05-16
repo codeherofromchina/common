@@ -21,7 +21,7 @@
         SELECT
         id as orgId, `name` AS orgName
         FROM
-        erui_sys.org
+        erui_sys.group
         WHERE
         deleted_flag = 'N'
         AND `status` = 'NORMAL'
@@ -32,7 +32,7 @@
         SELECT
         id as orgId, `name` AS orgName
         FROM
-        erui_sys.org
+        erui_sys.group
         WHERE
         deleted_flag = 'N'
         AND `status` = 'NORMAL'
@@ -44,12 +44,15 @@
         SELECT
             t1.bn AS countryBn,
             t1.`name` AS countryName,
-            t1.region_bn AS areaBn,
+            t2.bn AS areaBn,
             t2.`name` AS areaName
         FROM
             erui_dict.country AS t1
                 LEFT JOIN
-            erui_operation.market_area t2 ON t1.region_bn = t2.bn AND t2.lang = 'zh'
+            erui_operation.market_area_country t3 ON t1.bn = t3.country_bn
+                LEFT JOIN
+            erui_operation.market_area t2 ON t3.market_area_bn = t2.bn
+                AND t2.lang = 'zh'
         WHERE
             t1.lang = 'zh' AND t1.deleted_flag = 'N'
                 AND t1.bn = #{countryBn}

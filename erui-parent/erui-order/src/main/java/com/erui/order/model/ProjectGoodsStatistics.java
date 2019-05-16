@@ -15,10 +15,11 @@ public class ProjectGoodsStatistics {
 
     public ProjectGoodsStatistics() {
     }
+
     //序号
     private Integer id;
     //未用易瑞签约原因
-    private String nonReson;
+    //private String nonReson;
     //是否通过代理商获取
     private String agent;
     //代理商代码
@@ -30,14 +31,6 @@ public class ProjectGoodsStatistics {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public String getNonReson() {
-        return nonReson;
-    }
-
-    public void setNonReson(String nonReson) {
-        this.nonReson = nonReson;
     }
 
     public String getAgent() {
@@ -67,7 +60,7 @@ public class ProjectGoodsStatistics {
     private String inquiryNo;
     //项目号
     private String projectNo;
-    //项目名称
+    //合同标的
     private String projectName;
     //海外销售合同号
     private String contractNoOs;
@@ -84,6 +77,8 @@ public class ProjectGoodsStatistics {
     //所属地区
     private String region;
     private String regionZh;
+    //国家
+    private String country;
     //CRM客户代码
     private String crmCode;
     //客户类型
@@ -118,6 +113,8 @@ public class ProjectGoodsStatistics {
     private String proCate; //产品分类
     //初步利润率
     private String profitPercent;
+    //利润额
+    private BigDecimal profit;
     //授信情况
     private String grantType;
     //执行单约定交付日期
@@ -154,6 +151,22 @@ public class ProjectGoodsStatistics {
     //订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单
     private String orderCategory;
     //订单商品信息
+
+    public BigDecimal getProfit() {
+        return profit;
+    }
+
+    public void setProfit(BigDecimal profit) {
+        this.profit = profit;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
 
     public String getNameZh() {
         return nameZh;

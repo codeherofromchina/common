@@ -24,6 +24,7 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
+
     /**
      * 统计大区、国家的品类询单数量、报价数量、报价金额占比
      *

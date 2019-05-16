@@ -18,7 +18,7 @@ public interface InspectApplyGoodsDao extends JpaRepository<InspectApplyGoods, S
      * @param id
      * @return
      */
-    InspectApplyGoods findByIdAndGoodsIdAndInspectApplyId(Integer id,Integer goodsId,Integer inspectApplyGoodsId);
+    InspectApplyGoods findByIdAndGoodsIdAndInspectApplyId(Integer id, Integer goodsId, Integer inspectApplyGoodsId);
 
     /**
      * 通过报检单ID查询报检单下的所有商品列表

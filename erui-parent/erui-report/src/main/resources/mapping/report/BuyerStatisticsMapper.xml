@@ -20,6 +20,12 @@
             <if test="registerEndTime != null and registerEndTime != ''">
                 AND register_time <![CDATA[<=]]> #{registerEndTime}
             </if>
+            <if test="areaBn != null and areaBn != ''">
+                AND area_bn = #{areaBn}
+            </if>
+            <if test="countryBn != null and countryBn != ''">
+                AND country_bn = #{countryBn}
+            </if>
         ORDER BY register_time ASC
     </select>
 
@@ -63,6 +69,12 @@
         <if test="membershipEndTime != null and membershipEndTime != ''">
             AND membership_time_2019after <![CDATA[<=]]> #{membershipEndTime}
         </if>
+        <if test="areaBn != null and areaBn != ''">
+            AND area_bn = #{areaBn}
+        </if>
+        <if test="countryBn != null and countryBn != ''">
+            AND country_bn = #{countryBn}
+        </if>
         ORDER BY membership_time_2019after ASC
     </select>
 
@@ -85,6 +97,12 @@
             <if test="applyEndTime != null and applyEndTime != ''">
                 AND apply_time <![CDATA[<=]]> #{applyEndTime}
             </if>
+            <if test="areaBn != null and areaBn != ''">
+                AND area_bn = #{areaBn}
+            </if>
+            <if test="countryBn != null and countryBn != ''">
+                AND country_bn = #{countryBn}
+            </if>
         ORDER BY apply_time asc
     </select>
 
@@ -105,6 +123,12 @@
             </if>
             <if test="endTime != null and endTime != ''">
                 AND membership_time <![CDATA[<=]]> #{endTime}
+            </if>
+            <if test="areaBn != null and areaBn != ''">
+                AND area_bn = #{areaBn}
+            </if>
+            <if test="countryBn != null and countryBn != ''">
+                AND country_bn = #{countryBn}
             </if>
         GROUP BY area_bn , area_name , country_bn , country_name
         ORDER BY 5 DESC

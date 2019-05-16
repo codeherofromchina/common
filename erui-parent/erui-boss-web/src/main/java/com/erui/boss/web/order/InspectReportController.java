@@ -6,7 +6,10 @@ import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.order.entity.*;
 import com.erui.order.service.InspectReportService;
+import com.erui.order.service.PurchContractService;
+import com.erui.order.service.PurchService;
 import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +31,10 @@ public class InspectReportController {
 
     @Autowired
     private InspectReportService inspectReportService;
+    @Autowired
+    private PurchService purchService;
+    @Autowired
+    private PurchContractService purchContractService;
 
     /**
      * 获取质检报告单列表
@@ -186,14 +193,34 @@ public class InspectReportController {
      */
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> save(@RequestBody InspectReport inspectReport, HttpServletRequest request) {
-
-
         String errorMsg = null;
         try {
             String eruiToken = CookiesUtil.getEruiToken(request);
             ThreadLocalUtil.setObject(eruiToken);
-
+            //当所有采购合同的采购订单完成时设置采购合同状态为已完成
             if (inspectReportService.save(inspectReport)) {
+                InspectReport detail = inspectReportService.detail(inspectReport.getId());
+                if (StringUtils.isNotBlank(detail.getPurchNo())) {
+                    List<Purch> byPurchNo = purchService.findByPurchNo(detail.getPurchNo());
+                    boolean doneFlag = true;
+                    if (byPurchNo != null && byPurchNo.size() > 0) {
+                        for (Purch purch : byPurchNo) {
+                            if (purch.getStatus() != 3) {
+                                doneFlag = false;
+                                break;
+                            }
+                        }
+                        if (doneFlag) {
+                            if (byPurchNo != null && byPurchNo.size() > 0) {
+                                Integer purchContractId = byPurchNo.get(0).getPurchContractId() == null ? 0 : byPurchNo.get(0).getPurchContractId();
+                                if (purchContractId > 0) {
+                                    PurchContract purchContract = purchContractService.findDetailInfo(purchContractId);
+                                    purchContractService.updateStatus(purchContract);
+                                }
+                            }
+                        }
+                    }
+                }
                 return new Result<>();
             }
         } catch (Exception e) {

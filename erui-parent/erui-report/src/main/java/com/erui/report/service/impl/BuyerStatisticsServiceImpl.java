@@ -42,7 +42,6 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
     @Override
     public PageInfo<Map<String, Object>> membershipBuyerList(int pageNum, int pageSize, Map<String, String> params) {
         PageHelper.startPage(pageNum, pageSize);
-
 //        List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryMembershipBuyerList(params);
         List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryAfter2019MembershipBuyerList(params);
 
@@ -70,6 +69,8 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
     public Map<String, Object> orderBuyerStatistics(Map<String, Object> params) {
         Map<String, Object> result = new HashMap<>();
         String date2018 = "2018-01-01 00:00:00";
+        String areaBn = (String) params.get("areaBn");
+        String countryBn = (String) params.get("countryBn");
         String startTime = null;
         String endTime = null;
         if (params != null) {
@@ -85,6 +86,8 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
         Map<String, Object> params2 = new HashMap<>();
         params2.put("startTime", date2018);
         params2.put("endTime", endTime);
+        params2.put("areaBn", areaBn);
+        params2.put("countryBn", countryBn);
         aftStatisticsList = buyerStatisticsMapper.orderBuyerStatistics(params2);
         if (startTime == null) {
             befStatisticsList = new ArrayList<>(aftStatisticsList);
@@ -93,6 +96,8 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
             Map<String, Object> params3 = new HashMap<>();
             params3.put("startTime", date2018);
             params3.put("endTime", DateUtil.format(DateUtil.FULL_FORMAT_STR, oneBefDay));
+            params3.put("areaBn", areaBn);
+            params3.put("countryBn", countryBn);
             befStatisticsList = buyerStatisticsMapper.orderBuyerStatistics(params3);
         }
         // 合并结果集
@@ -194,9 +199,9 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
                 "序号",
                 "地区",
                 "国家",
-                "累计截止到上周末2018.1.1-" + (oneBefDay == null ? "今" : DateUtil.format(DateUtil.SHORT_FORMAT_DOT_STR,oneBefDay)),
+                "累计截止到上周末2018.1.1-" + (oneBefDay == null ? "今" : DateUtil.format(DateUtil.SHORT_FORMAT_DOT_STR, oneBefDay)),
                 "本周新增",
-                "累计截止到本周末2018.1.1-" + (endDay == null ? "今" : DateUtil.format(DateUtil.SHORT_FORMAT_DOT_STR,endDay)),
+                "累计截止到本周末2018.1.1-" + (endDay == null ? "今" : DateUtil.format(DateUtil.SHORT_FORMAT_DOT_STR, endDay)),
                 "备注",
         };
         List<Object[]> excelData = new ArrayList<Object[]>();
@@ -214,6 +219,7 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
                 excelData.add(rowData);
                 seq++;
             }
+            excelData.remove(excelData.size() - 1);
             // 最后的总计
             Map<String, Long> totalMap = (Map<String, Long>) data.get("total");
             Object[] rowData = new Object[header.length];
@@ -230,12 +236,14 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
         ExcelCustomStyle.setContextStyle(workbook, 0, 1, excelData.size());
+        // 合并总计单元格
+        ExcelCustomStyle.mergedCell(workbook, 0, excelData.size(), excelData.size(), 0, 2);
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
         if (params.size() == 0) {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "开发会员统计");
         } else {
-            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "开发会员统计（" + DateUtil.format(DateUtil.SHORT_FORMAT_DOT_STR,startDay) + "-" + DateUtil.format(DateUtil.SHORT_FORMAT_DOT_STR,endDay) + "）");
+            ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "开发会员统计（" + DateUtil.format(DateUtil.SHORT_FORMAT_DOT_STR, startDay) + "-" + DateUtil.format(DateUtil.SHORT_FORMAT_DOT_STR, endDay) + "）");
         }
         return workbook;
     }
@@ -243,12 +251,12 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
 
     @Override
     public HSSFWorkbook genRegisterBuyerListExcel(Map<String, String> params) {
-        String[] header = { "序号", "注册客户代码",  "注册时间", "获取人", "国家", "地区"};
+        String[] header = {"序号", "注册客户代码", "注册时间", "获取人", "国家", "地区"};
         List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryRegisterBuyerList(params);
         List<Object[]> excelData = new ArrayList<Object[]>();
-        if (buyerList != null && buyerList.size() >0) {
+        if (buyerList != null && buyerList.size() > 0) {
             int seq = 1;
-            for (Map<String,Object> map : buyerList) {
+            for (Map<String, Object> map : buyerList) {
                 Object[] obj = new Object[header.length];
                 obj[0] = seq;
                 obj[1] = map.get("buyerCode");
@@ -280,13 +288,13 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
 
     @Override
     public HSSFWorkbook genApplyBuyerListExcel(Map<String, String> params) {
-        String[] header = { "序号", "客户代码", "国家", "地区", "入网时间"};
+        String[] header = {"序号", "客户代码", "国家", "地区", "入网时间"};
 
         List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryApplyBuyerList(params);
         List<Object[]> excelData = new ArrayList<Object[]>();
         if (buyerList != null && buyerList.size() > 0) {
             int seq = 1;
-            for (Map<String,Object> map : buyerList) {
+            for (Map<String, Object> map : buyerList) {
                 Object[] obj = new Object[header.length];
                 obj[0] = seq;
                 obj[1] = map.get("buyerCode");
@@ -316,12 +324,14 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
 
     @Override
     public HSSFWorkbook genMembershipBuyerListExcel(Map<String, String> params) {
-        String[] header = { "序号", "注册客户代码",  "注册时间", "获取人", "国家", "地区"};
-        List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryMembershipBuyerList(params);
+        String[] header = {"序号", "客户代码", "第一次交易时间", "获取人", "国家", "地区"};
+//        List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryMembershipBuyerList(params);
+        List<Map<String, Object>> buyerList = buyerStatisticsMapper.findCountryAfter2019MembershipBuyerList(params);
+
         List<Object[]> excelData = new ArrayList<Object[]>();
-        if (buyerList != null && buyerList.size() >0) {
+        if (buyerList != null && buyerList.size() > 0) {
             int seq = 1;
-            for (Map<String,Object> map : buyerList) {
+            for (Map<String, Object> map : buyerList) {
                 Object[] obj = new Object[header.length];
                 obj[0] = seq;
                 obj[1] = map.get("buyerCode");
@@ -342,7 +352,7 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
         ExcelCustomStyle.setContextStyle(workbook, 0, 1, excelData.size());
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
-        if (params.size() == 0) {
+        if (params.size() == 0 || StringUtils.isBlank(params.get("membershipStartTime")) || StringUtils.isBlank(params.get("membershipEndTime"))) {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "业绩统计-交易会员统计");
         } else {
             ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "业绩统计-交易会员统计（" + params.get("membershipStartTime") + "--" + params.get("membershipEndTime") + "）");

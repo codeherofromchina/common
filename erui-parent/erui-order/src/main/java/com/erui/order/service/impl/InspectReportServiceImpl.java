@@ -6,6 +6,7 @@ import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
@@ -41,26 +42,36 @@ public class InspectReportServiceImpl implements InspectReportService {
     private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
     @Autowired
     private ApplicationContext applicationContext;
+
     @Autowired
     private InspectReportDao inspectReportDao;
-    @Autowired
-    private InspectApplyGoodsDao inspectApplyGoodsDao;
+
     @Autowired
     private InspectApplyDao inspectApplyDao;
+
     @Autowired
     private AttachmentService attachmentService;
+
     @Autowired
     private PurchDao purchDao;
+
     @Autowired
     private GoodsDao goodsDao;
+
     @Autowired
     private InstockDao instockDao;
+
     @Autowired
     private PurchGoodsDao purchGoodsDao;
+
+    @Autowired
+    private PurchServiceImpl purchServiceImpl;
+
     @Autowired
     private BackLogService backLogService;
+
     @Autowired
-    private BackLogDao backLogDao;
+    private PurchContractDao purchContractDao;
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
@@ -338,9 +349,13 @@ public class InspectReportServiceImpl implements InspectReportService {
             // 如果有不合格商品，则必须有不合格描述
             if (!hegeFlag && StringUtils.isBlank(paramApplyGoods.getUnqualifiedDesc()) && unqualified > 0) {
                 throw new Exception(String.format("%s%s%s", "商品(SKU:" + goods.getSku() + ")的不合格描述不能为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The nonconforming description of a commodity (SKU:" + goods.getSku() + ") can not be empty"));
-
             }
             applyGoods.setUnqualifiedDesc(paramApplyGoods.getUnqualifiedDesc());
+            // 如果有不合格商品，则必须有不合格类型
+//            if (!hegeFlag && StringUtils.isBlank(paramApplyGoods.getUnqualifiedType()) && unqualified > 0) {
+//                throw new Exception(String.format("%s%s%s", "商品(SKU:" + goods.getSku() + ")的不合格类型不能为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unqualified Types of Unqualified Commodities (SKU:" + goods.getSku() + ") can not be empty"));
+//            }
+            applyGoods.setUnqualifiedType(paramApplyGoods.getUnqualifiedType());
             // 设置采购商品的已合格数量
             if (statusEnum == InspectReport.StatusEnum.DONE) { // 提交动作
 
@@ -445,18 +460,35 @@ public class InspectReportServiceImpl implements InspectReportService {
                     break;
                 }
             }
+            //采购订单付款方式
+            List<PurchPayment> purchPaymentList = purch.getPurchPaymentList();
+            Date doneDate = dbInspectReport.getDoneDate();
+            for (PurchPayment pay : purchPaymentList) {
+                //当付款方式为质保金时回执付款日期 当前质检日期加上质保金天数
+                if (pay.getType() == 5) {
+                    //加的天数
+                    int days = pay.getDays();
+                    Date dateAfter = DateUtil.getDateAfter(doneDate, days);
+                    pay.setReceiptDate(dateAfter);
+                }
+            }
+            purch.setPurchPaymentList(purchPaymentList);
             if (doneFlag) {
                 purch.setStatus(Purch.StatusEnum.DONE.getCode());
                 purchDao.save(purch);
-
+                //当全部采购完成时设置供应商状态为COMPLETED
+                purchServiceImpl.updateSupplierStatus(purch.getId(), "COMPLETED");
                 //全部质检合格以后，删除   “办理报检单”  待办提示
                 BackLog backLog = new BackLog();
                 backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
                 backLog.setHostId(purch.getId());
                 backLogService.updateBackLogByDelYn(backLog);
 
+            } else {
+                //当部分采购时设置供应商状态为PART_RECEIPT
+                purchServiceImpl.updateSupplierStatus(purch.getId(), "PART_RECEIPT");
+                purchDao.save(purch);
             }
-
             // 推送数据到入库部门
             Instock instock = new Instock();
             instock.setInspectReport(dbInspectReport);
@@ -505,7 +537,7 @@ public class InspectReportServiceImpl implements InspectReportService {
 
                 //获取token
                 String eruiToken = (String) ThreadLocalUtil.getObject();
-                if (org.apache.commons.lang3.StringUtils.isNotBlank(eruiToken)) {
+                if (StringUtils.isNotBlank(eruiToken)) {
                     Map<String, String> header = new HashMap<>();
                     header.put(CookiesUtil.TOKEN_NAME, eruiToken);
                     header.put("Content-Type", "application/json");

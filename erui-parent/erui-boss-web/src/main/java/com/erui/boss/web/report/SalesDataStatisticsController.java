@@ -760,7 +760,7 @@ public class SalesDataStatisticsController {
             params = params02;
         }
 
-        String fileName = "订单数据统计-会员购买力-" + java.lang.System.currentTimeMillis() + ".xls";
+        String fileName = "订单数据统计-会员购买力-" + System.currentTimeMillis() + ".xls";
         HSSFWorkbook wb = supplierchainService.exportOrderInfoPurchasingPower(params);
         try {
             HttpUtils.setExcelResponseHeader(response, fileName.toString());
@@ -839,7 +839,7 @@ public class SalesDataStatisticsController {
             params = params02;
         }
 
-        String fileName = "订单数据统计-复购周期-" + java.lang.System.currentTimeMillis() + ".xls";
+        String fileName = "订单数据统计-复购周期-" + System.currentTimeMillis() + ".xls";
         HSSFWorkbook wb = supplierchainService.exportOrderInfoBuyCycle(params);
         try {
             HttpUtils.setExcelResponseHeader(response, fileName.toString());
@@ -892,7 +892,7 @@ public class SalesDataStatisticsController {
         if (params == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
-        String fileName = "订单数据统计-新老会员贡献度-" + java.lang.System.currentTimeMillis() + ".xls";
+        String fileName = "订单数据统计-新老会员贡献度-" + System.currentTimeMillis() + ".xls";
         HSSFWorkbook wb = supplierchainService.exportOrderInfoMembersContribution(params);
         try {
             HttpUtils.setExcelResponseHeader(response, fileName.toString());

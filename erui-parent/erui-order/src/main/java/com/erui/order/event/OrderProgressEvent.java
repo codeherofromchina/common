@@ -20,7 +20,6 @@ public class OrderProgressEvent extends ApplicationEvent {
         this.token = token;
         this.type = type;
     }
-
     public Integer getType() {
         return type;
     }

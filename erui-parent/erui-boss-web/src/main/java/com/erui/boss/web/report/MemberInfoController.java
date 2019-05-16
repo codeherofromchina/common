@@ -90,9 +90,9 @@ public class MemberInfoController {
             new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
             return null;
         }
-        String fileName = "会员数据统计-人均效能统计-" + java.lang.System.currentTimeMillis() + ".xls";
+        String fileName = "会员数据统计-人均效能统计-" + System.currentTimeMillis() + ".xls";
         try {
-            HttpUtils.setExcelResponseHeader(response, fileName.toString());
+            HttpUtils.setExcelResponseHeader(response, fileName);
             wb.write(response.getOutputStream());
         } catch (Exception e) {
             e.printStackTrace();
@@ -122,7 +122,7 @@ public class MemberInfoController {
             // 按照地区统计客户拜访统计
             data = memberInfoService.visitStatisticsByArea(params);
         } else { // 国家
-            /// 按照国家统计客户拜访统计
+            // 按照国家统计客户拜访统计
             data = memberInfoService.visitStatisticsByCountry(params);
         }
 
@@ -154,7 +154,9 @@ public class MemberInfoController {
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         HSSFWorkbook wb = null;
-        if ("1".equals(type)) { // 地区
+        if ("1".equals(type)) { // 事业部
+            wb = memberInfoService.exportVisitStatisticsByOrg(params);
+        } else if ("2".equals(type)) {// 地区
             /// 按照地区统计客户拜访统计
             wb = memberInfoService.exportVisitStatisticsByArea(params);
         } else { // 国家
@@ -166,9 +168,9 @@ public class MemberInfoController {
             new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
             return null;
         }
-        String fileName = "会员数据统计-客户拜访统计-" + java.lang.System.currentTimeMillis() + ".xls";
+        String fileName = "会员数据统计-客户拜访统计-" + System.currentTimeMillis() + ".xls";
         try {
-            HttpUtils.setExcelResponseHeader(response, fileName.toString());
+            HttpUtils.setExcelResponseHeader(response, fileName);
             wb.write(response.getOutputStream());
         } catch (Exception e) {
             e.printStackTrace();
@@ -275,7 +277,7 @@ public class MemberInfoController {
             new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
             return null;
         }
-        String fileName = "会员数据统计-会员统计-" + java.lang.System.currentTimeMillis() + ".xls";
+        String fileName = "会员数据统计-会员统计-" + System.currentTimeMillis() + ".xls";
         try {
             HttpUtils.setExcelResponseHeader(response, fileName.toString());
             wb.write(response.getOutputStream());
@@ -349,7 +351,7 @@ public class MemberInfoController {
             new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
             return null;
         }
-        String fileName = "会员数据统计-会员统计-" + java.lang.System.currentTimeMillis() + ".xls";
+        String fileName = "会员数据统计-会员统计-" + System.currentTimeMillis() + ".xls";
         try {
             HttpUtils.setExcelResponseHeader(response, fileName.toString());
             wb.write(response.getOutputStream());
@@ -427,7 +429,7 @@ public class MemberInfoController {
             new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
             return null;
         }
-        String fileName = "会员数据统计-会员签约主体-" + java.lang.System.currentTimeMillis() + ".xls";
+        String fileName = "会员数据统计-会员签约主体-" + System.currentTimeMillis() + ".xls";
         try {
             HttpUtils.setExcelResponseHeader(response, fileName.toString());
             wb.write(response.getOutputStream());
@@ -488,7 +490,7 @@ public class MemberInfoController {
             new Result<>(ResultStatusEnum.DATA_NULL).printResult(response.getOutputStream());
             return null;
         }
-        String fileName = "会员数据统计-成单客户-" + java.lang.System.currentTimeMillis() + ".xls";
+        String fileName = "会员数据统计-成单客户-" + System.currentTimeMillis() + ".xls";
         try {
             HttpUtils.setExcelResponseHeader(response, fileName.toString());
             wb.write(response.getOutputStream());

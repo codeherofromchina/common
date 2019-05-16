@@ -1153,7 +1153,7 @@ public class Order {
     }
 
     public String getOrderStatusName() {
-        Order.StatusEnum statusEnum = Order.fromCode(getStatus());
+        StatusEnum statusEnum = Order.fromCode(getStatus());
         if (statusEnum != null) {
             return statusEnum.getMsg();
         }
@@ -1161,7 +1161,7 @@ public class Order {
     }
 
     public String getEnOrderStatusName() {
-        Order.enStatusEnum enStatusEnum = Order.enFromCode(getStatus());
+        enStatusEnum enStatusEnum = Order.enFromCode(getStatus());
         if (enStatusEnum != null) {
             return enStatusEnum.getMsg();
         }

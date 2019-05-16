@@ -9,6 +9,7 @@ import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.service.WeeklyReportService;
 import com.erui.report.util.ParamsUtils;
 import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -51,21 +52,18 @@ public class WeeklyReportController {
     @ResponseBody
     @RequestMapping(value = "/areaDetail", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
     public Object areaDetail(@RequestBody(required = true) Map<String, Object> params) {
-        String startTime = (String) params.get("startTime");
-        String endTime = (String) params.get("endTime");
-        if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
+        // 时间处理
+        Date startTime = DateUtil.parseString2DateNoException((String) params.get("startTime"), DateUtil.SHORT_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException((String) params.get("endTime"), DateUtil.SHORT_FORMAT_STR);
+        if (startTime == null || endTime == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
-        } else {
-            //处理时间参数
-            params = ParamsUtils.verifyParam(params, DateUtil.FULL_FORMAT_STR, null);
-            if (params == null) {
-                return new Result<>(ResultStatusEnum.PARAM_ERROR);
-            }
-            //环比为前7天的数据
-            Date start = DateUtil.parseString2DateNoException(String.valueOf(params.get("startTime")), DateUtil.FULL_FORMAT_STR);
-            Date chainStartTime = DateUtil.sometimeCalendar(start, 7);
-            params.put("chainStartTime", DateUtil.formatDateToString(chainStartTime, DateUtil.FULL_FORMAT_STR));
         }
+        Date chainStartTime = DateUtil.sometimeCalendar(startTime, 7);
+        Date chainEndTime = DateUtil.sometimeCalendar(startTime, 1);
+        params.put("startTime", DateUtil.format( DateUtil.DAY_START_TIME, startTime));
+        params.put("endTime", DateUtil.format( DateUtil.DAY_END_TIME, endTime));
+        params.put("chainStartTime", DateUtil.format(DateUtil.DAY_START_TIME, chainStartTime));
+        params.put("chainEndTime", DateUtil.format(DateUtil.DAY_END_TIME, chainEndTime));
 
         // 查询用户uv数据
         Map<String, Object> uvData = weeklyReportService.selectBuyerUVCountGroupByArea(params);
@@ -83,7 +81,6 @@ public class WeeklyReportController {
         // 查询各个地区时间段内的订单数量和金额信息
         Map<String, Object> orderInfoData = weeklyReportService.selectOrderInfoGroupByArea(params);
 
-
         Map<String, Map> data = new HashMap<>();
         data.put("uvInfo", uvData); // 新用户注册数据信息
         data.put("registerInfo", registerData); // 新用户注册数据信息
@@ -91,6 +88,8 @@ public class WeeklyReportController {
         data.put("inqNumInfo", inqNumInfoData); // 询单数量数据信息
         data.put("quoteInfo", quoteInfoData); // 报价数量/金额数据信息
         data.put("orderInfo", orderInfoData); // 订单数量/金额数据信息
+
+
 
         return new Result<>(data);
     }
@@ -106,21 +105,18 @@ public class WeeklyReportController {
     @RequestMapping(value = "/exportAreaDetail")
     public Object exportAreaDetail(HttpServletResponse response, String startTime, String endTime) {
         Map<String, Object> params = new HashMap();
-        if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
+        // 时间处理
+        Date startTimeF = DateUtil.parseString2DateNoException(startTime, DateUtil.SHORT_FORMAT_STR);
+        Date endTimeF = DateUtil.parseString2DateNoException(endTime, DateUtil.SHORT_FORMAT_STR);
+        if (startTimeF == null || endTimeF == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
-        } else {
-            params.put("startTime", startTime);
-            params.put("endTime", endTime);
-            //处理时间参数
-            params = ParamsUtils.verifyParam(params, DateUtil.FULL_FORMAT_STR, null);
-            if (params == null) {
-                return new Result<>(ResultStatusEnum.PARAM_ERROR);
-            }
-            //环比为前7天的数据
-            Date start = DateUtil.parseString2DateNoException(String.valueOf(params.get("startTime")), DateUtil.FULL_FORMAT_STR);
-            Date chainStartTime = DateUtil.sometimeCalendar(start, 7);
-            params.put("chainStartTime", DateUtil.formatDateToString(chainStartTime, DateUtil.FULL_FORMAT_STR));
         }
+        Date chainStartTime = DateUtil.sometimeCalendar(startTimeF, 7);
+        Date chainEndTime = DateUtil.sometimeCalendar(startTimeF, 1);
+        params.put("startTime", DateUtil.format( DateUtil.DAY_START_TIME, startTimeF));
+        params.put("endTime", DateUtil.format( DateUtil.DAY_END_TIME, endTimeF));
+        params.put("chainStartTime", DateUtil.format(DateUtil.DAY_START_TIME, chainStartTime));
+        params.put("chainEndTime", DateUtil.format(DateUtil.DAY_END_TIME, chainEndTime));
 
         HSSFWorkbook wb = weeklyReportService.genAreaDetailExcel(params);
         //excel文件名
@@ -144,21 +140,18 @@ public class WeeklyReportController {
     @ResponseBody
     @RequestMapping(value = "/orgDetail", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
     public Object orgDetail(@RequestBody(required = true) Map<String, Object> params, HttpServletRequest request) throws IOException {
-        String startTime = (String) params.get("startTime");
-        String endTime = (String) params.get("endTime");
-        if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
+        // 时间处理
+        Date startTime = DateUtil.parseString2DateNoException((String) params.get("startTime"), DateUtil.SHORT_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException((String) params.get("endTime"), DateUtil.SHORT_FORMAT_STR);
+        if (startTime == null || endTime == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
-        } else {
-            //处理时间参数
-            params = ParamsUtils.verifyParam(params, DateUtil.FULL_FORMAT_STR, null);
-            if (params == null) {
-                return new Result<>(ResultStatusEnum.PARAM_ERROR);
-            }
-            //环比为前7天的数据
-            Date start = DateUtil.parseString2DateNoException(String.valueOf(params.get("startTime")), DateUtil.FULL_FORMAT_STR);
-            Date chainStartTime = DateUtil.sometimeCalendar(start, 7);
-            params.put("chainStartTime", DateUtil.formatDateToString(chainStartTime, DateUtil.FULL_FORMAT_STR));
         }
+        Date chainStartTime = DateUtil.sometimeCalendar(startTime, 7);
+        Date chainEndTime = DateUtil.sometimeCalendar(startTime, 1);
+        params.put("startTime", DateUtil.format( DateUtil.DAY_START_TIME, startTime));
+        params.put("endTime", DateUtil.format( DateUtil.DAY_END_TIME, endTime));
+        params.put("chainStartTime", DateUtil.format(DateUtil.DAY_START_TIME, chainStartTime));
+        params.put("chainEndTime", DateUtil.format(DateUtil.DAY_END_TIME, chainEndTime));
 
         // 询单数量信息
         Map<String, Object> inqNumInfoData = weeklyReportService.selectInqNumGroupByOrg(params);
@@ -196,21 +189,19 @@ public class WeeklyReportController {
     @RequestMapping(value = "/exportOrgDetail")
     public Object exportOrgDetail(HttpServletRequest request, HttpServletResponse response, String startTime, String endTime) throws IOException {
         Map<String, Object> params = new HashMap();
-        if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
+        // 时间处理
+        Date startTimeF = DateUtil.parseString2DateNoException(startTime, DateUtil.SHORT_FORMAT_STR);
+        Date endTimeF = DateUtil.parseString2DateNoException(endTime, DateUtil.SHORT_FORMAT_STR);
+        if (startTimeF == null || endTimeF == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
-        } else {
-            params.put("startTime", startTime);
-            params.put("endTime", endTime);
-            //处理时间参数
-            params = ParamsUtils.verifyParam(params, DateUtil.FULL_FORMAT_STR, null);
-            if (params == null) {
-                return new Result<>(ResultStatusEnum.PARAM_ERROR);
-            }
-            //环比为前7天的数据
-            Date start = DateUtil.parseString2DateNoException(String.valueOf(params.get("startTime")), DateUtil.FULL_FORMAT_STR);
-            Date chainStartTime = DateUtil.sometimeCalendar(start, 7);
-            params.put("chainStartTime", DateUtil.formatDateToString(chainStartTime, DateUtil.FULL_FORMAT_STR));
         }
+        Date chainStartTime = DateUtil.sometimeCalendar(startTimeF, 7);
+        Date chainEndTime = DateUtil.sometimeCalendar(startTimeF, 1);
+        params.put("startTime", DateUtil.format( DateUtil.DAY_START_TIME, startTimeF));
+        params.put("endTime", DateUtil.format( DateUtil.DAY_END_TIME, endTimeF));
+        params.put("chainStartTime", DateUtil.format(DateUtil.DAY_START_TIME, chainStartTime));
+        params.put("chainEndTime", DateUtil.format(DateUtil.DAY_END_TIME, chainEndTime));
+
         Cookie[] cookies = request.getCookies();
         params.put("pageSize", "10");
         params.put("currentPage", "1");
@@ -247,21 +238,18 @@ public class WeeklyReportController {
     @ResponseBody
     @RequestMapping(value = "/platformDataDetail", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
     public Object platformDataDetail(@RequestBody(required = true) Map<String, Object> params) {
-        String startTime = (String) params.get("startTime");
-        String endTime = (String) params.get("endTime");
-        if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
+        // 时间处理
+        Date startTime = DateUtil.parseString2DateNoException((String) params.get("startTime"), DateUtil.SHORT_FORMAT_STR);
+        Date endTime = DateUtil.parseString2DateNoException((String) params.get("endTime"), DateUtil.SHORT_FORMAT_STR);
+        if (startTime == null || endTime == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
-        } else {
-            //处理时间参数
-            params = ParamsUtils.verifyParam(params, DateUtil.FULL_FORMAT_STR, null);
-            if (params == null) {
-                return new Result<>(ResultStatusEnum.PARAM_ERROR);
-            }
-            //环比为前7天的数据
-            Date start = DateUtil.parseString2DateNoException(String.valueOf(params.get("startTime")), DateUtil.FULL_FORMAT_STR);
-            Date chainStartTime = DateUtil.sometimeCalendar(start, 7);
-            params.put("chainStartTime", DateUtil.formatDateToString(chainStartTime, DateUtil.FULL_FORMAT_STR));
         }
+        Date chainStartTime = DateUtil.sometimeCalendar(startTime, 7);
+        Date chainEndTime = DateUtil.sometimeCalendar(startTime, 1);
+        params.put("startTime", DateUtil.format( DateUtil.DAY_START_TIME, startTime));
+        params.put("endTime", DateUtil.format( DateUtil.DAY_END_TIME, endTime));
+        params.put("chainStartTime", DateUtil.format(DateUtil.DAY_START_TIME, chainStartTime));
+        params.put("chainEndTime", DateUtil.format(DateUtil.DAY_END_TIME, chainEndTime));
 
         // 查询时间段内询单数
         Map<String, Object> inqNumInfoData = weeklyReportService.selectInqNumGroupByAreaTotal(params);
@@ -293,21 +281,18 @@ public class WeeklyReportController {
     @RequestMapping(value = "/exportPlatformDataDetail")
     public Object exportPlatformDataDetail(HttpServletResponse response, String startTime, String endTime) {
         Map<String, Object> params = new HashMap();
-        if (StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime)) {
+        // 时间处理
+        Date startTimeF = DateUtil.parseString2DateNoException(startTime, DateUtil.SHORT_FORMAT_STR);
+        Date endTimeF = DateUtil.parseString2DateNoException(endTime, DateUtil.SHORT_FORMAT_STR);
+        if (startTimeF == null || endTimeF == null) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
-        } else {
-            params.put("startTime", startTime);
-            params.put("endTime", endTime);
-            //处理时间参数
-            params = ParamsUtils.verifyParam(params, DateUtil.FULL_FORMAT_STR, null);
-            if (params == null) {
-                return new Result<>(ResultStatusEnum.PARAM_ERROR);
-            }
-            //环比为前7天的数据
-            Date start = DateUtil.parseString2DateNoException(String.valueOf(params.get("startTime")), DateUtil.FULL_FORMAT_STR);
-            Date chainStartTime = DateUtil.sometimeCalendar(start, 7);
-            params.put("chainStartTime", DateUtil.formatDateToString(chainStartTime, DateUtil.FULL_FORMAT_STR));
         }
+        Date chainStartTime = DateUtil.sometimeCalendar(startTimeF, 7);
+        Date chainEndTime = DateUtil.sometimeCalendar(startTimeF, 1);
+        params.put("startTime", DateUtil.format( DateUtil.DAY_START_TIME, startTimeF));
+        params.put("endTime", DateUtil.format( DateUtil.DAY_END_TIME, endTimeF));
+        params.put("chainStartTime", DateUtil.format(DateUtil.DAY_START_TIME, chainStartTime));
+        params.put("chainEndTime", DateUtil.format(DateUtil.DAY_END_TIME, chainEndTime));
 
         HSSFWorkbook wb = weeklyReportService.genPlatformDataDetail(params);
         //excel文件名
@@ -350,7 +335,7 @@ public class WeeklyReportController {
             return null;
         }
         //获取历史数据
-        params.put("onshelf_at_start", "2018-01-01 00:00:00");
+        params.put("onshelf_at_start", "2019-01-01 00:00:00");
         params.put("onshelf_at_end", params.get("endTime").toString());
         List<Map<String, Object>> spuHistoryList = sendPutToES(params, eruiToken, esproductUrl);
         if (spuHistoryList == null) {

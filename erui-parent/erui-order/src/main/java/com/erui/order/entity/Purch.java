@@ -24,6 +24,11 @@ public class Purch {
     @Column(name = "purch_no")
     private String purchNo;
 
+    /**
+     * 采购合同id
+     */
+    @Column(name = "purch_contract_id")
+    private Integer purchContractId;
     // 采购经办人ID
     @Column(name = "agent_id")
     private Integer agentId;
@@ -261,11 +266,77 @@ public class Purch {
     @JoinColumn(name = "purch_id")
     @OrderBy("id asc")
     private List<PurchGoods> purchGoodsList = new ArrayList<>();
+
     // 流程实例ID
     @Column(name="process_id")
     private String processId;
     @Column(name="task_id")
     private String taskId;
+
+    /**
+     * 质检部重新评估风险等级状态 0：还未重新评估 1：已重新评估
+     */
+    @Column(name = "quality_inspect_status")
+    private Integer qualityInspectStatus;
+    /**
+     * 设置质检类型的人员ID
+     */
+    @Column(name = "quality_leader_id")
+    @JsonIgnore
+    private Integer qualityLeaderId;
+    /**
+     * 设置质检类型的人员姓名
+     */
+    @Column(name = "quality_leader_name")
+    @JsonIgnore
+    private String qualityLeaderName;
+    /**
+     * 设置商品质检的时间
+     */
+    @Column(name = "quality_time")
+    @JsonIgnore
+    private Date qualityTime;
+
+    public Integer getQualityInspectStatus() {
+        return qualityInspectStatus;
+    }
+
+    public void setQualityInspectStatus(Integer qualityInspectStatus) {
+        this.qualityInspectStatus = qualityInspectStatus;
+    }
+
+    public Integer getQualityLeaderId() {
+        return qualityLeaderId;
+    }
+
+    public void setQualityLeaderId(Integer qualityLeaderId) {
+        this.qualityLeaderId = qualityLeaderId;
+    }
+
+    public String getQualityLeaderName() {
+        return qualityLeaderName;
+    }
+
+    public void setQualityLeaderName(String qualityLeaderName) {
+        this.qualityLeaderName = qualityLeaderName;
+    }
+
+    public Date getQualityTime() {
+        return qualityTime;
+    }
+
+    public void setQualityTime(Date qualityTime) {
+        this.qualityTime = qualityTime;
+    }
+
+    public Integer getPurchContractId() {
+        return purchContractId;
+    }
+
+    public void setPurchContractId(Integer purchContractId) {
+        this.purchContractId = purchContractId;
+    }
+
 
     public Integer getChairmanBoardId() {
         return chairmanBoardId;
@@ -937,14 +1008,14 @@ public class Purch {
         this.setSupplierName(purch.getSupplierName());
         this.setTotalPrice(purch.getTotalPrice());
         this.setCurrencyBn(purch.getCurrencyBn());
-        this.setPayType(purch.getPayType());
-        this.setOtherPayTypeMsg(purch.getOtherPayTypeMsg());
-        this.setProductedDate(purch.getProductedDate()); // 工厂生产完成时间
-        this.setPayFactoryDate(purch.getPayFactoryDate()); // 给工厂付款时间
-        this.setPayDepositDate(purch.getPayDepositDate()); //质保金支付时间
-        this.setPayDepositExpired(purch.getPayDepositExpired()); // 质保金到期时间
-        this.setInvoiceNo(purch.getInvoiceNo()); // 发票号
-        this.setAccountDate(purch.getAccountDate()); // 挂账时间
+        //this.setPayType(purch.getPayType());
+        //this.setOtherPayTypeMsg(purch.getOtherPayTypeMsg());
+        //this.setProductedDate(purch.getProductedDate()); // 工厂生产完成时间
+        //this.setPayFactoryDate(purch.getPayFactoryDate()); // 给工厂付款时间
+        //this.setPayDepositDate(purch.getPayDepositDate()); //质保金支付时间
+        //this.setPayDepositExpired(purch.getPayDepositExpired()); // 质保金到期时间
+        //this.setInvoiceNo(purch.getInvoiceNo()); // 发票号
+        //this.setAccountDate(purch.getAccountDate()); // 挂账时间
         this.setRemarks(purch.getRemarks()); // 备注
 
         this.setPurchAuditerId(purch.getPurchAuditerId());

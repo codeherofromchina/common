@@ -18,9 +18,11 @@ import java.util.*;
 @Entity
 @Table(name = "project")
 public class Project {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
 
     @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH, CascadeType.PERSIST})
     @JoinColumn(name = "order_id")
@@ -38,7 +40,7 @@ public class Project {
     private String projectNo;
 
     @Column(name = "project_name")
-    @Size(max = 255, message = "项目名称填写不规范，请重新输入")
+    @Size(max = 255, message = "合同标的填写不规范，请重新输入")
     private String projectName;
 
     @Column(name = "start_date")//0307修改时间格式
@@ -227,6 +229,19 @@ public class Project {
      @JsonInclude(JsonInclude.Include.NON_DEFAULT)*/
     @Transient
     private List<Attachment> attachmentList = new ArrayList<>();
+    /**
+     * 质量检验类型
+     */
+    @Column(name = "quality_inspect_type")
+    private String qualityInspectType;
+
+    public String getQualityInspectType() {
+        return qualityInspectType;
+    }
+
+    public void setQualityInspectType(String qualityInspectType) {
+        this.qualityInspectType = qualityInspectType;
+    }
 
     // 流程实例ID
     @Column(name="process_id")
@@ -423,7 +438,7 @@ public class Project {
     }
 
     public String getProcessProgressName() {
-        Project.ProjectProgressEnum projectProgressEnum = Project.ProjectProgressEnum.ProjectProgressFromCode(getProcessProgress());
+        ProjectProgressEnum projectProgressEnum = ProjectProgressEnum.ProjectProgressFromCode(getProcessProgress());
         if (projectProgressEnum != null) {
             return projectProgressEnum.getMsg();
         }
@@ -583,11 +598,11 @@ public class Project {
     }
 
     public String getProjectStatusName() {
-        Project.ProjectStatusEnum statusEnum = null;
+        ProjectStatusEnum statusEnum = null;
         if (StringUtils.equals(getProjectStatus(), "HASMANAGER")) {
-            statusEnum = Project.ProjectStatusEnum.fromCode("SUBMIT");
+            statusEnum = ProjectStatusEnum.fromCode("SUBMIT");
         } else {
-            statusEnum = Project.ProjectStatusEnum.fromCode(getProjectStatus());
+            statusEnum = ProjectStatusEnum.fromCode(getProjectStatus());
         }
         if (statusEnum != null) {
             return statusEnum.getMsg();

@@ -40,18 +40,25 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
     @Autowired
     private InspectApplyDao inspectApplyDao;
+
     @Autowired
     private InspectApplyGoodsDao inspectApplyGoodsDao;
+
     @Autowired
     private PurchDao purchDao;
+
     @Autowired
     private PurchGoodsDao purchGoodsDao;
+
     @Autowired
     private GoodsDao goodsDao;
+
     @Autowired
     private AttachmentService attachmentService;
+
     @Autowired
     private InspectReportDao inspectReportDao;
+
     @Autowired
     private InspectApplyTmpAttachDao inspectApplyTmpAttachDao;
 
@@ -62,10 +69,13 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     private InspectReportServiceImpl inspectReportServiceImpl;
 
     @Autowired
-    private BackLogDao backLogDao;
+    private PurchServiceImpl purchServiceImpl;
 
     @Autowired
     private BackLogService backLogService;
+
+    @Autowired
+    private PurchContractDao purchContractDao;
 
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
@@ -157,6 +167,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             iaGoods.setGoods(goods);
             iaGoods.setPurchGoods(purchGoods);
             iaGoods.setPurchaseNum(purchGoods.getPurchaseNum());
+            iaGoods.setQualityInspectType(purchGoods.getQualityInspectType()); // 质量检验类型
             // 报检数量
             Integer inspectNum = iaGoods.getInspectNum();
             if (inspectNum == null || inspectNum == 0) {
@@ -321,6 +332,8 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         if (doneFlag) {
             purch.setStatus(Purch.StatusEnum.DONE.getCode());
             purchDao.save(purch);
+            //当全部采购完成时设置供应商状态为COMPLETED
+            purchServiceImpl.updateSupplierStatus(purch.getId(), "COMPLETED");
             try {
                 // 删除办理报检单待办事项列表
                 //全部质检合格以后，删除   “办理报检单”  待办提示
@@ -331,6 +344,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+        } else {
+            //当部分采购时设置供应商状态为PART_RECEIPT
+            purchServiceImpl.updateSupplierStatus(purch.getId(), "PART_RECEIPT");
         }
     }
 
@@ -381,7 +397,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             applyGoods.setInspectNum(iaGoods.getInspectNum());
             applyGoods.setHeight(iaGoods.getHeight());
             applyGoods.setLwh(iaGoods.getLwh());
-
             // 保证每次从数据库获取
             PurchGoods purchGoods = purchGoodsDao.findOne(applyGoods.getPurchGoods().getId());
             // 报检数量大于采购数量
@@ -392,6 +407,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             if (inspectNum < 0 || inspectNum - oldInspectNum > purchGoods.getPurchaseNum() - purchGoods.getPreInspectNum()) {
                 throw new Exception(String.format("%s%s%s", "报检数量错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Error in number of inspection"));
             }
+            applyGoods.setQualityInspectType(purchGoods.getQualityInspectType()); // 质量检验类型
             // 如果是提交，则修改采购商品（父采购商品）中的已报检数量和商品（父商品）中的已报检数量
             if (dbInspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode()) {
                 purchGoods.setInspectNum(purchGoods.getInspectNum() + inspectNum);
@@ -966,7 +982,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(eruiToken)) {
+        if (StringUtils.isNotBlank(eruiToken)) {
             Map<String, String> header = new HashMap<>();
             header.put(CookiesUtil.TOKEN_NAME, eruiToken);
             header.put("Content-Type", "application/json");

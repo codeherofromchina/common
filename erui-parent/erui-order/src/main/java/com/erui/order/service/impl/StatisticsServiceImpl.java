@@ -172,6 +172,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "销售业绩统计");
         return workbook;
     }
+
     @Override
     public Page<GoodsStatistics> findGoodsStatistics(GoodsStatistics condition, Set<String> countries, int pageNum, int pageSize) {
         LOGGER.info("查询商品统计基本信息");
@@ -421,59 +422,6 @@ public class StatisticsServiceImpl implements StatisticsService {
                                 }
                             }
                         }
-                        //第一种方法
-                        /*Map<String, Integer> map = new HashMap<>();
-                        for (int i = 0; i < proCateList.size(); i++) {
-                            *//*
-                         * map.containsKey(Object findKey)
-                         * 方法介绍： 如果此映射包含指定键的映射关系，则返回 true。
-                         * 说明：map已经包含了findKey的映射关系 则返回true 否则返回false
-                         *//*
-                            if (map.containsKey(proCateList.get(i))) {
-                                int tempCount = map.get(proCateList.get(i));
-                                map.put(proCateList.get(i), ++tempCount);
-                            } else {
-                                map.put(proCateList.get(i), 1);
-                            }
-                        }
-                         * Map的遍历操作 map.entrySet().iterator(); map.getKey() map.getValue()
-                         *//*
-                        Iterator<Map.Entry<String, Integer>> it = map.entrySet().iterator();
-                        int count = 0; // 全局记录某数字出现的最多的次数
-                        String maxCount = proCateList.get(0); // 默认出现最多的字符是第一个
-                        while (it.hasNext()) {
-                            Map.Entry<String, Integer> en = it.next();
-                            int tempCount = en.getValue();
-                            if (tempCount > count) {
-                                count = tempCount;
-                                maxCount = en.getKey();
-                            }
-                        }*/
-                        //第二种方法
-                     /* TreeMap<String, Integer> mapCate1 = goodsList.stream().map(vo -> {
-                            TreeMap<String, Integer> mapcate2 = new TreeMap<>();
-                            mapcate2.put(vo.getProType(), 1);
-                            return mapcate2;
-                        }).reduce((map1, map2) -> {
-                            String protype = map2.keySet().toArray(new String[1])[0];
-                            if (map1.containsKey(protype)) {
-                                Integer integer = map1.get(protype);
-                                integer += 1;
-                                map1.put(protype, integer);
-                            } else {
-                                map1.put(protype, 1);
-                            }
-                            return map1;
-                        }).get();
-
-                        String resultProtype = null;
-                        int num = 0;
-                        for (Map.Entry<String, Integer> entry : mapCate1.entrySet()) {
-                            if (entry.getValue() > num) {
-                                num = entry.getValue();
-                                resultProtype = entry.getKey();
-                            }
-                        }*/
                     }
                 }
                 orderIds.add(order.getId());
@@ -607,7 +555,6 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }
             }
         }
-
         return dataList;
     }
 
@@ -619,7 +566,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         projectStatistics.stream().forEach(vo -> vo.setGoodsList(null));
 
-        String[] header = new String[]{"项目创建日期", "项目开始日期", "销售合同号", "订单类别", "海外销类型", "询单号", "项目号", "项目名称", "海外销售合同号", "物流报价单号",
+        String[] header = new String[]{"项目创建日期", "项目开始日期", "销售合同号", "订单类别", "海外销类型", "询单号", "项目号", "合同标的", "海外销售合同号", "物流报价单号",
                 "产品分类", "执行分公司", "事业部", "所属地区", "CRM客户代码", "客户类型", "项目金额（美元）",
                 "收款方式", "回款时间", "回款金额", "初步利润率%", "授信情况", "执行单约定交付日期",
                 "要求采购到货日期", "执行单变更后日期", "分销部(获取人所在分类销售)", "市场经办人", "获取人", "商务技术经办人", "贸易术语",
@@ -650,6 +597,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             projectGood01.setCurrencyBn("USD");
             projectGood01.setProjectName(p.getProjectName());
             projectGood01.setTotalPrice(p.getTotalPrice());
+            projectGood01.setProfit(p.getProfit());
             projectGoodsStatistics.add(projectGood01);
             count++;
             if (p.getGoodsList() != null) {
@@ -672,18 +620,18 @@ public class StatisticsServiceImpl implements StatisticsService {
             }
 
         }
-        String[] header = new String[]{"序号", "项目创建日期", "项目开始日期", "销售合同号", "订单类别", "海外销类型", "询单号", "项目号", "未用易瑞签约原因",
-                "是否通过代理商获取", "代理商代码", "PO号", "项目名称", "海外销售合同号", "物流报价单号", "产品分类", "执行分公司", "事业部",
+        String[] header = new String[]{"序号", "项目创建日期", "项目开始日期", "销售合同号", "订单类别", "海外销类型", "询单号", "项目号",// "未用易瑞签约原因",
+                "是否通过代理商获取", "代理商代码", "PO号", "合同标的", "海外销售合同号", "物流报价单号", "产品分类", "执行分公司", "事业部", "国家",
                 "所属地区", "CRM客户代码", "客户类型", "品名中文", "品名外文", "规格", "数量", "单位", "项目金额", "币种",
-                "收款方式", "回款时间", "回款金额", "初步利润率%", "授信情况", "执行单约定交付日期",
-                "要求采购到货日期", "执行单变更后日期", "分销部(获取人所在分类销售)", "市场经办人", "获取人", "商务技术经办人", "贸易术语",
-                "项目状态", "流程进度"};
-        String[] keys = new String[]{"id", "createTime", "startDate", "contractNo", "orderCategory", "overseasSales", "inquiryNo", "projectNo", "nonReson",
-                "agent", "agentNo", "poNo", "projectName", "contractNoOs", "logiQuoteNo", "proCate", "execCoName", "businessUnitName",
+                "收款方式", "回款时间", "回款金额", "初步利润率%", "利润额", "授信情况", "执行单约定交付日期",
+                "要求采购到货日期", "执行单变更后日期", /*"分销部(获取人所在分类销售)", "市场经办人",*/ "获取人", "商务技术经办人", "贸易术语",
+                "项目状态"/*, "流程进度"*/};
+        String[] keys = new String[]{"id", "createTime", "startDate", "contractNo", "orderCategory", "overseasSales", "inquiryNo", "projectNo",// "nonReson",
+                "agent", "agentNo", "poNo", "projectName", "contractNoOs", "logiQuoteNo", "proCate", "execCoName", "businessUnitName", "country",
                 "regionZh", "crmCode", "customerType", "nameZh", "nameEn", "model", "contractGoodsNum", "unit", "totalPrice", "currencyBn",
-                "paymentModeBnName", "paymentDate", "currencyBnMoney", "profitPercent", "grantType", "deliveryDate",
-                "requirePurchaseDate", "exeChgDate", "distributionDeptName", "agentName", "acquireId", "businessName", "tradeTerms",
-                "projectStatus", "processProgress"};
+                "paymentModeBnName", "paymentDate", "currencyBnMoney", "profitPercent", "profit", "grantType", "deliveryDate",
+                "requirePurchaseDate", "exeChgDate", /*"distributionDeptName", "agentName",*/ "acquireId", "businessName", "tradeTerms",
+                "projectStatus"/*, "processProgress"*/};
         BuildExcel buildExcel = new BuildExcelImpl();
         Object objArr = JSON.toJSON(projectGoodsStatistics);
         HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "项目商品信息统计");
@@ -708,6 +656,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         //projectGoods.setProCate(proStatistics.getProCate());
         projectGoods.setExecCoName(proStatistics.getExecCoName());
         projectGoods.setRegionZh(proStatistics.getRegionZh());
+        projectGoods.setCountry(findBnMapZhCountry().get(proStatistics.getCountry()));
         projectGoods.setCrmCode(proStatistics.getCrmCode());
         projectGoods.setCustomerType(proStatistics.getCustomerTypeName());
         projectGoods.setPaymentModeBn(proStatistics.getPaymentModeBn());
@@ -718,13 +667,13 @@ public class StatisticsServiceImpl implements StatisticsService {
         projectGoods.setDeliveryDate(proStatistics.getDeliveryDate());
         projectGoods.setRequirePurchaseDate(proStatistics.getRequirePurchaseDate());
         projectGoods.setExeChgDate(proStatistics.getExeChgDate());
-        projectGoods.setDistributionDeptName(proStatistics.getDistributionDeptName());
-        projectGoods.setAgentName(proStatistics.getAgentName());
+        //projectGoods.setDistributionDeptName(proStatistics.getDistributionDeptName());
+        //projectGoods.setAgentName(proStatistics.getAgentName());
         projectGoods.setAcquireId(proStatistics.getAcquireId());
         projectGoods.setBusinessName(proStatistics.getBusinessName());
         projectGoods.setTradeTerms(proStatistics.getTradeTerms());
         projectGoods.setProjectStatus(proStatistics.getProjectStatusName());
-        projectGoods.setProcessProgress(proStatistics.getProcessProgressName());
+        //projectGoods.setProcessProgress(proStatistics.getProcessProgressName());
         return projectGoods;
     }
 
@@ -1104,11 +1053,21 @@ public class StatisticsServiceImpl implements StatisticsService {
                     }
                 }
                 Join<Project, Order> orderRoot = root.join("order");
-                String countriesStr = condition.get("countries");
-               /* if (StringUtils.isNotBlank(countriesStr)) {
+              /*  String countriesStr = condition.get("countries");
+                if (StringUtils.isNotBlank(countriesStr)) {
                     String[] countriesArr = countriesStr.split(",");
                     list.add(orderRoot.get("country").in(countriesArr));
                 }*/
+                // 区域
+                String region = condition.get("region");
+                if (StringUtil.isNotBlank(region)) {
+                    list.add(cb.equal(orderRoot.get("region").as(String.class), region));
+                }
+                // 国家
+                String country = condition.get("country");
+                if (StringUtil.isNotBlank(country)) {
+                    list.add(cb.equal(orderRoot.get("country").as(String.class), country));
+                }
                 //  crmCode名称
                 String crmCode = condition.get("crmCode");
                 if (StringUtil.isNotBlank(crmCode)) {
@@ -1129,7 +1088,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 if (StringUtil.isNotBlank(projectNo)) {
                     list.add(cb.like(root.get("projectNo").as(String.class), "%" + projectNo + "%"));
                 }
-                //  项目名称
+                //  合同标的
                 String projectName = condition.get("projectName");
                 if (StringUtil.isNotBlank(projectName)) {
                     list.add(cb.like(root.get("projectName").as(String.class), "%" + projectName + "%"));
@@ -1239,7 +1198,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 Map<String, String> bnMapZhCountry = findBnMapZhCountry();  //获取国家中英文   kay/vlaue
                 omp.setCountry(bnMapZhCountry.get(project.getOrder().getCountry()));   //  国家
                 omp.setProjectNo(project.getProjectNo());   //项目号
-                omp.setProjectName(project.getProjectName());    //项目名称
+                omp.setProjectName(project.getProjectName());    //合同标的
                 omp.setOrderStatus(order.getStatus()); //订单状态
                 omp.setProjectStatus(project.getProjectStatus());   //项目状态
                 omp.setPurchStatus(disposePurchsStatus(project, order.getGoodsList()));   //采购状态      根据采购条数，订单商品报检数量来判断
@@ -1324,7 +1283,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 if (StringUtil.isNotBlank(params.get("projectNo"))) {
                     list.add(cb.like(root.get("projectNo").as(String.class), "%" + params.get("projectNo") + "%"));
                 }
-                //项目名称
+                //合同标的
                 if (StringUtil.isNotBlank(params.get("projectName"))) {
                     list.add(cb.like(root.get("projectName").as(String.class), "%" + params.get("projectName") + "%"));
                 }

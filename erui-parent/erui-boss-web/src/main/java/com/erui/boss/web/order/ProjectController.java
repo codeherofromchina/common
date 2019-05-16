@@ -116,7 +116,7 @@ public class ProjectController {
      * @return
      */
     @RequestMapping(value = "auditProject", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> auditProject(HttpServletRequest request, @RequestBody Project pProject) {
+    public Result<Object> auditProject(HttpServletRequest request, @RequestBody Project pProject) throws Exception {
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
         Integer projectId = pProject.getId(); // 项目ID
@@ -141,6 +141,10 @@ public class ProjectController {
         boolean rejectFlag = "-1".equals(type);
         if (rejectFlag && (StringUtils.isBlank(reason) || checkLogId == null)) {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR).setMsg("驳回原因和驳回步骤为必填信息");
+        }
+        // 修改项目的商品风险等级
+        if(!StringUtils.isBlank(pProject.getQualityInspectType())){
+            projectService.updateProjectQualityInspectType(pProject);
         }
 //        project.setCheckLogId(checkLogId);
 

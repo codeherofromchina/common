@@ -12,7 +12,7 @@ public class ProjectListCondition {
     private Integer id;
     //销售合同号
     private String contractNo;
-    //项目名称
+    //合同标的
     private String projectName;
     //执行分公司ID
     private String execCoId;

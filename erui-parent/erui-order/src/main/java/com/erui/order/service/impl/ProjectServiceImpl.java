@@ -448,6 +448,21 @@ public class ProjectServiceImpl implements ProjectService {
         return true;
     }
 
+    /**
+     * 修改项目的商品风险等级
+     *
+     * @param project
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public boolean updateProjectQualityInspectType(Project project) throws Exception {
+        Project projectUpdate = findById(project.getId());
+        projectUpdate.setQualityInspectType(project.getQualityInspectType());
+        projectDao.save(projectUpdate);
+        return true;
+    }
+
 
     /**
      * 提交项目过程中检查审核相关参数
@@ -554,7 +569,7 @@ public class ProjectServiceImpl implements ProjectService {
         }else{
             projectUpdate.setAuditingStatus(4);//审核完成
         }
-        auditBackLogHandle(projectUpdate, false, auditUserId);
+        auditBackLogHandle(projectUpdate, false, null, auditUserId, false);
         // 记录审核日志
         CheckLog checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.PROJECT.getCode(), projectUpdate.getId(), CheckLog.AuditProcessingEnum.NEW_PRO_BUSINESS_SUBMIT.getProcess(),
                 projectUpdate.getBusinessUid(), projectUpdate.getBusinessName(),
@@ -589,7 +604,7 @@ public class ProjectServiceImpl implements ProjectService {
                 if (StringUtil.isNotBlank(condition.getProjectNo())) {
                     searchList.add(cb.like(root.get("projectNo").as(String.class), "%" + condition.getProjectNo() + "%"));
                 }
-                //根据项目名称模糊查询
+                //根据合同标的模糊查询
                 if (StringUtil.isNotBlank(condition.getProjectName())) {
                     searchList.add(cb.like(root.get("projectName").as(String.class), "%" + condition.getProjectName() + "%"));
                 }
@@ -974,7 +989,7 @@ public class ProjectServiceImpl implements ProjectService {
                 if (StringUtil.isNotBlank(condition.getContractNo())) {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
-                //根据项目名称模糊查询
+                //根据合同标的模糊查询
                 if (StringUtil.isNotBlank(condition.getProjectName())) {
                     list.add(cb.like(root.get("projectName").as(String.class), "%" + condition.getProjectName() + "%"));
                 }
@@ -1156,7 +1171,7 @@ public class ProjectServiceImpl implements ProjectService {
                     Map<String, String> map = new HashMap();
                     map.put("areaCode", "86");
                     map.put("to", "[\"" + data.getString("mobile") + "\"]");    //项目经理手机号
-                    map.put("content", "您好，项目名称：" + project.getProjectName() + "，商务技术经办人：" + project.getBusinessName() + "，已申请项目执行，请及时处理。感谢您对我们的支持与信任！");
+                    map.put("content", "您好，合同标的：" + project.getProjectName() + "，商务技术经办人：" + project.getBusinessName() + "，已申请项目执行，请及时处理。感谢您对我们的支持与信任！");
                     map.put("subType", "0");
                     map.put("groupSending", "0");
                     map.put("useType", "订单");
@@ -1208,10 +1223,10 @@ public class ProjectServiceImpl implements ProjectService {
                     StringBuffer stringBuffer = new StringBuffer();
                     stringBuffer.append("toUser=").append(userNo);
                     if (!rejectFlag) {
-                        stringBuffer.append("&message=您好！" + order.getProject().getBusinessName() + "的项目，已申请项目审批。项目名称：" + order.getProject().getProjectName() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                        stringBuffer.append("&message=您好！" + order.getProject().getBusinessName() + "的项目，已申请项目审批。合同标的：" + order.getProject().getProjectName() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
                                 "" + sendTime02 + "");
                     } else {
-                        stringBuffer.append("&message=您好！" + order.getProject().getBusinessName() + "的项目，已申请的项目审核未通过。项目名称：" + order.getProject().getProjectName() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
+                        stringBuffer.append("&message=您好！" + order.getProject().getBusinessName() + "的项目，已申请的项目审核未通过。合同标的：" + order.getProject().getProjectName() + "，请您登录BOSS系统及时处理。感谢您对我们的支持与信任！" +
                                 "" + sendTime02 + "");
                     }
                     stringBuffer.append("&type=userNo");
@@ -1278,6 +1293,7 @@ public class ProjectServiceImpl implements ProjectService {
             Integer auditingStatus_i = 2; // 操作完后的项目审核状态
             String auditingProcess_i = null; // 操作完后的项目审核进度
             String auditingUserId_i = null; // 操作完后的项目审核人
+            boolean isComeMore = Boolean.FALSE;// 是否来自并行的审批，且并行还没走完。
             Integer orderCategory = project.getOrderCategory();//订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单 6 国内订单
             if(orderCategory == null) orderCategory = 0;
             CheckLog checkLog_i = null; // 审核日志
@@ -1352,6 +1368,8 @@ public class ProjectServiceImpl implements ProjectService {
                                 auditingUserId_i = null;
                                 auditingStatus_i = 4;
                             }
+                        }else {
+                            isComeMore = true; //并行未走完
                         }
                         break;
                     case 206: // 事业部总经理审批
@@ -1406,13 +1424,15 @@ public class ProjectServiceImpl implements ProjectService {
             project.setAuditingProcess(auditingProcess_i);
             project.setAuditingUserId(auditingUserId_i);
             project.setAuditingStatus(auditingStatus_i);
-            for (String user : notifyUserList) {
-                sendDingtalk(project.getOrder(), user, rejectFlag);
+            if(!isComeMore){//并行走完发送钉钉
+                for (String user : notifyUserList) {
+                    sendDingtalk(project.getOrder(), user, rejectFlag);
+                }
             }
             project.setAudiRemark(auditorIds.toString());
             projectDao.save(project);
 
-            auditBackLogHandle(project, rejectFlag, auditingUserId_i);
+            auditBackLogHandle(project, rejectFlag, auditorId, auditingUserId_i, isComeMore);
 
             return true;
         }
@@ -1635,24 +1655,28 @@ public class ProjectServiceImpl implements ProjectService {
         project.setAudiRemark(auditorIds.toString());
         projectDao.save(project);
 
-        auditBackLogHandle(project, rejectFlag, auditingUserId_i);
+        auditBackLogHandle(project, rejectFlag, auditorId, auditingUserId_i, false);
 
         return true;
     }
 
-    private void auditBackLogHandle(Project project, boolean rejectFlag, String auditingUserId) {
+    private void auditBackLogHandle(Project project, boolean rejectFlag, String auditorId,String auditingUserId, boolean isComeMore) {
         try {
             // 删除上一个待办，上一个待办可能是以下几种情况
             BackLog backLog2 = new BackLog();
-            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_AUDIT.getNum());
             backLog2.setHostId(project.getOrder().getId());
-            backLogService.updateBackLogByDelYn(backLog2);
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_REJECT.getNum());
             backLogService.updateBackLogByDelYn(backLog2);
             backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_REJECT2.getNum());
             backLogService.updateBackLogByDelYn(backLog2);
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PROJECT_AUDIT.getNum()); //功能访问路径标识
+            if (isComeMore) {
+                backLogService.updateBackLogByDelYnNew(backLog2, auditorId);
+            } else {
+                backLogService.updateBackLogByDelYn(backLog2);
+            }
 
-            if (StringUtils.isNotBlank(auditingUserId)) {
+            if (StringUtils.isNotBlank(auditingUserId)&& !isComeMore) {
                 Integer[] userIdArr = Arrays.stream(auditingUserId.split(",")).map(vo -> Integer.parseInt(vo)).toArray(Integer[]::new);
                 // 推送待办事件
                 String infoContent = project.getProjectName();

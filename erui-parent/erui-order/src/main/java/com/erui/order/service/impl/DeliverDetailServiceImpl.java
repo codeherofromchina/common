@@ -564,7 +564,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
         List<Integer> listAll = new ArrayList<>(); //分单员id
 
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(eruiToken)) {
+        if (StringUtils.isNotBlank(eruiToken)) {
             Map<String, String> header = new HashMap<>();
             header.put(CookiesUtil.TOKEN_NAME, eruiToken);
             header.put("Content-Type", "application/json");

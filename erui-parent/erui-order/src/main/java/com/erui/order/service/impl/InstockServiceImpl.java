@@ -84,7 +84,6 @@ public class InstockServiceImpl implements InstockService {
     @Transactional(readOnly = true)
     public Page<Map<String, Object>> listByPage(Map<String, String> condition, int pageNum, int pageSize) {
         PageRequest request = new PageRequest(pageNum, pageSize, Sort.Direction.DESC, "id");
-
         Page<Instock> page = instockDao.findAll(new Specification<Instock>() {
             @Override
             public Predicate toPredicate(Root<Instock> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
@@ -121,13 +120,10 @@ public class InstockServiceImpl implements InstockService {
                 }
                 // 仓库经办人
                 if (StringUtil.isNotBlank(condition.get("wareHouseman"))) {
-
                     Integer wareHouseman = Integer.parseInt(condition.get("wareHouseman"));
-
                     list.add(cb.equal(root.get("uid").as(Integer.class), wareHouseman));
 
                 }
-
                 // 销售合同号 、 项目号查询
                 if (StringUtils.isNotBlank(condition.get("projectNo")) || StringUtils.isNotBlank(condition.get("contractNo"))) {
                     Set<Integer> a = queryProjectNoAndContractNo(condition.get("projectNo"), condition.get("contractNo"));
@@ -144,10 +140,9 @@ public class InstockServiceImpl implements InstockService {
                 return cb.and(predicates);
             }
         }, request);
-
         // 转换为控制层需要的数据
-        List<Map<String, Object>> list = new ArrayList<>();
-        if (page.hasContent()) {
+        List<Map<String, Object>> returnList = new ArrayList<>();
+        if (page.hasContent() && page.getContent().size() > 0) {
             for (Instock instock : page.getContent()) {
                 Map<String, Object> map = new HashMap<>();
                 map.put("id", instock.getId());
@@ -157,42 +152,44 @@ public class InstockServiceImpl implements InstockService {
                 List<String> purchNoList = new ArrayList<>();
                 // 销售合同号 和 项目号
                 List<InstockGoods> instockGoodsList = instock.getInstockGoodsList();
-                instockGoodsList.stream().forEach(instockGoods -> {
-                    if (StringUtil.isNotBlank(instockGoods.getContractNo())) {
-                        contractNoList.add(instockGoods.getContractNo());
-                    }
-                    PurchGoods purchGoods = instockGoods.getInspectApplyGoods().getPurchGoods();
-                    Goods goods = purchGoods.getGoods();
-                    purchNoList.add(purchGoods.getPurch().getPurchNo());
+                if (instockGoodsList != null && instockGoodsList.size() > 0) {
+                    instockGoodsList.stream().forEach(instockGoods -> {
+                        if (StringUtil.isNotBlank(instockGoods.getContractNo())) {
+                            contractNoList.add(instockGoods.getContractNo());
+                        }
+                        PurchGoods purchGoods = instockGoods.getInspectApplyGoods().getPurchGoods();
+                        Goods goods = purchGoods.getGoods();
+                        if (purchGoods.getPurch() != null && StringUtil.isNotBlank(purchGoods.getPurch().getPurchNo())) {
+                            purchNoList.add(purchGoods.getPurch().getPurchNo());
+                        }
+                        if (StringUtil.isNotBlank(goods.getProjectNo())) {
+                            projectNoList.add(goods.getProjectNo());
+                        }
 
-                    if (StringUtil.isNotBlank(goods.getProjectNo())) {
-                        projectNoList.add(goods.getProjectNo());
-                    }
-
-                });
-              /*  Set<String> cNoList = new HashSet<>(contractNoList);
-                Set<String> pNoList = new HashSet<>(projectNoList);
-                Set<String> prNoList = new HashSet<>(purchNoList);*/
-                map.put("contractNos", StringUtils.join(removeRepeat(contractNoList), ","));
-                map.put("projectNos", StringUtils.join(removeRepeat(projectNoList), ","));
+                    });
+                }
+                if (contractNoList != null && contractNoList.size() > 0) {
+                    map.put("contractNos", StringUtils.join(removeRepeat(contractNoList), ","));
+                }
+                if (projectNoList != null && projectNoList.size() > 0) {
+                    map.put("projectNos", StringUtils.join(removeRepeat(projectNoList), ","));
+                }
                 map.put("department", instock.getDepartment());
                 // 供应商名称
                 map.put("supplierName", instock.getSupplierName());
                 // 入库时间
-
                 map.put("instockDate", instock.getInstockDate() != null ? new SimpleDateFormat("yyyy-MM-dd").format(instock.getInstockDate()) : null);
                 map.put("status", instock.getStatus());
                 map.put("uname", instock.getUname());
                 map.put("uid", instock.getUid());
                 map.put("outCheck", instock.getOutCheck());//是否外检（ 0：否   1：是）
-                if (purchNoList.size() > 0) {
+                if (purchNoList != null && purchNoList.size() > 0) {
                     map.put("purchNo", StringUtils.join(removeRepeat(purchNoList), ","));   //采购合同号
                 }
-
-                list.add(map);
+                returnList.add(map);
             }
         }
-        PageImpl<Map<String, Object>> resultPage = new PageImpl<Map<String, Object>>(list, request, page.getTotalElements());
+        PageImpl<Map<String, Object>> resultPage = new PageImpl<Map<String, Object>>(returnList, request, page.getTotalElements());
 
         return resultPage;
     }
@@ -519,7 +516,7 @@ public class InstockServiceImpl implements InstockService {
 
         //获取token
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(eruiToken)) {
+        if (StringUtils.isNotBlank(eruiToken)) {
             Map<String, String> header = new HashMap<>();
             header.put(CookiesUtil.TOKEN_NAME, eruiToken);
             header.put("Content-Type", "application/json");

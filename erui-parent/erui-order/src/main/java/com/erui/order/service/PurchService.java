@@ -22,6 +22,14 @@ public interface PurchService {
     Purch findBaseInfo(Integer id);
 
     /**
+     * 根据id查询采购基本信息
+     *
+     * @param purchNo
+     * @return
+     */
+    List<Purch> findByPurchNo(String purchNo);
+
+    /**
      * 根据条件分页查询采购信息列表
      *
      * @param condition
@@ -61,5 +69,13 @@ public interface PurchService {
     boolean audit(Integer purchId, String s, String s1, PurchParam purchParam);
 
     void fillTempExcelData(XSSFWorkbook workbook, int purchId) throws Exception;
+
+    /**
+     * 质检部设置商品质检类型
+     *
+     * @param purch
+     * @return
+     */
+    boolean saveQualityInspectType(Purch purch) throws Exception;
 
 }

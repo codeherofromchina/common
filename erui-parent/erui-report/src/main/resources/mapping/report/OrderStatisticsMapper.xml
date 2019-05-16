@@ -36,6 +36,27 @@
     </select>
 
 
+    <select id="projectTotalMoney" resultType="java.math.BigDecimal">
+        SELECT
+          SUM(IFNULL(money, 0)) AS totalMoney
+        FROM
+          erui_report.rep_order_list
+        <where>
+            <if test="startTime != null and startTime != ''">
+                project_start_date <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND project_start_date <![CDATA[<=]]> #{endTime}
+            </if>
+            <if test="areaBn != null and areaBn != ''">
+                AND area_bn = #{areaBn}
+            </if>
+            <if test="countryBn != null and countryBn != ''">
+                AND country_bn = #{countryBn}
+            </if>
+        </where>
+    </select>
+
     <select id="projectList" resultType="java.util.Map">
         SELECT
             id,
@@ -48,6 +69,8 @@
             org_name AS orgName,
             area_name AS areaName,
             area_bn AS areaBn,
+            country_name as countryName,
+            country_bn as countryBn,
             crm_code AS crmCode,
             ifnull(money,0) AS money,
             profit_percent AS profitPercent,
@@ -62,6 +85,12 @@
             </if>
             <if test="endTime != null and endTime != ''">
                 AND project_start_date <![CDATA[<=]]> #{endTime}
+            </if>
+            <if test="areaBn != null and areaBn != ''">
+                AND area_bn = #{areaBn}
+            </if>
+            <if test="countryBn != null and countryBn != ''">
+                AND country_bn = #{countryBn}
             </if>
         </where>
     </select>

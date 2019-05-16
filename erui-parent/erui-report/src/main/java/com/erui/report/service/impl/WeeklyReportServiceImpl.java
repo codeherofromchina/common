@@ -94,7 +94,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         }
         //获取历史数据
         Map<String, Object> params02 = new HashMap<>();
-        params02.put("startTime", "2018-01-01 00:00:00");
+        params02.put("startTime", "2019-01-01 00:00:00");
         params02.put("endTime", params.get("endTime"));
         List<Map<String, Object>> allAddUpList = readMapper.selectBuyerCountGroupByAreaAndChina(params02);
         Map<String, Map<String, Object>> thisWeekMap = thisWeekList.stream().collect(Collectors.toMap(vo -> vo.get("area").toString().trim(), vo -> vo));
@@ -156,7 +156,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         List<Map<String, Object>> lastWeekDataList = null; // 上周数据内容
         //获取历史数据
         Map<String, Object> params02 = new HashMap<>();
-        params02.put("startTime", "2018-01-01 00:00:00");
+        params02.put("startTime", "2019-01-01 00:00:00");
         params02.put("endTime", params.get("endTime"));
         List<Map<String, Object>> allAddUpList = readMapper.selectBuyerCountDetail(params02);
         if (params.get("chainStartTime") != null) { // 存在上周数据
@@ -502,7 +502,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             lastWeekData = new ArrayList<>();
         }
         Map<String, Object> params03 = new HashMap<>();
-        params03.put("startTime", "2018/01/01 00:00:00");
+        params03.put("startTime", "2019/01/01 00:00:00");
         params03.put("endTime", params.get("endTime"));
         List<Map<String, Object>> historyData = readMapper.selectOrderInfoWhereTimeGroupByCountry(params03); // 历史订单数据
         // 将数据转换为map数据，方便遍历地区时查找数据
@@ -910,7 +910,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         // 准备数据
         List<Map<String, Object>> currentWeekData = readMapper.selectSupplierNumWhereTimeGroupByOrg(params);
         Map<String, Object> params02 = new HashMap<>();
-        params02.put("startTime", "2018-01-01 00:00:00");
+        params02.put("startTime", "2019-01-01 00:00:00");
         params02.put("endTime", params.get("endTime"));
         List<Map<String, Object>> historyData = readMapper.selectSupplierNumWhereTimeGroupByOrg(params02); // 上周报价用时数据
         Map<String, Map<String, Object>> currentWeekDataMap = currentWeekData.stream()
@@ -1283,7 +1283,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         row022.addAll((List<Object>) buyerData.get("lastWeekCounts"));
         // 第三行数据
         List<Object> row03 = new ArrayList<>();
-        row03.add("2018.1.1-" + params.get("endTime") + "累计会员数量");
+        row03.add("2019.1.1-" + params.get("endTime") + "累计会员数量");
         row03.addAll((List<Object>) buyerData.get("historyCounts"));
         // 第四行数据
 //        List<Object> row04 = new ArrayList<>();
@@ -1338,7 +1338,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         row122.addAll((List<Object>) orderInfoData.get("currentWeekAmounts"));
         // 第十三行数据
         List<Object> row13 = new ArrayList<>();
-        row13.add("2018.1.1-" + params.get("endTime") + "累计订单金额");
+        row13.add("2019.1.1-" + params.get("endTime") + "累计订单金额");
         row13.addAll((List<Object>) orderInfoData.get("historyAmounts"));
         List<Object[]> datas = new ArrayList<>();
         datas.add(row00.toArray());
@@ -1370,7 +1370,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 "地区周报");
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
-        ExcelCustomStyle.setContextStyle(workbook, 0, 1, 17);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
         // 合并单元格
 //        ExcelCustomStyle.mergedCell(workbook,0,1,2,0,0);
 //        ExcelCustomStyle.mergedCell(workbook,0,3,5,0,0);
@@ -1440,28 +1440,28 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         row09.add("订单金额(万美元)（本周）");
         row09.addAll((List<Object>) orderInfoData.get("currentWeekAmount"));
         List<Object> row10 = new ArrayList<>();
-        row10.add("2018.1.1-" + endTime +
+        row10.add("2019.1.1-" + endTime +
                 "累计订单金额");
         row10.addAll((List<Object>) orderInfoData.get("historyAmount"));
         List<Object> row12 = new ArrayList<>();
         row12.add("合格供应商数量");
         row12.addAll((List<Object>) supplierNumInfoData.get("currentWeekCounts"));
         List<Object> row13 = new ArrayList<>();
-        row13.add("2018.1.1-" + endTime +
+        row13.add("2019.1.1-" + endTime +
                 "总数");
         row13.addAll((List<Object>) supplierNumInfoData.get("historyCounts"));
         List<Object> row14 = new ArrayList<>();
         row14.add("上架SKU数量");
         row14.addAll((List<Object>) spuSkuNumInfoData.get("currentWeekSkuCounts"));
         List<Object> row15 = new ArrayList<>();
-        row15.add("2018.1.1-" + endTime +
+        row15.add("2019.1.1-" + endTime +
                 "总数");
         row15.addAll((List<Object>) spuSkuNumInfoData.get("historySkuCounts"));
         List<Object> row16 = new ArrayList<>();
         row16.add("上架SPU数量");
         row16.addAll((List<Object>) spuSkuNumInfoData.get("currentWeekSpuCounts"));
         List<Object> row17 = new ArrayList<>();
-        row17.add("2018.1.1-" + endTime +
+        row17.add("2019.1.1-" + endTime +
                 "总数");
         row17.addAll((List<Object>) spuSkuNumInfoData.get("historySpuCounts"));
         // 填充数据

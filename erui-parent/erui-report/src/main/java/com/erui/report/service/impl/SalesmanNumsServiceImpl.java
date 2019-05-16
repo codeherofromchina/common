@@ -11,6 +11,7 @@ import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -31,14 +32,12 @@ public class SalesmanNumsServiceImpl extends BaseService<SalesmanNumsMapper> imp
     private CommonService commonService;
 
     @Override
+    @Transactional
     public int add(List<SalesmanNums> salesmanNumsList) throws Exception {
         Date now = new Date();
         for (SalesmanNums vo : salesmanNumsList) {
             vo.setId(null);
             vo.setCreateTime(now);
-            String countryBn = vo.getCountryBn();
-            Map<String, Object> countryInfoMap = commonService.findCountryInfoByBn(countryBn);
-            vo.setCountryName((String) countryInfoMap.get("countryName"));
             int insert = salesmanNumsMapper.insert(vo);
             if (insert < 1) {
                 throw new Exception("数据新增数据库错误");
@@ -52,17 +51,13 @@ public class SalesmanNumsServiceImpl extends BaseService<SalesmanNumsMapper> imp
         SalesmanNumsExample example = new SalesmanNumsExample();
         example.createCriteria().andIdIn(ids);
         int i = salesmanNumsMapper.deleteByExample(example);
-        if (i > 0) {
-            return 0;
-        }
-        return 1;
+        // 0:修改成功   1：修改失败
+        return i > 0 ? 0 : 1;
     }
 
     @Override
     public int update(SalesmanNums salesmanNums) {
         String countryBn = salesmanNums.getCountryBn();
-        Map<String, Object> countryInfoMap = commonService.findCountryInfoByBn(countryBn);
-        salesmanNums.setCountryName((String) countryInfoMap.get("countryName"));
         salesmanNums.setCreateTime(new Date());
         int insert = salesmanNumsMapper.updateByPrimaryKey(salesmanNums);
         return insert > 0 ? 0 : 1;
@@ -83,10 +78,16 @@ public class SalesmanNumsServiceImpl extends BaseService<SalesmanNumsMapper> imp
         if (endDate != null) {
             criteria.andStartPrescriptionLessThanOrEqualTo(endDate);
         }
+        String areaBn = (String) params.get("areaBn"); // 地区编码
+        if (StringUtils.isNotBlank(areaBn)) {
+            criteria.andAreaBnEqualTo(areaBn);
+        }
+
         String countryBn = (String) params.get("countryBn"); // 国家编码
         if (StringUtils.isNotBlank(countryBn)) {
             criteria.andCountryBnEqualTo(countryBn);
         }
+
         String createUserName = (String) params.get("createUserName"); // 创建
         if (StringUtils.isNotBlank(createUserName)) {
             criteria.andCreateUserNameEqualTo("%" + createUserName + "%");
@@ -98,15 +99,12 @@ public class SalesmanNumsServiceImpl extends BaseService<SalesmanNumsMapper> imp
     }
 
     /**
-     *
-     * @param params
-     *        {startTime:'',endTime:''}
-     * @return
-     * {countryName:{salesManNum:n,dayNum:x}}
+     * @param params {startTime:'',endTime:''}
+     * @return {countryName:{salesManNum:n,dayNum:x}}
      */
     @Override
-    public Map<String, Map<String,Object>> manTotalNumByCountry(Map<String, Object> params) {
-        Map<String, Map<String,Object>> result = new HashMap<>();
+    public Map<String, Map<String, Object>> manTotalNumByCountry(Map<String, Object> params) {
+        Map<String, Map<String, Object>> result = new HashMap<>();
         String startTime = (String) params.get("startTime");
         String endTime = (String) params.get("endTime");
         Date startDate = null;
@@ -132,27 +130,27 @@ public class SalesmanNumsServiceImpl extends BaseService<SalesmanNumsMapper> imp
                 if (diffNum <= 0) {
                     continue;
                 }
-                BigDecimal salesManNum = new BigDecimal(num).multiply(new BigDecimal(dayNum)).divide(new BigDecimal(diffNum),2, RoundingMode.DOWN);
-                Map<String,Object> map = result.get(countryName);
+                BigDecimal salesManNum = new BigDecimal(num).multiply(new BigDecimal(dayNum)).divide(new BigDecimal(diffNum), 2, RoundingMode.DOWN);
+                Map<String, Object> map = result.get(countryName);
                 if (map == null) {
                     map = new HashMap<>();
-                    map.put("dayNum",dayNum);
-                    map.put("salesManNum",salesManNum);
+                    map.put("dayNum", dayNum);
+                    map.put("salesManNum", salesManNum);
                 } else {
                     Integer iDayNum = (Integer) map.get("dayNum");
                     BigDecimal iSalesManNum = (BigDecimal) map.get("salesManNum");
-                    map.put("dayNum",dayNum + iDayNum);
-                    map.put("salesManNum",iSalesManNum.add(salesManNum));
+                    map.put("dayNum", dayNum + iDayNum);
+                    map.put("salesManNum", iSalesManNum.add(salesManNum));
                 }
-                result.put(countryName,map);
+                result.put(countryName, map);
             }
         }
         return result;
     }
 
     @Override
-    public Map<String, Map<String,Object>> manTotalNumByArea(Map<String, Object> params) {
-        Map<String, Map<String,Object>> result = new HashMap<>();
+    public Map<String, Map<String, Object>> manTotalNumByArea(Map<String, Object> params) {
+        Map<String, Map<String, Object>> result = new HashMap<>();
         String startTime = (String) params.get("startTime");
         String endTime = (String) params.get("endTime");
         Date startDate = null;
@@ -178,19 +176,19 @@ public class SalesmanNumsServiceImpl extends BaseService<SalesmanNumsMapper> imp
                 if (diffNum <= 0) {
                     continue;
                 }
-                BigDecimal salesManNum = new BigDecimal(num).multiply(new BigDecimal(dayNum)).divide(new BigDecimal(diffNum),2, RoundingMode.DOWN);
-                Map<String,Object> map = result.get(areaName);
+                BigDecimal salesManNum = new BigDecimal(num).multiply(new BigDecimal(dayNum)).divide(new BigDecimal(diffNum), 2, RoundingMode.DOWN);
+                Map<String, Object> map = result.get(areaName);
                 if (map == null) {
                     map = new HashMap<>();
-                    map.put("dayNum",dayNum);
-                    map.put("salesManNum",salesManNum);
+                    map.put("dayNum", dayNum);
+                    map.put("salesManNum", salesManNum);
                 } else {
                     Integer iDayNum = (Integer) map.get("dayNum");
                     BigDecimal iSalesManNum = (BigDecimal) map.get("salesManNum");
-                    map.put("dayNum",dayNum + iDayNum);
-                    map.put("salesManNum",iSalesManNum.add(salesManNum));
+                    map.put("dayNum", dayNum + iDayNum);
+                    map.put("salesManNum", iSalesManNum.add(salesManNum));
                 }
-                result.put(areaName,map);
+                result.put(areaName, map);
             }
         }
         return result;

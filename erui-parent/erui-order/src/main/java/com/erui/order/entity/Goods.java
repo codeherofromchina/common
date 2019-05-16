@@ -110,7 +110,9 @@ public class Goods {
     // 预采购数量
     @Column(name = "pre_purchased_num")
     private Integer prePurchsedNum;
-
+    //采购合同 预采购的数量
+    @Column(name = "pre_purch_contract_num")
+    private Integer prePurchContractNum;
 
     @Column(name = "inspect_num")
     private Integer inspectNum;
@@ -312,6 +314,14 @@ public class Goods {
             }
         }
         return result;
+    }
+
+    public Integer getPrePurchContractNum() {
+        return prePurchContractNum;
+    }
+
+    public void setPrePurchContractNum(Integer prePurchContractNum) {
+        this.prePurchContractNum = prePurchContractNum;
     }
 
     public void setDepartment(String department) {

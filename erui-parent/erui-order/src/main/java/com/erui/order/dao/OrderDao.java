@@ -46,7 +46,12 @@ public interface OrderDao extends JpaRepository<Order, Serializable>, JpaSpecifi
      */
     @Query(value = "SELECT t1.contract_no from `order` t1 where t1.contract_no LIKE :contractNo% ORDER BY t1.contract_no DESC LIMIT 1", nativeQuery = true)
     String findLastContractNo(@Param("contractNo") String contractNo);
-
+    /**
+     * 根据销售合同号查询订单详情
+     *
+     * @param contractNo
+     * @return Long
+     */
     Order findByContractNoOrId(@Param("contractNo") String contractNo, @Param(value = "id") Integer id);
 
     /**

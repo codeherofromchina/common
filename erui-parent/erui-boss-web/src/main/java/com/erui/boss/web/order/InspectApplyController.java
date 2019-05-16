@@ -6,6 +6,8 @@ import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.order.entity.*;
 import com.erui.order.service.InspectApplyService;
+import com.erui.order.service.PurchContractService;
+import com.erui.order.service.PurchService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +30,10 @@ public class InspectApplyController {
 
     @Autowired
     private InspectApplyService inspectApplyService;
-
+    @Autowired
+    private PurchService purchService;
+    @Autowired
+    private PurchContractService purchContractService;
 
     /**
      * 获取采购纬度的报检单信息列表
@@ -41,7 +46,7 @@ public class InspectApplyController {
         String purchId = params.get("purchId");
         String[] purchIds = purchId.split(",");
         List<Integer> purchIdList = new ArrayList<>();
-        for (int i = 0; i <purchIds.length ; i++) {
+        for (int i = 0; i < purchIds.length; i++) {
             purchIdList.add(new Integer(purchIds[i]));
         }
         int size = purchIdList.size();
@@ -306,7 +311,29 @@ public class InspectApplyController {
                 logger.error("异常报错", ex);
             }
         }
-
+        //当所有采购合同的采购订单完成时设置采购合同状态为已完成
+        if (StringUtils.isNotBlank(inspectApply.getPurchNo())) {
+            List<Purch> byPurchNo = purchService.findByPurchNo(inspectApply.getPurchNo());
+            boolean doneFlag = true;
+            if (byPurchNo != null && byPurchNo.size() > 0) {
+                for (Purch purch : byPurchNo) {
+                    if (purch.getStatus() != 3) {
+                        doneFlag = false;
+                        break;
+                    }
+                }
+                if (doneFlag) {
+                    if (byPurchNo != null && byPurchNo.size() > 0) {
+                        Integer purchContractId = byPurchNo.get(0).getPurchContractId() == null ? 0 : byPurchNo.get(0).getPurchContractId();
+                        if (purchContractId > 0) {
+                            PurchContract purchContract = purchContractService.findDetailInfo(purchContractId);
+                            purchContract.setStatus(4);
+                            purchContractService.updateStatus(purchContract);
+                        }
+                    }
+                }
+            }
+        }
         return new Result<>(ResultStatusEnum.FAIL).setMsg(errMsg);
     }
 

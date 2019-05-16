@@ -41,10 +41,10 @@ public class PurchRequisitionController {
     /**
      * 采购申请列表
      *
-     * @param condition { 销售合同号：contractNo,项目号：projectNo,项目名称：projectName,项目开始日期：startDate,下发采购日期：submitDate,
+     * @param condition { 销售合同号：contractNo,项目号：projectNo,合同标的：projectName,项目开始日期：startDate,下发采购日期：submitDate,
      *                  要求采购到货日期：requirePurchaseDate,商务技术经办人：businessName,页码：page,页大小：rows}
      * @return {
-     * contractNo:销售合同号,projectNo:项目号,projectName:项目名称,
+     * contractNo:销售合同号,projectNo:项目号,projectName:合同标的,
      * businessName:商务技术经办人,startDate:项目开始日期,
      * submitDate:下发采购日期,requirePurchaseDate:要求采购到货日期,status:状态
      * }
@@ -146,7 +146,7 @@ public class PurchRequisitionController {
             result.setMsg(ResultStatusEnum.SUCCESS.getMsg());
             result.setEnMsg(ResultStatusEnum.SUCCESS.getEnMsg());
             result.setData(i);
-        }else {
+        } else {
             result.setData(i);
         }
         return result;
@@ -163,6 +163,8 @@ public class PurchRequisitionController {
         Result<Object> result = new Result<>();
         List<PurchRequisition> list = null;
         PurchRequisition purchRequisition = null;
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
         String ids = proMap.get("id");//采购单ID
         String purchaseName = proMap.get("purchaseName");//采购经办人姓名
         String purchaseUid = proMap.get("purchaseUid");//采购单ID
@@ -179,8 +181,8 @@ public class PurchRequisitionController {
             list = new ArrayList<PurchRequisition>();
             Object userId = request.getSession().getAttribute("userid");
             Object userName = request.getSession().getAttribute("realname");
-            if(ids.split(",").length > 1){
-                for(String id : ids.split(",")){
+            if (ids.split(",").length > 1) {
+                for (String id : ids.split(",")) {
                     purchRequisition = new PurchRequisition();
                     purchRequisition.setId(Integer.parseInt(id));
                     purchRequisition.setPurchaseUid(Integer.parseInt(purchaseUid));
@@ -189,7 +191,7 @@ public class PurchRequisitionController {
                     purchRequisition.setSinglePerson(userName.toString());
                     list.add(purchRequisition);
                 }
-            }else{
+            } else {
                 purchRequisition = new PurchRequisition();
                 purchRequisition.setId(Integer.parseInt(ids));
                 purchRequisition.setPurchaseUid(Integer.parseInt(purchaseUid));

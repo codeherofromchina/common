@@ -128,12 +128,10 @@ public class PurchController {
             errorMsg = "数据的状态不正确";
         }
         // 查看采购号是否存在
-       /* if (StringUtils.isBlank(purch.getPurchNo())) {
+        if (StringUtils.isBlank(purch.getPurchNo())) {
             continueFlag = false;
             errorMsg = "采购合同号不能为空";
-        }*/
-
-
+        }
         if (continueFlag) {
             try {
                 boolean flag = false;
@@ -170,7 +168,7 @@ public class PurchController {
         String reason = purchParam.getAuditingReason(); // 驳回原因
         String type = purchParam.getAuditingType(); // 驳回or审核
         // 判断采购订单是否存在
-        Purch purch = purchService.findDetailInfo(purchId);
+        Purch purch = purchService.findBaseInfo(purchId);
         if (purch == null) {
             return new Result<>(ResultStatusEnum.PROJECT_NOT_EXIST);
         }
@@ -178,7 +176,7 @@ public class PurchController {
         Object userId = request.getSession().getAttribute("userid");
         Object userName = request.getSession().getAttribute("realname");
         String auditingUserId = purch.getAuditingUserId();
-        if (auditingUserId == null || auditingUserId.indexOf(String.valueOf(userId)) ==-1) {
+        if (auditingUserId == null || auditingUserId.indexOf(String.valueOf(userId)) == -1) {
             return new Result<>(ResultStatusEnum.NOT_NOW_AUDITOR);
         }
         // 判断是否是驳回并判断原因参数
@@ -286,6 +284,47 @@ public class PurchController {
         }
 
         return new Result<>(ResultStatusEnum.FAIL);
+    }
+
+    /**
+     * 质检部设置商品质检类型
+     *
+     * @param purch
+     * @return
+     */
+    @RequestMapping(value = "saveqit", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> saveqit(HttpServletRequest request, @RequestBody Purch purch) {
+        Object userId = request.getSession().getAttribute("userid");
+        Object userName = request.getSession().getAttribute("realname");
+        boolean continueFlag = true;
+        String errorMsg = null;
+        // 状态检查
+        Purch.StatusEnum statusEnum = Purch.StatusEnum.fromCode(purch.getStatus());
+        // 是保存
+        if (statusEnum == Purch.StatusEnum.BEING) {
+            continueFlag = false;
+            errorMsg = "数据的状态不正确";
+        }
+        // 查看采购号是否存在
+        if (StringUtils.isBlank(purch.getPurchNo())) {
+            continueFlag = false;
+            errorMsg = "采购合同号不能为空";
+        }
+        if (continueFlag) {
+            try {
+                purch.setQualityLeaderId(Integer.parseInt(userId.toString()));
+                purch.setQualityLeaderName(userName.toString());
+                boolean flag = purchService.saveQualityInspectType(purch);
+                if (flag) {
+                    return new Result<>();
+                }
+            } catch (Exception ex) {
+                logger.error("采购单操作失败：{}", purch, ex);
+                errorMsg = ex.getMessage();
+            }
+        }
+
+        return new Result<>(ResultStatusEnum.FAIL).setMsg(errorMsg);
     }
 
 

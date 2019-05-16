@@ -98,14 +98,17 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
             acquiringUser.put("quoteNum", quoteNum);
             acquiringUser.put("orderNum", orderNum);
             if (orderNum != 0 && quoteNum != 0) {
-                acquiringUser.put("succRate", new BigDecimal(orderNum / (double) quoteNum).setScale(2, BigDecimal.ROUND_HALF_UP));
+                acquiringUser.put("succRate", new BigDecimal(orderNum / (double) quoteNum).multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP));
+                acquiringUser.put("succRateStr", new BigDecimal(orderNum / (double) quoteNum).multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP) + "%");
             } else {
                 acquiringUser.put("succRate", BigDecimal.ZERO);
+                acquiringUser.put("succRateStr", BigDecimal.ZERO.setScale(2,BigDecimal.ROUND_DOWN) + "%");
             }
-
-
         }
         PageInfo<Map<String, Object>> pageInfo = new PageInfo<>(acquiringUserList);
+
+
+
         return pageInfo;
     }
 
@@ -117,7 +120,7 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
      * @return
      */
     @Override
-    public List<Map<String, Object>> quotePerformance(Map<String, Object> params) {
+    public List<Map<String, Object>> quotePerformance(Map<String, Object> params, Map<String, Long> outParams) {
         // 分页查询获取人
         List<Map<String, Object>> acquiringUserList = quoteStatisticsMapper.findAllAcquiringUserList();
         // 获取时间段各个用户的询单报出最早时间和报价单个数
@@ -138,7 +141,8 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
         } else {
             orderMinTimeAndTotalNumMap = new HashMap<>();
         }
-
+        long totalQuoteNum = 0; // 总报价个数
+        long totalOrderNum = 0; // 总订单个数
         // 数据汇总
         for (Map<String, Object> acquiringUser : acquiringUserList) {
             Integer userId = (Integer) acquiringUser.get("acquiring_user_id");
@@ -173,10 +177,16 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
             acquiringUser.put("quoteNum", quoteNum);
             acquiringUser.put("orderNum", orderNum);
             if (orderNum != 0 && quoteNum != 0) {
-                acquiringUser.put("succRate", new BigDecimal(orderNum / (double) quoteNum).setScale(2, BigDecimal.ROUND_HALF_UP));
+                acquiringUser.put("succRate", new BigDecimal(orderNum / (double) quoteNum).multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP));
             } else {
                 acquiringUser.put("succRate", BigDecimal.ZERO);
             }
+            totalQuoteNum += quoteNum;
+            totalOrderNum += orderNum;
+        }
+        if (outParams != null) {
+            outParams.put("totalQuoteNum", totalQuoteNum);
+            outParams.put("totalOrderNum", totalOrderNum);
         }
         return acquiringUserList;
     }
@@ -184,9 +194,9 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
 
     @Override
     public HSSFWorkbook genQuotePerformanceExcel(Map<String, Object> params) {
-        List<Map<String, Object>> datas = quotePerformance(params);
-//        String[] header = {"序号", "获取人", "询单报出时间", "项目开始日期", "所属地区", "国家", "执行分公司", "报价个数", "订单个数", "成单率" };
-        String[] header = {"序号", "获取人", "报价个数", "订单个数", "成单率" };
+        Map<String,Long> totalOutParams = new HashMap<>();
+        List<Map<String, Object>> datas = quotePerformance(params, totalOutParams);
+        String[] header = {"序号", "获取人", "报价个数", "订单个数", "成单率%" };
         List<Object> excelData = new ArrayList<>();
         if (datas.size() > 0) {
             int seq = 1;
@@ -194,16 +204,29 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
                 Object[] rowData = new Object[header.length];
                 rowData[0] = seq;
                 rowData[1] = map.get("acquiring_user_name");
-//                rowData[2] = map.get("quoteTime");
-//                rowData[3] = map.get("orderTime");
-//                rowData[4] = map.get("area_name");
-//                rowData[5] = map.get("country_name");
                 rowData[2] = map.get("quoteNum");
                 rowData[3] = map.get("orderNum");
                 rowData[4] = map.get("succRate");
                 excelData.add(rowData);
                 seq++;
             }
+
+            // 总计
+            Long totalQuoteNum = totalOutParams.get("totalQuoteNum"); // 总报价个数
+            Long totalOrderNum = totalOutParams.get("totalOrderNum"); // 总订单个数
+            BigDecimal totalRate = null;
+            if (totalQuoteNum != null && totalOrderNum != null) {
+                totalRate = new BigDecimal(totalOrderNum / (double) totalQuoteNum).multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP);
+            } else {
+                totalRate = BigDecimal.ZERO;
+            }
+            Object[] rowData = new Object[header.length];
+            rowData[0] = "总计";
+            rowData[1] = null;
+            rowData[2] = totalQuoteNum;
+            rowData[3] = totalOrderNum;
+            rowData[4] = totalRate;
+            excelData.add(rowData);
         }
         // 生成excel并返回
         BuildExcel buildExcel = new BuildExcelImpl();
@@ -212,6 +235,8 @@ public class QuoteStatisticsServiceImpl extends BaseService<QuoteStatisticsMappe
         // 设置样式
         ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
         ExcelCustomStyle.setContextStyle(workbook, 0, 1, excelData.size());
+        // 合并总计单元格
+        ExcelCustomStyle.mergedCell(workbook, 0, excelData.size(), excelData.size(), 0, 1);
         // 如果要加入标题
         ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
         if (params.size() == 0) {

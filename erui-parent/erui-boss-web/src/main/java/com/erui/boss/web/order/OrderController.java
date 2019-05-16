@@ -268,7 +268,7 @@ public class OrderController {
             } else if (addOrderVo.getGoodDesc().parallelStream().anyMatch(vo -> vo.getContractGoodsNum() == null)) {
                 result.setMsg("合同数量不能为空");
                 result.setEnMsg("Quantity must be filled in");
-            } else if (addOrderVo.getOrderCategory() != 2 && addOrderVo.getOrderCategory() != 3 &&(addOrderVo.getTotalPrice() == null || addOrderVo.getTotalPrice().compareTo(BigDecimal.ZERO) != 1)) {
+            } else if (addOrderVo.getOrderCategory() != 2 && addOrderVo.getOrderCategory() != 3 && (addOrderVo.getTotalPrice() == null || addOrderVo.getTotalPrice().compareTo(BigDecimal.ZERO) != 1)) {
                 result.setMsg("合同总价错误");
                 result.setEnMsg("Contract price error");
             } else if (addOrderVo.getTaxBearing() == null) {
@@ -354,6 +354,7 @@ public class OrderController {
         }
         return new Result<>(ResultStatusEnum.FAIL);
     }
+
     /**
      * 获取订单详情
      *
@@ -377,6 +378,29 @@ public class OrderController {
             }
         }
         return new Result<>(order);
+    }
+
+    /**
+     * 根据销售合同号获取订单详情
+     *
+     * @return
+     */
+    @RequestMapping(value = "queryorder", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> queryOrder(@RequestBody Map<String, String> map, HttpServletRequest request) {
+        Result<Object> result = new Result<>(ResultStatusEnum.FAIL);
+        if (map.containsKey("contractNo") && map.get("contractNo") != null) {
+            Order order = orderService.findByContractNoOrId(map.get("contractNo"), null);
+            if (order != null) {
+                order.setOrderAccountDelivers(null);
+                order.setOrderAccounts(null);
+            }
+            result.setCode(ResultStatusEnum.SUCCESS.getCode());
+            result.setMsg(ResultStatusEnum.SUCCESS.getMsg());
+            result.setEnMsg(ResultStatusEnum.SUCCESS.getEnMsg());
+            result.setData(order);
+            return result;
+        }
+        return result.setMsg("销售合同号不存在");
     }
 
     /**
