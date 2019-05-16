@@ -1754,7 +1754,7 @@ public class PurchServiceImpl implements PurchService {
         Integer purchaseNum = newPurchGoods.getPurchaseNum();
         purchaseNum = purchaseNum != null && purchaseNum > 0 ? purchaseNum : 0;
         Integer prePurchaseNum = purchContractGoods.getPrePurchContractNum();
-        //预采购合同数量
+        // 预采购合同数量
         prePurchaseNum = prePurchaseNum != null && prePurchaseNum > 0 ? prePurchaseNum : 0;
         newPurchGoods.setPurchaseNum(purchaseNum);
         // 判断采购是否超限,预采购数量大于采购合同数量，则错误
