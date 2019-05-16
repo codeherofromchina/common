@@ -17,10 +17,12 @@ import com.erui.order.entity.Order;
 import com.erui.order.event.*;
 import com.erui.order.requestVo.*;
 import com.erui.order.service.*;
+import com.erui.order.util.BpmUtils;
 import com.erui.order.util.SsoUtils;
 import com.erui.order.util.excel.ExcelUploadTypeEnum;
 import com.erui.order.util.excel.ImportDataResponse;
 import com.erui.order.util.exception.MyException;
+import com.erui.order.v2.service.UserService;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.commons.lang3.StringUtils;
@@ -105,7 +107,8 @@ public class OrderServiceImpl implements OrderService {
     private String sendSms;  //发短信接口
     @Value("#{orderProp[DING_SEND_SMS]}")
     private String dingSendSms;  //发钉钉通知接口
-
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private ComplexOrderDao complexOrderDao;
@@ -1028,33 +1031,6 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
         }
-        if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
-            order.setAuditingStatus(1);
-        } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            //如果是国内订单 没有国家负责人 根据是否融资审核进行审核流程
-            if (addOrderVo.getOrderCategory() == 6) {
-                if (addOrderVo.getFinancing() == null || addOrderVo.getFinancing() == 0) {
-                    //若不是融资项目  提交至法务和结算
-                    order.setAuditingProcess("105,106");
-                    order.setAuditingStatus(2);
-                    order.setAuditingUserId(addOrderVo.getLegalAuditerId() + "," + addOrderVo.getSettlementLeaderId());
-                } else if (addOrderVo.getFinancing() == 1 && addOrderVo.getFinancingCommissionerId() != null) {
-                    //若是融资项目 提交由融资专员审核
-                    order.setAuditingProcess("104");
-                    order.setAuditingStatus(2);
-                    order.setAuditingUserId(addOrderVo.getFinancingCommissionerId().toString());
-                    order.setFinancingCommissionerId(addOrderVo.getFinancingCommissionerId());
-                    order.setFinancingCommissioner(addOrderVo.getFinancingCommissioner());
-                }
-
-            } else {
-                order.setAuditingProcess("101");
-                order.setAuditingStatus(2);
-                order.setAuditingUserId(addOrderVo.getCountryLeaderId().toString());
-            }
-        }
-        Date signingDate = null;
-        CheckLog checkLog_i = null; // 审核日志
         Order orderUpdate = orderDao.saveAndFlush(order);
         // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
 
@@ -1072,30 +1048,53 @@ public class OrderServiceImpl implements OrderService {
         }
         //审核日志 钉钉通知 和待办
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            if (addOrderVo.getOrderCategory() == 6) {
-                if (addOrderVo.getFinancing() == null || addOrderVo.getFinancing() == 0) {
-                    checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 100, addOrderVo.getCreateUserId(), addOrderVo.getCreateUserName(), order.getAuditingProcess(), addOrderVo.getLegalAuditerId() + "," + addOrderVo.getSettlementLeaderId(), addOrderVo.getAuditingReason(), "1", 1);
-                } else if (addOrderVo.getFinancing() == 1 && addOrderVo.getFinancingCommissionerId() != null) {
-                    checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 100, addOrderVo.getCreateUserId(), addOrderVo.getCreateUserName(), order.getAuditingProcess(), addOrderVo.getFinancingCommissionerId().toString(), addOrderVo.getAuditingReason(), "1", 1);
+            // 初始化订单提交后的后续工作
+            if (StringUtils.isBlank(addOrderVo.getTaskId())) {
+                // 调用业务流，开启业务审核流程系统 // 非国内订单审批流程
+                Map<String, Object> bpmInitVar = new HashMap<>();
+                bpmInitVar.put("order_amount", addOrderVo.getTotalPriceUsd().doubleValue());
+                String task_fn_check = "N";
+                if (addOrderVo.getFinancing() != null && addOrderVo.getFinancing() == 1) {
+                    task_fn_check = "Y";
                 }
+                bpmInitVar.put("task_fn_check", task_fn_check);
+                JSONObject processResp = null;
+                switch (addOrderVo.getOrderCategory()) {
+                    case 1:
+                        // 预投订单
+                        processResp = BpmUtils.startProcessInstanceByKey("stocking_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        break;
+                    case 3:
+                        // 试用订单
+                        processResp = BpmUtils.startProcessInstanceByKey("sample_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        break;
+                    case 4:
+                        // 现货订单
+                        processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        break;
+                    case 6:
+                        // 国内订单
+                        processResp = BpmUtils.startProcessInstanceByKey("domestic_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        break;
+                    default:
+                        Integer overseasSales = addOrderVo.getOverseasSales();
+                        if (overseasSales != null && overseasSales == 3) {
+                            // 海外销售类型 为3 海外销（当地采购 走现货审核流程
+                            processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        } else {
+                            // 非国内订单审批流程 process_order
+                            processResp = BpmUtils.startProcessInstanceByKey("overseas_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        }
+                }
+                orderUpdate.setProcessId(processResp.getString("instanceId"));
+                orderUpdate.setAuditingProcess("task_cm"); // 第一个节点通知失败，写固定第一个节点
+                orderUpdate.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
             } else {
-                checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 100, addOrderVo.getCreateUserId(), addOrderVo.getCreateUserName(), order.getAuditingProcess(), addOrderVo.getCountryLeaderId().toString(), addOrderVo.getAuditingReason(), "1", 1);
+                Map<String, Object> bpmVar = new HashMap<>();
+                bpmVar.put("audit_status", "APPROVED");
+                // 完善订单节点，完成任务
+                BpmUtils.completeTask(addOrderVo.getTaskId(), eruiToken, null, bpmVar, "同意");
             }
-            //添加日志审核
-            checkLogService.insert(checkLog_i);
-            // 国内订单时非融资项目直接到法务和结算并行审核
-            if (order.getAuditingUserId() != null) {
-                if ("105,106".equals(order.getAuditingProcess())) {
-                    String[] split = order.getAuditingUserId().split(",");
-                    for (int n = 0; n < split.length; n++) {
-                        sendDingtalk(order, split[n], false, 1);
-                    }
-                } else {
-                    sendDingtalk(order, order.getAuditingUserId(), false, 1);
-                }
-                //  auditBackLogHandle(order, false, order.getAuditingUserId());
-            }
-            signingDate = orderUpdate.getSigningDate();
 
             List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeAsc(orderUpdate.getId());
             if (orderLog.size() > 0) {
@@ -1104,7 +1103,7 @@ public class OrderServiceImpl implements OrderService {
                     orderLogDao.delete(collect.get("1").getId());
                 }
             }
-            addLog(OrderLog.LogTypeEnum.CREATEORDER, orderUpdate.getId(), null, null, signingDate);
+            addLog(OrderLog.LogTypeEnum.CREATEORDER, orderUpdate.getId(), null, null, orderUpdate.getSigningDate());
             applicationContext.publishEvent(new OrderProgressEvent(orderUpdate, 1, eruiToken));
             Project projectAdd = null;
             if (orderUpdate.getProject() == null) {
@@ -1163,13 +1162,6 @@ public class OrderServiceImpl implements OrderService {
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
                 logger.info("CRM返回信息：" + s);
             }
-//            //项目提交的时候判断是否有驳回的信息  如果有删除  “驳回订单” 待办提示
-            BackLog backLog = new BackLog();
-            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
-            backLog.setHostId(order.getId());
-            backLogService.updateBackLogByDelYn(backLog);
-
-            auditBackLogHandle(orderUpdate, false, orderUpdate.getAuditingUserId(), null, false);
         }
         return order.getId();
     }
@@ -1337,61 +1329,6 @@ public class OrderServiceImpl implements OrderService {
             goodsList.add(goods);
         }
         order.setGoodsList(goodsList);
-        //根据订单金额判断 填写审批人级别
-        if (addOrderVo.getTotalPriceUsd() != null && addOrderVo.getOrderCategory() != null && addOrderVo.getOrderCategory() != 6) {
-            if (addOrderVo.getOrderCategory() == 1) {//预投不做金额判断
-                order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                order.setCountryLeader(addOrderVo.getCountryLeader());
-                order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-                order.setAreaLeader(addOrderVo.getAreaLeader());
-                order.setAreaVpId(addOrderVo.getAreaVpId());
-                order.setAreaVp(addOrderVo.getAreaVp());
-            } else {
-                if (addOrderVo.getTotalPriceUsd().doubleValue() < STEP_ONE_PRICE.doubleValue()) {
-                    order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                    order.setCountryLeader(addOrderVo.getCountryLeader());
-                } else if (STEP_ONE_PRICE.doubleValue() <= addOrderVo.getTotalPriceUsd().doubleValue() && addOrderVo.getTotalPriceUsd().doubleValue() < STEP_TWO_PRICE.doubleValue()) {
-                    order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                    order.setCountryLeader(addOrderVo.getCountryLeader());
-                    order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-                    order.setAreaLeader(addOrderVo.getAreaLeader());
-                } else if (addOrderVo.getTotalPriceUsd().doubleValue() >= STEP_TWO_PRICE.doubleValue()) {
-                    order.setCountryLeaderId(addOrderVo.getCountryLeaderId());
-                    order.setCountryLeader(addOrderVo.getCountryLeader());
-                    order.setAreaLeaderId(addOrderVo.getAreaLeaderId());
-                    order.setAreaLeader(addOrderVo.getAreaLeader());
-                    order.setAreaVpId(addOrderVo.getAreaVpId());
-                    order.setAreaVp(addOrderVo.getAreaVp());
-                }
-            }
-        }
-        if (addOrderVo.getStatus() == Order.StatusEnum.INIT.getCode()) {
-            order.setAuditingStatus(1);
-        } else if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            //如果是国内订单 没有国家负责人
-            if (addOrderVo.getOrderCategory() == 6) {
-                if (addOrderVo.getFinancing() == null || addOrderVo.getFinancing() == 0) {
-                    //若不是融资项目  提交至法务和结算
-                    order.setAuditingProcess("105,106");
-                    order.setAuditingStatus(2);
-                    order.setAuditingUserId(addOrderVo.getLegalAuditerId() + "," + addOrderVo.getSettlementLeaderId());
-                } else if (addOrderVo.getFinancing() == 1 && addOrderVo.getFinancingCommissionerId() != null) {
-                    //若是融资项目 提交由融资专员审核
-                    order.setAuditingProcess("104");
-                    order.setAuditingStatus(2);
-                    order.setAuditingUserId(addOrderVo.getFinancingCommissionerId().toString());
-                    order.setFinancingCommissionerId(addOrderVo.getFinancingCommissionerId());
-                    order.setFinancingCommissioner(addOrderVo.getFinancingCommissioner());
-                }
-
-            } else {
-                order.setAuditingProcess("101");
-                order.setAuditingStatus(2);
-                order.setAuditingUserId(addOrderVo.getCountryLeaderId().toString());
-            }
-        }
-        Date signingDate = null;
-        CheckLog checkLog_i = null; //审批流日志
         Order order1 = orderDao.save(order);
         //order.setAttachmentSet(addOrderVo.getAttachDesc());
         //添加附件
@@ -1399,30 +1336,61 @@ public class OrderServiceImpl implements OrderService {
             attachmentService.addAttachments(addOrderVo.getAttachDesc(), order1.getId(), Attachment.AttachmentCategory.ORDER.getCode());
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            if (addOrderVo.getOrderCategory() == 6) {
-                if (addOrderVo.getFinancing() == null || addOrderVo.getFinancing() == 0) {
-                    checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 100, addOrderVo.getCreateUserId(), addOrderVo.getCreateUserName(), order.getAuditingProcess(), addOrderVo.getLegalAuditerId() + "," + addOrderVo.getSettlementLeaderId(), addOrderVo.getAuditingReason(), "1", 1);
-                } else if (addOrderVo.getFinancing() == 1 && addOrderVo.getFinancingCommissionerId() != null) {
-                    checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 100, addOrderVo.getCreateUserId(), addOrderVo.getCreateUserName(), order.getAuditingProcess(), addOrderVo.getFinancingCommissionerId().toString(), addOrderVo.getAuditingReason(), "1", 1);
-                }
-            } else {
-                checkLog_i = fullCheckLogInfo(order.getId(), CheckLog.checkLogCategory.ORDER.getCode(), order.getId(), 100, addOrderVo.getCreateUserId(), addOrderVo.getCreateUserName(), order.getAuditingProcess(), addOrderVo.getCountryLeaderId().toString(), addOrderVo.getAuditingReason(), "1", 1);
+            // 初始化订单提交后的后续工作
+            // 调用业务流，开启业务审核流程系统
+            JSONObject processResp = null;
+            Map<String, Object> bpmInitVar = new HashMap<>();
+            bpmInitVar.put("order_amount", addOrderVo.getTotalPriceUsd().doubleValue()); // 订单金额
+            // 国内订单
+            String task_fn_check = "N";
+            if (addOrderVo.getFinancing() != null && addOrderVo.getFinancing() == 1) {
+                // 判断是否需要融资审批
+                task_fn_check = "Y";
             }
-            //添加日志审核
-            checkLogService.insert(checkLog_i);
-            // 国内订单时非融资项目直接到法务和结算并行审核
-            if (order.getAuditingUserId() != null) {
-                if ("105,106".equals(order.getAuditingProcess())) {
-                    String[] split = order.getAuditingUserId().split(",");
-                    for (int n = 0; n < split.length; n++) {
-                        sendDingtalk(order, split[n], false, 1);
+            bpmInitVar.put("task_fn_check", task_fn_check);
+            // 事业部项目负责人
+            Integer technicalId = order1.getTechnicalId();
+            String techicalUserNo = null;
+            if (technicalId != null) {
+                techicalUserNo = userService.findUserNoById(technicalId.longValue());
+            }
+            if (StringUtils.isNotBlank(techicalUserNo)) {
+                // ID -> userNo
+                bpmInitVar.put("assignee_pm",techicalUserNo);
+            }
+
+            switch (addOrderVo.getOrderCategory()) {
+                case 1:
+                    // 预投订单
+                    processResp = BpmUtils.startProcessInstanceByKey("stocking_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    break;
+                case 3:
+                    // 试用订单
+                    processResp = BpmUtils.startProcessInstanceByKey("sample_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    break;
+                case 4:
+                    // 现货订单
+                    processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    break;
+                case 6:
+                    // 国内订单
+                    processResp = BpmUtils.startProcessInstanceByKey("domestic_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    break;
+                default:
+                    Integer overseasSales = addOrderVo.getOverseasSales();
+                    if (overseasSales != null && overseasSales == 3) {
+                        // 海外销售类型 为3 海外销（当地采购 走现货审核流程
+                        processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    } else {
+                        // 非国内订单审批流程 process_order
+                        processResp = BpmUtils.startProcessInstanceByKey("overseas_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
                     }
-                } else {
-                    sendDingtalk(order, order.getAuditingUserId(), false, 1);
-                }
             }
-            //auditBackLogHandle(order, false, order.getAuditingUserId());
-            signingDate = order1.getSigningDate();
+            // 设置订单和业务流标示关联
+            order1.setProcessId(processResp.getString("instanceId"));
+            order1.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
+            order1.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
+
             //添加订单未执行事件
             applicationContext.publishEvent(new OrderProgressEvent(order1, 1, eruiToken));
             List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeAsc(order1.getId());
@@ -1432,7 +1400,7 @@ public class OrderServiceImpl implements OrderService {
                     orderLogDao.delete(collect.get("1").getId());
                 }
             }
-            addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null, signingDate);
+            addLog(OrderLog.LogTypeEnum.CREATEORDER, order1.getId(), null, null, order1.getSigningDate());
             // 订单提交时推送项目信息
             Project project = new Project();
             project.setContractNo(order.getContractNo());
@@ -1456,7 +1424,7 @@ public class OrderServiceImpl implements OrderService {
             project.setBusinessName(order1.getBusinessName());   //商务技术经办人名称
             //新建项目审批状态为未审核
             project.setAuditingStatus(0);
-            //projectAdd.setProjectProfit(projectProfit);
+            project.setProcessId(order1.getProcessId());
             Project project1 = projectDao.save(project);
             // 设置商品的项目信息
             List<Goods> goodsList1 = order1.getGoodsList();
@@ -1482,14 +1450,6 @@ public class OrderServiceImpl implements OrderService {
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
                 logger.info("调用升级CRM用户接口，CRM返回信息：" + s);
             }
-            //项目提交的时候判断是否有驳回的信息  如果有删除  “项目驳回” 待办提示
-            BackLog backLog = new BackLog();
-            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
-            backLog.setHostId(order.getId());
-            backLogService.updateBackLogByDelYn(backLog);
-            // 推送审核内容
-            auditBackLogHandle(order1, false, order1.getAuditingUserId(), null, false);
-
         }
         return order1.getId();
     }

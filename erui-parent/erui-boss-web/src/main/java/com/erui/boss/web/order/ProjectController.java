@@ -175,6 +175,11 @@ public class ProjectController {
             }
             String eruiToken = CookiesUtil.getEruiToken(request);
             ThreadLocalUtil.setObject(eruiToken);
+            Object sessionUserIdObj = request.getSession().getAttribute("userid");
+            Integer userId = null;
+            if (sessionUserIdObj != null && StringUtils.isNumeric(String.valueOf(sessionUserIdObj))) {
+                userId = Integer.parseInt(String.valueOf(sessionUserIdObj));
+            }
 
             // 审核流出添加代码 2018-08-27
             Order order = proStatus.getOrder();
@@ -183,7 +188,7 @@ public class ProjectController {
                 return new Result<>(ResultStatusEnum.ORDER_AUDIT_NOT_DONE_ERROR);
             }
 
-            if (projectService.updateProject(project)) {
+            if (projectService.updateProject(project, userId)) {
                 return new Result<>();
             } else {
                 errorMsg = "项目状态错误";
