@@ -5,6 +5,7 @@
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="project_id" property="projectId" jdbcType="INTEGER" />
     <result column="pre_profit" property="preProfit" jdbcType="DECIMAL" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -65,7 +66,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, project_id, pre_profit
+    id, project_id, pre_profit, tenant
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.ProectTempExample" >
     select
@@ -98,10 +99,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.erui.order.v2.model.ProectTemp" >
-    insert into proect_temp (id, project_id, pre_profit
-      )
-    values (#{id,jdbcType=INTEGER}, #{projectId,jdbcType=INTEGER}, #{preProfit,jdbcType=DECIMAL}
-      )
+    insert into proect_temp (id, project_id, pre_profit, 
+      tenant)
+    values (#{id,jdbcType=INTEGER}, #{projectId,jdbcType=INTEGER}, #{preProfit,jdbcType=DECIMAL}, 
+      #{tenant,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.ProectTemp" >
     insert into proect_temp
@@ -115,6 +116,9 @@
       <if test="preProfit != null" >
         pre_profit,
       </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -125,6 +129,9 @@
       </if>
       <if test="preProfit != null" >
         #{preProfit,jdbcType=DECIMAL},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -146,6 +153,9 @@
       <if test="record.preProfit != null" >
         pre_profit = #{record.preProfit,jdbcType=DECIMAL},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -155,7 +165,8 @@
     update proect_temp
     set id = #{record.id,jdbcType=INTEGER},
       project_id = #{record.projectId,jdbcType=INTEGER},
-      pre_profit = #{record.preProfit,jdbcType=DECIMAL}
+      pre_profit = #{record.preProfit,jdbcType=DECIMAL},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -169,13 +180,17 @@
       <if test="preProfit != null" >
         pre_profit = #{preProfit,jdbcType=DECIMAL},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.ProectTemp" >
     update proect_temp
     set project_id = #{projectId,jdbcType=INTEGER},
-      pre_profit = #{preProfit,jdbcType=DECIMAL}
+      pre_profit = #{preProfit,jdbcType=DECIMAL},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

@@ -1,5 +1,6 @@
 package com.erui.order.v2.dao;
 
+import com.erui.order.v2.model.InspectReportAttach;
 import com.erui.order.v2.model.InspectReportAttachExample;
 import com.erui.order.v2.model.InspectReportAttachKey;
 import java.util.List;
@@ -12,13 +13,19 @@ public interface InspectReportAttachMapper {
 
     int deleteByPrimaryKey(InspectReportAttachKey key);
 
-    int insert(InspectReportAttachKey record);
+    int insert(InspectReportAttach record);
 
-    int insertSelective(InspectReportAttachKey record);
+    int insertSelective(InspectReportAttach record);
 
-    List<InspectReportAttachKey> selectByExample(InspectReportAttachExample example);
+    List<InspectReportAttach> selectByExample(InspectReportAttachExample example);
 
-    int updateByExampleSelective(@Param("record") InspectReportAttachKey record, @Param("example") InspectReportAttachExample example);
+    InspectReportAttach selectByPrimaryKey(InspectReportAttachKey key);
 
-    int updateByExample(@Param("record") InspectReportAttachKey record, @Param("example") InspectReportAttachExample example);
+    int updateByExampleSelective(@Param("record") InspectReportAttach record, @Param("example") InspectReportAttachExample example);
+
+    int updateByExample(@Param("record") InspectReportAttach record, @Param("example") InspectReportAttachExample example);
+
+    int updateByPrimaryKeySelective(InspectReportAttach record);
+
+    int updateByPrimaryKey(InspectReportAttach record);
 }

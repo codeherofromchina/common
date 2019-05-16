@@ -19,6 +19,7 @@
     <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
     <result column="status" property="status" jdbcType="INTEGER" />
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.erui.order.v2.model.DeliverNoticeWithBLOBs" extends="BaseResultMap" >
     <result column="prepare_req" property="prepareReq" jdbcType="LONGVARCHAR" />
@@ -85,7 +86,7 @@
   <sql id="Base_Column_List" >
     id, deliver_notice_no, sender_id, sender_name, send_date, trade_terms, to_place, 
     transport_type_bn, technical_uid, urgency, delivery_date, numers, create_time, create_user_id, 
-    create_user_name, status, update_time
+    create_user_name, status, update_time, tenant
   </sql>
   <sql id="Blob_Column_List" >
     prepare_req, package_req
@@ -144,15 +145,15 @@
       to_place, transport_type_bn, technical_uid, 
       urgency, delivery_date, numers, 
       create_time, create_user_id, create_user_name, 
-      status, update_time, prepare_req, 
-      package_req)
+      status, update_time, tenant, 
+      prepare_req, package_req)
     values (#{id,jdbcType=INTEGER}, #{deliverNoticeNo,jdbcType=VARCHAR}, #{senderId,jdbcType=INTEGER}, 
       #{senderName,jdbcType=VARCHAR}, #{sendDate,jdbcType=DATE}, #{tradeTerms,jdbcType=VARCHAR}, 
       #{toPlace,jdbcType=VARCHAR}, #{transportTypeBn,jdbcType=VARCHAR}, #{technicalUid,jdbcType=INTEGER}, 
       #{urgency,jdbcType=VARCHAR}, #{deliveryDate,jdbcType=DATE}, #{numers,jdbcType=INTEGER}, 
       #{createTime,jdbcType=TIMESTAMP}, #{createUserId,jdbcType=INTEGER}, #{createUserName,jdbcType=VARCHAR}, 
-      #{status,jdbcType=INTEGER}, #{updateTime,jdbcType=TIMESTAMP}, #{prepareReq,jdbcType=LONGVARCHAR}, 
-      #{packageReq,jdbcType=LONGVARCHAR})
+      #{status,jdbcType=INTEGER}, #{updateTime,jdbcType=TIMESTAMP}, #{tenant,jdbcType=VARCHAR}, 
+      #{prepareReq,jdbcType=LONGVARCHAR}, #{packageReq,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.DeliverNoticeWithBLOBs" >
     insert into deliver_notice
@@ -207,6 +208,9 @@
       </if>
       <if test="updateTime != null" >
         update_time,
+      </if>
+      <if test="tenant != null" >
+        tenant,
       </if>
       <if test="prepareReq != null" >
         prepare_req,
@@ -266,6 +270,9 @@
       </if>
       <if test="updateTime != null" >
         #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
       <if test="prepareReq != null" >
         #{prepareReq,jdbcType=LONGVARCHAR},
@@ -335,6 +342,9 @@
       <if test="record.updateTime != null" >
         update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
       <if test="record.prepareReq != null" >
         prepare_req = #{record.prepareReq,jdbcType=LONGVARCHAR},
       </if>
@@ -365,6 +375,7 @@
       create_user_name = #{record.createUserName,jdbcType=VARCHAR},
       status = #{record.status,jdbcType=INTEGER},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      tenant = #{record.tenant,jdbcType=VARCHAR},
       prepare_req = #{record.prepareReq,jdbcType=LONGVARCHAR},
       package_req = #{record.packageReq,jdbcType=LONGVARCHAR}
     <if test="_parameter != null" >
@@ -389,7 +400,8 @@
       create_user_id = #{record.createUserId,jdbcType=INTEGER},
       create_user_name = #{record.createUserName,jdbcType=VARCHAR},
       status = #{record.status,jdbcType=INTEGER},
-      update_time = #{record.updateTime,jdbcType=TIMESTAMP}
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -445,6 +457,9 @@
       <if test="updateTime != null" >
         update_time = #{updateTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
       <if test="prepareReq != null" >
         prepare_req = #{prepareReq,jdbcType=LONGVARCHAR},
       </if>
@@ -472,6 +487,7 @@
       create_user_name = #{createUserName,jdbcType=VARCHAR},
       status = #{status,jdbcType=INTEGER},
       update_time = #{updateTime,jdbcType=TIMESTAMP},
+      tenant = #{tenant,jdbcType=VARCHAR},
       prepare_req = #{prepareReq,jdbcType=LONGVARCHAR},
       package_req = #{packageReq,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=INTEGER}
@@ -493,7 +509,8 @@
       create_user_id = #{createUserId,jdbcType=INTEGER},
       create_user_name = #{createUserName,jdbcType=VARCHAR},
       status = #{status,jdbcType=INTEGER},
-      update_time = #{updateTime,jdbcType=TIMESTAMP}
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

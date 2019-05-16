@@ -24,6 +24,8 @@ public class OrderAccountDeliver {
 
     private Date deleteTime;
 
+    private String tenant;
+
     public Integer getId() {
         return id;
     }
@@ -102,5 +104,13 @@ public class OrderAccountDeliver {
 
     public void setDeleteTime(Date deleteTime) {
         this.deleteTime = deleteTime;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

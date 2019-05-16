@@ -91,6 +91,8 @@ public class ProjectProfit {
 
     private BigDecimal platformAgentCost;
 
+    private String tenant;
+
     public Integer getId() {
         return id;
     }
@@ -441,5 +443,13 @@ public class ProjectProfit {
 
     public void setPlatformAgentCost(BigDecimal platformAgentCost) {
         this.platformAgentCost = platformAgentCost;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

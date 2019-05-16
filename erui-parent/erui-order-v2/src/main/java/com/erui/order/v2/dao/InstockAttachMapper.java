@@ -1,5 +1,6 @@
 package com.erui.order.v2.dao;
 
+import com.erui.order.v2.model.InstockAttach;
 import com.erui.order.v2.model.InstockAttachExample;
 import com.erui.order.v2.model.InstockAttachKey;
 import java.util.List;
@@ -12,13 +13,19 @@ public interface InstockAttachMapper {
 
     int deleteByPrimaryKey(InstockAttachKey key);
 
-    int insert(InstockAttachKey record);
+    int insert(InstockAttach record);
 
-    int insertSelective(InstockAttachKey record);
+    int insertSelective(InstockAttach record);
 
-    List<InstockAttachKey> selectByExample(InstockAttachExample example);
+    List<InstockAttach> selectByExample(InstockAttachExample example);
 
-    int updateByExampleSelective(@Param("record") InstockAttachKey record, @Param("example") InstockAttachExample example);
+    InstockAttach selectByPrimaryKey(InstockAttachKey key);
 
-    int updateByExample(@Param("record") InstockAttachKey record, @Param("example") InstockAttachExample example);
+    int updateByExampleSelective(@Param("record") InstockAttach record, @Param("example") InstockAttachExample example);
+
+    int updateByExample(@Param("record") InstockAttach record, @Param("example") InstockAttachExample example);
+
+    int updateByPrimaryKeySelective(InstockAttach record);
+
+    int updateByPrimaryKey(InstockAttach record);
 }

@@ -9,6 +9,7 @@
     <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
     <result column="created_by" property="createdBy" jdbcType="BIGINT" />
     <result column="deleted_flag" property="deletedFlag" jdbcType="CHAR" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -69,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, purch_id, status, remark, created_at, created_by, deleted_flag
+    id, purch_id, status, remark, created_at, created_by, deleted_flag, tenant
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.PurchSupplierLogExample" >
     select
@@ -104,10 +105,10 @@
   <insert id="insert" parameterType="com.erui.order.v2.model.PurchSupplierLog" >
     insert into purch_supplier_log (id, purch_id, status, 
       remark, created_at, created_by, 
-      deleted_flag)
+      deleted_flag, tenant)
     values (#{id,jdbcType=BIGINT}, #{purchId,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, 
       #{remark,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, #{createdBy,jdbcType=BIGINT}, 
-      #{deletedFlag,jdbcType=CHAR})
+      #{deletedFlag,jdbcType=CHAR}, #{tenant,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.PurchSupplierLog" >
     insert into purch_supplier_log
@@ -133,6 +134,9 @@
       <if test="deletedFlag != null" >
         deleted_flag,
       </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -155,6 +159,9 @@
       </if>
       <if test="deletedFlag != null" >
         #{deletedFlag,jdbcType=CHAR},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -188,6 +195,9 @@
       <if test="record.deletedFlag != null" >
         deleted_flag = #{record.deletedFlag,jdbcType=CHAR},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -201,7 +211,8 @@
       remark = #{record.remark,jdbcType=VARCHAR},
       created_at = #{record.createdAt,jdbcType=TIMESTAMP},
       created_by = #{record.createdBy,jdbcType=BIGINT},
-      deleted_flag = #{record.deletedFlag,jdbcType=CHAR}
+      deleted_flag = #{record.deletedFlag,jdbcType=CHAR},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -227,6 +238,9 @@
       <if test="deletedFlag != null" >
         deleted_flag = #{deletedFlag,jdbcType=CHAR},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
@@ -237,7 +251,8 @@
       remark = #{remark,jdbcType=VARCHAR},
       created_at = #{createdAt,jdbcType=TIMESTAMP},
       created_by = #{createdBy,jdbcType=BIGINT},
-      deleted_flag = #{deletedFlag,jdbcType=CHAR}
+      deleted_flag = #{deletedFlag,jdbcType=CHAR},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

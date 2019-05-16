@@ -18,6 +18,7 @@
     <result column="del_yn" property="delYn" jdbcType="INTEGER" />
     <result column="delete_time" property="deleteTime" jdbcType="TIMESTAMP" />
     <result column="credit_log_id" property="creditLogId" jdbcType="INTEGER" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -79,7 +80,8 @@
   </sql>
   <sql id="Base_Column_List" >
     id, order_id, seq, desc, money, discount, payment_date, goods_price, deliver_date, 
-    create_user_id, update_user_id, update_time, create_time, del_yn, delete_time, credit_log_id
+    create_user_id, update_user_id, update_time, create_time, del_yn, delete_time, credit_log_id, 
+    tenant
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.OrderAccountExample" >
     select
@@ -117,13 +119,13 @@
       payment_date, goods_price, deliver_date, 
       create_user_id, update_user_id, update_time, 
       create_time, del_yn, delete_time, 
-      credit_log_id)
+      credit_log_id, tenant)
     values (#{id,jdbcType=INTEGER}, #{orderId,jdbcType=INTEGER}, #{seq,jdbcType=INTEGER}, 
       #{desc,jdbcType=VARCHAR}, #{money,jdbcType=DECIMAL}, #{discount,jdbcType=DECIMAL}, 
       #{paymentDate,jdbcType=TIMESTAMP}, #{goodsPrice,jdbcType=DECIMAL}, #{deliverDate,jdbcType=TIMESTAMP}, 
       #{createUserId,jdbcType=INTEGER}, #{updateUserId,jdbcType=INTEGER}, #{updateTime,jdbcType=TIMESTAMP}, 
       #{createTime,jdbcType=TIMESTAMP}, #{delYn,jdbcType=INTEGER}, #{deleteTime,jdbcType=TIMESTAMP}, 
-      #{creditLogId,jdbcType=INTEGER})
+      #{creditLogId,jdbcType=INTEGER}, #{tenant,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.OrderAccount" >
     insert into order_account
@@ -176,6 +178,9 @@
       <if test="creditLogId != null" >
         credit_log_id,
       </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -225,6 +230,9 @@
       </if>
       <if test="creditLogId != null" >
         #{creditLogId,jdbcType=INTEGER},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -285,6 +293,9 @@
       <if test="record.creditLogId != null" >
         credit_log_id = #{record.creditLogId,jdbcType=INTEGER},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -307,7 +318,8 @@
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       del_yn = #{record.delYn,jdbcType=INTEGER},
       delete_time = #{record.deleteTime,jdbcType=TIMESTAMP},
-      credit_log_id = #{record.creditLogId,jdbcType=INTEGER}
+      credit_log_id = #{record.creditLogId,jdbcType=INTEGER},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -360,6 +372,9 @@
       <if test="creditLogId != null" >
         credit_log_id = #{creditLogId,jdbcType=INTEGER},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -379,7 +394,8 @@
       create_time = #{createTime,jdbcType=TIMESTAMP},
       del_yn = #{delYn,jdbcType=INTEGER},
       delete_time = #{deleteTime,jdbcType=TIMESTAMP},
-      credit_log_id = #{creditLogId,jdbcType=INTEGER}
+      credit_log_id = #{creditLogId,jdbcType=INTEGER},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

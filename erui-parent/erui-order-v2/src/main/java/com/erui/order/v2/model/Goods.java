@@ -62,6 +62,8 @@ public class Goods {
 
     private Integer prePurchasedNum;
 
+    private Integer prePurchContractNum;
+
     private Date startDate;
 
     private String deliveryDate;
@@ -121,6 +123,8 @@ public class Goods {
     private BigDecimal price;
 
     private String meteName;
+
+    private String tenant;
 
     public Integer getId() {
         return id;
@@ -352,6 +356,14 @@ public class Goods {
 
     public void setPrePurchasedNum(Integer prePurchasedNum) {
         this.prePurchasedNum = prePurchasedNum;
+    }
+
+    public Integer getPrePurchContractNum() {
+        return prePurchContractNum;
+    }
+
+    public void setPrePurchContractNum(Integer prePurchContractNum) {
+        this.prePurchContractNum = prePurchContractNum;
     }
 
     public Date getStartDate() {
@@ -592,5 +604,13 @@ public class Goods {
 
     public void setMeteName(String meteName) {
         this.meteName = meteName;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

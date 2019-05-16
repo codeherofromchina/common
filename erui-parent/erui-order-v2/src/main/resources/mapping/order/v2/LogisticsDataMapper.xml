@@ -28,6 +28,7 @@
     <result column="logistics_price_usd" property="logisticsPriceUsd" jdbcType="DECIMAL" />
     <result column="logistics_cost" property="logisticsCost" jdbcType="DECIMAL" />
     <result column="logistics_cost_type" property="logisticsCostType" jdbcType="VARCHAR" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.erui.order.v2.model.LogisticsDataWithBLOBs" extends="BaseResultMap" >
     <result column="logs" property="logs" jdbcType="LONGVARCHAR" />
@@ -96,7 +97,7 @@
     logistics_user_name, logistics_date, booking_time, logi_invoice_no, packing_time, 
     leave_factory, sailing_date, customs_clearance, leave_port_time, arrival_port_time, 
     accomplish_date, create_user_name, create_user_id, status, confirm_the_goods, submenu_name, 
-    submenu_id, logistics_price_usd, logistics_cost, logistics_cost_type
+    submenu_id, logistics_price_usd, logistics_cost, logistics_cost_type, tenant
   </sql>
   <sql id="Blob_Column_List" >
     logs, remarks
@@ -158,8 +159,8 @@
       arrival_port_time, accomplish_date, create_user_name, 
       create_user_id, status, confirm_the_goods, 
       submenu_name, submenu_id, logistics_price_usd, 
-      logistics_cost, logistics_cost_type, logs, 
-      remarks)
+      logistics_cost, logistics_cost_type, tenant, 
+      logs, remarks)
     values (#{id,jdbcType=INTEGER}, #{theAwbNo,jdbcType=VARCHAR}, #{contractNo,jdbcType=VARCHAR}, 
       #{deliverDetailNo,jdbcType=VARCHAR}, #{releaseDate,jdbcType=VARCHAR}, #{logisticsUserId,jdbcType=INTEGER}, 
       #{logisticsUserName,jdbcType=VARCHAR}, #{logisticsDate,jdbcType=DATE}, #{bookingTime,jdbcType=TIMESTAMP}, 
@@ -168,8 +169,8 @@
       #{arrivalPortTime,jdbcType=TIMESTAMP}, #{accomplishDate,jdbcType=TIMESTAMP}, #{createUserName,jdbcType=VARCHAR}, 
       #{createUserId,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{confirmTheGoods,jdbcType=TIMESTAMP}, 
       #{submenuName,jdbcType=VARCHAR}, #{submenuId,jdbcType=INTEGER}, #{logisticsPriceUsd,jdbcType=DECIMAL}, 
-      #{logisticsCost,jdbcType=DECIMAL}, #{logisticsCostType,jdbcType=VARCHAR}, #{logs,jdbcType=LONGVARCHAR}, 
-      #{remarks,jdbcType=LONGVARCHAR})
+      #{logisticsCost,jdbcType=DECIMAL}, #{logisticsCostType,jdbcType=VARCHAR}, #{tenant,jdbcType=VARCHAR}, 
+      #{logs,jdbcType=LONGVARCHAR}, #{remarks,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.LogisticsDataWithBLOBs" >
     insert into logistics_data
@@ -251,6 +252,9 @@
       </if>
       <if test="logisticsCostType != null" >
         logistics_cost_type,
+      </if>
+      <if test="tenant != null" >
+        tenant,
       </if>
       <if test="logs != null" >
         logs,
@@ -337,6 +341,9 @@
       </if>
       <if test="logisticsCostType != null" >
         #{logisticsCostType,jdbcType=VARCHAR},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
       <if test="logs != null" >
         #{logs,jdbcType=LONGVARCHAR},
@@ -433,6 +440,9 @@
       <if test="record.logisticsCostType != null" >
         logistics_cost_type = #{record.logisticsCostType,jdbcType=VARCHAR},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
       <if test="record.logs != null" >
         logs = #{record.logs,jdbcType=LONGVARCHAR},
       </if>
@@ -472,6 +482,7 @@
       logistics_price_usd = #{record.logisticsPriceUsd,jdbcType=DECIMAL},
       logistics_cost = #{record.logisticsCost,jdbcType=DECIMAL},
       logistics_cost_type = #{record.logisticsCostType,jdbcType=VARCHAR},
+      tenant = #{record.tenant,jdbcType=VARCHAR},
       logs = #{record.logs,jdbcType=LONGVARCHAR},
       remarks = #{record.remarks,jdbcType=LONGVARCHAR}
     <if test="_parameter != null" >
@@ -505,7 +516,8 @@
       submenu_id = #{record.submenuId,jdbcType=INTEGER},
       logistics_price_usd = #{record.logisticsPriceUsd,jdbcType=DECIMAL},
       logistics_cost = #{record.logisticsCost,jdbcType=DECIMAL},
-      logistics_cost_type = #{record.logisticsCostType,jdbcType=VARCHAR}
+      logistics_cost_type = #{record.logisticsCostType,jdbcType=VARCHAR},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -588,6 +600,9 @@
       <if test="logisticsCostType != null" >
         logistics_cost_type = #{logisticsCostType,jdbcType=VARCHAR},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
       <if test="logs != null" >
         logs = #{logs,jdbcType=LONGVARCHAR},
       </if>
@@ -624,6 +639,7 @@
       logistics_price_usd = #{logisticsPriceUsd,jdbcType=DECIMAL},
       logistics_cost = #{logisticsCost,jdbcType=DECIMAL},
       logistics_cost_type = #{logisticsCostType,jdbcType=VARCHAR},
+      tenant = #{tenant,jdbcType=VARCHAR},
       logs = #{logs,jdbcType=LONGVARCHAR},
       remarks = #{remarks,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=INTEGER}
@@ -654,7 +670,8 @@
       submenu_id = #{submenuId,jdbcType=INTEGER},
       logistics_price_usd = #{logisticsPriceUsd,jdbcType=DECIMAL},
       logistics_cost = #{logisticsCost,jdbcType=DECIMAL},
-      logistics_cost_type = #{logisticsCostType,jdbcType=VARCHAR}
+      logistics_cost_type = #{logisticsCostType,jdbcType=VARCHAR},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

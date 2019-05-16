@@ -5,6 +5,8 @@ public class InspectApplyAttach {
 
     private Integer attachId;
 
+    private String tenant;
+
     public Integer getInspectApplyId() {
         return inspectApplyId;
     }
@@ -19,5 +21,13 @@ public class InspectApplyAttach {
 
     public void setAttachId(Integer attachId) {
         this.attachId = attachId;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

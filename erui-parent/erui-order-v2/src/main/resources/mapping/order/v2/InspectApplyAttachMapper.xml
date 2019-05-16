@@ -4,6 +4,7 @@
   <resultMap id="BaseResultMap" type="com.erui.order.v2.model.InspectApplyAttach" >
     <result column="inspect_apply_id" property="inspectApplyId" jdbcType="INTEGER" />
     <result column="attach_id" property="attachId" jdbcType="INTEGER" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -64,7 +65,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    inspect_apply_id, attach_id
+    inspect_apply_id, attach_id, tenant
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.InspectApplyAttachExample" >
     select
@@ -87,8 +88,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.erui.order.v2.model.InspectApplyAttach" >
-    insert into inspect_apply_attach (inspect_apply_id, attach_id)
-    values (#{inspectApplyId,jdbcType=INTEGER}, #{attachId,jdbcType=INTEGER})
+    insert into inspect_apply_attach (inspect_apply_id, attach_id, tenant
+      )
+    values (#{inspectApplyId,jdbcType=INTEGER}, #{attachId,jdbcType=INTEGER}, #{tenant,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.InspectApplyAttach" >
     insert into inspect_apply_attach
@@ -99,6 +102,9 @@
       <if test="attachId != null" >
         attach_id,
       </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="inspectApplyId != null" >
@@ -106,6 +112,9 @@
       </if>
       <if test="attachId != null" >
         #{attachId,jdbcType=INTEGER},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -124,6 +133,9 @@
       <if test="record.attachId != null" >
         attach_id = #{record.attachId,jdbcType=INTEGER},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -132,7 +144,8 @@
   <update id="updateByExample" parameterType="map" >
     update inspect_apply_attach
     set inspect_apply_id = #{record.inspectApplyId,jdbcType=INTEGER},
-      attach_id = #{record.attachId,jdbcType=INTEGER}
+      attach_id = #{record.attachId,jdbcType=INTEGER},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>

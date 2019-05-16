@@ -18,6 +18,10 @@ public class PurchPayment {
 
     private Date createTime;
 
+    private Integer days;
+
+    private String tenant;
+
     public Integer getId() {
         return id;
     }
@@ -72,5 +76,21 @@ public class PurchPayment {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public Integer getDays() {
+        return days;
+    }
+
+    public void setDays(Integer days) {
+        this.days = days;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

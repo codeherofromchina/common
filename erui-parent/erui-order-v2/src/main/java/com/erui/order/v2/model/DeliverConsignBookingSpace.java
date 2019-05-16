@@ -49,6 +49,8 @@ public class DeliverConsignBookingSpace {
 
     private String contactInformation;
 
+    private String tenant;
+
     public Integer getId() {
         return id;
     }
@@ -231,5 +233,13 @@ public class DeliverConsignBookingSpace {
 
     public void setContactInformation(String contactInformation) {
         this.contactInformation = contactInformation;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

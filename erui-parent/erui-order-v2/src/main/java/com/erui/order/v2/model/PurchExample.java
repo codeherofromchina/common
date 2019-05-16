@@ -263,6 +263,66 @@ public class PurchExample {
             return (Criteria) this;
         }
 
+        public Criteria andPurchContractIdIsNull() {
+            addCriterion("purch_contract_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdIsNotNull() {
+            addCriterion("purch_contract_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdEqualTo(Integer value) {
+            addCriterion("purch_contract_id =", value, "purchContractId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdNotEqualTo(Integer value) {
+            addCriterion("purch_contract_id <>", value, "purchContractId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdGreaterThan(Integer value) {
+            addCriterion("purch_contract_id >", value, "purchContractId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdGreaterThanOrEqualTo(Integer value) {
+            addCriterion("purch_contract_id >=", value, "purchContractId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdLessThan(Integer value) {
+            addCriterion("purch_contract_id <", value, "purchContractId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdLessThanOrEqualTo(Integer value) {
+            addCriterion("purch_contract_id <=", value, "purchContractId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdIn(List<Integer> values) {
+            addCriterion("purch_contract_id in", values, "purchContractId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdNotIn(List<Integer> values) {
+            addCriterion("purch_contract_id not in", values, "purchContractId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdBetween(Integer value1, Integer value2) {
+            addCriterion("purch_contract_id between", value1, value2, "purchContractId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdNotBetween(Integer value1, Integer value2) {
+            addCriterion("purch_contract_id not between", value1, value2, "purchContractId");
+            return (Criteria) this;
+        }
+
         public Criteria andAgentIdIsNull() {
             addCriterion("agent_id is null");
             return (Criteria) this;
@@ -3790,6 +3850,386 @@ public class PurchExample {
 
         public Criteria andChairmanBoardNotBetween(String value1, String value2) {
             addCriterion("chairman_board not between", value1, value2, "chairmanBoard");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdIsNull() {
+            addCriterion("purch_contract_goods_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdIsNotNull() {
+            addCriterion("purch_contract_goods_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdEqualTo(Integer value) {
+            addCriterion("purch_contract_goods_id =", value, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdNotEqualTo(Integer value) {
+            addCriterion("purch_contract_goods_id <>", value, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdGreaterThan(Integer value) {
+            addCriterion("purch_contract_goods_id >", value, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdGreaterThanOrEqualTo(Integer value) {
+            addCriterion("purch_contract_goods_id >=", value, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdLessThan(Integer value) {
+            addCriterion("purch_contract_goods_id <", value, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdLessThanOrEqualTo(Integer value) {
+            addCriterion("purch_contract_goods_id <=", value, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdIn(List<Integer> values) {
+            addCriterion("purch_contract_goods_id in", values, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdNotIn(List<Integer> values) {
+            addCriterion("purch_contract_goods_id not in", values, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdBetween(Integer value1, Integer value2) {
+            addCriterion("purch_contract_goods_id between", value1, value2, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdNotBetween(Integer value1, Integer value2) {
+            addCriterion("purch_contract_goods_id not between", value1, value2, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantIsNull() {
+            addCriterion("tenant is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantIsNotNull() {
+            addCriterion("tenant is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantEqualTo(String value) {
+            addCriterion("tenant =", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotEqualTo(String value) {
+            addCriterion("tenant <>", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantGreaterThan(String value) {
+            addCriterion("tenant >", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantGreaterThanOrEqualTo(String value) {
+            addCriterion("tenant >=", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantLessThan(String value) {
+            addCriterion("tenant <", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantLessThanOrEqualTo(String value) {
+            addCriterion("tenant <=", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantLike(String value) {
+            addCriterion("tenant like", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotLike(String value) {
+            addCriterion("tenant not like", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantIn(List<String> values) {
+            addCriterion("tenant in", values, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotIn(List<String> values) {
+            addCriterion("tenant not in", values, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantBetween(String value1, String value2) {
+            addCriterion("tenant between", value1, value2, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotBetween(String value1, String value2) {
+            addCriterion("tenant not between", value1, value2, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectStatusIsNull() {
+            addCriterion("quality_inspect_status is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectStatusIsNotNull() {
+            addCriterion("quality_inspect_status is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectStatusEqualTo(Integer value) {
+            addCriterion("quality_inspect_status =", value, "qualityInspectStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectStatusNotEqualTo(Integer value) {
+            addCriterion("quality_inspect_status <>", value, "qualityInspectStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectStatusGreaterThan(Integer value) {
+            addCriterion("quality_inspect_status >", value, "qualityInspectStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectStatusGreaterThanOrEqualTo(Integer value) {
+            addCriterion("quality_inspect_status >=", value, "qualityInspectStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectStatusLessThan(Integer value) {
+            addCriterion("quality_inspect_status <", value, "qualityInspectStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectStatusLessThanOrEqualTo(Integer value) {
+            addCriterion("quality_inspect_status <=", value, "qualityInspectStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectStatusIn(List<Integer> values) {
+            addCriterion("quality_inspect_status in", values, "qualityInspectStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectStatusNotIn(List<Integer> values) {
+            addCriterion("quality_inspect_status not in", values, "qualityInspectStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectStatusBetween(Integer value1, Integer value2) {
+            addCriterion("quality_inspect_status between", value1, value2, "qualityInspectStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectStatusNotBetween(Integer value1, Integer value2) {
+            addCriterion("quality_inspect_status not between", value1, value2, "qualityInspectStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderIdIsNull() {
+            addCriterion("quality_leader_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderIdIsNotNull() {
+            addCriterion("quality_leader_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderIdEqualTo(Integer value) {
+            addCriterion("quality_leader_id =", value, "qualityLeaderId");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderIdNotEqualTo(Integer value) {
+            addCriterion("quality_leader_id <>", value, "qualityLeaderId");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderIdGreaterThan(Integer value) {
+            addCriterion("quality_leader_id >", value, "qualityLeaderId");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderIdGreaterThanOrEqualTo(Integer value) {
+            addCriterion("quality_leader_id >=", value, "qualityLeaderId");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderIdLessThan(Integer value) {
+            addCriterion("quality_leader_id <", value, "qualityLeaderId");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderIdLessThanOrEqualTo(Integer value) {
+            addCriterion("quality_leader_id <=", value, "qualityLeaderId");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderIdIn(List<Integer> values) {
+            addCriterion("quality_leader_id in", values, "qualityLeaderId");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderIdNotIn(List<Integer> values) {
+            addCriterion("quality_leader_id not in", values, "qualityLeaderId");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderIdBetween(Integer value1, Integer value2) {
+            addCriterion("quality_leader_id between", value1, value2, "qualityLeaderId");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderIdNotBetween(Integer value1, Integer value2) {
+            addCriterion("quality_leader_id not between", value1, value2, "qualityLeaderId");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderNameIsNull() {
+            addCriterion("quality_leader_name is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderNameIsNotNull() {
+            addCriterion("quality_leader_name is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderNameEqualTo(String value) {
+            addCriterion("quality_leader_name =", value, "qualityLeaderName");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderNameNotEqualTo(String value) {
+            addCriterion("quality_leader_name <>", value, "qualityLeaderName");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderNameGreaterThan(String value) {
+            addCriterion("quality_leader_name >", value, "qualityLeaderName");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderNameGreaterThanOrEqualTo(String value) {
+            addCriterion("quality_leader_name >=", value, "qualityLeaderName");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderNameLessThan(String value) {
+            addCriterion("quality_leader_name <", value, "qualityLeaderName");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderNameLessThanOrEqualTo(String value) {
+            addCriterion("quality_leader_name <=", value, "qualityLeaderName");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderNameLike(String value) {
+            addCriterion("quality_leader_name like", value, "qualityLeaderName");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderNameNotLike(String value) {
+            addCriterion("quality_leader_name not like", value, "qualityLeaderName");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderNameIn(List<String> values) {
+            addCriterion("quality_leader_name in", values, "qualityLeaderName");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderNameNotIn(List<String> values) {
+            addCriterion("quality_leader_name not in", values, "qualityLeaderName");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderNameBetween(String value1, String value2) {
+            addCriterion("quality_leader_name between", value1, value2, "qualityLeaderName");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityLeaderNameNotBetween(String value1, String value2) {
+            addCriterion("quality_leader_name not between", value1, value2, "qualityLeaderName");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityTimeIsNull() {
+            addCriterion("quality_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityTimeIsNotNull() {
+            addCriterion("quality_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityTimeEqualTo(Date value) {
+            addCriterion("quality_time =", value, "qualityTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityTimeNotEqualTo(Date value) {
+            addCriterion("quality_time <>", value, "qualityTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityTimeGreaterThan(Date value) {
+            addCriterion("quality_time >", value, "qualityTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityTimeGreaterThanOrEqualTo(Date value) {
+            addCriterion("quality_time >=", value, "qualityTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityTimeLessThan(Date value) {
+            addCriterion("quality_time <", value, "qualityTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityTimeLessThanOrEqualTo(Date value) {
+            addCriterion("quality_time <=", value, "qualityTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityTimeIn(List<Date> values) {
+            addCriterion("quality_time in", values, "qualityTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityTimeNotIn(List<Date> values) {
+            addCriterion("quality_time not in", values, "qualityTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityTimeBetween(Date value1, Date value2) {
+            addCriterion("quality_time between", value1, value2, "qualityTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityTimeNotBetween(Date value1, Date value2) {
+            addCriterion("quality_time not between", value1, value2, "qualityTime");
             return (Criteria) this;
         }
 

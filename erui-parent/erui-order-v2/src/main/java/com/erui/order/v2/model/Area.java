@@ -13,6 +13,8 @@ public class Area {
 
     private String deletedFlag;
 
+    private String tenant;
+
     public Integer getId() {
         return id;
     }
@@ -59,5 +61,13 @@ public class Area {
 
     public void setDeletedFlag(String deletedFlag) {
         this.deletedFlag = deletedFlag;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

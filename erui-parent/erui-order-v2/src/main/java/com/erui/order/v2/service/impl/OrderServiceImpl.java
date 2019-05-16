@@ -4,11 +4,10 @@ import com.erui.order.v2.dao.OrderMapper;
 import com.erui.order.v2.model.Order;
 import com.erui.order.v2.model.OrderExample;
 import com.erui.order.v2.model.OrderWithBLOBs;
-import com.erui.order.v2.service.EmployeeService;
+import com.erui.order.v2.service.UserService;
 import com.erui.order.v2.service.OrderService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +25,7 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderMapper orderMapper;
     @Autowired
-    private EmployeeService employeeService;
+    private UserService userService;
 
     /**
      * 根据业务流的实例ID查找订单信息
@@ -69,7 +68,7 @@ public class OrderServiceImpl implements OrderService {
         }
         // 设置审核人
         // 通过工号查找用户ID
-        Long userId = employeeService.findIdByUserNo(assignee);
+        Long userId = userService.findIdByUserNo(assignee);
         if (StringUtils.isNotBlank(audiRemark)) {
             if (userId != null && !audiRemark.contains("," + userId + ",")) {
                 audiRemark += "," + userId + ",";

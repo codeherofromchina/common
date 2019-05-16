@@ -56,6 +56,8 @@ public class LogisticsData {
 
     private String logisticsCostType;
 
+    private String tenant;
+
     public Integer getId() {
         return id;
     }
@@ -262,5 +264,13 @@ public class LogisticsData {
 
     public void setLogisticsCostType(String logisticsCostType) {
         this.logisticsCostType = logisticsCostType;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

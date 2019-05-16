@@ -12,6 +12,7 @@
     <result column="outbound_remark" property="outboundRemark" jdbcType="VARCHAR" />
     <result column="outbound_num" property="outboundNum" jdbcType="INTEGER" />
     <result column="straight_num" property="straightNum" jdbcType="INTEGER" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -73,7 +74,7 @@
   </sql>
   <sql id="Base_Column_List" >
     id, deliver_consign_id, goods_id, send_num, pack_require, create_time, create_user_id, 
-    outbound_remark, outbound_num, straight_num
+    outbound_remark, outbound_num, straight_num, tenant
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.DeliverConsignGoodsExample" >
     select
@@ -109,11 +110,11 @@
     insert into deliver_consign_goods (id, deliver_consign_id, goods_id, 
       send_num, pack_require, create_time, 
       create_user_id, outbound_remark, outbound_num, 
-      straight_num)
+      straight_num, tenant)
     values (#{id,jdbcType=INTEGER}, #{deliverConsignId,jdbcType=INTEGER}, #{goodsId,jdbcType=INTEGER}, 
       #{sendNum,jdbcType=INTEGER}, #{packRequire,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
       #{createUserId,jdbcType=INTEGER}, #{outboundRemark,jdbcType=VARCHAR}, #{outboundNum,jdbcType=INTEGER}, 
-      #{straightNum,jdbcType=INTEGER})
+      #{straightNum,jdbcType=INTEGER}, #{tenant,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.DeliverConsignGoods" >
     insert into deliver_consign_goods
@@ -148,6 +149,9 @@
       <if test="straightNum != null" >
         straight_num,
       </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -179,6 +183,9 @@
       </if>
       <if test="straightNum != null" >
         #{straightNum,jdbcType=INTEGER},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -221,6 +228,9 @@
       <if test="record.straightNum != null" >
         straight_num = #{record.straightNum,jdbcType=INTEGER},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -237,7 +247,8 @@
       create_user_id = #{record.createUserId,jdbcType=INTEGER},
       outbound_remark = #{record.outboundRemark,jdbcType=VARCHAR},
       outbound_num = #{record.outboundNum,jdbcType=INTEGER},
-      straight_num = #{record.straightNum,jdbcType=INTEGER}
+      straight_num = #{record.straightNum,jdbcType=INTEGER},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -272,6 +283,9 @@
       <if test="straightNum != null" >
         straight_num = #{straightNum,jdbcType=INTEGER},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -285,7 +299,8 @@
       create_user_id = #{createUserId,jdbcType=INTEGER},
       outbound_remark = #{outboundRemark,jdbcType=VARCHAR},
       outbound_num = #{outboundNum,jdbcType=INTEGER},
-      straight_num = #{straightNum,jdbcType=INTEGER}
+      straight_num = #{straightNum,jdbcType=INTEGER},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

@@ -184,6 +184,8 @@ public class Order {
 
     private String processId;
 
+    private String tenant;
+
     private String taskId;
 
     public Integer getId() {
@@ -904,6 +906,14 @@ public class Order {
 
     public void setProcessId(String processId) {
         this.processId = processId;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 
     public String getTaskId() {

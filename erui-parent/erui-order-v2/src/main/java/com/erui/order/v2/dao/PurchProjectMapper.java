@@ -1,5 +1,6 @@
 package com.erui.order.v2.dao;
 
+import com.erui.order.v2.model.PurchProject;
 import com.erui.order.v2.model.PurchProjectExample;
 import com.erui.order.v2.model.PurchProjectKey;
 import java.util.List;
@@ -12,13 +13,19 @@ public interface PurchProjectMapper {
 
     int deleteByPrimaryKey(PurchProjectKey key);
 
-    int insert(PurchProjectKey record);
+    int insert(PurchProject record);
 
-    int insertSelective(PurchProjectKey record);
+    int insertSelective(PurchProject record);
 
-    List<PurchProjectKey> selectByExample(PurchProjectExample example);
+    List<PurchProject> selectByExample(PurchProjectExample example);
 
-    int updateByExampleSelective(@Param("record") PurchProjectKey record, @Param("example") PurchProjectExample example);
+    PurchProject selectByPrimaryKey(PurchProjectKey key);
 
-    int updateByExample(@Param("record") PurchProjectKey record, @Param("example") PurchProjectExample example);
+    int updateByExampleSelective(@Param("record") PurchProject record, @Param("example") PurchProjectExample example);
+
+    int updateByExample(@Param("record") PurchProject record, @Param("example") PurchProjectExample example);
+
+    int updateByPrimaryKeySelective(PurchProject record);
+
+    int updateByPrimaryKey(PurchProject record);
 }

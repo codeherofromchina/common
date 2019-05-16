@@ -1,5 +1,6 @@
 package com.erui.order.v2.dao;
 
+import com.erui.order.v2.model.DeliverDetailGoods;
 import com.erui.order.v2.model.DeliverDetailGoodsExample;
 import com.erui.order.v2.model.DeliverDetailGoodsKey;
 import java.util.List;
@@ -12,13 +13,19 @@ public interface DeliverDetailGoodsMapper {
 
     int deleteByPrimaryKey(DeliverDetailGoodsKey key);
 
-    int insert(DeliverDetailGoodsKey record);
+    int insert(DeliverDetailGoods record);
 
-    int insertSelective(DeliverDetailGoodsKey record);
+    int insertSelective(DeliverDetailGoods record);
 
-    List<DeliverDetailGoodsKey> selectByExample(DeliverDetailGoodsExample example);
+    List<DeliverDetailGoods> selectByExample(DeliverDetailGoodsExample example);
 
-    int updateByExampleSelective(@Param("record") DeliverDetailGoodsKey record, @Param("example") DeliverDetailGoodsExample example);
+    DeliverDetailGoods selectByPrimaryKey(DeliverDetailGoodsKey key);
 
-    int updateByExample(@Param("record") DeliverDetailGoodsKey record, @Param("example") DeliverDetailGoodsExample example);
+    int updateByExampleSelective(@Param("record") DeliverDetailGoods record, @Param("example") DeliverDetailGoodsExample example);
+
+    int updateByExample(@Param("record") DeliverDetailGoods record, @Param("example") DeliverDetailGoodsExample example);
+
+    int updateByPrimaryKeySelective(DeliverDetailGoods record);
+
+    int updateByPrimaryKey(DeliverDetailGoods record);
 }

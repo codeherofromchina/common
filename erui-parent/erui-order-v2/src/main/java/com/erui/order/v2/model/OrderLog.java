@@ -29,6 +29,8 @@ public class OrderLog {
 
     private String enOperation;
 
+    private String tenant;
+
     public Integer getId() {
         return id;
     }
@@ -131,5 +133,13 @@ public class OrderLog {
 
     public void setEnOperation(String enOperation) {
         this.enOperation = enOperation;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

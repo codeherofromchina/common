@@ -8,6 +8,8 @@ public class Purch {
 
     private String purchNo;
 
+    private Integer purchContractId;
+
     private Integer agentId;
 
     private String agentName;
@@ -118,6 +120,18 @@ public class Purch {
 
     private String chairmanBoard;
 
+    private Integer purchContractGoodsId;
+
+    private String tenant;
+
+    private Integer qualityInspectStatus;
+
+    private Integer qualityLeaderId;
+
+    private String qualityLeaderName;
+
+    private Date qualityTime;
+
     private String processId;
 
     private String taskId;
@@ -138,6 +152,14 @@ public class Purch {
 
     public void setPurchNo(String purchNo) {
         this.purchNo = purchNo;
+    }
+
+    public Integer getPurchContractId() {
+        return purchContractId;
+    }
+
+    public void setPurchContractId(Integer purchContractId) {
+        this.purchContractId = purchContractId;
     }
 
     public Integer getAgentId() {
@@ -580,6 +602,54 @@ public class Purch {
         this.chairmanBoard = chairmanBoard;
     }
 
+    public Integer getPurchContractGoodsId() {
+        return purchContractGoodsId;
+    }
+
+    public void setPurchContractGoodsId(Integer purchContractGoodsId) {
+        this.purchContractGoodsId = purchContractGoodsId;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
+    }
+
+    public Integer getQualityInspectStatus() {
+        return qualityInspectStatus;
+    }
+
+    public void setQualityInspectStatus(Integer qualityInspectStatus) {
+        this.qualityInspectStatus = qualityInspectStatus;
+    }
+
+    public Integer getQualityLeaderId() {
+        return qualityLeaderId;
+    }
+
+    public void setQualityLeaderId(Integer qualityLeaderId) {
+        this.qualityLeaderId = qualityLeaderId;
+    }
+
+    public String getQualityLeaderName() {
+        return qualityLeaderName;
+    }
+
+    public void setQualityLeaderName(String qualityLeaderName) {
+        this.qualityLeaderName = qualityLeaderName;
+    }
+
+    public Date getQualityTime() {
+        return qualityTime;
+    }
+
+    public void setQualityTime(Date qualityTime) {
+        this.qualityTime = qualityTime;
+    }
+
     public String getProcessId() {
         return processId;
     }
@@ -603,7 +673,6 @@ public class Purch {
     public void setRemarks(String remarks) {
         this.remarks = remarks;
     }
-
 
     /**
      * 采购状态枚举
@@ -646,5 +715,4 @@ public class Purch {
         }
 
     }
-
 }

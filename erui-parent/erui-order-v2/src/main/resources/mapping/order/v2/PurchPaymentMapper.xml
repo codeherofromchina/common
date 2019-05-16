@@ -9,6 +9,8 @@
     <result column="money" property="money" jdbcType="DECIMAL" />
     <result column="receipt_date" property="receiptDate" jdbcType="DATE" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="days" property="days" jdbcType="INTEGER" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -69,7 +71,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, purch_id, type, title, money, receipt_date, create_time
+    id, purch_id, type, title, money, receipt_date, create_time, days, tenant
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.PurchPaymentExample" >
     select
@@ -104,10 +106,12 @@
   <insert id="insert" parameterType="com.erui.order.v2.model.PurchPayment" >
     insert into purch_payment (id, purch_id, type, 
       title, money, receipt_date, 
-      create_time)
+      create_time, days, tenant
+      )
     values (#{id,jdbcType=INTEGER}, #{purchId,jdbcType=INTEGER}, #{type,jdbcType=INTEGER}, 
       #{title,jdbcType=VARCHAR}, #{money,jdbcType=DECIMAL}, #{receiptDate,jdbcType=DATE}, 
-      #{createTime,jdbcType=TIMESTAMP})
+      #{createTime,jdbcType=TIMESTAMP}, #{days,jdbcType=INTEGER}, #{tenant,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.PurchPayment" >
     insert into purch_payment
@@ -133,6 +137,12 @@
       <if test="createTime != null" >
         create_time,
       </if>
+      <if test="days != null" >
+        days,
+      </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -155,6 +165,12 @@
       </if>
       <if test="createTime != null" >
         #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="days != null" >
+        #{days,jdbcType=INTEGER},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -188,6 +204,12 @@
       <if test="record.createTime != null" >
         create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="record.days != null" >
+        days = #{record.days,jdbcType=INTEGER},
+      </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -201,7 +223,9 @@
       title = #{record.title,jdbcType=VARCHAR},
       money = #{record.money,jdbcType=DECIMAL},
       receipt_date = #{record.receiptDate,jdbcType=DATE},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP}
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      days = #{record.days,jdbcType=INTEGER},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -227,6 +251,12 @@
       <if test="createTime != null" >
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="days != null" >
+        days = #{days,jdbcType=INTEGER},
+      </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -237,7 +267,9 @@
       title = #{title,jdbcType=VARCHAR},
       money = #{money,jdbcType=DECIMAL},
       receipt_date = #{receiptDate,jdbcType=DATE},
-      create_time = #{createTime,jdbcType=TIMESTAMP}
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      days = #{days,jdbcType=INTEGER},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

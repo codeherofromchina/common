@@ -60,6 +60,7 @@
     <result column="out_check" property="outCheck" jdbcType="INTEGER" />
     <result column="submenu_name" property="submenuName" jdbcType="VARCHAR" />
     <result column="submenu_id" property="submenuId" jdbcType="INTEGER" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.erui.order.v2.model.DeliverDetailWithBLOBs" extends="BaseResultMap" >
     <result column="reason" property="reason" jdbcType="LONGVARCHAR" />
@@ -134,7 +135,7 @@
     logistics_date, booking_time, logi_invoice_no, packing_time, leave_factory, sailing_date, 
     customs_clearance, leave_port_time, arrival_port_time, create_user_name, create_user_id, 
     status, pack_total, the_end_time, confirm_the_goods, accomplish_date, deliver_consign_id, 
-    out_check, submenu_name, submenu_id
+    out_check, submenu_name, submenu_id, tenant
   </sql>
   <sql id="Blob_Column_List" >
     reason, logs, remarks
@@ -187,7 +188,7 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.erui.order.v2.model.DeliverDetailWithBLOBs" >
+  <insert id="insert" parameterType="com.erui.order.v2.model.DeliverDetailWithBLOBs" >
     insert into deliver_detail (id, deliver_detail_no, deliver_notice_id, 
       billing_date, carrier_co, driver, 
       plate_no, pickup_date, contact_tel, 
@@ -207,8 +208,8 @@
       create_user_id, status, pack_total, 
       the_end_time, confirm_the_goods, accomplish_date, 
       deliver_consign_id, out_check, submenu_name, 
-      submenu_id, reason, logs, 
-      remarks)
+      submenu_id, tenant, reason, 
+      logs, remarks)
     values (#{id,jdbcType=INTEGER}, #{deliverDetailNo,jdbcType=VARCHAR}, #{deliverNoticeId,jdbcType=INTEGER}, 
       #{billingDate,jdbcType=DATE}, #{carrierCo,jdbcType=VARCHAR}, #{driver,jdbcType=VARCHAR}, 
       #{plateNo,jdbcType=VARCHAR}, #{pickupDate,jdbcType=DATE}, #{contactTel,jdbcType=VARCHAR}, 
@@ -228,8 +229,8 @@
       #{createUserId,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{packTotal,jdbcType=INTEGER}, 
       #{theEndTime,jdbcType=TIMESTAMP}, #{confirmTheGoods,jdbcType=TIMESTAMP}, #{accomplishDate,jdbcType=TIMESTAMP}, 
       #{deliverConsignId,jdbcType=INTEGER}, #{outCheck,jdbcType=INTEGER}, #{submenuName,jdbcType=VARCHAR}, 
-      #{submenuId,jdbcType=INTEGER}, #{reason,jdbcType=LONGVARCHAR}, #{logs,jdbcType=LONGVARCHAR}, 
-      #{remarks,jdbcType=LONGVARCHAR})
+      #{submenuId,jdbcType=INTEGER}, #{tenant,jdbcType=VARCHAR}, #{reason,jdbcType=LONGVARCHAR}, 
+      #{logs,jdbcType=LONGVARCHAR}, #{remarks,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.DeliverDetailWithBLOBs" >
     insert into deliver_detail
@@ -407,6 +408,9 @@
       </if>
       <if test="submenuId != null" >
         submenu_id,
+      </if>
+      <if test="tenant != null" >
+        tenant,
       </if>
       <if test="reason != null" >
         reason,
@@ -592,6 +596,9 @@
       </if>
       <if test="submenuId != null" >
         #{submenuId,jdbcType=INTEGER},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
       <if test="reason != null" >
         #{reason,jdbcType=LONGVARCHAR},
@@ -787,6 +794,9 @@
       <if test="record.submenuId != null" >
         submenu_id = #{record.submenuId,jdbcType=INTEGER},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
       <if test="record.reason != null" >
         reason = #{record.reason,jdbcType=LONGVARCHAR},
       </if>
@@ -861,6 +871,7 @@
       out_check = #{record.outCheck,jdbcType=INTEGER},
       submenu_name = #{record.submenuName,jdbcType=VARCHAR},
       submenu_id = #{record.submenuId,jdbcType=INTEGER},
+      tenant = #{record.tenant,jdbcType=VARCHAR},
       reason = #{record.reason,jdbcType=LONGVARCHAR},
       logs = #{record.logs,jdbcType=LONGVARCHAR},
       remarks = #{record.remarks,jdbcType=LONGVARCHAR}
@@ -927,7 +938,8 @@
       deliver_consign_id = #{record.deliverConsignId,jdbcType=INTEGER},
       out_check = #{record.outCheck,jdbcType=INTEGER},
       submenu_name = #{record.submenuName,jdbcType=VARCHAR},
-      submenu_id = #{record.submenuId,jdbcType=INTEGER}
+      submenu_id = #{record.submenuId,jdbcType=INTEGER},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -1106,6 +1118,9 @@
       <if test="submenuId != null" >
         submenu_id = #{submenuId,jdbcType=INTEGER},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
       <if test="reason != null" >
         reason = #{reason,jdbcType=LONGVARCHAR},
       </if>
@@ -1177,6 +1192,7 @@
       out_check = #{outCheck,jdbcType=INTEGER},
       submenu_name = #{submenuName,jdbcType=VARCHAR},
       submenu_id = #{submenuId,jdbcType=INTEGER},
+      tenant = #{tenant,jdbcType=VARCHAR},
       reason = #{reason,jdbcType=LONGVARCHAR},
       logs = #{logs,jdbcType=LONGVARCHAR},
       remarks = #{remarks,jdbcType=LONGVARCHAR}
@@ -1240,7 +1256,8 @@
       deliver_consign_id = #{deliverConsignId,jdbcType=INTEGER},
       out_check = #{outCheck,jdbcType=INTEGER},
       submenu_name = #{submenuName,jdbcType=VARCHAR},
-      submenu_id = #{submenuId,jdbcType=INTEGER}
+      submenu_id = #{submenuId,jdbcType=INTEGER},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

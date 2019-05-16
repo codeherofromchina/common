@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.erui.order.v2.dao.InstockAttachMapper" >
-  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.InstockAttachKey" >
+  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.InstockAttach" >
     <id column="attach_id" property="attachId" jdbcType="INTEGER" />
     <id column="instock_id" property="instockId" jdbcType="INTEGER" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -64,7 +65,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    attach_id, instock_id
+    attach_id, instock_id, tenant
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.InstockAttachExample" >
     select
@@ -80,6 +81,13 @@
       order by ${orderByClause}
     </if>
   </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.InstockAttachKey" >
+    select 
+    <include refid="Base_Column_List" />
+    from instock_attach
+    where attach_id = #{attachId,jdbcType=INTEGER}
+      and instock_id = #{instockId,jdbcType=INTEGER}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="com.erui.order.v2.model.InstockAttachKey" >
     delete from instock_attach
     where attach_id = #{attachId,jdbcType=INTEGER}
@@ -91,11 +99,13 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.erui.order.v2.model.InstockAttachKey" >
-    insert into instock_attach (attach_id, instock_id)
-    values (#{attachId,jdbcType=INTEGER}, #{instockId,jdbcType=INTEGER})
+  <insert id="insert" parameterType="com.erui.order.v2.model.InstockAttach" >
+    insert into instock_attach (attach_id, instock_id, tenant
+      )
+    values (#{attachId,jdbcType=INTEGER}, #{instockId,jdbcType=INTEGER}, #{tenant,jdbcType=VARCHAR}
+      )
   </insert>
-  <insert id="insertSelective" parameterType="com.erui.order.v2.model.InstockAttachKey" >
+  <insert id="insertSelective" parameterType="com.erui.order.v2.model.InstockAttach" >
     insert into instock_attach
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="attachId != null" >
@@ -104,6 +114,9 @@
       <if test="instockId != null" >
         instock_id,
       </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="attachId != null" >
@@ -111,6 +124,9 @@
       </if>
       <if test="instockId != null" >
         #{instockId,jdbcType=INTEGER},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -129,6 +145,9 @@
       <if test="record.instockId != null" >
         instock_id = #{record.instockId,jdbcType=INTEGER},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -137,9 +156,26 @@
   <update id="updateByExample" parameterType="map" >
     update instock_attach
     set attach_id = #{record.attachId,jdbcType=INTEGER},
-      instock_id = #{record.instockId,jdbcType=INTEGER}
+      instock_id = #{record.instockId,jdbcType=INTEGER},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.InstockAttach" >
+    update instock_attach
+    <set >
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where attach_id = #{attachId,jdbcType=INTEGER}
+      and instock_id = #{instockId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.InstockAttach" >
+    update instock_attach
+    set tenant = #{tenant,jdbcType=VARCHAR}
+    where attach_id = #{attachId,jdbcType=INTEGER}
+      and instock_id = #{instockId,jdbcType=INTEGER}
   </update>
 </mapper>

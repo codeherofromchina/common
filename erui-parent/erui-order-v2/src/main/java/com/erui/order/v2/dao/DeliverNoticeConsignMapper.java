@@ -1,5 +1,6 @@
 package com.erui.order.v2.dao;
 
+import com.erui.order.v2.model.DeliverNoticeConsign;
 import com.erui.order.v2.model.DeliverNoticeConsignExample;
 import com.erui.order.v2.model.DeliverNoticeConsignKey;
 import java.util.List;
@@ -12,13 +13,19 @@ public interface DeliverNoticeConsignMapper {
 
     int deleteByPrimaryKey(DeliverNoticeConsignKey key);
 
-    int insert(DeliverNoticeConsignKey record);
+    int insert(DeliverNoticeConsign record);
 
-    int insertSelective(DeliverNoticeConsignKey record);
+    int insertSelective(DeliverNoticeConsign record);
 
-    List<DeliverNoticeConsignKey> selectByExample(DeliverNoticeConsignExample example);
+    List<DeliverNoticeConsign> selectByExample(DeliverNoticeConsignExample example);
 
-    int updateByExampleSelective(@Param("record") DeliverNoticeConsignKey record, @Param("example") DeliverNoticeConsignExample example);
+    DeliverNoticeConsign selectByPrimaryKey(DeliverNoticeConsignKey key);
 
-    int updateByExample(@Param("record") DeliverNoticeConsignKey record, @Param("example") DeliverNoticeConsignExample example);
+    int updateByExampleSelective(@Param("record") DeliverNoticeConsign record, @Param("example") DeliverNoticeConsignExample example);
+
+    int updateByExample(@Param("record") DeliverNoticeConsign record, @Param("example") DeliverNoticeConsignExample example);
+
+    int updateByPrimaryKeySelective(DeliverNoticeConsign record);
+
+    int updateByPrimaryKey(DeliverNoticeConsign record);
 }

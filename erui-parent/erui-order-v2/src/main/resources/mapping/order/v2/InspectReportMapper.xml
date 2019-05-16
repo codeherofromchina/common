@@ -21,6 +21,7 @@
     <result column="supplier_name" property="supplierName" jdbcType="VARCHAR" />
     <result column="status" property="status" jdbcType="INTEGER" />
     <result column="last_done_date" property="lastDoneDate" jdbcType="TIMESTAMP" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -83,7 +84,7 @@
   <sql id="Base_Column_List" >
     id, inspect_apply_id, inspect_apply_no, check_times, check_date, report_first, check_dept_id, 
     check_dept_name, check_user_id, check_user_name, create_time, done_date, msg, ncr_no, 
-    process, report_remarks, supplier_name, status, last_done_date
+    process, report_remarks, supplier_name, status, last_done_date, tenant
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.InspectReportExample" >
     select
@@ -121,15 +122,15 @@
       check_dept_id, check_dept_name, check_user_id, 
       check_user_name, create_time, done_date, 
       msg, ncr_no, process, report_remarks, 
-      supplier_name, status, last_done_date
-      )
+      supplier_name, status, last_done_date, 
+      tenant)
     values (#{id,jdbcType=INTEGER}, #{inspectApplyId,jdbcType=INTEGER}, #{inspectApplyNo,jdbcType=VARCHAR}, 
       #{checkTimes,jdbcType=INTEGER}, #{checkDate,jdbcType=TIMESTAMP}, #{reportFirst,jdbcType=BIT}, 
       #{checkDeptId,jdbcType=INTEGER}, #{checkDeptName,jdbcType=VARCHAR}, #{checkUserId,jdbcType=INTEGER}, 
       #{checkUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{doneDate,jdbcType=TIMESTAMP}, 
       #{msg,jdbcType=VARCHAR}, #{ncrNo,jdbcType=VARCHAR}, #{process,jdbcType=BIT}, #{reportRemarks,jdbcType=VARCHAR}, 
-      #{supplierName,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{lastDoneDate,jdbcType=TIMESTAMP}
-      )
+      #{supplierName,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{lastDoneDate,jdbcType=TIMESTAMP}, 
+      #{tenant,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.InspectReport" >
     insert into inspect_report
@@ -191,6 +192,9 @@
       <if test="lastDoneDate != null" >
         last_done_date,
       </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -249,6 +253,9 @@
       </if>
       <if test="lastDoneDate != null" >
         #{lastDoneDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -318,6 +325,9 @@
       <if test="record.lastDoneDate != null" >
         last_done_date = #{record.lastDoneDate,jdbcType=TIMESTAMP},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -343,7 +353,8 @@
       report_remarks = #{record.reportRemarks,jdbcType=VARCHAR},
       supplier_name = #{record.supplierName,jdbcType=VARCHAR},
       status = #{record.status,jdbcType=INTEGER},
-      last_done_date = #{record.lastDoneDate,jdbcType=TIMESTAMP}
+      last_done_date = #{record.lastDoneDate,jdbcType=TIMESTAMP},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -405,6 +416,9 @@
       <if test="lastDoneDate != null" >
         last_done_date = #{lastDoneDate,jdbcType=TIMESTAMP},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -427,7 +441,8 @@
       report_remarks = #{reportRemarks,jdbcType=VARCHAR},
       supplier_name = #{supplierName,jdbcType=VARCHAR},
       status = #{status,jdbcType=INTEGER},
-      last_done_date = #{lastDoneDate,jdbcType=TIMESTAMP}
+      last_done_date = #{lastDoneDate,jdbcType=TIMESTAMP},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

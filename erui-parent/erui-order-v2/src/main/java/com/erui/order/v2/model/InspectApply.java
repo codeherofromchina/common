@@ -43,6 +43,8 @@ public class InspectApply {
 
     private Integer pubStatus;
 
+    private String tenant;
+
     private String remark;
 
     public Integer getId() {
@@ -203,6 +205,14 @@ public class InspectApply {
 
     public void setPubStatus(Integer pubStatus) {
         this.pubStatus = pubStatus;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 
     public String getRemark() {

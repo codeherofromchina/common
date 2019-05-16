@@ -41,6 +41,8 @@ public class InspectReport {
 
     private Date lastDoneDate;
 
+    private String tenant;
+
     public Integer getId() {
         return id;
     }
@@ -191,5 +193,13 @@ public class InspectReport {
 
     public void setLastDoneDate(Date lastDoneDate) {
         this.lastDoneDate = lastDoneDate;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

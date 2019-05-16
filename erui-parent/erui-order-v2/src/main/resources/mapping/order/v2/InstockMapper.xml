@@ -17,6 +17,7 @@
     <result column="out_check" property="outCheck" jdbcType="INTEGER" />
     <result column="submenu_name" property="submenuName" jdbcType="VARCHAR" />
     <result column="submenu_id" property="submenuId" jdbcType="INTEGER" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.erui.order.v2.model.Instock" extends="BaseResultMap" >
     <result column="remarks" property="remarks" jdbcType="LONGVARCHAR" />
@@ -82,7 +83,7 @@
   <sql id="Base_Column_List" >
     id, inspect_report_id, uid, instock_date, status, current_user_id, current_user_name, 
     create_time, department, inspect_apply_no, supplier_name, uname, out_check, submenu_name, 
-    submenu_id
+    submenu_id, tenant
   </sql>
   <sql id="Blob_Column_List" >
     remarks
@@ -141,13 +142,13 @@
       current_user_name, create_time, department, 
       inspect_apply_no, supplier_name, uname, 
       out_check, submenu_name, submenu_id, 
-      remarks)
+      tenant, remarks)
     values (#{id,jdbcType=INTEGER}, #{inspectReportId,jdbcType=INTEGER}, #{uid,jdbcType=INTEGER}, 
       #{instockDate,jdbcType=DATE}, #{status,jdbcType=INTEGER}, #{currentUserId,jdbcType=INTEGER}, 
       #{currentUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{department,jdbcType=VARCHAR}, 
       #{inspectApplyNo,jdbcType=VARCHAR}, #{supplierName,jdbcType=VARCHAR}, #{uname,jdbcType=VARCHAR}, 
       #{outCheck,jdbcType=INTEGER}, #{submenuName,jdbcType=VARCHAR}, #{submenuId,jdbcType=INTEGER}, 
-      #{remarks,jdbcType=LONGVARCHAR})
+      #{tenant,jdbcType=VARCHAR}, #{remarks,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.Instock" >
     insert into instock
@@ -196,6 +197,9 @@
       </if>
       <if test="submenuId != null" >
         submenu_id,
+      </if>
+      <if test="tenant != null" >
+        tenant,
       </if>
       <if test="remarks != null" >
         remarks,
@@ -246,6 +250,9 @@
       </if>
       <if test="submenuId != null" >
         #{submenuId,jdbcType=INTEGER},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
       <if test="remarks != null" >
         #{remarks,jdbcType=LONGVARCHAR},
@@ -306,6 +313,9 @@
       <if test="record.submenuId != null" >
         submenu_id = #{record.submenuId,jdbcType=INTEGER},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
       <if test="record.remarks != null" >
         remarks = #{record.remarks,jdbcType=LONGVARCHAR},
       </if>
@@ -331,6 +341,7 @@
       out_check = #{record.outCheck,jdbcType=INTEGER},
       submenu_name = #{record.submenuName,jdbcType=VARCHAR},
       submenu_id = #{record.submenuId,jdbcType=INTEGER},
+      tenant = #{record.tenant,jdbcType=VARCHAR},
       remarks = #{record.remarks,jdbcType=LONGVARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -352,7 +363,8 @@
       uname = #{record.uname,jdbcType=VARCHAR},
       out_check = #{record.outCheck,jdbcType=INTEGER},
       submenu_name = #{record.submenuName,jdbcType=VARCHAR},
-      submenu_id = #{record.submenuId,jdbcType=INTEGER}
+      submenu_id = #{record.submenuId,jdbcType=INTEGER},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -402,6 +414,9 @@
       <if test="submenuId != null" >
         submenu_id = #{submenuId,jdbcType=INTEGER},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
       <if test="remarks != null" >
         remarks = #{remarks,jdbcType=LONGVARCHAR},
       </if>
@@ -424,6 +439,7 @@
       out_check = #{outCheck,jdbcType=INTEGER},
       submenu_name = #{submenuName,jdbcType=VARCHAR},
       submenu_id = #{submenuId,jdbcType=INTEGER},
+      tenant = #{tenant,jdbcType=VARCHAR},
       remarks = #{remarks,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -442,7 +458,8 @@
       uname = #{uname,jdbcType=VARCHAR},
       out_check = #{outCheck,jdbcType=INTEGER},
       submenu_name = #{submenuName,jdbcType=VARCHAR},
-      submenu_id = #{submenuId,jdbcType=INTEGER}
+      submenu_id = #{submenuId,jdbcType=INTEGER},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

@@ -122,6 +122,10 @@ public class Project {
 
     private String audiRemark;
 
+    private String tenant;
+
+    private String qualityInspectType;
+
     private String processId;
 
     private String taskId;
@@ -598,6 +602,22 @@ public class Project {
 
     public void setAudiRemark(String audiRemark) {
         this.audiRemark = audiRemark;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
+    }
+
+    public String getQualityInspectType() {
+        return qualityInspectType;
+    }
+
+    public void setQualityInspectType(String qualityInspectType) {
+        this.qualityInspectType = qualityInspectType;
     }
 
     public String getProcessId() {

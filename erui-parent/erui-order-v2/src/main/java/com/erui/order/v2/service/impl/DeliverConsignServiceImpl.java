@@ -38,7 +38,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Autowired
     private DeliverConsignGoodsMapper deliverConsignGoodsMapper;
     @Autowired
-    private EmployeeService employeeService;
+    private UserService userService;
     @Autowired
     private OrderService orderService;
     @Autowired
@@ -95,7 +95,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         // 设置审核人
         // 通过工号查找用户ID
-        Long userId = employeeService.findIdByUserNo(assignee);
+        Long userId = userService.findIdByUserNo(assignee);
         if (StringUtils.isNotBlank(audiRemark)) {
             if (userId != null && !audiRemark.contains("," + userId + ",")) {
                 audiRemark += "," + userId + ",";

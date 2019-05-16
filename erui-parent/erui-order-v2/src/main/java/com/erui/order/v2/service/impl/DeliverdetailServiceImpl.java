@@ -2,10 +2,7 @@ package com.erui.order.v2.service.impl;
 
 import com.erui.order.v2.dao.DeliverDetailGoodsMapper;
 import com.erui.order.v2.dao.DeliverDetailMapper;
-import com.erui.order.v2.model.DeliverDetail;
-import com.erui.order.v2.model.DeliverDetailExample;
-import com.erui.order.v2.model.DeliverDetailGoodsKey;
-import com.erui.order.v2.model.DeliverDetailWithBLOBs;
+import com.erui.order.v2.model.*;
 import com.erui.order.v2.service.DeliverdetailService;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +43,10 @@ public class DeliverdetailServiceImpl implements DeliverdetailService {
     @Override
     public void insertDeliverGoodsRelation(Integer deliverDetailId, List<Integer> deliverConsignGoodsIds) {
         for (Integer deliverConsignGoodsId : deliverConsignGoodsIds) {
-            DeliverDetailGoodsKey deliverDetailGoodsKey = new DeliverDetailGoodsKey();
+            DeliverDetailGoods deliverDetailGoodsKey = new DeliverDetailGoods();
             deliverDetailGoodsKey.setDeliverDetailId(deliverDetailId);
             deliverDetailGoodsKey.setDeliverConsignGoodsId(deliverConsignGoodsId);
+            deliverDetailGoodsKey.setTenant("erui");
             deliverDetailGoodsMapper.insert(deliverDetailGoodsKey);
         }
     }

@@ -13,6 +13,7 @@
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="create_user_id" property="createUserId" jdbcType="VARCHAR" />
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -74,7 +75,7 @@
   </sql>
   <sql id="Base_Column_List" >
     id, instock_id, contract_no, project_no, qualified_num, inspect_apply_goods_id, instock_num, 
-    instock_stock, create_time, create_user_id, update_time
+    instock_stock, create_time, create_user_id, update_time, tenant
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.InstockGoodsExample" >
     select
@@ -110,11 +111,13 @@
     insert into instock_goods (id, instock_id, contract_no, 
       project_no, qualified_num, inspect_apply_goods_id, 
       instock_num, instock_stock, create_time, 
-      create_user_id, update_time)
+      create_user_id, update_time, tenant
+      )
     values (#{id,jdbcType=INTEGER}, #{instockId,jdbcType=INTEGER}, #{contractNo,jdbcType=VARCHAR}, 
       #{projectNo,jdbcType=VARCHAR}, #{qualifiedNum,jdbcType=INTEGER}, #{inspectApplyGoodsId,jdbcType=INTEGER}, 
       #{instockNum,jdbcType=INTEGER}, #{instockStock,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{createUserId,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP})
+      #{createUserId,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP}, #{tenant,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.InstockGoods" >
     insert into instock_goods
@@ -152,6 +155,9 @@
       <if test="updateTime != null" >
         update_time,
       </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -186,6 +192,9 @@
       </if>
       <if test="updateTime != null" >
         #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -231,6 +240,9 @@
       <if test="record.updateTime != null" >
         update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -248,7 +260,8 @@
       instock_stock = #{record.instockStock,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       create_user_id = #{record.createUserId,jdbcType=VARCHAR},
-      update_time = #{record.updateTime,jdbcType=TIMESTAMP}
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -286,6 +299,9 @@
       <if test="updateTime != null" >
         update_time = #{updateTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -300,7 +316,8 @@
       instock_stock = #{instockStock,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       create_user_id = #{createUserId,jdbcType=VARCHAR},
-      update_time = #{updateTime,jdbcType=TIMESTAMP}
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

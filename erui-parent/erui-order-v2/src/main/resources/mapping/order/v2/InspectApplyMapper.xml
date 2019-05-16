@@ -22,6 +22,7 @@
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="tmp_msg" property="tmpMsg" jdbcType="VARCHAR" />
     <result column="pub_status" property="pubStatus" jdbcType="INTEGER" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.erui.order.v2.model.InspectApply" extends="BaseResultMap" >
     <result column="remark" property="remark" jdbcType="LONGVARCHAR" />
@@ -87,7 +88,7 @@
   <sql id="Base_Column_List" >
     id, inspect_apply_no, purch_no, purch_id, master, p_id, department, purchase_name, 
     supplier_name, abroad_co_name, inspect_date, direct, out_check, history, num, msg, 
-    status, create_time, tmp_msg, pub_status
+    status, create_time, tmp_msg, pub_status, tenant
   </sql>
   <sql id="Blob_Column_List" >
     remark
@@ -147,14 +148,14 @@
       inspect_date, direct, out_check, 
       history, num, msg, status, 
       create_time, tmp_msg, pub_status, 
-      remark)
+      tenant, remark)
     values (#{id,jdbcType=INTEGER}, #{inspectApplyNo,jdbcType=VARCHAR}, #{purchNo,jdbcType=VARCHAR}, 
       #{purchId,jdbcType=INTEGER}, #{master,jdbcType=BIT}, #{pId,jdbcType=INTEGER}, #{department,jdbcType=VARCHAR}, 
       #{purchaseName,jdbcType=VARCHAR}, #{supplierName,jdbcType=VARCHAR}, #{abroadCoName,jdbcType=VARCHAR}, 
       #{inspectDate,jdbcType=DATE}, #{direct,jdbcType=BIT}, #{outCheck,jdbcType=BIT}, 
       #{history,jdbcType=BIT}, #{num,jdbcType=INTEGER}, #{msg,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
       #{createTime,jdbcType=TIMESTAMP}, #{tmpMsg,jdbcType=VARCHAR}, #{pubStatus,jdbcType=INTEGER}, 
-      #{remark,jdbcType=LONGVARCHAR})
+      #{tenant,jdbcType=VARCHAR}, #{remark,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.InspectApply" >
     insert into inspect_apply
@@ -218,6 +219,9 @@
       </if>
       <if test="pubStatus != null" >
         pub_status,
+      </if>
+      <if test="tenant != null" >
+        tenant,
       </if>
       <if test="remark != null" >
         remark,
@@ -283,6 +287,9 @@
       </if>
       <if test="pubStatus != null" >
         #{pubStatus,jdbcType=INTEGER},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
       <if test="remark != null" >
         #{remark,jdbcType=LONGVARCHAR},
@@ -358,6 +365,9 @@
       <if test="record.pubStatus != null" >
         pub_status = #{record.pubStatus,jdbcType=INTEGER},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
       <if test="record.remark != null" >
         remark = #{record.remark,jdbcType=LONGVARCHAR},
       </if>
@@ -388,6 +398,7 @@
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       tmp_msg = #{record.tmpMsg,jdbcType=VARCHAR},
       pub_status = #{record.pubStatus,jdbcType=INTEGER},
+      tenant = #{record.tenant,jdbcType=VARCHAR},
       remark = #{record.remark,jdbcType=LONGVARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -414,7 +425,8 @@
       status = #{record.status,jdbcType=INTEGER},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       tmp_msg = #{record.tmpMsg,jdbcType=VARCHAR},
-      pub_status = #{record.pubStatus,jdbcType=INTEGER}
+      pub_status = #{record.pubStatus,jdbcType=INTEGER},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -479,6 +491,9 @@
       <if test="pubStatus != null" >
         pub_status = #{pubStatus,jdbcType=INTEGER},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
       <if test="remark != null" >
         remark = #{remark,jdbcType=LONGVARCHAR},
       </if>
@@ -506,6 +521,7 @@
       create_time = #{createTime,jdbcType=TIMESTAMP},
       tmp_msg = #{tmpMsg,jdbcType=VARCHAR},
       pub_status = #{pubStatus,jdbcType=INTEGER},
+      tenant = #{tenant,jdbcType=VARCHAR},
       remark = #{remark,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -529,7 +545,8 @@
       status = #{status,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       tmp_msg = #{tmpMsg,jdbcType=VARCHAR},
-      pub_status = #{pubStatus,jdbcType=INTEGER}
+      pub_status = #{pubStatus,jdbcType=INTEGER},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

@@ -226,6 +226,126 @@ public class PurchGoodsExample {
             return (Criteria) this;
         }
 
+        public Criteria andPurchContractIdIsNull() {
+            addCriterion("purch_contract_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdIsNotNull() {
+            addCriterion("purch_contract_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdEqualTo(Integer value) {
+            addCriterion("purch_contract_id =", value, "purchContractId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdNotEqualTo(Integer value) {
+            addCriterion("purch_contract_id <>", value, "purchContractId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdGreaterThan(Integer value) {
+            addCriterion("purch_contract_id >", value, "purchContractId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdGreaterThanOrEqualTo(Integer value) {
+            addCriterion("purch_contract_id >=", value, "purchContractId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdLessThan(Integer value) {
+            addCriterion("purch_contract_id <", value, "purchContractId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdLessThanOrEqualTo(Integer value) {
+            addCriterion("purch_contract_id <=", value, "purchContractId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdIn(List<Integer> values) {
+            addCriterion("purch_contract_id in", values, "purchContractId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdNotIn(List<Integer> values) {
+            addCriterion("purch_contract_id not in", values, "purchContractId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdBetween(Integer value1, Integer value2) {
+            addCriterion("purch_contract_id between", value1, value2, "purchContractId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractIdNotBetween(Integer value1, Integer value2) {
+            addCriterion("purch_contract_id not between", value1, value2, "purchContractId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdIsNull() {
+            addCriterion("purch_contract_goods_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdIsNotNull() {
+            addCriterion("purch_contract_goods_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdEqualTo(Integer value) {
+            addCriterion("purch_contract_goods_id =", value, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdNotEqualTo(Integer value) {
+            addCriterion("purch_contract_goods_id <>", value, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdGreaterThan(Integer value) {
+            addCriterion("purch_contract_goods_id >", value, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdGreaterThanOrEqualTo(Integer value) {
+            addCriterion("purch_contract_goods_id >=", value, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdLessThan(Integer value) {
+            addCriterion("purch_contract_goods_id <", value, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdLessThanOrEqualTo(Integer value) {
+            addCriterion("purch_contract_goods_id <=", value, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdIn(List<Integer> values) {
+            addCriterion("purch_contract_goods_id in", values, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdNotIn(List<Integer> values) {
+            addCriterion("purch_contract_goods_id not in", values, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdBetween(Integer value1, Integer value2) {
+            addCriterion("purch_contract_goods_id between", value1, value2, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPurchContractGoodsIdNotBetween(Integer value1, Integer value2) {
+            addCriterion("purch_contract_goods_id not between", value1, value2, "purchContractGoodsId");
+            return (Criteria) this;
+        }
+
         public Criteria andProjectNoIsNull() {
             addCriterion("project_no is null");
             return (Criteria) this;
@@ -1273,6 +1393,146 @@ public class PurchGoodsExample {
 
         public Criteria andPreInspectNumNotBetween(Integer value1, Integer value2) {
             addCriterion("pre_inspect_num not between", value1, value2, "preInspectNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantIsNull() {
+            addCriterion("tenant is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantIsNotNull() {
+            addCriterion("tenant is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantEqualTo(String value) {
+            addCriterion("tenant =", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotEqualTo(String value) {
+            addCriterion("tenant <>", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantGreaterThan(String value) {
+            addCriterion("tenant >", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantGreaterThanOrEqualTo(String value) {
+            addCriterion("tenant >=", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantLessThan(String value) {
+            addCriterion("tenant <", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantLessThanOrEqualTo(String value) {
+            addCriterion("tenant <=", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantLike(String value) {
+            addCriterion("tenant like", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotLike(String value) {
+            addCriterion("tenant not like", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantIn(List<String> values) {
+            addCriterion("tenant in", values, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotIn(List<String> values) {
+            addCriterion("tenant not in", values, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantBetween(String value1, String value2) {
+            addCriterion("tenant between", value1, value2, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotBetween(String value1, String value2) {
+            addCriterion("tenant not between", value1, value2, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeIsNull() {
+            addCriterion("quality_inspect_type is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeIsNotNull() {
+            addCriterion("quality_inspect_type is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeEqualTo(String value) {
+            addCriterion("quality_inspect_type =", value, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeNotEqualTo(String value) {
+            addCriterion("quality_inspect_type <>", value, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeGreaterThan(String value) {
+            addCriterion("quality_inspect_type >", value, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("quality_inspect_type >=", value, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeLessThan(String value) {
+            addCriterion("quality_inspect_type <", value, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeLessThanOrEqualTo(String value) {
+            addCriterion("quality_inspect_type <=", value, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeLike(String value) {
+            addCriterion("quality_inspect_type like", value, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeNotLike(String value) {
+            addCriterion("quality_inspect_type not like", value, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeIn(List<String> values) {
+            addCriterion("quality_inspect_type in", values, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeNotIn(List<String> values) {
+            addCriterion("quality_inspect_type not in", values, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeBetween(String value1, String value2) {
+            addCriterion("quality_inspect_type between", value1, value2, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeNotBetween(String value1, String value2) {
+            addCriterion("quality_inspect_type not between", value1, value2, "qualityInspectType");
             return (Criteria) this;
         }
     }

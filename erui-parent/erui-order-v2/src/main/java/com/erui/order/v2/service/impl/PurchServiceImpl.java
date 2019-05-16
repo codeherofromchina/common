@@ -2,12 +2,11 @@ package com.erui.order.v2.service.impl;
 
 import com.erui.order.v2.dao.PurchMapper;
 import com.erui.order.v2.model.*;
-import com.erui.order.v2.service.EmployeeService;
+import com.erui.order.v2.service.UserService;
 import com.erui.order.v2.service.ProjectService;
 import com.erui.order.v2.service.PurchService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +24,7 @@ public class PurchServiceImpl implements PurchService {
     @Autowired
     private PurchMapper purchMapper;
     @Autowired
-    private EmployeeService employeeService;
+    private UserService userService;
     @Autowired
     private ProjectService projectService;
 
@@ -69,7 +68,7 @@ public class PurchServiceImpl implements PurchService {
         }
         // 设置审核人
         // 通过工号查找用户ID
-        Long userId = employeeService.findIdByUserNo(assignee);
+        Long userId = userService.findIdByUserNo(assignee);
         if (StringUtils.isNotBlank(audiRemark)) {
             if (userId != null && !audiRemark.contains("," + userId + ",")) {
                 audiRemark += "," + userId + ",";
