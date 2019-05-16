@@ -2,7 +2,9 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.pojo.TodoShowNeedContentRequest;
 import com.erui.order.OrderConf;
+import com.erui.order.v2.model.Order;
 import com.erui.order.v2.service.DeliverConsignService;
 import com.erui.order.v2.service.OrderService;
 import com.erui.order.v2.service.ProjectService;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -38,6 +41,42 @@ public class BpmNotifyController {
     private PurchService purchService;
 
     /**
+     * 获取待办中要显示的必要业务信息
+     * @return
+     */
+    @RequestMapping(value = "todoShowNeedContent", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> todoShowNeedContent(@RequestBody TodoShowNeedContentRequest todoShowNeedContentRequest) {
+        Map<String, Object> data = new HashMap<>();
+        Result<Object> result = new Result<>(data);
+        // 验证安全性，// 如果秘钥不正确，返回失败
+        if (!validate(todoShowNeedContentRequest.getKey())) {
+            result.setStatus(ResultStatusEnum.FAIL);
+            return result;
+        }
+        if (StringUtils.isBlank(todoShowNeedContentRequest.getBizKey())) {
+            result.setStatus(ResultStatusEnum.PARAM_ERROR);
+            return result;
+        }
+
+        if (todoShowNeedContentRequest.getBizKey().startsWith("order:")) {
+            // 订单审核流程
+            String orderId = todoShowNeedContentRequest.getBizKey().substring(6);
+            if (StringUtils.isNumeric(orderId)) {
+                Order order = orderService.findOrderById(Integer.parseInt(orderId));
+                if (order != null && StringUtils.isNotBlank(order.getContractNo())) {
+                    data.put("needContent", order.getContractNo());
+                }
+            }
+        }
+
+        if (data.size() == 0) {
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+        }
+
+        return result;
+    }
+
+    /**
      * 任务完成通知，删除流程进度
      *
      * @param params
@@ -56,7 +95,7 @@ public class BpmNotifyController {
         String businessKey = params.get("businessKey");
         String assignee = params.get("assignee");
         if (StringUtils.isAnyBlank(businessKey, processInstanceId, taskId)) {
-            result.setStatus(ResultStatusEnum.PARAM_ERROR);
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         if (businessKey.startsWith("order:")) {
             // 订单审核流程
@@ -91,7 +130,7 @@ public class BpmNotifyController {
         String processInstanceId = params.get("processInstanceId");
         String businessKey = params.get("businessKey");
         if (StringUtils.isAnyBlank(businessKey, processInstanceId)) {
-            result.setStatus(ResultStatusEnum.PARAM_ERROR);
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         if (businessKey.startsWith("order:")) {
             // 订单审核流程

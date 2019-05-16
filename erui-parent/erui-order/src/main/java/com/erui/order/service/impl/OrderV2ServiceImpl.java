@@ -257,8 +257,14 @@ public class OrderV2ServiceImpl implements OrderV2Service {
                         processResp = BpmUtils.startProcessInstanceByKey("domestic_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
                         break;
                     default:
-                        // 非国内订单审批流程 process_order
-                        processResp = BpmUtils.startProcessInstanceByKey("overseas_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        Integer overseasSales = addOrderVo.getOverseasSales();
+                        if (overseasSales != null && overseasSales == 3) {
+                            // 海外销售类型 为3 海外销（当地采购 走现货审核流程
+                            processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        } else {
+                            // 非国内订单审批流程 process_order
+                            processResp = BpmUtils.startProcessInstanceByKey("overseas_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        }
                 }
                 orderUpdate.setProcessId(processResp.getString("instanceId"));
                 orderUpdate.setAuditingProcess("task_cm"); // 第一个节点通知失败，写固定第一个节点
@@ -476,8 +482,14 @@ public class OrderV2ServiceImpl implements OrderV2Service {
                     processResp = BpmUtils.startProcessInstanceByKey("domestic_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
                     break;
                 default:
-                    // 非国内订单审批流程 process_order
-                    processResp = BpmUtils.startProcessInstanceByKey("overseas_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    Integer overseasSales = addOrderVo.getOverseasSales();
+                    if (overseasSales != null && overseasSales == 3) {
+                        // 海外销售类型 为3 海外销（当地采购 走现货审核流程
+                        processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    } else {
+                        // 非国内订单审批流程 process_order
+                        processResp = BpmUtils.startProcessInstanceByKey("overseas_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    }
             }
             // 设置订单和业务流标示关联
             order1.setProcessId(processResp.getString("instanceId"));
