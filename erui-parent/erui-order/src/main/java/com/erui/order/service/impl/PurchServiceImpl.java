@@ -1610,9 +1610,9 @@ public class PurchServiceImpl implements PurchService {
                     // 提交则修改商品的已采购数量
                     if (purch.getStatus() == Purch.StatusEnum.BEING.getCode() && (dbPurch.getAuditingStatus() == 0 || dbPurch.getAuditingStatus() == null)) {
                         goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
-                        //设置采购合同预采购商品数量
+                        // 设置采购合同预采购商品数量
                         purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
-                        //设置采购已采购商品数量
+                        // 设置采购已采购商品数量
                         purchContractGoods.setPurchasedNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
                         // 设置商品的项目跟踪信息
                         setGoodsTraceData(goods, purch);
