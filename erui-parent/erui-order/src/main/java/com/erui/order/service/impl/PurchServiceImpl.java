@@ -1899,7 +1899,7 @@ public class PurchServiceImpl implements PurchService {
         sonGoods.setProject(project);
         sonGoods.setContractNo(beforeGoods.getContractNo());
         sonGoods.setProjectNo(beforeGoods.getProjectNo());
-        // 设置商品合同数量，同时将父商品的合同数量减少
+        // 设置商品合同数量,同时将父商品的合同数量减少
         sonGoods.setContractGoodsNum(purchaseNum);
         beforeGoods.setContractGoodsNum(beforeGoods.getContractGoodsNum() - purchaseNum);
         // 设置客户需求描述信息
