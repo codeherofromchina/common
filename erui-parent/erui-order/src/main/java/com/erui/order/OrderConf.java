@@ -1,5 +1,6 @@
 package com.erui.order;
 
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -8,7 +9,7 @@ import org.springframework.stereotype.Component;
  * Created by wangxiaodan on 2019/1/22.
  */
 @Component
-public class OrderConf {
+public class OrderConf implements InitializingBean {
     @Value("#{orderProp[CRM_URL]}")
     private String crmUrl; // CRM接口调用地址
 
@@ -32,6 +33,12 @@ public class OrderConf {
 
     @Value("#{orderProp[MEMBER_POINTS]}")
     private String memberPoints; // 会员积分服务器地址
+
+    @Value("#{orderProp[ACTIVITI_URL]}")
+    private String activitiUrl; // 业务流系统地址
+
+    @Value("#{orderProp[BPM_KEY]}")
+    private String bpmKey;
 
     public String getCrmUrl() {
         return crmUrl;
@@ -96,4 +103,30 @@ public class OrderConf {
     public void setMemberPoints(String memberPoints) {
         this.memberPoints = memberPoints;
     }
+
+    public String getActivitiUrl() {
+        return activitiUrl;
+    }
+
+    public void setActivitiUrl(String activitiUrl) {
+        this.activitiUrl = activitiUrl;
+    }
+
+    public String getBpmKey() {
+        return bpmKey;
+    }
+
+    public void setBpmKey(String bpmKey) {
+        this.bpmKey = bpmKey;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        orderConf = this;
+    }
+
+    public static OrderConf getInstance() {
+        return orderConf;
+    }
+    private static OrderConf orderConf;
 }

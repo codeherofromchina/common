@@ -133,7 +133,7 @@ public class Purch {
     private int page = 1; // 默认从1开始
     @Transient
     private int rows = 20; // 默认每页20条记录
-    //auditing_status   审核状态
+    //auditing_status   审核状态 4:审核完成
     @Column(name = "auditing_status")
     private Integer auditingStatus;
     //auditing_process  审核流程，多个
@@ -266,6 +266,13 @@ public class Purch {
     @JoinColumn(name = "purch_id")
     @OrderBy("id asc")
     private List<PurchGoods> purchGoodsList = new ArrayList<>();
+
+    // 流程实例ID
+    @Column(name="process_id")
+    private String processId;
+    @Column(name="task_id")
+    private String taskId;
+
     /**
      * 质检部重新评估风险等级状态 0：还未重新评估 1：已重新评估
      */
@@ -329,6 +336,7 @@ public class Purch {
     public void setPurchContractId(Integer purchContractId) {
         this.purchContractId = purchContractId;
     }
+
 
     public Integer getChairmanBoardId() {
         return chairmanBoardId;
@@ -886,6 +894,21 @@ public class Purch {
         this.purchGoodsList = purchGoodsList;
     }
 
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public String getProcessId() {
+        return processId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+
+    public void setProcessId(String processId) {
+        this.processId = processId;
+    }
 
     /**
      * 采购状态枚举

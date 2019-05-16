@@ -196,6 +196,12 @@
 			</properties>
 		</profile>
 		<profile>
+			<id>bpm</id>
+			<properties>
+				<package.environment>bpm</package.environment>
+			</properties>
+		</profile>
+		<profile>
 			<id>production</id>
 			<properties>
 				<package.environment>production</package.environment>

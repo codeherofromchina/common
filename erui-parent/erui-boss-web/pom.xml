@@ -66,12 +66,12 @@
         </dependency>
         <dependency>
             <groupId>com.erui</groupId>
-            <artifactId>erui-power</artifactId>
+            <artifactId>erui-order</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.erui</groupId>
-            <artifactId>erui-order</artifactId>
+            <artifactId>erui-order-v2</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -264,6 +264,19 @@
                 <dependency>
                     <groupId>com.erui</groupId>
                     <artifactId>erui-sso-client-dev</artifactId>
+                    <version>1.0</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>bpm</id>
+            <properties>
+                <package.environment>bpm</package.environment>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>com.erui</groupId>
+                    <artifactId>erui-sso-client-bpm</artifactId>
                     <version>1.0</version>
                 </dependency>
             </dependencies>

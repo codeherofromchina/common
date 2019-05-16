@@ -1,0 +1,1267 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.order.v2.dao.ProjectMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.Project" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="order_id" property="orderId" jdbcType="INTEGER" />
+    <result column="contract_no" property="contractNo" jdbcType="VARCHAR" />
+    <result column="exec_co_name" property="execCoName" jdbcType="VARCHAR" />
+    <result column="distribution_dept_name" property="distributionDeptName" jdbcType="VARCHAR" />
+    <result column="business_unit_name" property="businessUnitName" jdbcType="VARCHAR" />
+    <result column="region" property="region" jdbcType="VARCHAR" />
+    <result column="country" property="country" jdbcType="VARCHAR" />
+    <result column="project_no" property="projectNo" jdbcType="VARCHAR" />
+    <result column="project_name" property="projectName" jdbcType="VARCHAR" />
+    <result column="start_date" property="startDate" jdbcType="TIMESTAMP" />
+    <result column="delivery_date" property="deliveryDate" jdbcType="VARCHAR" />
+    <result column="profit" property="profit" jdbcType="DECIMAL" />
+    <result column="currency_bn" property="currencyBn" jdbcType="VARCHAR" />
+    <result column="profit_percent" property="profitPercent" jdbcType="DECIMAL" />
+    <result column="project_status" property="projectStatus" jdbcType="VARCHAR" />
+    <result column="purch_req_create" property="purchReqCreate" jdbcType="INTEGER" />
+    <result column="purch_done" property="purchDone" jdbcType="CHAR" />
+    <result column="exe_chg_date" property="exeChgDate" jdbcType="DATE" />
+    <result column="require_purchase_date" property="requirePurchaseDate" jdbcType="DATE" />
+    <result column="has_manager" property="hasManager" jdbcType="INTEGER" />
+    <result column="purchase_uid" property="purchaseUid" jdbcType="INTEGER" />
+    <result column="quality_uid" property="qualityUid" jdbcType="INTEGER" />
+    <result column="business_uid" property="businessUid" jdbcType="INTEGER" />
+    <result column="business_name" property="businessName" jdbcType="VARCHAR" />
+    <result column="manager_uid" property="managerUid" jdbcType="INTEGER" />
+    <result column="logistics_uid" property="logisticsUid" jdbcType="INTEGER" />
+    <result column="warehouse_uid" property="warehouseUid" jdbcType="INTEGER" />
+    <result column="send_dept_id" property="sendDeptId" jdbcType="INTEGER" />
+    <result column="create_user_id" property="createUserId" jdbcType="INTEGER" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="quality_name" property="qualityName" jdbcType="VARCHAR" />
+    <result column="warehouse_name" property="warehouseName" jdbcType="VARCHAR" />
+    <result column="logistics_name" property="logisticsName" jdbcType="VARCHAR" />
+    <result column="purchase_name" property="purchaseName" jdbcType="VARCHAR" />
+    <result column="total_price_usd" property="totalPriceUsd" jdbcType="DECIMAL" />
+    <result column="process_progress" property="processProgress" jdbcType="VARCHAR" />
+    <result column="deliver_consign_has" property="deliverConsignHas" jdbcType="INTEGER" />
+    <result column="order_category" property="orderCategory" jdbcType="INTEGER" />
+    <result column="overseas_sales" property="overseasSales" jdbcType="INTEGER" />
+    <result column="purch_time" property="purchTime" jdbcType="TIMESTAMP" />
+    <result column="logistics_audit" property="logisticsAudit" jdbcType="INTEGER" />
+    <result column="auditing_level" property="auditingLevel" jdbcType="INTEGER" />
+    <result column="auditing_status" property="auditingStatus" jdbcType="INTEGER" />
+    <result column="auditing_process" property="auditingProcess" jdbcType="VARCHAR" />
+    <result column="auditing_user_id" property="auditingUserId" jdbcType="VARCHAR" />
+    <result column="auditing_user" property="auditingUser" jdbcType="VARCHAR" />
+    <result column="logistics_auditer_id" property="logisticsAuditerId" jdbcType="INTEGER" />
+    <result column="logistics_auditer" property="logisticsAuditer" jdbcType="VARCHAR" />
+    <result column="bu_auditer_id" property="buAuditerId" jdbcType="INTEGER" />
+    <result column="bu_auditer" property="buAuditer" jdbcType="VARCHAR" />
+    <result column="bu_vp_auditer_id" property="buVpAuditerId" jdbcType="INTEGER" />
+    <result column="bu_vp_auditer" property="buVpAuditer" jdbcType="VARCHAR" />
+    <result column="ceo_id" property="ceoId" jdbcType="INTEGER" />
+    <result column="ceo" property="ceo" jdbcType="VARCHAR" />
+    <result column="chairman_id" property="chairmanId" jdbcType="INTEGER" />
+    <result column="chairman" property="chairman" jdbcType="VARCHAR" />
+    <result column="audi_remark" property="audiRemark" jdbcType="VARCHAR" />
+    <result column="process_id" property="processId" jdbcType="VARCHAR" />
+    <result column="task_id" property="taskId" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.erui.order.v2.model.Project" extends="BaseResultMap" >
+    <result column="remarks" property="remarks" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, order_id, contract_no, exec_co_name, distribution_dept_name, business_unit_name, 
+    region, country, project_no, project_name, start_date, delivery_date, profit, currency_bn, 
+    profit_percent, project_status, purch_req_create, purch_done, exe_chg_date, require_purchase_date, 
+    has_manager, purchase_uid, quality_uid, business_uid, business_name, manager_uid, 
+    logistics_uid, warehouse_uid, send_dept_id, create_user_id, update_time, create_time, 
+    quality_name, warehouse_name, logistics_name, purchase_name, total_price_usd, process_progress, 
+    deliver_consign_has, order_category, overseas_sales, purch_time, logistics_audit, 
+    auditing_level, auditing_status, auditing_process, auditing_user_id, auditing_user, 
+    logistics_auditer_id, logistics_auditer, bu_auditer_id, bu_auditer, bu_vp_auditer_id, 
+    bu_vp_auditer, ceo_id, ceo, chairman_id, chairman, audi_remark, process_id, task_id
+  </sql>
+  <sql id="Blob_Column_List" >
+    remarks
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.erui.order.v2.model.ProjectExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from project
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.ProjectExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from project
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from project
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from project
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.order.v2.model.ProjectExample" >
+    delete from project
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.order.v2.model.Project" >
+    insert into project (id, order_id, contract_no, 
+      exec_co_name, distribution_dept_name, business_unit_name, 
+      region, country, project_no, 
+      project_name, start_date, delivery_date, 
+      profit, currency_bn, profit_percent, 
+      project_status, purch_req_create, purch_done, 
+      exe_chg_date, require_purchase_date, has_manager, 
+      purchase_uid, quality_uid, business_uid, 
+      business_name, manager_uid, logistics_uid, 
+      warehouse_uid, send_dept_id, create_user_id, 
+      update_time, create_time, quality_name, 
+      warehouse_name, logistics_name, purchase_name, 
+      total_price_usd, process_progress, deliver_consign_has, 
+      order_category, overseas_sales, purch_time, 
+      logistics_audit, auditing_level, auditing_status, 
+      auditing_process, auditing_user_id, auditing_user, 
+      logistics_auditer_id, logistics_auditer, bu_auditer_id, 
+      bu_auditer, bu_vp_auditer_id, bu_vp_auditer, 
+      ceo_id, ceo, chairman_id, 
+      chairman, audi_remark, process_id, 
+      task_id, remarks)
+    values (#{id,jdbcType=INTEGER}, #{orderId,jdbcType=INTEGER}, #{contractNo,jdbcType=VARCHAR}, 
+      #{execCoName,jdbcType=VARCHAR}, #{distributionDeptName,jdbcType=VARCHAR}, #{businessUnitName,jdbcType=VARCHAR}, 
+      #{region,jdbcType=VARCHAR}, #{country,jdbcType=VARCHAR}, #{projectNo,jdbcType=VARCHAR}, 
+      #{projectName,jdbcType=VARCHAR}, #{startDate,jdbcType=TIMESTAMP}, #{deliveryDate,jdbcType=VARCHAR}, 
+      #{profit,jdbcType=DECIMAL}, #{currencyBn,jdbcType=VARCHAR}, #{profitPercent,jdbcType=DECIMAL}, 
+      #{projectStatus,jdbcType=VARCHAR}, #{purchReqCreate,jdbcType=INTEGER}, #{purchDone,jdbcType=CHAR}, 
+      #{exeChgDate,jdbcType=DATE}, #{requirePurchaseDate,jdbcType=DATE}, #{hasManager,jdbcType=INTEGER}, 
+      #{purchaseUid,jdbcType=INTEGER}, #{qualityUid,jdbcType=INTEGER}, #{businessUid,jdbcType=INTEGER}, 
+      #{businessName,jdbcType=VARCHAR}, #{managerUid,jdbcType=INTEGER}, #{logisticsUid,jdbcType=INTEGER}, 
+      #{warehouseUid,jdbcType=INTEGER}, #{sendDeptId,jdbcType=INTEGER}, #{createUserId,jdbcType=INTEGER}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}, #{qualityName,jdbcType=VARCHAR}, 
+      #{warehouseName,jdbcType=VARCHAR}, #{logisticsName,jdbcType=VARCHAR}, #{purchaseName,jdbcType=VARCHAR}, 
+      #{totalPriceUsd,jdbcType=DECIMAL}, #{processProgress,jdbcType=VARCHAR}, #{deliverConsignHas,jdbcType=INTEGER}, 
+      #{orderCategory,jdbcType=INTEGER}, #{overseasSales,jdbcType=INTEGER}, #{purchTime,jdbcType=TIMESTAMP}, 
+      #{logisticsAudit,jdbcType=INTEGER}, #{auditingLevel,jdbcType=INTEGER}, #{auditingStatus,jdbcType=INTEGER}, 
+      #{auditingProcess,jdbcType=VARCHAR}, #{auditingUserId,jdbcType=VARCHAR}, #{auditingUser,jdbcType=VARCHAR}, 
+      #{logisticsAuditerId,jdbcType=INTEGER}, #{logisticsAuditer,jdbcType=VARCHAR}, #{buAuditerId,jdbcType=INTEGER}, 
+      #{buAuditer,jdbcType=VARCHAR}, #{buVpAuditerId,jdbcType=INTEGER}, #{buVpAuditer,jdbcType=VARCHAR}, 
+      #{ceoId,jdbcType=INTEGER}, #{ceo,jdbcType=VARCHAR}, #{chairmanId,jdbcType=INTEGER}, 
+      #{chairman,jdbcType=VARCHAR}, #{audiRemark,jdbcType=VARCHAR}, #{processId,jdbcType=VARCHAR}, 
+      #{taskId,jdbcType=VARCHAR}, #{remarks,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.order.v2.model.Project" >
+    insert into project
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="orderId != null" >
+        order_id,
+      </if>
+      <if test="contractNo != null" >
+        contract_no,
+      </if>
+      <if test="execCoName != null" >
+        exec_co_name,
+      </if>
+      <if test="distributionDeptName != null" >
+        distribution_dept_name,
+      </if>
+      <if test="businessUnitName != null" >
+        business_unit_name,
+      </if>
+      <if test="region != null" >
+        region,
+      </if>
+      <if test="country != null" >
+        country,
+      </if>
+      <if test="projectNo != null" >
+        project_no,
+      </if>
+      <if test="projectName != null" >
+        project_name,
+      </if>
+      <if test="startDate != null" >
+        start_date,
+      </if>
+      <if test="deliveryDate != null" >
+        delivery_date,
+      </if>
+      <if test="profit != null" >
+        profit,
+      </if>
+      <if test="currencyBn != null" >
+        currency_bn,
+      </if>
+      <if test="profitPercent != null" >
+        profit_percent,
+      </if>
+      <if test="projectStatus != null" >
+        project_status,
+      </if>
+      <if test="purchReqCreate != null" >
+        purch_req_create,
+      </if>
+      <if test="purchDone != null" >
+        purch_done,
+      </if>
+      <if test="exeChgDate != null" >
+        exe_chg_date,
+      </if>
+      <if test="requirePurchaseDate != null" >
+        require_purchase_date,
+      </if>
+      <if test="hasManager != null" >
+        has_manager,
+      </if>
+      <if test="purchaseUid != null" >
+        purchase_uid,
+      </if>
+      <if test="qualityUid != null" >
+        quality_uid,
+      </if>
+      <if test="businessUid != null" >
+        business_uid,
+      </if>
+      <if test="businessName != null" >
+        business_name,
+      </if>
+      <if test="managerUid != null" >
+        manager_uid,
+      </if>
+      <if test="logisticsUid != null" >
+        logistics_uid,
+      </if>
+      <if test="warehouseUid != null" >
+        warehouse_uid,
+      </if>
+      <if test="sendDeptId != null" >
+        send_dept_id,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="qualityName != null" >
+        quality_name,
+      </if>
+      <if test="warehouseName != null" >
+        warehouse_name,
+      </if>
+      <if test="logisticsName != null" >
+        logistics_name,
+      </if>
+      <if test="purchaseName != null" >
+        purchase_name,
+      </if>
+      <if test="totalPriceUsd != null" >
+        total_price_usd,
+      </if>
+      <if test="processProgress != null" >
+        process_progress,
+      </if>
+      <if test="deliverConsignHas != null" >
+        deliver_consign_has,
+      </if>
+      <if test="orderCategory != null" >
+        order_category,
+      </if>
+      <if test="overseasSales != null" >
+        overseas_sales,
+      </if>
+      <if test="purchTime != null" >
+        purch_time,
+      </if>
+      <if test="logisticsAudit != null" >
+        logistics_audit,
+      </if>
+      <if test="auditingLevel != null" >
+        auditing_level,
+      </if>
+      <if test="auditingStatus != null" >
+        auditing_status,
+      </if>
+      <if test="auditingProcess != null" >
+        auditing_process,
+      </if>
+      <if test="auditingUserId != null" >
+        auditing_user_id,
+      </if>
+      <if test="auditingUser != null" >
+        auditing_user,
+      </if>
+      <if test="logisticsAuditerId != null" >
+        logistics_auditer_id,
+      </if>
+      <if test="logisticsAuditer != null" >
+        logistics_auditer,
+      </if>
+      <if test="buAuditerId != null" >
+        bu_auditer_id,
+      </if>
+      <if test="buAuditer != null" >
+        bu_auditer,
+      </if>
+      <if test="buVpAuditerId != null" >
+        bu_vp_auditer_id,
+      </if>
+      <if test="buVpAuditer != null" >
+        bu_vp_auditer,
+      </if>
+      <if test="ceoId != null" >
+        ceo_id,
+      </if>
+      <if test="ceo != null" >
+        ceo,
+      </if>
+      <if test="chairmanId != null" >
+        chairman_id,
+      </if>
+      <if test="chairman != null" >
+        chairman,
+      </if>
+      <if test="audiRemark != null" >
+        audi_remark,
+      </if>
+      <if test="processId != null" >
+        process_id,
+      </if>
+      <if test="taskId != null" >
+        task_id,
+      </if>
+      <if test="remarks != null" >
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="orderId != null" >
+        #{orderId,jdbcType=INTEGER},
+      </if>
+      <if test="contractNo != null" >
+        #{contractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="execCoName != null" >
+        #{execCoName,jdbcType=VARCHAR},
+      </if>
+      <if test="distributionDeptName != null" >
+        #{distributionDeptName,jdbcType=VARCHAR},
+      </if>
+      <if test="businessUnitName != null" >
+        #{businessUnitName,jdbcType=VARCHAR},
+      </if>
+      <if test="region != null" >
+        #{region,jdbcType=VARCHAR},
+      </if>
+      <if test="country != null" >
+        #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="projectNo != null" >
+        #{projectNo,jdbcType=VARCHAR},
+      </if>
+      <if test="projectName != null" >
+        #{projectName,jdbcType=VARCHAR},
+      </if>
+      <if test="startDate != null" >
+        #{startDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deliveryDate != null" >
+        #{deliveryDate,jdbcType=VARCHAR},
+      </if>
+      <if test="profit != null" >
+        #{profit,jdbcType=DECIMAL},
+      </if>
+      <if test="currencyBn != null" >
+        #{currencyBn,jdbcType=VARCHAR},
+      </if>
+      <if test="profitPercent != null" >
+        #{profitPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="projectStatus != null" >
+        #{projectStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="purchReqCreate != null" >
+        #{purchReqCreate,jdbcType=INTEGER},
+      </if>
+      <if test="purchDone != null" >
+        #{purchDone,jdbcType=CHAR},
+      </if>
+      <if test="exeChgDate != null" >
+        #{exeChgDate,jdbcType=DATE},
+      </if>
+      <if test="requirePurchaseDate != null" >
+        #{requirePurchaseDate,jdbcType=DATE},
+      </if>
+      <if test="hasManager != null" >
+        #{hasManager,jdbcType=INTEGER},
+      </if>
+      <if test="purchaseUid != null" >
+        #{purchaseUid,jdbcType=INTEGER},
+      </if>
+      <if test="qualityUid != null" >
+        #{qualityUid,jdbcType=INTEGER},
+      </if>
+      <if test="businessUid != null" >
+        #{businessUid,jdbcType=INTEGER},
+      </if>
+      <if test="businessName != null" >
+        #{businessName,jdbcType=VARCHAR},
+      </if>
+      <if test="managerUid != null" >
+        #{managerUid,jdbcType=INTEGER},
+      </if>
+      <if test="logisticsUid != null" >
+        #{logisticsUid,jdbcType=INTEGER},
+      </if>
+      <if test="warehouseUid != null" >
+        #{warehouseUid,jdbcType=INTEGER},
+      </if>
+      <if test="sendDeptId != null" >
+        #{sendDeptId,jdbcType=INTEGER},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="qualityName != null" >
+        #{qualityName,jdbcType=VARCHAR},
+      </if>
+      <if test="warehouseName != null" >
+        #{warehouseName,jdbcType=VARCHAR},
+      </if>
+      <if test="logisticsName != null" >
+        #{logisticsName,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseName != null" >
+        #{purchaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="totalPriceUsd != null" >
+        #{totalPriceUsd,jdbcType=DECIMAL},
+      </if>
+      <if test="processProgress != null" >
+        #{processProgress,jdbcType=VARCHAR},
+      </if>
+      <if test="deliverConsignHas != null" >
+        #{deliverConsignHas,jdbcType=INTEGER},
+      </if>
+      <if test="orderCategory != null" >
+        #{orderCategory,jdbcType=INTEGER},
+      </if>
+      <if test="overseasSales != null" >
+        #{overseasSales,jdbcType=INTEGER},
+      </if>
+      <if test="purchTime != null" >
+        #{purchTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="logisticsAudit != null" >
+        #{logisticsAudit,jdbcType=INTEGER},
+      </if>
+      <if test="auditingLevel != null" >
+        #{auditingLevel,jdbcType=INTEGER},
+      </if>
+      <if test="auditingStatus != null" >
+        #{auditingStatus,jdbcType=INTEGER},
+      </if>
+      <if test="auditingProcess != null" >
+        #{auditingProcess,jdbcType=VARCHAR},
+      </if>
+      <if test="auditingUserId != null" >
+        #{auditingUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="auditingUser != null" >
+        #{auditingUser,jdbcType=VARCHAR},
+      </if>
+      <if test="logisticsAuditerId != null" >
+        #{logisticsAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="logisticsAuditer != null" >
+        #{logisticsAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="buAuditerId != null" >
+        #{buAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="buAuditer != null" >
+        #{buAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="buVpAuditerId != null" >
+        #{buVpAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="buVpAuditer != null" >
+        #{buVpAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="ceoId != null" >
+        #{ceoId,jdbcType=INTEGER},
+      </if>
+      <if test="ceo != null" >
+        #{ceo,jdbcType=VARCHAR},
+      </if>
+      <if test="chairmanId != null" >
+        #{chairmanId,jdbcType=INTEGER},
+      </if>
+      <if test="chairman != null" >
+        #{chairman,jdbcType=VARCHAR},
+      </if>
+      <if test="audiRemark != null" >
+        #{audiRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="processId != null" >
+        #{processId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null" >
+        #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks != null" >
+        #{remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.order.v2.model.ProjectExample" resultType="java.lang.Integer" >
+    select count(*) from project
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update project
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.orderId != null" >
+        order_id = #{record.orderId,jdbcType=INTEGER},
+      </if>
+      <if test="record.contractNo != null" >
+        contract_no = #{record.contractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.execCoName != null" >
+        exec_co_name = #{record.execCoName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.distributionDeptName != null" >
+        distribution_dept_name = #{record.distributionDeptName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.businessUnitName != null" >
+        business_unit_name = #{record.businessUnitName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.region != null" >
+        region = #{record.region,jdbcType=VARCHAR},
+      </if>
+      <if test="record.country != null" >
+        country = #{record.country,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectNo != null" >
+        project_no = #{record.projectNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectName != null" >
+        project_name = #{record.projectName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.startDate != null" >
+        start_date = #{record.startDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.deliveryDate != null" >
+        delivery_date = #{record.deliveryDate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.profit != null" >
+        profit = #{record.profit,jdbcType=DECIMAL},
+      </if>
+      <if test="record.currencyBn != null" >
+        currency_bn = #{record.currencyBn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.profitPercent != null" >
+        profit_percent = #{record.profitPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="record.projectStatus != null" >
+        project_status = #{record.projectStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.purchReqCreate != null" >
+        purch_req_create = #{record.purchReqCreate,jdbcType=INTEGER},
+      </if>
+      <if test="record.purchDone != null" >
+        purch_done = #{record.purchDone,jdbcType=CHAR},
+      </if>
+      <if test="record.exeChgDate != null" >
+        exe_chg_date = #{record.exeChgDate,jdbcType=DATE},
+      </if>
+      <if test="record.requirePurchaseDate != null" >
+        require_purchase_date = #{record.requirePurchaseDate,jdbcType=DATE},
+      </if>
+      <if test="record.hasManager != null" >
+        has_manager = #{record.hasManager,jdbcType=INTEGER},
+      </if>
+      <if test="record.purchaseUid != null" >
+        purchase_uid = #{record.purchaseUid,jdbcType=INTEGER},
+      </if>
+      <if test="record.qualityUid != null" >
+        quality_uid = #{record.qualityUid,jdbcType=INTEGER},
+      </if>
+      <if test="record.businessUid != null" >
+        business_uid = #{record.businessUid,jdbcType=INTEGER},
+      </if>
+      <if test="record.businessName != null" >
+        business_name = #{record.businessName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.managerUid != null" >
+        manager_uid = #{record.managerUid,jdbcType=INTEGER},
+      </if>
+      <if test="record.logisticsUid != null" >
+        logistics_uid = #{record.logisticsUid,jdbcType=INTEGER},
+      </if>
+      <if test="record.warehouseUid != null" >
+        warehouse_uid = #{record.warehouseUid,jdbcType=INTEGER},
+      </if>
+      <if test="record.sendDeptId != null" >
+        send_dept_id = #{record.sendDeptId,jdbcType=INTEGER},
+      </if>
+      <if test="record.createUserId != null" >
+        create_user_id = #{record.createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="record.updateTime != null" >
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.qualityName != null" >
+        quality_name = #{record.qualityName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.warehouseName != null" >
+        warehouse_name = #{record.warehouseName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.logisticsName != null" >
+        logistics_name = #{record.logisticsName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.purchaseName != null" >
+        purchase_name = #{record.purchaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.totalPriceUsd != null" >
+        total_price_usd = #{record.totalPriceUsd,jdbcType=DECIMAL},
+      </if>
+      <if test="record.processProgress != null" >
+        process_progress = #{record.processProgress,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deliverConsignHas != null" >
+        deliver_consign_has = #{record.deliverConsignHas,jdbcType=INTEGER},
+      </if>
+      <if test="record.orderCategory != null" >
+        order_category = #{record.orderCategory,jdbcType=INTEGER},
+      </if>
+      <if test="record.overseasSales != null" >
+        overseas_sales = #{record.overseasSales,jdbcType=INTEGER},
+      </if>
+      <if test="record.purchTime != null" >
+        purch_time = #{record.purchTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.logisticsAudit != null" >
+        logistics_audit = #{record.logisticsAudit,jdbcType=INTEGER},
+      </if>
+      <if test="record.auditingLevel != null" >
+        auditing_level = #{record.auditingLevel,jdbcType=INTEGER},
+      </if>
+      <if test="record.auditingStatus != null" >
+        auditing_status = #{record.auditingStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.auditingProcess != null" >
+        auditing_process = #{record.auditingProcess,jdbcType=VARCHAR},
+      </if>
+      <if test="record.auditingUserId != null" >
+        auditing_user_id = #{record.auditingUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.auditingUser != null" >
+        auditing_user = #{record.auditingUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.logisticsAuditerId != null" >
+        logistics_auditer_id = #{record.logisticsAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="record.logisticsAuditer != null" >
+        logistics_auditer = #{record.logisticsAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="record.buAuditerId != null" >
+        bu_auditer_id = #{record.buAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="record.buAuditer != null" >
+        bu_auditer = #{record.buAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="record.buVpAuditerId != null" >
+        bu_vp_auditer_id = #{record.buVpAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="record.buVpAuditer != null" >
+        bu_vp_auditer = #{record.buVpAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="record.ceoId != null" >
+        ceo_id = #{record.ceoId,jdbcType=INTEGER},
+      </if>
+      <if test="record.ceo != null" >
+        ceo = #{record.ceo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.chairmanId != null" >
+        chairman_id = #{record.chairmanId,jdbcType=INTEGER},
+      </if>
+      <if test="record.chairman != null" >
+        chairman = #{record.chairman,jdbcType=VARCHAR},
+      </if>
+      <if test="record.audiRemark != null" >
+        audi_remark = #{record.audiRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.processId != null" >
+        process_id = #{record.processId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.taskId != null" >
+        task_id = #{record.taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remarks != null" >
+        remarks = #{record.remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update project
+    set id = #{record.id,jdbcType=INTEGER},
+      order_id = #{record.orderId,jdbcType=INTEGER},
+      contract_no = #{record.contractNo,jdbcType=VARCHAR},
+      exec_co_name = #{record.execCoName,jdbcType=VARCHAR},
+      distribution_dept_name = #{record.distributionDeptName,jdbcType=VARCHAR},
+      business_unit_name = #{record.businessUnitName,jdbcType=VARCHAR},
+      region = #{record.region,jdbcType=VARCHAR},
+      country = #{record.country,jdbcType=VARCHAR},
+      project_no = #{record.projectNo,jdbcType=VARCHAR},
+      project_name = #{record.projectName,jdbcType=VARCHAR},
+      start_date = #{record.startDate,jdbcType=TIMESTAMP},
+      delivery_date = #{record.deliveryDate,jdbcType=VARCHAR},
+      profit = #{record.profit,jdbcType=DECIMAL},
+      currency_bn = #{record.currencyBn,jdbcType=VARCHAR},
+      profit_percent = #{record.profitPercent,jdbcType=DECIMAL},
+      project_status = #{record.projectStatus,jdbcType=VARCHAR},
+      purch_req_create = #{record.purchReqCreate,jdbcType=INTEGER},
+      purch_done = #{record.purchDone,jdbcType=CHAR},
+      exe_chg_date = #{record.exeChgDate,jdbcType=DATE},
+      require_purchase_date = #{record.requirePurchaseDate,jdbcType=DATE},
+      has_manager = #{record.hasManager,jdbcType=INTEGER},
+      purchase_uid = #{record.purchaseUid,jdbcType=INTEGER},
+      quality_uid = #{record.qualityUid,jdbcType=INTEGER},
+      business_uid = #{record.businessUid,jdbcType=INTEGER},
+      business_name = #{record.businessName,jdbcType=VARCHAR},
+      manager_uid = #{record.managerUid,jdbcType=INTEGER},
+      logistics_uid = #{record.logisticsUid,jdbcType=INTEGER},
+      warehouse_uid = #{record.warehouseUid,jdbcType=INTEGER},
+      send_dept_id = #{record.sendDeptId,jdbcType=INTEGER},
+      create_user_id = #{record.createUserId,jdbcType=INTEGER},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      quality_name = #{record.qualityName,jdbcType=VARCHAR},
+      warehouse_name = #{record.warehouseName,jdbcType=VARCHAR},
+      logistics_name = #{record.logisticsName,jdbcType=VARCHAR},
+      purchase_name = #{record.purchaseName,jdbcType=VARCHAR},
+      total_price_usd = #{record.totalPriceUsd,jdbcType=DECIMAL},
+      process_progress = #{record.processProgress,jdbcType=VARCHAR},
+      deliver_consign_has = #{record.deliverConsignHas,jdbcType=INTEGER},
+      order_category = #{record.orderCategory,jdbcType=INTEGER},
+      overseas_sales = #{record.overseasSales,jdbcType=INTEGER},
+      purch_time = #{record.purchTime,jdbcType=TIMESTAMP},
+      logistics_audit = #{record.logisticsAudit,jdbcType=INTEGER},
+      auditing_level = #{record.auditingLevel,jdbcType=INTEGER},
+      auditing_status = #{record.auditingStatus,jdbcType=INTEGER},
+      auditing_process = #{record.auditingProcess,jdbcType=VARCHAR},
+      auditing_user_id = #{record.auditingUserId,jdbcType=VARCHAR},
+      auditing_user = #{record.auditingUser,jdbcType=VARCHAR},
+      logistics_auditer_id = #{record.logisticsAuditerId,jdbcType=INTEGER},
+      logistics_auditer = #{record.logisticsAuditer,jdbcType=VARCHAR},
+      bu_auditer_id = #{record.buAuditerId,jdbcType=INTEGER},
+      bu_auditer = #{record.buAuditer,jdbcType=VARCHAR},
+      bu_vp_auditer_id = #{record.buVpAuditerId,jdbcType=INTEGER},
+      bu_vp_auditer = #{record.buVpAuditer,jdbcType=VARCHAR},
+      ceo_id = #{record.ceoId,jdbcType=INTEGER},
+      ceo = #{record.ceo,jdbcType=VARCHAR},
+      chairman_id = #{record.chairmanId,jdbcType=INTEGER},
+      chairman = #{record.chairman,jdbcType=VARCHAR},
+      audi_remark = #{record.audiRemark,jdbcType=VARCHAR},
+      process_id = #{record.processId,jdbcType=VARCHAR},
+      task_id = #{record.taskId,jdbcType=VARCHAR},
+      remarks = #{record.remarks,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update project
+    set id = #{record.id,jdbcType=INTEGER},
+      order_id = #{record.orderId,jdbcType=INTEGER},
+      contract_no = #{record.contractNo,jdbcType=VARCHAR},
+      exec_co_name = #{record.execCoName,jdbcType=VARCHAR},
+      distribution_dept_name = #{record.distributionDeptName,jdbcType=VARCHAR},
+      business_unit_name = #{record.businessUnitName,jdbcType=VARCHAR},
+      region = #{record.region,jdbcType=VARCHAR},
+      country = #{record.country,jdbcType=VARCHAR},
+      project_no = #{record.projectNo,jdbcType=VARCHAR},
+      project_name = #{record.projectName,jdbcType=VARCHAR},
+      start_date = #{record.startDate,jdbcType=TIMESTAMP},
+      delivery_date = #{record.deliveryDate,jdbcType=VARCHAR},
+      profit = #{record.profit,jdbcType=DECIMAL},
+      currency_bn = #{record.currencyBn,jdbcType=VARCHAR},
+      profit_percent = #{record.profitPercent,jdbcType=DECIMAL},
+      project_status = #{record.projectStatus,jdbcType=VARCHAR},
+      purch_req_create = #{record.purchReqCreate,jdbcType=INTEGER},
+      purch_done = #{record.purchDone,jdbcType=CHAR},
+      exe_chg_date = #{record.exeChgDate,jdbcType=DATE},
+      require_purchase_date = #{record.requirePurchaseDate,jdbcType=DATE},
+      has_manager = #{record.hasManager,jdbcType=INTEGER},
+      purchase_uid = #{record.purchaseUid,jdbcType=INTEGER},
+      quality_uid = #{record.qualityUid,jdbcType=INTEGER},
+      business_uid = #{record.businessUid,jdbcType=INTEGER},
+      business_name = #{record.businessName,jdbcType=VARCHAR},
+      manager_uid = #{record.managerUid,jdbcType=INTEGER},
+      logistics_uid = #{record.logisticsUid,jdbcType=INTEGER},
+      warehouse_uid = #{record.warehouseUid,jdbcType=INTEGER},
+      send_dept_id = #{record.sendDeptId,jdbcType=INTEGER},
+      create_user_id = #{record.createUserId,jdbcType=INTEGER},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      quality_name = #{record.qualityName,jdbcType=VARCHAR},
+      warehouse_name = #{record.warehouseName,jdbcType=VARCHAR},
+      logistics_name = #{record.logisticsName,jdbcType=VARCHAR},
+      purchase_name = #{record.purchaseName,jdbcType=VARCHAR},
+      total_price_usd = #{record.totalPriceUsd,jdbcType=DECIMAL},
+      process_progress = #{record.processProgress,jdbcType=VARCHAR},
+      deliver_consign_has = #{record.deliverConsignHas,jdbcType=INTEGER},
+      order_category = #{record.orderCategory,jdbcType=INTEGER},
+      overseas_sales = #{record.overseasSales,jdbcType=INTEGER},
+      purch_time = #{record.purchTime,jdbcType=TIMESTAMP},
+      logistics_audit = #{record.logisticsAudit,jdbcType=INTEGER},
+      auditing_level = #{record.auditingLevel,jdbcType=INTEGER},
+      auditing_status = #{record.auditingStatus,jdbcType=INTEGER},
+      auditing_process = #{record.auditingProcess,jdbcType=VARCHAR},
+      auditing_user_id = #{record.auditingUserId,jdbcType=VARCHAR},
+      auditing_user = #{record.auditingUser,jdbcType=VARCHAR},
+      logistics_auditer_id = #{record.logisticsAuditerId,jdbcType=INTEGER},
+      logistics_auditer = #{record.logisticsAuditer,jdbcType=VARCHAR},
+      bu_auditer_id = #{record.buAuditerId,jdbcType=INTEGER},
+      bu_auditer = #{record.buAuditer,jdbcType=VARCHAR},
+      bu_vp_auditer_id = #{record.buVpAuditerId,jdbcType=INTEGER},
+      bu_vp_auditer = #{record.buVpAuditer,jdbcType=VARCHAR},
+      ceo_id = #{record.ceoId,jdbcType=INTEGER},
+      ceo = #{record.ceo,jdbcType=VARCHAR},
+      chairman_id = #{record.chairmanId,jdbcType=INTEGER},
+      chairman = #{record.chairman,jdbcType=VARCHAR},
+      audi_remark = #{record.audiRemark,jdbcType=VARCHAR},
+      process_id = #{record.processId,jdbcType=VARCHAR},
+      task_id = #{record.taskId,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.Project" >
+    update project
+    <set >
+      <if test="orderId != null" >
+        order_id = #{orderId,jdbcType=INTEGER},
+      </if>
+      <if test="contractNo != null" >
+        contract_no = #{contractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="execCoName != null" >
+        exec_co_name = #{execCoName,jdbcType=VARCHAR},
+      </if>
+      <if test="distributionDeptName != null" >
+        distribution_dept_name = #{distributionDeptName,jdbcType=VARCHAR},
+      </if>
+      <if test="businessUnitName != null" >
+        business_unit_name = #{businessUnitName,jdbcType=VARCHAR},
+      </if>
+      <if test="region != null" >
+        region = #{region,jdbcType=VARCHAR},
+      </if>
+      <if test="country != null" >
+        country = #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="projectNo != null" >
+        project_no = #{projectNo,jdbcType=VARCHAR},
+      </if>
+      <if test="projectName != null" >
+        project_name = #{projectName,jdbcType=VARCHAR},
+      </if>
+      <if test="startDate != null" >
+        start_date = #{startDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deliveryDate != null" >
+        delivery_date = #{deliveryDate,jdbcType=VARCHAR},
+      </if>
+      <if test="profit != null" >
+        profit = #{profit,jdbcType=DECIMAL},
+      </if>
+      <if test="currencyBn != null" >
+        currency_bn = #{currencyBn,jdbcType=VARCHAR},
+      </if>
+      <if test="profitPercent != null" >
+        profit_percent = #{profitPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="projectStatus != null" >
+        project_status = #{projectStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="purchReqCreate != null" >
+        purch_req_create = #{purchReqCreate,jdbcType=INTEGER},
+      </if>
+      <if test="purchDone != null" >
+        purch_done = #{purchDone,jdbcType=CHAR},
+      </if>
+      <if test="exeChgDate != null" >
+        exe_chg_date = #{exeChgDate,jdbcType=DATE},
+      </if>
+      <if test="requirePurchaseDate != null" >
+        require_purchase_date = #{requirePurchaseDate,jdbcType=DATE},
+      </if>
+      <if test="hasManager != null" >
+        has_manager = #{hasManager,jdbcType=INTEGER},
+      </if>
+      <if test="purchaseUid != null" >
+        purchase_uid = #{purchaseUid,jdbcType=INTEGER},
+      </if>
+      <if test="qualityUid != null" >
+        quality_uid = #{qualityUid,jdbcType=INTEGER},
+      </if>
+      <if test="businessUid != null" >
+        business_uid = #{businessUid,jdbcType=INTEGER},
+      </if>
+      <if test="businessName != null" >
+        business_name = #{businessName,jdbcType=VARCHAR},
+      </if>
+      <if test="managerUid != null" >
+        manager_uid = #{managerUid,jdbcType=INTEGER},
+      </if>
+      <if test="logisticsUid != null" >
+        logistics_uid = #{logisticsUid,jdbcType=INTEGER},
+      </if>
+      <if test="warehouseUid != null" >
+        warehouse_uid = #{warehouseUid,jdbcType=INTEGER},
+      </if>
+      <if test="sendDeptId != null" >
+        send_dept_id = #{sendDeptId,jdbcType=INTEGER},
+      </if>
+      <if test="createUserId != null" >
+        create_user_id = #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="qualityName != null" >
+        quality_name = #{qualityName,jdbcType=VARCHAR},
+      </if>
+      <if test="warehouseName != null" >
+        warehouse_name = #{warehouseName,jdbcType=VARCHAR},
+      </if>
+      <if test="logisticsName != null" >
+        logistics_name = #{logisticsName,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseName != null" >
+        purchase_name = #{purchaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="totalPriceUsd != null" >
+        total_price_usd = #{totalPriceUsd,jdbcType=DECIMAL},
+      </if>
+      <if test="processProgress != null" >
+        process_progress = #{processProgress,jdbcType=VARCHAR},
+      </if>
+      <if test="deliverConsignHas != null" >
+        deliver_consign_has = #{deliverConsignHas,jdbcType=INTEGER},
+      </if>
+      <if test="orderCategory != null" >
+        order_category = #{orderCategory,jdbcType=INTEGER},
+      </if>
+      <if test="overseasSales != null" >
+        overseas_sales = #{overseasSales,jdbcType=INTEGER},
+      </if>
+      <if test="purchTime != null" >
+        purch_time = #{purchTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="logisticsAudit != null" >
+        logistics_audit = #{logisticsAudit,jdbcType=INTEGER},
+      </if>
+      <if test="auditingLevel != null" >
+        auditing_level = #{auditingLevel,jdbcType=INTEGER},
+      </if>
+      <if test="auditingStatus != null" >
+        auditing_status = #{auditingStatus,jdbcType=INTEGER},
+      </if>
+      <if test="auditingProcess != null" >
+        auditing_process = #{auditingProcess,jdbcType=VARCHAR},
+      </if>
+      <if test="auditingUserId != null" >
+        auditing_user_id = #{auditingUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="auditingUser != null" >
+        auditing_user = #{auditingUser,jdbcType=VARCHAR},
+      </if>
+      <if test="logisticsAuditerId != null" >
+        logistics_auditer_id = #{logisticsAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="logisticsAuditer != null" >
+        logistics_auditer = #{logisticsAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="buAuditerId != null" >
+        bu_auditer_id = #{buAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="buAuditer != null" >
+        bu_auditer = #{buAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="buVpAuditerId != null" >
+        bu_vp_auditer_id = #{buVpAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="buVpAuditer != null" >
+        bu_vp_auditer = #{buVpAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="ceoId != null" >
+        ceo_id = #{ceoId,jdbcType=INTEGER},
+      </if>
+      <if test="ceo != null" >
+        ceo = #{ceo,jdbcType=VARCHAR},
+      </if>
+      <if test="chairmanId != null" >
+        chairman_id = #{chairmanId,jdbcType=INTEGER},
+      </if>
+      <if test="chairman != null" >
+        chairman = #{chairman,jdbcType=VARCHAR},
+      </if>
+      <if test="audiRemark != null" >
+        audi_remark = #{audiRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="processId != null" >
+        process_id = #{processId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null" >
+        task_id = #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks != null" >
+        remarks = #{remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.erui.order.v2.model.Project" >
+    update project
+    set order_id = #{orderId,jdbcType=INTEGER},
+      contract_no = #{contractNo,jdbcType=VARCHAR},
+      exec_co_name = #{execCoName,jdbcType=VARCHAR},
+      distribution_dept_name = #{distributionDeptName,jdbcType=VARCHAR},
+      business_unit_name = #{businessUnitName,jdbcType=VARCHAR},
+      region = #{region,jdbcType=VARCHAR},
+      country = #{country,jdbcType=VARCHAR},
+      project_no = #{projectNo,jdbcType=VARCHAR},
+      project_name = #{projectName,jdbcType=VARCHAR},
+      start_date = #{startDate,jdbcType=TIMESTAMP},
+      delivery_date = #{deliveryDate,jdbcType=VARCHAR},
+      profit = #{profit,jdbcType=DECIMAL},
+      currency_bn = #{currencyBn,jdbcType=VARCHAR},
+      profit_percent = #{profitPercent,jdbcType=DECIMAL},
+      project_status = #{projectStatus,jdbcType=VARCHAR},
+      purch_req_create = #{purchReqCreate,jdbcType=INTEGER},
+      purch_done = #{purchDone,jdbcType=CHAR},
+      exe_chg_date = #{exeChgDate,jdbcType=DATE},
+      require_purchase_date = #{requirePurchaseDate,jdbcType=DATE},
+      has_manager = #{hasManager,jdbcType=INTEGER},
+      purchase_uid = #{purchaseUid,jdbcType=INTEGER},
+      quality_uid = #{qualityUid,jdbcType=INTEGER},
+      business_uid = #{businessUid,jdbcType=INTEGER},
+      business_name = #{businessName,jdbcType=VARCHAR},
+      manager_uid = #{managerUid,jdbcType=INTEGER},
+      logistics_uid = #{logisticsUid,jdbcType=INTEGER},
+      warehouse_uid = #{warehouseUid,jdbcType=INTEGER},
+      send_dept_id = #{sendDeptId,jdbcType=INTEGER},
+      create_user_id = #{createUserId,jdbcType=INTEGER},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      quality_name = #{qualityName,jdbcType=VARCHAR},
+      warehouse_name = #{warehouseName,jdbcType=VARCHAR},
+      logistics_name = #{logisticsName,jdbcType=VARCHAR},
+      purchase_name = #{purchaseName,jdbcType=VARCHAR},
+      total_price_usd = #{totalPriceUsd,jdbcType=DECIMAL},
+      process_progress = #{processProgress,jdbcType=VARCHAR},
+      deliver_consign_has = #{deliverConsignHas,jdbcType=INTEGER},
+      order_category = #{orderCategory,jdbcType=INTEGER},
+      overseas_sales = #{overseasSales,jdbcType=INTEGER},
+      purch_time = #{purchTime,jdbcType=TIMESTAMP},
+      logistics_audit = #{logisticsAudit,jdbcType=INTEGER},
+      auditing_level = #{auditingLevel,jdbcType=INTEGER},
+      auditing_status = #{auditingStatus,jdbcType=INTEGER},
+      auditing_process = #{auditingProcess,jdbcType=VARCHAR},
+      auditing_user_id = #{auditingUserId,jdbcType=VARCHAR},
+      auditing_user = #{auditingUser,jdbcType=VARCHAR},
+      logistics_auditer_id = #{logisticsAuditerId,jdbcType=INTEGER},
+      logistics_auditer = #{logisticsAuditer,jdbcType=VARCHAR},
+      bu_auditer_id = #{buAuditerId,jdbcType=INTEGER},
+      bu_auditer = #{buAuditer,jdbcType=VARCHAR},
+      bu_vp_auditer_id = #{buVpAuditerId,jdbcType=INTEGER},
+      bu_vp_auditer = #{buVpAuditer,jdbcType=VARCHAR},
+      ceo_id = #{ceoId,jdbcType=INTEGER},
+      ceo = #{ceo,jdbcType=VARCHAR},
+      chairman_id = #{chairmanId,jdbcType=INTEGER},
+      chairman = #{chairman,jdbcType=VARCHAR},
+      audi_remark = #{audiRemark,jdbcType=VARCHAR},
+      process_id = #{processId,jdbcType=VARCHAR},
+      task_id = #{taskId,jdbcType=VARCHAR},
+      remarks = #{remarks,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.Project" >
+    update project
+    set order_id = #{orderId,jdbcType=INTEGER},
+      contract_no = #{contractNo,jdbcType=VARCHAR},
+      exec_co_name = #{execCoName,jdbcType=VARCHAR},
+      distribution_dept_name = #{distributionDeptName,jdbcType=VARCHAR},
+      business_unit_name = #{businessUnitName,jdbcType=VARCHAR},
+      region = #{region,jdbcType=VARCHAR},
+      country = #{country,jdbcType=VARCHAR},
+      project_no = #{projectNo,jdbcType=VARCHAR},
+      project_name = #{projectName,jdbcType=VARCHAR},
+      start_date = #{startDate,jdbcType=TIMESTAMP},
+      delivery_date = #{deliveryDate,jdbcType=VARCHAR},
+      profit = #{profit,jdbcType=DECIMAL},
+      currency_bn = #{currencyBn,jdbcType=VARCHAR},
+      profit_percent = #{profitPercent,jdbcType=DECIMAL},
+      project_status = #{projectStatus,jdbcType=VARCHAR},
+      purch_req_create = #{purchReqCreate,jdbcType=INTEGER},
+      purch_done = #{purchDone,jdbcType=CHAR},
+      exe_chg_date = #{exeChgDate,jdbcType=DATE},
+      require_purchase_date = #{requirePurchaseDate,jdbcType=DATE},
+      has_manager = #{hasManager,jdbcType=INTEGER},
+      purchase_uid = #{purchaseUid,jdbcType=INTEGER},
+      quality_uid = #{qualityUid,jdbcType=INTEGER},
+      business_uid = #{businessUid,jdbcType=INTEGER},
+      business_name = #{businessName,jdbcType=VARCHAR},
+      manager_uid = #{managerUid,jdbcType=INTEGER},
+      logistics_uid = #{logisticsUid,jdbcType=INTEGER},
+      warehouse_uid = #{warehouseUid,jdbcType=INTEGER},
+      send_dept_id = #{sendDeptId,jdbcType=INTEGER},
+      create_user_id = #{createUserId,jdbcType=INTEGER},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      quality_name = #{qualityName,jdbcType=VARCHAR},
+      warehouse_name = #{warehouseName,jdbcType=VARCHAR},
+      logistics_name = #{logisticsName,jdbcType=VARCHAR},
+      purchase_name = #{purchaseName,jdbcType=VARCHAR},
+      total_price_usd = #{totalPriceUsd,jdbcType=DECIMAL},
+      process_progress = #{processProgress,jdbcType=VARCHAR},
+      deliver_consign_has = #{deliverConsignHas,jdbcType=INTEGER},
+      order_category = #{orderCategory,jdbcType=INTEGER},
+      overseas_sales = #{overseasSales,jdbcType=INTEGER},
+      purch_time = #{purchTime,jdbcType=TIMESTAMP},
+      logistics_audit = #{logisticsAudit,jdbcType=INTEGER},
+      auditing_level = #{auditingLevel,jdbcType=INTEGER},
+      auditing_status = #{auditingStatus,jdbcType=INTEGER},
+      auditing_process = #{auditingProcess,jdbcType=VARCHAR},
+      auditing_user_id = #{auditingUserId,jdbcType=VARCHAR},
+      auditing_user = #{auditingUser,jdbcType=VARCHAR},
+      logistics_auditer_id = #{logisticsAuditerId,jdbcType=INTEGER},
+      logistics_auditer = #{logisticsAuditer,jdbcType=VARCHAR},
+      bu_auditer_id = #{buAuditerId,jdbcType=INTEGER},
+      bu_auditer = #{buAuditer,jdbcType=VARCHAR},
+      bu_vp_auditer_id = #{buVpAuditerId,jdbcType=INTEGER},
+      bu_vp_auditer = #{buVpAuditer,jdbcType=VARCHAR},
+      ceo_id = #{ceoId,jdbcType=INTEGER},
+      ceo = #{ceo,jdbcType=VARCHAR},
+      chairman_id = #{chairmanId,jdbcType=INTEGER},
+      chairman = #{chairman,jdbcType=VARCHAR},
+      audi_remark = #{audiRemark,jdbcType=VARCHAR},
+      process_id = #{processId,jdbcType=VARCHAR},
+      task_id = #{taskId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

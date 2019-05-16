@@ -69,4 +69,20 @@
         WHERE
         t1.bn=#{areaBn} AND t1.lang = 'zh'
     </select>
+
+
+    <delete id="delBpmTaskRuntimeByPiIdAndTaskId">
+        delete from erui_sys.bpm_task_runtime where pi_id = #{processInstanceId} and task_id = #{taskId}
+    </delete>
+
+
+    <insert id="addBpmTaskRuntime" parameterType="com.erui.report.model.BpmTaskRuntime">
+        insert into erui_sys.bpm_task_runtime (act_id, act_name, assignee, biz_obj_id, biz_type, candidate_groups, candidate_users, pd_id, pi_id, task_id, created_at)
+        values (#{actId}, #{actName}, #{assignee}, #{bizObjId}, #{bizType}, #{candidateGroups}, #{candidateUsers}, #{pdId}, #{piId}, #{taskId}, #{createdAt});
+    </insert>
+
+
+    <select id="findBizObjIdList" resultType="java.lang.Long">
+        select biz_obj_id from erui_sys.bpm_task_runtime where biz_type =#{bizType} and act_id = #{actId};
+    </select>
 </mapper>

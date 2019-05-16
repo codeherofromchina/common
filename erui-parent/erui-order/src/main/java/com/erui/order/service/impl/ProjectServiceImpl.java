@@ -140,7 +140,6 @@ public class ProjectServiceImpl implements ProjectService {
 
         //项目未执行状态 驳回项目 订单置为待确认状态 删除项目
         if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT && paramProjectStatusEnum == Project.ProjectStatusEnum.TURNDOWN) {
-            System.out.println("***********1");
             order.setStatus(Order.StatusEnum.INIT.getCode());
             order.setProject(null);
             orderDao.save(order);
@@ -191,7 +190,6 @@ public class ProjectServiceImpl implements ProjectService {
         } else {
             if ((new Integer(4).equals(project.getOrderCategory()) || new Integer(3).equals(project.getOverseasSales()))
                     && paramProjectStatusEnum == Project.ProjectStatusEnum.DONE) {
-                //System.out.println("***********2");
                 //Order order = projectUpdate.getOrder();
                 //projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
                 ProjectProfit projectProfit = project.getProjectProfit();
@@ -214,7 +212,6 @@ public class ProjectServiceImpl implements ProjectService {
                 backLogService.updateBackLogByDelYn(backLog);
 
             } else {
-                //System.out.println("***********3");
                 // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
                 if (nowProjectStatusEnum.getNum() >= Project.ProjectStatusEnum.EXECUTING.getNum()) {
                     if (paramProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum()) {
@@ -222,7 +219,6 @@ public class ProjectServiceImpl implements ProjectService {
                     }
                     projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
                 } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT) {
-                    //System.out.println("***********4");
                     // 之前只保存了项目，则流程可以是提交到项目经理和执行
                     if (paramProjectStatusEnum.getNum() > Project.ProjectStatusEnum.EXECUTING.getNum()) {
                         throw new MyException(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error"));
@@ -255,7 +251,6 @@ public class ProjectServiceImpl implements ProjectService {
                     projectUpdate.setChairmanId(project.getChairmanId());
                     projectUpdate.setAuditingLevel(auditingLevel);
                     if (paramProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
-                        //System.out.println("***********5");
                         // 提交到项目经理，则项目成员不能设置
                         projectUpdate.setPurchaseUid(null);
                         projectUpdate.setQualityName(null);
@@ -299,7 +294,6 @@ public class ProjectServiceImpl implements ProjectService {
                         backLogService.addBackLogByDelYn(newBackLog);
                         //当参数项目状态为 AUDIT为提交审核状态 状态不入库
                     } else if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
-                        //System.out.println("***********6");
                         // 无项目经理提交项目时检查审核信息参数 2018-08-28
                         submitProjectProcessCheckAuditParams(project, projectUpdate, order);
                         projectUpdate.getOrder().setAuditingProcess(projectUpdate.getAuditingProcess());
@@ -309,9 +303,7 @@ public class ProjectServiceImpl implements ProjectService {
 
                     }
                 } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
-                    //System.out.println("***********7");
                     if (paramProjectStatusEnum == Project.ProjectStatusEnum.TURNDOWN) {
-                        //System.out.println("***********8");
                         projectUpdate.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
                         projectDao.save(projectUpdate);
 
@@ -347,7 +339,6 @@ public class ProjectServiceImpl implements ProjectService {
 
                         return true;
                     } else {
-                        System.out.println("***********9");
                         // 交付配送中心项目经理只能保存后者执行
                         if (paramProjectStatusEnum != Project.ProjectStatusEnum.EXECUTING && paramProjectStatusEnum != Project.ProjectStatusEnum.HASMANAGER) {
                             throw new MyException(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error"));
@@ -373,7 +364,6 @@ public class ProjectServiceImpl implements ProjectService {
                         //项目经理 指定经办人完成以后，  需要让  商务技术执行项目
                         BackLog backLogs = backLogDao.findByFunctionExplainIdAndUid(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum(), projectUpdate.getId());
                         if (backLogs != null) {
-                            System.out.println("***********10");
                             backLogs.setUid(projectUpdate.getBusinessUid()); //商务技术经办人id
                             backLogDao.save(backLogs);
                         }
@@ -385,14 +375,11 @@ public class ProjectServiceImpl implements ProjectService {
                 }
                 //修改备注  在项目完成前商务技术可以修改项目备注
                 if (nowProjectStatusEnum != Project.ProjectStatusEnum.DONE) {
-                    System.out.println("***********11");
                     projectUpdate.setRemarks(project.getRemarks());
                 }
                 // 操作相关订单信息
                 if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING && !Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
-                    System.out.println("***********12");
                     if (nowProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum() && paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
-                        System.out.println("***********13");
                         try {
                             order.getGoodsList().forEach(gd -> {
                                         gd.setStartDate(project.getStartDate());
@@ -451,16 +438,13 @@ public class ProjectServiceImpl implements ProjectService {
             }
             projectUpdate.setUpdateTime(new Date());
             Project project1 = projectDao.save(projectUpdate);
-            System.out.println("***********14");
             //项目管理：办理项目的时候，如果指定了项目经理，需要短信通知
             if (Project.ProjectStatusEnum.HASMANAGER.getCode().equals(project1.getProjectStatus())) {
-                System.out.println("***********15");
                 Integer managerUid = project1.getManagerUid();      //交付配送中心项目经理ID
                 sendSms(project1, managerUid);
             }
 
         }
-        System.out.println("***********16");
         return true;
     }
 
@@ -608,8 +592,13 @@ public class ProjectServiceImpl implements ProjectService {
                     searchList.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
                 // 根据审核进度
-                if (condition.getAuditingProcess() != null) {
-                    searchList.add(cb.equal(root.get("auditingProcess").as(String.class), condition.getAuditingProcess()));
+                if (StringUtils.isNotBlank(condition.getAuditingProcess())) {
+                    if ("999".equals(condition.getAuditingProcess())) {
+                        // 999 定位审核完成的查询
+                        searchList.add(cb.equal(root.get("auditingStatus").as(Integer.class), Order.AuditingStatusEnum.THROUGH.getStatus()));
+                    } else {
+                        searchList.add(cb.like(root.get("auditingProcess").as(String.class), "%" + condition.getAuditingProcess() + "%"));
+                    }
                 }
                 //根据项目号
                 if (StringUtil.isNotBlank(condition.getProjectNo())) {

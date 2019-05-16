@@ -1,0 +1,660 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.order.v2.dao.LogisticsDataMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.LogisticsData" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="the_awb_no" property="theAwbNo" jdbcType="VARCHAR" />
+    <result column="contract_no" property="contractNo" jdbcType="VARCHAR" />
+    <result column="deliver_detail_no" property="deliverDetailNo" jdbcType="VARCHAR" />
+    <result column="release_date" property="releaseDate" jdbcType="VARCHAR" />
+    <result column="logistics_user_id" property="logisticsUserId" jdbcType="INTEGER" />
+    <result column="logistics_user_name" property="logisticsUserName" jdbcType="VARCHAR" />
+    <result column="logistics_date" property="logisticsDate" jdbcType="DATE" />
+    <result column="booking_time" property="bookingTime" jdbcType="TIMESTAMP" />
+    <result column="logi_invoice_no" property="logiInvoiceNo" jdbcType="VARCHAR" />
+    <result column="packing_time" property="packingTime" jdbcType="TIMESTAMP" />
+    <result column="leave_factory" property="leaveFactory" jdbcType="TIMESTAMP" />
+    <result column="sailing_date" property="sailingDate" jdbcType="TIMESTAMP" />
+    <result column="customs_clearance" property="customsClearance" jdbcType="TIMESTAMP" />
+    <result column="leave_port_time" property="leavePortTime" jdbcType="TIMESTAMP" />
+    <result column="arrival_port_time" property="arrivalPortTime" jdbcType="TIMESTAMP" />
+    <result column="accomplish_date" property="accomplishDate" jdbcType="TIMESTAMP" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="create_user_id" property="createUserId" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="confirm_the_goods" property="confirmTheGoods" jdbcType="TIMESTAMP" />
+    <result column="submenu_name" property="submenuName" jdbcType="VARCHAR" />
+    <result column="submenu_id" property="submenuId" jdbcType="INTEGER" />
+    <result column="logistics_price_usd" property="logisticsPriceUsd" jdbcType="DECIMAL" />
+    <result column="logistics_cost" property="logisticsCost" jdbcType="DECIMAL" />
+    <result column="logistics_cost_type" property="logisticsCostType" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.erui.order.v2.model.LogisticsDataWithBLOBs" extends="BaseResultMap" >
+    <result column="logs" property="logs" jdbcType="LONGVARCHAR" />
+    <result column="remarks" property="remarks" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, the_awb_no, contract_no, deliver_detail_no, release_date, logistics_user_id, 
+    logistics_user_name, logistics_date, booking_time, logi_invoice_no, packing_time, 
+    leave_factory, sailing_date, customs_clearance, leave_port_time, arrival_port_time, 
+    accomplish_date, create_user_name, create_user_id, status, confirm_the_goods, submenu_name, 
+    submenu_id, logistics_price_usd, logistics_cost, logistics_cost_type
+  </sql>
+  <sql id="Blob_Column_List" >
+    logs, remarks
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.erui.order.v2.model.LogisticsDataExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from logistics_data
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.LogisticsDataExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from logistics_data
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from logistics_data
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from logistics_data
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.order.v2.model.LogisticsDataExample" >
+    delete from logistics_data
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.order.v2.model.LogisticsDataWithBLOBs" >
+    insert into logistics_data (id, the_awb_no, contract_no, 
+      deliver_detail_no, release_date, logistics_user_id, 
+      logistics_user_name, logistics_date, booking_time, 
+      logi_invoice_no, packing_time, leave_factory, 
+      sailing_date, customs_clearance, leave_port_time, 
+      arrival_port_time, accomplish_date, create_user_name, 
+      create_user_id, status, confirm_the_goods, 
+      submenu_name, submenu_id, logistics_price_usd, 
+      logistics_cost, logistics_cost_type, logs, 
+      remarks)
+    values (#{id,jdbcType=INTEGER}, #{theAwbNo,jdbcType=VARCHAR}, #{contractNo,jdbcType=VARCHAR}, 
+      #{deliverDetailNo,jdbcType=VARCHAR}, #{releaseDate,jdbcType=VARCHAR}, #{logisticsUserId,jdbcType=INTEGER}, 
+      #{logisticsUserName,jdbcType=VARCHAR}, #{logisticsDate,jdbcType=DATE}, #{bookingTime,jdbcType=TIMESTAMP}, 
+      #{logiInvoiceNo,jdbcType=VARCHAR}, #{packingTime,jdbcType=TIMESTAMP}, #{leaveFactory,jdbcType=TIMESTAMP}, 
+      #{sailingDate,jdbcType=TIMESTAMP}, #{customsClearance,jdbcType=TIMESTAMP}, #{leavePortTime,jdbcType=TIMESTAMP}, 
+      #{arrivalPortTime,jdbcType=TIMESTAMP}, #{accomplishDate,jdbcType=TIMESTAMP}, #{createUserName,jdbcType=VARCHAR}, 
+      #{createUserId,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{confirmTheGoods,jdbcType=TIMESTAMP}, 
+      #{submenuName,jdbcType=VARCHAR}, #{submenuId,jdbcType=INTEGER}, #{logisticsPriceUsd,jdbcType=DECIMAL}, 
+      #{logisticsCost,jdbcType=DECIMAL}, #{logisticsCostType,jdbcType=VARCHAR}, #{logs,jdbcType=LONGVARCHAR}, 
+      #{remarks,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.order.v2.model.LogisticsDataWithBLOBs" >
+    insert into logistics_data
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="theAwbNo != null" >
+        the_awb_no,
+      </if>
+      <if test="contractNo != null" >
+        contract_no,
+      </if>
+      <if test="deliverDetailNo != null" >
+        deliver_detail_no,
+      </if>
+      <if test="releaseDate != null" >
+        release_date,
+      </if>
+      <if test="logisticsUserId != null" >
+        logistics_user_id,
+      </if>
+      <if test="logisticsUserName != null" >
+        logistics_user_name,
+      </if>
+      <if test="logisticsDate != null" >
+        logistics_date,
+      </if>
+      <if test="bookingTime != null" >
+        booking_time,
+      </if>
+      <if test="logiInvoiceNo != null" >
+        logi_invoice_no,
+      </if>
+      <if test="packingTime != null" >
+        packing_time,
+      </if>
+      <if test="leaveFactory != null" >
+        leave_factory,
+      </if>
+      <if test="sailingDate != null" >
+        sailing_date,
+      </if>
+      <if test="customsClearance != null" >
+        customs_clearance,
+      </if>
+      <if test="leavePortTime != null" >
+        leave_port_time,
+      </if>
+      <if test="arrivalPortTime != null" >
+        arrival_port_time,
+      </if>
+      <if test="accomplishDate != null" >
+        accomplish_date,
+      </if>
+      <if test="createUserName != null" >
+        create_user_name,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="confirmTheGoods != null" >
+        confirm_the_goods,
+      </if>
+      <if test="submenuName != null" >
+        submenu_name,
+      </if>
+      <if test="submenuId != null" >
+        submenu_id,
+      </if>
+      <if test="logisticsPriceUsd != null" >
+        logistics_price_usd,
+      </if>
+      <if test="logisticsCost != null" >
+        logistics_cost,
+      </if>
+      <if test="logisticsCostType != null" >
+        logistics_cost_type,
+      </if>
+      <if test="logs != null" >
+        logs,
+      </if>
+      <if test="remarks != null" >
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="theAwbNo != null" >
+        #{theAwbNo,jdbcType=VARCHAR},
+      </if>
+      <if test="contractNo != null" >
+        #{contractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="deliverDetailNo != null" >
+        #{deliverDetailNo,jdbcType=VARCHAR},
+      </if>
+      <if test="releaseDate != null" >
+        #{releaseDate,jdbcType=VARCHAR},
+      </if>
+      <if test="logisticsUserId != null" >
+        #{logisticsUserId,jdbcType=INTEGER},
+      </if>
+      <if test="logisticsUserName != null" >
+        #{logisticsUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="logisticsDate != null" >
+        #{logisticsDate,jdbcType=DATE},
+      </if>
+      <if test="bookingTime != null" >
+        #{bookingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="logiInvoiceNo != null" >
+        #{logiInvoiceNo,jdbcType=VARCHAR},
+      </if>
+      <if test="packingTime != null" >
+        #{packingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="leaveFactory != null" >
+        #{leaveFactory,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sailingDate != null" >
+        #{sailingDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="customsClearance != null" >
+        #{customsClearance,jdbcType=TIMESTAMP},
+      </if>
+      <if test="leavePortTime != null" >
+        #{leavePortTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="arrivalPortTime != null" >
+        #{arrivalPortTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="accomplishDate != null" >
+        #{accomplishDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserName != null" >
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="confirmTheGoods != null" >
+        #{confirmTheGoods,jdbcType=TIMESTAMP},
+      </if>
+      <if test="submenuName != null" >
+        #{submenuName,jdbcType=VARCHAR},
+      </if>
+      <if test="submenuId != null" >
+        #{submenuId,jdbcType=INTEGER},
+      </if>
+      <if test="logisticsPriceUsd != null" >
+        #{logisticsPriceUsd,jdbcType=DECIMAL},
+      </if>
+      <if test="logisticsCost != null" >
+        #{logisticsCost,jdbcType=DECIMAL},
+      </if>
+      <if test="logisticsCostType != null" >
+        #{logisticsCostType,jdbcType=VARCHAR},
+      </if>
+      <if test="logs != null" >
+        #{logs,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="remarks != null" >
+        #{remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.order.v2.model.LogisticsDataExample" resultType="java.lang.Integer" >
+    select count(*) from logistics_data
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update logistics_data
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.theAwbNo != null" >
+        the_awb_no = #{record.theAwbNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.contractNo != null" >
+        contract_no = #{record.contractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deliverDetailNo != null" >
+        deliver_detail_no = #{record.deliverDetailNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.releaseDate != null" >
+        release_date = #{record.releaseDate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.logisticsUserId != null" >
+        logistics_user_id = #{record.logisticsUserId,jdbcType=INTEGER},
+      </if>
+      <if test="record.logisticsUserName != null" >
+        logistics_user_name = #{record.logisticsUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.logisticsDate != null" >
+        logistics_date = #{record.logisticsDate,jdbcType=DATE},
+      </if>
+      <if test="record.bookingTime != null" >
+        booking_time = #{record.bookingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.logiInvoiceNo != null" >
+        logi_invoice_no = #{record.logiInvoiceNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.packingTime != null" >
+        packing_time = #{record.packingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.leaveFactory != null" >
+        leave_factory = #{record.leaveFactory,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.sailingDate != null" >
+        sailing_date = #{record.sailingDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.customsClearance != null" >
+        customs_clearance = #{record.customsClearance,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.leavePortTime != null" >
+        leave_port_time = #{record.leavePortTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.arrivalPortTime != null" >
+        arrival_port_time = #{record.arrivalPortTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.accomplishDate != null" >
+        accomplish_date = #{record.accomplishDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createUserName != null" >
+        create_user_name = #{record.createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createUserId != null" >
+        create_user_id = #{record.createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.confirmTheGoods != null" >
+        confirm_the_goods = #{record.confirmTheGoods,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.submenuName != null" >
+        submenu_name = #{record.submenuName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.submenuId != null" >
+        submenu_id = #{record.submenuId,jdbcType=INTEGER},
+      </if>
+      <if test="record.logisticsPriceUsd != null" >
+        logistics_price_usd = #{record.logisticsPriceUsd,jdbcType=DECIMAL},
+      </if>
+      <if test="record.logisticsCost != null" >
+        logistics_cost = #{record.logisticsCost,jdbcType=DECIMAL},
+      </if>
+      <if test="record.logisticsCostType != null" >
+        logistics_cost_type = #{record.logisticsCostType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.logs != null" >
+        logs = #{record.logs,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.remarks != null" >
+        remarks = #{record.remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update logistics_data
+    set id = #{record.id,jdbcType=INTEGER},
+      the_awb_no = #{record.theAwbNo,jdbcType=VARCHAR},
+      contract_no = #{record.contractNo,jdbcType=VARCHAR},
+      deliver_detail_no = #{record.deliverDetailNo,jdbcType=VARCHAR},
+      release_date = #{record.releaseDate,jdbcType=VARCHAR},
+      logistics_user_id = #{record.logisticsUserId,jdbcType=INTEGER},
+      logistics_user_name = #{record.logisticsUserName,jdbcType=VARCHAR},
+      logistics_date = #{record.logisticsDate,jdbcType=DATE},
+      booking_time = #{record.bookingTime,jdbcType=TIMESTAMP},
+      logi_invoice_no = #{record.logiInvoiceNo,jdbcType=VARCHAR},
+      packing_time = #{record.packingTime,jdbcType=TIMESTAMP},
+      leave_factory = #{record.leaveFactory,jdbcType=TIMESTAMP},
+      sailing_date = #{record.sailingDate,jdbcType=TIMESTAMP},
+      customs_clearance = #{record.customsClearance,jdbcType=TIMESTAMP},
+      leave_port_time = #{record.leavePortTime,jdbcType=TIMESTAMP},
+      arrival_port_time = #{record.arrivalPortTime,jdbcType=TIMESTAMP},
+      accomplish_date = #{record.accomplishDate,jdbcType=TIMESTAMP},
+      create_user_name = #{record.createUserName,jdbcType=VARCHAR},
+      create_user_id = #{record.createUserId,jdbcType=INTEGER},
+      status = #{record.status,jdbcType=INTEGER},
+      confirm_the_goods = #{record.confirmTheGoods,jdbcType=TIMESTAMP},
+      submenu_name = #{record.submenuName,jdbcType=VARCHAR},
+      submenu_id = #{record.submenuId,jdbcType=INTEGER},
+      logistics_price_usd = #{record.logisticsPriceUsd,jdbcType=DECIMAL},
+      logistics_cost = #{record.logisticsCost,jdbcType=DECIMAL},
+      logistics_cost_type = #{record.logisticsCostType,jdbcType=VARCHAR},
+      logs = #{record.logs,jdbcType=LONGVARCHAR},
+      remarks = #{record.remarks,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update logistics_data
+    set id = #{record.id,jdbcType=INTEGER},
+      the_awb_no = #{record.theAwbNo,jdbcType=VARCHAR},
+      contract_no = #{record.contractNo,jdbcType=VARCHAR},
+      deliver_detail_no = #{record.deliverDetailNo,jdbcType=VARCHAR},
+      release_date = #{record.releaseDate,jdbcType=VARCHAR},
+      logistics_user_id = #{record.logisticsUserId,jdbcType=INTEGER},
+      logistics_user_name = #{record.logisticsUserName,jdbcType=VARCHAR},
+      logistics_date = #{record.logisticsDate,jdbcType=DATE},
+      booking_time = #{record.bookingTime,jdbcType=TIMESTAMP},
+      logi_invoice_no = #{record.logiInvoiceNo,jdbcType=VARCHAR},
+      packing_time = #{record.packingTime,jdbcType=TIMESTAMP},
+      leave_factory = #{record.leaveFactory,jdbcType=TIMESTAMP},
+      sailing_date = #{record.sailingDate,jdbcType=TIMESTAMP},
+      customs_clearance = #{record.customsClearance,jdbcType=TIMESTAMP},
+      leave_port_time = #{record.leavePortTime,jdbcType=TIMESTAMP},
+      arrival_port_time = #{record.arrivalPortTime,jdbcType=TIMESTAMP},
+      accomplish_date = #{record.accomplishDate,jdbcType=TIMESTAMP},
+      create_user_name = #{record.createUserName,jdbcType=VARCHAR},
+      create_user_id = #{record.createUserId,jdbcType=INTEGER},
+      status = #{record.status,jdbcType=INTEGER},
+      confirm_the_goods = #{record.confirmTheGoods,jdbcType=TIMESTAMP},
+      submenu_name = #{record.submenuName,jdbcType=VARCHAR},
+      submenu_id = #{record.submenuId,jdbcType=INTEGER},
+      logistics_price_usd = #{record.logisticsPriceUsd,jdbcType=DECIMAL},
+      logistics_cost = #{record.logisticsCost,jdbcType=DECIMAL},
+      logistics_cost_type = #{record.logisticsCostType,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.LogisticsDataWithBLOBs" >
+    update logistics_data
+    <set >
+      <if test="theAwbNo != null" >
+        the_awb_no = #{theAwbNo,jdbcType=VARCHAR},
+      </if>
+      <if test="contractNo != null" >
+        contract_no = #{contractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="deliverDetailNo != null" >
+        deliver_detail_no = #{deliverDetailNo,jdbcType=VARCHAR},
+      </if>
+      <if test="releaseDate != null" >
+        release_date = #{releaseDate,jdbcType=VARCHAR},
+      </if>
+      <if test="logisticsUserId != null" >
+        logistics_user_id = #{logisticsUserId,jdbcType=INTEGER},
+      </if>
+      <if test="logisticsUserName != null" >
+        logistics_user_name = #{logisticsUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="logisticsDate != null" >
+        logistics_date = #{logisticsDate,jdbcType=DATE},
+      </if>
+      <if test="bookingTime != null" >
+        booking_time = #{bookingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="logiInvoiceNo != null" >
+        logi_invoice_no = #{logiInvoiceNo,jdbcType=VARCHAR},
+      </if>
+      <if test="packingTime != null" >
+        packing_time = #{packingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="leaveFactory != null" >
+        leave_factory = #{leaveFactory,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sailingDate != null" >
+        sailing_date = #{sailingDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="customsClearance != null" >
+        customs_clearance = #{customsClearance,jdbcType=TIMESTAMP},
+      </if>
+      <if test="leavePortTime != null" >
+        leave_port_time = #{leavePortTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="arrivalPortTime != null" >
+        arrival_port_time = #{arrivalPortTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="accomplishDate != null" >
+        accomplish_date = #{accomplishDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserName != null" >
+        create_user_name = #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null" >
+        create_user_id = #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="confirmTheGoods != null" >
+        confirm_the_goods = #{confirmTheGoods,jdbcType=TIMESTAMP},
+      </if>
+      <if test="submenuName != null" >
+        submenu_name = #{submenuName,jdbcType=VARCHAR},
+      </if>
+      <if test="submenuId != null" >
+        submenu_id = #{submenuId,jdbcType=INTEGER},
+      </if>
+      <if test="logisticsPriceUsd != null" >
+        logistics_price_usd = #{logisticsPriceUsd,jdbcType=DECIMAL},
+      </if>
+      <if test="logisticsCost != null" >
+        logistics_cost = #{logisticsCost,jdbcType=DECIMAL},
+      </if>
+      <if test="logisticsCostType != null" >
+        logistics_cost_type = #{logisticsCostType,jdbcType=VARCHAR},
+      </if>
+      <if test="logs != null" >
+        logs = #{logs,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="remarks != null" >
+        remarks = #{remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.erui.order.v2.model.LogisticsDataWithBLOBs" >
+    update logistics_data
+    set the_awb_no = #{theAwbNo,jdbcType=VARCHAR},
+      contract_no = #{contractNo,jdbcType=VARCHAR},
+      deliver_detail_no = #{deliverDetailNo,jdbcType=VARCHAR},
+      release_date = #{releaseDate,jdbcType=VARCHAR},
+      logistics_user_id = #{logisticsUserId,jdbcType=INTEGER},
+      logistics_user_name = #{logisticsUserName,jdbcType=VARCHAR},
+      logistics_date = #{logisticsDate,jdbcType=DATE},
+      booking_time = #{bookingTime,jdbcType=TIMESTAMP},
+      logi_invoice_no = #{logiInvoiceNo,jdbcType=VARCHAR},
+      packing_time = #{packingTime,jdbcType=TIMESTAMP},
+      leave_factory = #{leaveFactory,jdbcType=TIMESTAMP},
+      sailing_date = #{sailingDate,jdbcType=TIMESTAMP},
+      customs_clearance = #{customsClearance,jdbcType=TIMESTAMP},
+      leave_port_time = #{leavePortTime,jdbcType=TIMESTAMP},
+      arrival_port_time = #{arrivalPortTime,jdbcType=TIMESTAMP},
+      accomplish_date = #{accomplishDate,jdbcType=TIMESTAMP},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      create_user_id = #{createUserId,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      confirm_the_goods = #{confirmTheGoods,jdbcType=TIMESTAMP},
+      submenu_name = #{submenuName,jdbcType=VARCHAR},
+      submenu_id = #{submenuId,jdbcType=INTEGER},
+      logistics_price_usd = #{logisticsPriceUsd,jdbcType=DECIMAL},
+      logistics_cost = #{logisticsCost,jdbcType=DECIMAL},
+      logistics_cost_type = #{logisticsCostType,jdbcType=VARCHAR},
+      logs = #{logs,jdbcType=LONGVARCHAR},
+      remarks = #{remarks,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.LogisticsData" >
+    update logistics_data
+    set the_awb_no = #{theAwbNo,jdbcType=VARCHAR},
+      contract_no = #{contractNo,jdbcType=VARCHAR},
+      deliver_detail_no = #{deliverDetailNo,jdbcType=VARCHAR},
+      release_date = #{releaseDate,jdbcType=VARCHAR},
+      logistics_user_id = #{logisticsUserId,jdbcType=INTEGER},
+      logistics_user_name = #{logisticsUserName,jdbcType=VARCHAR},
+      logistics_date = #{logisticsDate,jdbcType=DATE},
+      booking_time = #{bookingTime,jdbcType=TIMESTAMP},
+      logi_invoice_no = #{logiInvoiceNo,jdbcType=VARCHAR},
+      packing_time = #{packingTime,jdbcType=TIMESTAMP},
+      leave_factory = #{leaveFactory,jdbcType=TIMESTAMP},
+      sailing_date = #{sailingDate,jdbcType=TIMESTAMP},
+      customs_clearance = #{customsClearance,jdbcType=TIMESTAMP},
+      leave_port_time = #{leavePortTime,jdbcType=TIMESTAMP},
+      arrival_port_time = #{arrivalPortTime,jdbcType=TIMESTAMP},
+      accomplish_date = #{accomplishDate,jdbcType=TIMESTAMP},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      create_user_id = #{createUserId,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      confirm_the_goods = #{confirmTheGoods,jdbcType=TIMESTAMP},
+      submenu_name = #{submenuName,jdbcType=VARCHAR},
+      submenu_id = #{submenuId,jdbcType=INTEGER},
+      logistics_price_usd = #{logisticsPriceUsd,jdbcType=DECIMAL},
+      logistics_cost = #{logisticsCost,jdbcType=DECIMAL},
+      logistics_cost_type = #{logisticsCostType,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

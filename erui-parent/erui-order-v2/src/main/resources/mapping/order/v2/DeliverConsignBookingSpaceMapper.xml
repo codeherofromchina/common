@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.order.v2.dao.DeliverConsignBookingSpaceMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.DeliverConsignBookingSpace" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="deliver_consign_id" property="deliverConsignId" jdbcType="INTEGER" />
+    <result column="ready_date" property="readyDate" jdbcType="DATE" />
+    <result column="arrival_date" property="arrivalDate" jdbcType="DATE" />
+    <result column="order_emergency" property="orderEmergency" jdbcType="INTEGER" />
+    <result column="penalty_provision" property="penaltyProvision" jdbcType="VARCHAR" />
+    <result column="required_doc" property="requiredDoc" jdbcType="VARCHAR" />
+    <result column="bill_of_positive" property="billOfPositive" jdbcType="INTEGER" />
+    <result column="bill_of_vice" property="billOfVice" jdbcType="INTEGER" />
+    <result column="box_list_positive" property="boxListPositive" jdbcType="INTEGER" />
+    <result column="box_list_vice" property="boxListVice" jdbcType="INTEGER" />
+    <result column="invoice_positive" property="invoicePositive" jdbcType="INTEGER" />
+    <result column="invoice_vice" property="invoiceVice" jdbcType="INTEGER" />
+    <result column="primary_origin" property="primaryOrigin" jdbcType="INTEGER" />
+    <result column="other_doc" property="otherDoc" jdbcType="VARCHAR" />
+    <result column="specific_require" property="specificRequire" jdbcType="VARCHAR" />
+    <result column="bill_of_lading" property="billOfLading" jdbcType="VARCHAR" />
+    <result column="shipping_marks" property="shippingMarks" jdbcType="VARCHAR" />
+    <result column="package_require" property="packageRequire" jdbcType="VARCHAR" />
+    <result column="corporate_name" property="corporateName" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="contacts" property="contacts" jdbcType="VARCHAR" />
+    <result column="contact_information" property="contactInformation" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, deliver_consign_id, ready_date, arrival_date, order_emergency, penalty_provision, 
+    required_doc, bill_of_positive, bill_of_vice, box_list_positive, box_list_vice, invoice_positive, 
+    invoice_vice, primary_origin, other_doc, specific_require, bill_of_lading, shipping_marks, 
+    package_require, corporate_name, address, contacts, contact_information
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.DeliverConsignBookingSpaceExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from deliver_consign_booking_space
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from deliver_consign_booking_space
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from deliver_consign_booking_space
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.order.v2.model.DeliverConsignBookingSpaceExample" >
+    delete from deliver_consign_booking_space
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.order.v2.model.DeliverConsignBookingSpace" >
+    insert into deliver_consign_booking_space (id, deliver_consign_id, ready_date, 
+      arrival_date, order_emergency, penalty_provision, 
+      required_doc, bill_of_positive, bill_of_vice, 
+      box_list_positive, box_list_vice, invoice_positive, 
+      invoice_vice, primary_origin, other_doc, 
+      specific_require, bill_of_lading, shipping_marks, 
+      package_require, corporate_name, address, 
+      contacts, contact_information)
+    values (#{id,jdbcType=INTEGER}, #{deliverConsignId,jdbcType=INTEGER}, #{readyDate,jdbcType=DATE}, 
+      #{arrivalDate,jdbcType=DATE}, #{orderEmergency,jdbcType=INTEGER}, #{penaltyProvision,jdbcType=VARCHAR}, 
+      #{requiredDoc,jdbcType=VARCHAR}, #{billOfPositive,jdbcType=INTEGER}, #{billOfVice,jdbcType=INTEGER}, 
+      #{boxListPositive,jdbcType=INTEGER}, #{boxListVice,jdbcType=INTEGER}, #{invoicePositive,jdbcType=INTEGER}, 
+      #{invoiceVice,jdbcType=INTEGER}, #{primaryOrigin,jdbcType=INTEGER}, #{otherDoc,jdbcType=VARCHAR}, 
+      #{specificRequire,jdbcType=VARCHAR}, #{billOfLading,jdbcType=VARCHAR}, #{shippingMarks,jdbcType=VARCHAR}, 
+      #{packageRequire,jdbcType=VARCHAR}, #{corporateName,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, 
+      #{contacts,jdbcType=VARCHAR}, #{contactInformation,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.order.v2.model.DeliverConsignBookingSpace" >
+    insert into deliver_consign_booking_space
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="deliverConsignId != null" >
+        deliver_consign_id,
+      </if>
+      <if test="readyDate != null" >
+        ready_date,
+      </if>
+      <if test="arrivalDate != null" >
+        arrival_date,
+      </if>
+      <if test="orderEmergency != null" >
+        order_emergency,
+      </if>
+      <if test="penaltyProvision != null" >
+        penalty_provision,
+      </if>
+      <if test="requiredDoc != null" >
+        required_doc,
+      </if>
+      <if test="billOfPositive != null" >
+        bill_of_positive,
+      </if>
+      <if test="billOfVice != null" >
+        bill_of_vice,
+      </if>
+      <if test="boxListPositive != null" >
+        box_list_positive,
+      </if>
+      <if test="boxListVice != null" >
+        box_list_vice,
+      </if>
+      <if test="invoicePositive != null" >
+        invoice_positive,
+      </if>
+      <if test="invoiceVice != null" >
+        invoice_vice,
+      </if>
+      <if test="primaryOrigin != null" >
+        primary_origin,
+      </if>
+      <if test="otherDoc != null" >
+        other_doc,
+      </if>
+      <if test="specificRequire != null" >
+        specific_require,
+      </if>
+      <if test="billOfLading != null" >
+        bill_of_lading,
+      </if>
+      <if test="shippingMarks != null" >
+        shipping_marks,
+      </if>
+      <if test="packageRequire != null" >
+        package_require,
+      </if>
+      <if test="corporateName != null" >
+        corporate_name,
+      </if>
+      <if test="address != null" >
+        address,
+      </if>
+      <if test="contacts != null" >
+        contacts,
+      </if>
+      <if test="contactInformation != null" >
+        contact_information,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="deliverConsignId != null" >
+        #{deliverConsignId,jdbcType=INTEGER},
+      </if>
+      <if test="readyDate != null" >
+        #{readyDate,jdbcType=DATE},
+      </if>
+      <if test="arrivalDate != null" >
+        #{arrivalDate,jdbcType=DATE},
+      </if>
+      <if test="orderEmergency != null" >
+        #{orderEmergency,jdbcType=INTEGER},
+      </if>
+      <if test="penaltyProvision != null" >
+        #{penaltyProvision,jdbcType=VARCHAR},
+      </if>
+      <if test="requiredDoc != null" >
+        #{requiredDoc,jdbcType=VARCHAR},
+      </if>
+      <if test="billOfPositive != null" >
+        #{billOfPositive,jdbcType=INTEGER},
+      </if>
+      <if test="billOfVice != null" >
+        #{billOfVice,jdbcType=INTEGER},
+      </if>
+      <if test="boxListPositive != null" >
+        #{boxListPositive,jdbcType=INTEGER},
+      </if>
+      <if test="boxListVice != null" >
+        #{boxListVice,jdbcType=INTEGER},
+      </if>
+      <if test="invoicePositive != null" >
+        #{invoicePositive,jdbcType=INTEGER},
+      </if>
+      <if test="invoiceVice != null" >
+        #{invoiceVice,jdbcType=INTEGER},
+      </if>
+      <if test="primaryOrigin != null" >
+        #{primaryOrigin,jdbcType=INTEGER},
+      </if>
+      <if test="otherDoc != null" >
+        #{otherDoc,jdbcType=VARCHAR},
+      </if>
+      <if test="specificRequire != null" >
+        #{specificRequire,jdbcType=VARCHAR},
+      </if>
+      <if test="billOfLading != null" >
+        #{billOfLading,jdbcType=VARCHAR},
+      </if>
+      <if test="shippingMarks != null" >
+        #{shippingMarks,jdbcType=VARCHAR},
+      </if>
+      <if test="packageRequire != null" >
+        #{packageRequire,jdbcType=VARCHAR},
+      </if>
+      <if test="corporateName != null" >
+        #{corporateName,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="contacts != null" >
+        #{contacts,jdbcType=VARCHAR},
+      </if>
+      <if test="contactInformation != null" >
+        #{contactInformation,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.order.v2.model.DeliverConsignBookingSpaceExample" resultType="java.lang.Integer" >
+    select count(*) from deliver_consign_booking_space
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update deliver_consign_booking_space
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.deliverConsignId != null" >
+        deliver_consign_id = #{record.deliverConsignId,jdbcType=INTEGER},
+      </if>
+      <if test="record.readyDate != null" >
+        ready_date = #{record.readyDate,jdbcType=DATE},
+      </if>
+      <if test="record.arrivalDate != null" >
+        arrival_date = #{record.arrivalDate,jdbcType=DATE},
+      </if>
+      <if test="record.orderEmergency != null" >
+        order_emergency = #{record.orderEmergency,jdbcType=INTEGER},
+      </if>
+      <if test="record.penaltyProvision != null" >
+        penalty_provision = #{record.penaltyProvision,jdbcType=VARCHAR},
+      </if>
+      <if test="record.requiredDoc != null" >
+        required_doc = #{record.requiredDoc,jdbcType=VARCHAR},
+      </if>
+      <if test="record.billOfPositive != null" >
+        bill_of_positive = #{record.billOfPositive,jdbcType=INTEGER},
+      </if>
+      <if test="record.billOfVice != null" >
+        bill_of_vice = #{record.billOfVice,jdbcType=INTEGER},
+      </if>
+      <if test="record.boxListPositive != null" >
+        box_list_positive = #{record.boxListPositive,jdbcType=INTEGER},
+      </if>
+      <if test="record.boxListVice != null" >
+        box_list_vice = #{record.boxListVice,jdbcType=INTEGER},
+      </if>
+      <if test="record.invoicePositive != null" >
+        invoice_positive = #{record.invoicePositive,jdbcType=INTEGER},
+      </if>
+      <if test="record.invoiceVice != null" >
+        invoice_vice = #{record.invoiceVice,jdbcType=INTEGER},
+      </if>
+      <if test="record.primaryOrigin != null" >
+        primary_origin = #{record.primaryOrigin,jdbcType=INTEGER},
+      </if>
+      <if test="record.otherDoc != null" >
+        other_doc = #{record.otherDoc,jdbcType=VARCHAR},
+      </if>
+      <if test="record.specificRequire != null" >
+        specific_require = #{record.specificRequire,jdbcType=VARCHAR},
+      </if>
+      <if test="record.billOfLading != null" >
+        bill_of_lading = #{record.billOfLading,jdbcType=VARCHAR},
+      </if>
+      <if test="record.shippingMarks != null" >
+        shipping_marks = #{record.shippingMarks,jdbcType=VARCHAR},
+      </if>
+      <if test="record.packageRequire != null" >
+        package_require = #{record.packageRequire,jdbcType=VARCHAR},
+      </if>
+      <if test="record.corporateName != null" >
+        corporate_name = #{record.corporateName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.address != null" >
+        address = #{record.address,jdbcType=VARCHAR},
+      </if>
+      <if test="record.contacts != null" >
+        contacts = #{record.contacts,jdbcType=VARCHAR},
+      </if>
+      <if test="record.contactInformation != null" >
+        contact_information = #{record.contactInformation,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update deliver_consign_booking_space
+    set id = #{record.id,jdbcType=INTEGER},
+      deliver_consign_id = #{record.deliverConsignId,jdbcType=INTEGER},
+      ready_date = #{record.readyDate,jdbcType=DATE},
+      arrival_date = #{record.arrivalDate,jdbcType=DATE},
+      order_emergency = #{record.orderEmergency,jdbcType=INTEGER},
+      penalty_provision = #{record.penaltyProvision,jdbcType=VARCHAR},
+      required_doc = #{record.requiredDoc,jdbcType=VARCHAR},
+      bill_of_positive = #{record.billOfPositive,jdbcType=INTEGER},
+      bill_of_vice = #{record.billOfVice,jdbcType=INTEGER},
+      box_list_positive = #{record.boxListPositive,jdbcType=INTEGER},
+      box_list_vice = #{record.boxListVice,jdbcType=INTEGER},
+      invoice_positive = #{record.invoicePositive,jdbcType=INTEGER},
+      invoice_vice = #{record.invoiceVice,jdbcType=INTEGER},
+      primary_origin = #{record.primaryOrigin,jdbcType=INTEGER},
+      other_doc = #{record.otherDoc,jdbcType=VARCHAR},
+      specific_require = #{record.specificRequire,jdbcType=VARCHAR},
+      bill_of_lading = #{record.billOfLading,jdbcType=VARCHAR},
+      shipping_marks = #{record.shippingMarks,jdbcType=VARCHAR},
+      package_require = #{record.packageRequire,jdbcType=VARCHAR},
+      corporate_name = #{record.corporateName,jdbcType=VARCHAR},
+      address = #{record.address,jdbcType=VARCHAR},
+      contacts = #{record.contacts,jdbcType=VARCHAR},
+      contact_information = #{record.contactInformation,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.DeliverConsignBookingSpace" >
+    update deliver_consign_booking_space
+    <set >
+      <if test="deliverConsignId != null" >
+        deliver_consign_id = #{deliverConsignId,jdbcType=INTEGER},
+      </if>
+      <if test="readyDate != null" >
+        ready_date = #{readyDate,jdbcType=DATE},
+      </if>
+      <if test="arrivalDate != null" >
+        arrival_date = #{arrivalDate,jdbcType=DATE},
+      </if>
+      <if test="orderEmergency != null" >
+        order_emergency = #{orderEmergency,jdbcType=INTEGER},
+      </if>
+      <if test="penaltyProvision != null" >
+        penalty_provision = #{penaltyProvision,jdbcType=VARCHAR},
+      </if>
+      <if test="requiredDoc != null" >
+        required_doc = #{requiredDoc,jdbcType=VARCHAR},
+      </if>
+      <if test="billOfPositive != null" >
+        bill_of_positive = #{billOfPositive,jdbcType=INTEGER},
+      </if>
+      <if test="billOfVice != null" >
+        bill_of_vice = #{billOfVice,jdbcType=INTEGER},
+      </if>
+      <if test="boxListPositive != null" >
+        box_list_positive = #{boxListPositive,jdbcType=INTEGER},
+      </if>
+      <if test="boxListVice != null" >
+        box_list_vice = #{boxListVice,jdbcType=INTEGER},
+      </if>
+      <if test="invoicePositive != null" >
+        invoice_positive = #{invoicePositive,jdbcType=INTEGER},
+      </if>
+      <if test="invoiceVice != null" >
+        invoice_vice = #{invoiceVice,jdbcType=INTEGER},
+      </if>
+      <if test="primaryOrigin != null" >
+        primary_origin = #{primaryOrigin,jdbcType=INTEGER},
+      </if>
+      <if test="otherDoc != null" >
+        other_doc = #{otherDoc,jdbcType=VARCHAR},
+      </if>
+      <if test="specificRequire != null" >
+        specific_require = #{specificRequire,jdbcType=VARCHAR},
+      </if>
+      <if test="billOfLading != null" >
+        bill_of_lading = #{billOfLading,jdbcType=VARCHAR},
+      </if>
+      <if test="shippingMarks != null" >
+        shipping_marks = #{shippingMarks,jdbcType=VARCHAR},
+      </if>
+      <if test="packageRequire != null" >
+        package_require = #{packageRequire,jdbcType=VARCHAR},
+      </if>
+      <if test="corporateName != null" >
+        corporate_name = #{corporateName,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="contacts != null" >
+        contacts = #{contacts,jdbcType=VARCHAR},
+      </if>
+      <if test="contactInformation != null" >
+        contact_information = #{contactInformation,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.DeliverConsignBookingSpace" >
+    update deliver_consign_booking_space
+    set deliver_consign_id = #{deliverConsignId,jdbcType=INTEGER},
+      ready_date = #{readyDate,jdbcType=DATE},
+      arrival_date = #{arrivalDate,jdbcType=DATE},
+      order_emergency = #{orderEmergency,jdbcType=INTEGER},
+      penalty_provision = #{penaltyProvision,jdbcType=VARCHAR},
+      required_doc = #{requiredDoc,jdbcType=VARCHAR},
+      bill_of_positive = #{billOfPositive,jdbcType=INTEGER},
+      bill_of_vice = #{billOfVice,jdbcType=INTEGER},
+      box_list_positive = #{boxListPositive,jdbcType=INTEGER},
+      box_list_vice = #{boxListVice,jdbcType=INTEGER},
+      invoice_positive = #{invoicePositive,jdbcType=INTEGER},
+      invoice_vice = #{invoiceVice,jdbcType=INTEGER},
+      primary_origin = #{primaryOrigin,jdbcType=INTEGER},
+      other_doc = #{otherDoc,jdbcType=VARCHAR},
+      specific_require = #{specificRequire,jdbcType=VARCHAR},
+      bill_of_lading = #{billOfLading,jdbcType=VARCHAR},
+      shipping_marks = #{shippingMarks,jdbcType=VARCHAR},
+      package_require = #{packageRequire,jdbcType=VARCHAR},
+      corporate_name = #{corporateName,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      contacts = #{contacts,jdbcType=VARCHAR},
+      contact_information = #{contactInformation,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

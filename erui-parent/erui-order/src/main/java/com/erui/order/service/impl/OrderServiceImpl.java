@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -47,6 +48,7 @@ import java.util.stream.Collectors;
  * Created by wangxiaodan on 2017/12/11.
  */
 @Service
+@Primary
 public class OrderServiceImpl implements OrderService {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceImpl.class);
     // 用户升级方法
@@ -268,9 +270,16 @@ public class OrderServiceImpl implements OrderService {
                     list.add(cb.like(root.get("crmCode").as(String.class), "%" + condition.getCrmCode() + "%"));
                 }
                 // 根据订单审核状态
-                if (condition.getAuditingProcess() != null) {
-                    list.add(cb.equal(root.get("auditingProcess").as(String.class), condition.getAuditingProcess()));
+                // 根据订单审核状态
+                if (StringUtils.isNotBlank(condition.getAuditingProcess())) {
+                    if ("999".equals(condition.getAuditingProcess())) {
+                        // 999 定位审核完成的查询
+                        list.add(cb.equal(root.get("auditingStatus").as(Integer.class), Order.AuditingStatusEnum.THROUGH.getStatus()));
+                    } else {
+                        list.add(cb.like(root.get("auditingProcess").as(String.class), "%" + condition.getAuditingProcess() + "%"));
+                    }
                 }
+
                 //根据Po号模糊查询
                 if (StringUtil.isNotBlank(condition.getPoNo())) {
                     list.add(cb.like(root.get("poNo").as(String.class), "%" + condition.getPoNo() + "%"));

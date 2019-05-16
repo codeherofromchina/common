@@ -176,13 +176,6 @@ public class ProjectController {
             String eruiToken = CookiesUtil.getEruiToken(request);
             ThreadLocalUtil.setObject(eruiToken);
 
-//            // 判断是否需要审核
-//            String auditingUserId = proStatus.getAuditingUserId();
-//            if (auditingUserId != null) {
-//                return auditProject(request, project);
-//            }
-            // 如果不是审核，则继续走审核人流程
-
             // 审核流出添加代码 2018-08-27
             Order order = proStatus.getOrder();
             if (order.getAuditingStatus() == null || order.getAuditingStatus() != Order.AuditingStatusEnum.THROUGH.getStatus()) {

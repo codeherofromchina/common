@@ -8,7 +8,7 @@
 	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
 
 	<!-- 任务调度处理类-->
-	<!--<bean id="dataService" class="com.erui.report.service.impl.DataServiceImpl"></bean>-->
+	<!--<bean id="dataService" class="com.erui.order.service.impl.DataServiceImpl"></bean>-->
 
     <bean id="sysncPowerJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
          <property name="targetObject" ref="reportQuartz"/>

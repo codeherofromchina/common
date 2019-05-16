@@ -51,7 +51,7 @@ public class InquiryCountServiceImpl extends BaseService<InquiryCountMapper> imp
 
     private final static Logger logger = LoggerFactory.getLogger(InquiryCountServiceImpl.class);
 
-    public final String inquiryUrl = "http://api.erui.com/v2/report/getTimeIntervalData";//获取询单数据请求路径
+    public final String inquiryUrl = "http://api.erui.com/v2/order/getTimeIntervalData";//获取询单数据请求路径
 
     private static final String key = "9b2a37b7b606c14d43db538487a148c7";
 

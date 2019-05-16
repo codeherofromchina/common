@@ -243,6 +243,20 @@ public class Project {
         this.qualityInspectType = qualityInspectType;
     }
 
+    // 流程实例ID
+    @Column(name="process_id")
+    private String processId;
+    @Column(name="task_id")
+    private String taskId;
+
+    public String getProcessId() {
+        return processId;
+    }
+
+    public void setProcessId(String processId) {
+        this.processId = processId;
+    }
+
     public List<Attachment> getAttachmentList() {
         return attachmentList;
     }
@@ -497,6 +511,14 @@ public class Project {
 
     public void setoId(Integer oId) {
         this.oId = oId;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 
     public PurchRequisition getPurchRequisition() {
