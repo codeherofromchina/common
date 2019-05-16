@@ -252,10 +252,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                     handleExchangedPurchContractGoods(project, goods, dbPurchContract, purchContractGoods, son);
                     purchContractGoodsList.add(son);
                 }
-                // 提交则修改商品的已采购数量
-                if (purchContract.getStatus() == PurchContract.StatusEnum.BEING.getCode()) {
-                    goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
-                }
                 // 判断采购是否超限,预采购数量大于合同数量，则错误
                 if (goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum > goods.getContractGoodsNum()) {
                     throw new Exception(String.format("%s%s%s", "采购数量超过合同数量【sku :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Quantity of purchase exceeds the number of contracts [SKU: " + goods.getSku() + "]"));
@@ -375,10 +371,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                 purchContractGoodsList.add(son);
             }
             int intPurchaseNum = purchContractGoods.getPurchaseNum();
-            if (purchContract.getStatus() == PurchContract.StatusEnum.BEING.getCode()) {
-                // 如果是提交则设置商品的已采购数量并更新
-                goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
-            }
             // 增加预采购数量
             goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
             // 直接更新商品，放置循环中存在多次修改同一个商品错误
