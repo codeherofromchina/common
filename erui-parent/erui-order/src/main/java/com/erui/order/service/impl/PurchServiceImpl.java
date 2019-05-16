@@ -1021,7 +1021,7 @@ public class PurchServiceImpl implements PurchService {
                 // 如果是提交则设置商品的已采购数量并更新
                 goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
                 //提交时更新采购合同已采购数量
-                purchContractGoods.setPurchasedNum(purchContractGoods.getPurchaseNum() + intPurchaseNum);
+                purchContractGoods.setPurchasedNum(purchContractGoods.getPurchasedNum() + intPurchaseNum);
                 // 完善商品的项目执行跟踪信息
                 setGoodsTraceData(goods, purch);
                 if (!goods.getOrder().getOrderCategory().equals(6)) {
