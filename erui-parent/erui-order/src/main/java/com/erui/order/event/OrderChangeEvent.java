@@ -35,6 +35,10 @@ public class OrderChangeEvent implements ApplicationListener<ChangeEvent> {
     private DeliverDetailDao deliverDetailDao;
     @Autowired
     private IogisticsDataDao iogisticsDataDao;
+    @Autowired
+    private PurchContractGoodsDao purchContractGoodsDao;
+    @Autowired
+    private PurchContractDao purchContractDao;
 
     @Override
     public void onApplicationEvent(ChangeEvent changeEvent) {
@@ -79,8 +83,13 @@ public class OrderChangeEvent implements ApplicationListener<ChangeEvent> {
                     oPurchRequisition.setStatus(5);
                     purchRequisitionDao.save(oPurchRequisition);
                 }
-              /*  PurchContractGoods purchContractGoods = new PurchContractGoods();
-                purchContractGoods.getPurchContract();*/
+                List<PurchContractGoods> purchContractGoods = purchContractGoodsDao.findByContractNo(oldOrder.getContractNo());
+                if (purchContractGoods != null && purchContractGoods.size() > 0) {
+                    PurchContract purchContract = purchContractGoods.get(0).getPurchContract();
+                    //采购申合同状态为5为变更状态
+                    purchContract.setStatus(5);
+                    purchContractDao.save(purchContract);
+                }
                 if (oldProject.getPurchs() != null && oldProject.getPurchs().size() > 0) {
                     List<InspectApply> inspectApplyList = null;
                     List<Integer> inspectReportList = null;
