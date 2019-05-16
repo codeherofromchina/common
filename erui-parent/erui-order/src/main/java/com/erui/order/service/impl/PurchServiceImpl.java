@@ -1613,7 +1613,7 @@ public class PurchServiceImpl implements PurchService {
                         // 设置采购合同预采购商品数量
                         purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
                         // 设置采购已采购商品数量
-                        purchContractGoods.setPurchasedNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
+                        purchContractGoods.setPurchasedNum(purchContractGoods.getPurchasedNum() + purchaseNum - oldPurchaseNum);
                         // 设置商品的项目跟踪信息
                         setGoodsTraceData(goods, purch);
                         if (!goods.getOrder().getOrderCategory().equals(6)) {
@@ -1625,7 +1625,7 @@ public class PurchServiceImpl implements PurchService {
                         //设置采购合同预采购商品数量
                         purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
                         //设置采购已采购商品数量
-                        purchContractGoods.setPurchasedNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
+                        purchContractGoods.setPurchasedNum(purchContractGoods.getPurchasedNum() + purchaseNum - oldPurchaseNum);
                         // 设置商品的项目跟踪信息
                         setGoodsTraceData(goods, purch);
                     }
