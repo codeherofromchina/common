@@ -68,7 +68,7 @@ public class PurchContract {
     private List<PurchContractGoods> purchContractGoodsList = new ArrayList<>();
 
     /**
-     * 状态 1:待确认 2:未执行 3:已执行 4:已完成 5:已删除
+     * 状态 1:待确认 2:未执行 3:已执行 4:已完成 5:已变更
      */
     private Integer status;
 

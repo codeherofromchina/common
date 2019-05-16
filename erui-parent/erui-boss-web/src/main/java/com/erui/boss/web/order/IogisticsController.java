@@ -21,9 +21,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- *
  * 出库信息
- *
+ * <p>
  * Created by wangxiaodan on 2017/12/11.
  */
 @RestController
@@ -44,11 +43,13 @@ public class IogisticsController {
      */
     @RequestMapping(value = "list", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> list(@RequestBody Iogistics iogistics) {
-        Page<Iogistics> iogisticsList ;
+        Page<Iogistics> iogisticsList;
         try {
             iogisticsList = iogisticsService.queIogistics(iogistics);
-            for (Iogistics iogistics1 : iogisticsList){
+            for (Iogistics iogistics1 : iogisticsList) {
                 DeliverDetail deliverDetail = iogistics1.getDeliverDetail();
+                //设置出库信息管理状态 5为已变更
+                iogistics1.setStatus(deliverDetail.getStatus());
                 iogistics1.setHandleDepartment(deliverDetail.getHandleDepartment()); //经办部门
                 iogistics1.setBillingDate(deliverDetail.getBillingDate());  //开单日期
                 iogistics1.setReleaseDate(deliverDetail.getReleaseDate());   //放行日期
@@ -56,11 +57,11 @@ public class IogisticsController {
                 iogistics1.setLeaveDate(deliverDetail.getLeaveDate());  //出库时间
             }
 
-        }catch (Exception e){
+        } catch (Exception e) {
             String message = e.getMessage();
             return new Result<>(ResultStatusEnum.FAIL).setMsg(message);
         }
-        for (Iogistics d : iogisticsList){
+        for (Iogistics d : iogisticsList) {
             d.getDeliverDetail().setDeliverConsignGoodsList(null);
         }
         return new Result<>(iogisticsList);
@@ -74,13 +75,13 @@ public class IogisticsController {
      */
     @RequestMapping(value = "queryById", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> queryById(@RequestBody Iogistics iogistics) {
-        if(iogistics.getId() == null || iogistics.getId() == 0){
+        if (iogistics.getId() == null || iogistics.getId() == 0) {
             return new Result<>(ResultStatusEnum.FAIL).setMsg("id不能为空");
         }
         Iogistics iogisticsList;
         try {
             iogisticsList = iogisticsService.queryById(iogistics);
-        }catch (Exception e){
+        } catch (Exception e) {
             String message = e.getMessage();
             return new Result<>(ResultStatusEnum.FAIL).setMsg(message);
         }
@@ -90,13 +91,13 @@ public class IogisticsController {
         DeliverDetail deliverDetail = iogisticsList.getDeliverDetail();     // 出库信息
 
         DeliverConsign deliverConsign = deliverDetail.getDeliverConsign();  //出口通知单
-        if(deliverConsign == null ){
+        if (deliverConsign == null) {
             return new Result<>("无出库发货通知单关系");
         }
         Map<String, Object> deliverNoticeInfo = new HashMap<>();
 
-        deliverNoticeInfo.put("toPlace",deliverConsign.getOrder().getToPort()); // 目的港
-        deliverNoticeInfo.put("tradeTerms",deliverConsign.getOrder().getTradeTerms()); // 贸易术语
+        deliverNoticeInfo.put("toPlace", deliverConsign.getOrder().getToPort()); // 目的港
+        deliverNoticeInfo.put("tradeTerms", deliverConsign.getOrder().getTradeTerms()); // 贸易术语
         //处理商品信息
         List<DeliverConsignGoods> deliverConsignGoodsList = deliverDetail.getDeliverConsignGoodsList();
         List<Map<String, Object>> goodsInfoList = DeliverDetailsController.goodsMessage(deliverConsignGoodsList);
@@ -125,12 +126,12 @@ public class IogisticsController {
     @RequestMapping(value = "mergeData", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> mergeData(@RequestBody Map<String, String> params, HttpServletRequest request) {
         boolean flag = false;
-        String message =null;
+        String message = null;
 
-        if(StringUtil.isBlank(params.get("logisticsUserId"))){
+        if (StringUtil.isBlank(params.get("logisticsUserId"))) {
             return new Result<>(ResultStatusEnum.FAIL).setMsg("物流经办人id不能为空");
         }
-        if(StringUtil.isBlank(params.get("logisticsUserName"))){
+        if (StringUtil.isBlank(params.get("logisticsUserName"))) {
             return new Result<>(ResultStatusEnum.FAIL).setMsg("/物流经办人名称不能为空");
         }
 
@@ -140,15 +141,14 @@ public class IogisticsController {
         try {
             flag = iogisticsService.mergeData(params);
         } catch (Exception ex) {
-            message=ex.getMessage();
-            logger.error("出库详情页操作失败：{}",  ex);
+            message = ex.getMessage();
+            logger.error("出库详情页操作失败：{}", ex);
         }
         if (flag) {
             return new Result<>();
         }
         return new Result<>(ResultStatusEnum.FAIL).setMsg(message);
     }
-
 
 
 }
