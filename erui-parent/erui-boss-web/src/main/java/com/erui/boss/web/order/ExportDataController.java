@@ -251,7 +251,7 @@ public class ExportDataController {
                 project.setPurchRequisition(null);
                 project.setPurchs(null);
                 project.setProjectProfit(null);
-                project.setRegion(project.getOrder()==null || project.getOrder().getRegion()==null || project.getOrder().getRegion().length() == 0 ? "" :bnMapZhRegion.get(project.getOrder().getRegion()));
+                project.setRegion(project.getOrder() == null || project.getOrder().getRegion() == null || project.getOrder().getRegion().length() == 0 ? "" : bnMapZhRegion.get(project.getOrder().getRegion()));
                 project.setOrder(null);
             }
 
@@ -314,8 +314,11 @@ public class ExportDataController {
             // 输出到客户端
             response.reset();
             response.setContentType("application/octet-stream;charset=UTF-8");
+//            response.setHeader("Content-Disposition",
+//                    "attachment; filename=\"%e6%8a%a5%e4%bb%b7%e5%88%a9%e6%b6%a6%e6%a0%b8%e7%ae%97%e5%8d%95" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, new Date()) + suffix + "\"");
             response.setHeader("Content-Disposition",
-                    "attachment; filename=\"%e6%8a%a5%e4%bb%b7%e5%88%a9%e6%b6%a6%e6%a0%b8%e7%ae%97%e5%8d%95" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, new Date()) + suffix + "\"");
+                    "attachment; filename=\"" + project.getContractNo() + DateUtil.format(DateUtil.SHORT_FORMAT_STR, new Date()) + suffix + "\"");
+
             // 新建一个Excel的工作空间
             XSSFWorkbook workbook = new XSSFWorkbook();
             // 把模板复制到新建的Excel
@@ -527,7 +530,6 @@ public class ExportDataController {
     }
 
 
-
     /**
      * 导出简易采购合同excel
      *
@@ -544,8 +546,8 @@ public class ExportDataController {
         }
         OutputStream out = null;
         try {
-            PurchContract purchContract= purchContractService.findDetailInfo(Integer.parseInt(id));
-            if(purchContract == null){
+            PurchContract purchContract = purchContractService.findDetailInfo(Integer.parseInt(id));
+            if (purchContract == null) {
                 LOGGER.error("采购合同不存在 {}", id);
                 return; // 参数错误，无法下载
             }
@@ -556,7 +558,7 @@ public class ExportDataController {
             FileInputStream tps = new FileInputStream(file);
             final XSSFWorkbook workbook = new XSSFWorkbook(tps);
             out = response.getOutputStream();
-            String encode = URLEncoder.encode(purchContract.getPurchContractNo()+"简易合同", "UTF-8");
+            String encode = URLEncoder.encode(purchContract.getPurchContractNo() + "简易合同", "UTF-8");
             // 输出到客户端
             response.reset();
             response.setContentType("application/octet-stream;charset=UTF-8");
@@ -602,14 +604,14 @@ public class ExportDataController {
         OutputStream out = null;
         try {
             // 拿到文件名字
-            PurchContract purchContract= purchContractService.findDetailInfo(Integer.parseInt(id));
-            if(purchContract == null){
+            PurchContract purchContract = purchContractService.findDetailInfo(Integer.parseInt(id));
+            if (purchContract == null) {
                 LOGGER.error("采购合同不存在 {}", id);
                 return;
             }
             final XWPFDocument doc = new XWPFDocument();
             out = response.getOutputStream();
-            String encode = URLEncoder.encode(purchContract.getPurchContractNo()+"标准合同", "UTF-8");
+            String encode = URLEncoder.encode(purchContract.getPurchContractNo() + "标准合同", "UTF-8");
             // 输出到客户端
             response.reset();
             response.setContentType("application/octet-stream;charset=UTF-8");
