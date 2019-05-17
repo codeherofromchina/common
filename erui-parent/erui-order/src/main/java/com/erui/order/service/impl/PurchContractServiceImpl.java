@@ -121,7 +121,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         // 设置基本信息
         dbPurchContract.setBaseInfo(purchContract);
 
-        if (dbPurchContract.getPurchContractSimple() != null) {//简易合同
+        if (dbPurchContract.getPurchContractSimple() != null) { // 简易合同
             purchContract.getPurchContractSimple().setId(dbPurchContract.getPurchContractSimple().getId());
             purchContract.getPurchContractSimple().setUpdateTime(now);
             dbPurchContract.setPurchContractSimple(purchContract.getPurchContractSimple());
@@ -188,7 +188,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                 // 查看是否存在替换商品
                 PurchContractGoods son = handleAddNewPurchContractGoods(project, dbPurchContract, goods, pg);
                 pg.setCreateTime(now);
-                purchContractGoodsList.add(pg);
+                if(pg.getPurchaseNum() != null && pg.getPurchaseNum() > 0) purchContractGoodsList.add(pg);
                 if (son != null) {
                     purchContractGoodsList.add(son);
                 }
@@ -241,7 +241,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                     // 总价款
                     purchContractGoods.setTotalPrice(purchContractGoods.getPurchasePrice().multiply(new BigDecimal(purchContractGoods.getPurchaseNum().intValue())));
                 }
-                purchContractGoodsList.add(purchContractGoods);
+                if(purchContractGoods.getPurchaseNum() != null && purchContractGoods.getPurchaseNum() > 0) purchContractGoodsList.add(purchContractGoods);
 
                 int purchaseNum = purchContractGoods.getPurchaseNum();
                 // 从数据库查询一次商品做修改
@@ -251,10 +251,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                     PurchContractGoods son = pg.getSon();
                     handleExchangedPurchContractGoods(project, goods, dbPurchContract, purchContractGoods, son);
                     purchContractGoodsList.add(son);
-                }
-                // 提交则修改商品的已采购数量
-                if (purchContract.getStatus() == PurchContract.StatusEnum.BEING.getCode()) {
-                    goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
                 }
                 // 判断采购是否超限,预采购数量大于合同数量，则错误
                 if (goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum > goods.getContractGoodsNum()) {
@@ -370,15 +366,11 @@ public class PurchContractServiceImpl implements PurchContractService {
             projectSet.add(project);
             PurchContractGoods son = handleAddNewPurchContractGoods(project, purchContract, goods, purchContractGoods);
             purchContractGoods.setCreateTime(now);
-            purchContractGoodsList.add(purchContractGoods);
+            if(purchContractGoods.getPurchaseNum() != null && purchContractGoods.getPurchaseNum() > 0) purchContractGoodsList.add(purchContractGoods);
             if (son != null) {
                 purchContractGoodsList.add(son);
             }
             int intPurchaseNum = purchContractGoods.getPurchaseNum();
-            if (purchContract.getStatus() == PurchContract.StatusEnum.BEING.getCode()) {
-                // 如果是提交则设置商品的已采购数量并更新
-                goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
-            }
             // 增加预采购数量
             goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
             // 直接更新商品，放置循环中存在多次修改同一个商品错误

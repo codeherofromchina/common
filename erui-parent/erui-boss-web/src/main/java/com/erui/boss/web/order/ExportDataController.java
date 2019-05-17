@@ -18,7 +18,6 @@ import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.*;
 import com.erui.report.util.ExcelUploadTypeEnum;
-import com.erui.report.util.WordUploadTypeEnum;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;

@@ -19,7 +19,6 @@ import com.erui.order.requestVo.PurchParam;
 import com.erui.order.service.*;
 
 import com.erui.order.util.BpmUtils;
-import com.erui.order.util.exception.MyException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
@@ -505,13 +504,13 @@ public class PurchServiceImpl implements PurchService {
     private void sendNewDingtalk(Purch purch, String user, boolean rejectFlag, boolean isSendQualityInspect) {
         if (isSendQualityInspect) { // 采购订单提交需要给质检部门发送钉钉通知，设置商品质检类型
             //获取token
-//            final String eruiToken = (String) ThreadLocalUtil.getObject();
-//            List<Integer>userList = getUserListByRoleNo(eruiToken, "O42"); // 获取O42订舱负责人
-//            if(userList != null){
-//                for (Integer userId : userList) {
-//                    sendDingtalk(purch, userId.toString(), false, true);
-//                }
-//            }
+            final String eruiToken = (String) ThreadLocalUtil.getObject();
+            List<Integer>userList = getUserListByRoleNo(eruiToken, "O42"); // 获取O42订舱负责人
+            if(userList != null){
+                for (Integer userId : userList) {
+                    sendDingtalk(purch, userId.toString(), false, true);
+                }
+            }
         }
         sendDingtalk(purch, user, rejectFlag, false);
     }
@@ -532,7 +531,7 @@ public class PurchServiceImpl implements PurchService {
                 header.put("accept", "*/*");
                 String userInfo = HttpRequest.sendPost(memberInformation, jsonParam, header);
                 logger.info("人员详情返回信息：" + userInfo);
-                //钉钉通知接口头信息
+                // 钉钉通知接口头信息
                 Map<String, String> header2 = new HashMap<>();
                 header2.put("Cookie", eruiToken);
                 header2.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
@@ -1032,7 +1031,7 @@ public class PurchServiceImpl implements PurchService {
                 // 如果是提交则设置商品的已采购数量并更新
                 goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
                 //提交时更新采购合同已采购数量
-                purchContractGoods.setPurchasedNum(purchContractGoods.getPurchaseNum() + intPurchaseNum);
+                purchContractGoods.setPurchasedNum(purchContractGoods.getPurchasedNum() + intPurchaseNum);
                 // 完善商品的项目执行跟踪信息
                 setGoodsTraceData(goods, purch);
                 if (!goods.getOrder().getOrderCategory().equals(6)) {
@@ -1367,9 +1366,7 @@ public class PurchServiceImpl implements PurchService {
             dbPurch.setStatus(3);
         }*/
             // 采购审批添加部分
-            if (purch.getStatus() == Purch.StatusEnum.READY.getCode()) {
-                dbPurch.setAuditingStatus(0);
-            } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+            if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                 dbPurch.setAuditingProcess("21,22");
                 dbPurch.setAuditingStatus(1);
                 dbPurch.setAuditingUserId(String.format("%d,%d", purch.getPurchAuditerId(), purch.getBusinessAuditerId()));
@@ -1620,10 +1617,10 @@ public class PurchServiceImpl implements PurchService {
                     // 提交则修改商品的已采购数量
                     if (purch.getStatus() == Purch.StatusEnum.BEING.getCode() && (dbPurch.getAuditingStatus() == 0 || dbPurch.getAuditingStatus() == null)) {
                         goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
-                        //设置采购合同预采购商品数量
+                        // 设置采购合同预采购商品数量
                         purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
-                        //设置采购已采购商品数量
-                        purchContractGoods.setPurchasedNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
+                        // 设置采购已采购商品数量
+                        purchContractGoods.setPurchasedNum(purchContractGoods.getPurchasedNum() + purchaseNum - oldPurchaseNum);
                         // 设置商品的项目跟踪信息
                         setGoodsTraceData(goods, purch);
                         if (!goods.getOrder().getOrderCategory().equals(6)) {
@@ -1631,11 +1628,11 @@ public class PurchServiceImpl implements PurchService {
                         }
                         purchContract.setStatus(3);
                     } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode() && dbPurch.getAuditingStatus() == 3) {
-                        goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
+                        goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum - oldPurchaseNum);
                         //设置采购合同预采购商品数量
                         purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
                         //设置采购已采购商品数量
-                        purchContractGoods.setPurchasedNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
+                        purchContractGoods.setPurchasedNum(purchContractGoods.getPurchasedNum() + purchaseNum - oldPurchaseNum);
                         // 设置商品的项目跟踪信息
                         setGoodsTraceData(goods, purch);
                     }
@@ -1699,9 +1696,8 @@ public class PurchServiceImpl implements PurchService {
             dbPurch.setStatus(3);
         }*/
             // 采购审批添加部分
-            if (purch.getStatus() == Purch.StatusEnum.READY.getCode()) {
-                dbPurch.setAuditingStatus(0);
-            } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+            if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
+                dbPurch.setAuditingProcess("21,22");
                 dbPurch.setAuditingStatus(1);
             }
             CheckLog checkLog_i = null; //审批流日志
@@ -1772,7 +1768,7 @@ public class PurchServiceImpl implements PurchService {
         Integer purchaseNum = newPurchGoods.getPurchaseNum();
         purchaseNum = purchaseNum != null && purchaseNum > 0 ? purchaseNum : 0;
         Integer prePurchaseNum = purchContractGoods.getPrePurchContractNum();
-        //预采购合同数量
+        // 预采购合同数量
         prePurchaseNum = prePurchaseNum != null && prePurchaseNum > 0 ? prePurchaseNum : 0;
         newPurchGoods.setPurchaseNum(purchaseNum);
         // 判断采购是否超限,预采购数量大于采购合同数量，则错误
@@ -1903,7 +1899,7 @@ public class PurchServiceImpl implements PurchService {
         if (purchaseNum + beforeGoods.getPrePurchsedNum() > beforeGoods.getContractGoodsNum()) {
             throw new Exception(String.format("%s%s%s", "替换商品采购超限【父SKU:" + beforeGoods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Replacement of commodity purchase overrun [father SKU:" + beforeGoods.getSku() + "]"));
         }
-        //  插入替换后的新商品
+        // 插入替换后的新商品
         Goods sonGoods = son.getGoods();
         if (sonGoods == null) {
             throw new Exception(String.format("%s%s%s", "替换采购的商品信息不完整【父SKU:" + beforeGoods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Replacement purchase information is incomplete (parent SKU:" + beforeGoods.getSku() + ")"));
@@ -1917,7 +1913,7 @@ public class PurchServiceImpl implements PurchService {
         sonGoods.setProject(project);
         sonGoods.setContractNo(beforeGoods.getContractNo());
         sonGoods.setProjectNo(beforeGoods.getProjectNo());
-        // 设置商品合同数量，同时将父商品的合同数量减少
+        // 设置商品合同数量,同时将父商品的合同数量减少
         sonGoods.setContractGoodsNum(purchaseNum);
         beforeGoods.setContractGoodsNum(beforeGoods.getContractGoodsNum() - purchaseNum);
         // 设置客户需求描述信息
