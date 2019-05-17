@@ -15,6 +15,7 @@
     <result column="type" property="type" jdbcType="INTEGER" />
     <result column="rel_obj_id" property="relObjId" jdbcType="INTEGER" />
     <result column="category" property="category" jdbcType="VARCHAR" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -76,7 +77,7 @@
   </sql>
   <sql id="Base_Column_List" >
     id, group, title, url, user_id, user_name, front_date, delete_flag, delete_time, 
-    create_time, type, rel_obj_id, category
+    create_time, type, rel_obj_id, category, tenant
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.AttachmentExample" >
     select
@@ -113,12 +114,12 @@
       url, user_id, user_name, 
       front_date, delete_flag, delete_time, 
       create_time, type, rel_obj_id, 
-      category)
+      category, tenant)
     values (#{id,jdbcType=INTEGER}, #{group,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, 
       #{url,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR}, 
       #{frontDate,jdbcType=VARCHAR}, #{deleteFlag,jdbcType=BIT}, #{deleteTime,jdbcType=TIMESTAMP}, 
       #{createTime,jdbcType=TIMESTAMP}, #{type,jdbcType=INTEGER}, #{relObjId,jdbcType=INTEGER}, 
-      #{category,jdbcType=VARCHAR})
+      #{category,jdbcType=VARCHAR}, #{tenant,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.Attachment" >
     insert into attachment
@@ -162,6 +163,9 @@
       <if test="category != null" >
         category,
       </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -202,6 +206,9 @@
       </if>
       <if test="category != null" >
         #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -253,6 +260,9 @@
       <if test="record.category != null" >
         category = #{record.category,jdbcType=VARCHAR},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -272,7 +282,8 @@
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       type = #{record.type,jdbcType=INTEGER},
       rel_obj_id = #{record.relObjId,jdbcType=INTEGER},
-      category = #{record.category,jdbcType=VARCHAR}
+      category = #{record.category,jdbcType=VARCHAR},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -316,6 +327,9 @@
       <if test="category != null" >
         category = #{category,jdbcType=VARCHAR},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -332,7 +346,8 @@
       create_time = #{createTime,jdbcType=TIMESTAMP},
       type = #{type,jdbcType=INTEGER},
       rel_obj_id = #{relObjId,jdbcType=INTEGER},
-      category = #{category,jdbcType=VARCHAR}
+      category = #{category,jdbcType=VARCHAR},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

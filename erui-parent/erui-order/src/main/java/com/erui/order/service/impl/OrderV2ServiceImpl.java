@@ -11,7 +11,6 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.requestVo.AddOrderV2Vo;
-import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.requestVo.OrderV2ListRequest;
 import com.erui.order.requestVo.PGoods;
 import com.erui.order.service.*;
@@ -19,7 +18,7 @@ import com.erui.order.util.BpmUtils;
 import com.erui.order.util.CrmUtils;
 import com.erui.order.util.SsoUtils;
 import com.erui.order.util.exception.MyException;
-import com.erui.order.v2.service.EmployeeService;
+import com.erui.order.v2.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,7 +88,7 @@ public class OrderV2ServiceImpl implements OrderV2Service {
     @Value("#{orderProp[DING_SEND_SMS]}")
     private String dingSendSms;  //发钉钉通知接口
     @Autowired
-    private EmployeeService employeeService;
+    private UserService userService;
 
 
     @Autowired
@@ -457,7 +456,7 @@ public class OrderV2ServiceImpl implements OrderV2Service {
             Integer technicalId = order1.getTechnicalId();
             String techicalUserNo = null;
             if (technicalId != null) {
-                techicalUserNo = employeeService.findUserNoById(technicalId.longValue());
+                techicalUserNo = userService.findUserNoById(technicalId.longValue());
             }
             if (StringUtils.isNotBlank(techicalUserNo)) {
                 // ID -> userNo

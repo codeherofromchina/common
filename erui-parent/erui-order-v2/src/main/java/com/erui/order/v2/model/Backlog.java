@@ -27,6 +27,8 @@ public class Backlog {
 
     private Date deleteTime;
 
+    private String tenant;
+
     public Integer getId() {
         return id;
     }
@@ -121,6 +123,14 @@ public class Backlog {
 
     public void setDeleteTime(Date deleteTime) {
         this.deleteTime = deleteTime;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 
     public enum ProjectStatusEnum {

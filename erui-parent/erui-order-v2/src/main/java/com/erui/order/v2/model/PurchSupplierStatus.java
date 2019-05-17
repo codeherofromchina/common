@@ -21,6 +21,8 @@ public class PurchSupplierStatus {
 
     private Date deleteTime;
 
+    private String tenant;
+
     public Long getId() {
         return id;
     }
@@ -91,5 +93,13 @@ public class PurchSupplierStatus {
 
     public void setDeleteTime(Date deleteTime) {
         this.deleteTime = deleteTime;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

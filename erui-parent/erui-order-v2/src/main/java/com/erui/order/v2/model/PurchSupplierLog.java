@@ -17,6 +17,8 @@ public class PurchSupplierLog {
 
     private String deletedFlag;
 
+    private String tenant;
+
     public Long getId() {
         return id;
     }
@@ -71,5 +73,13 @@ public class PurchSupplierLog {
 
     public void setDeletedFlag(String deletedFlag) {
         this.deletedFlag = deletedFlag;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

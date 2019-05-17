@@ -16,6 +16,7 @@
     <result column="join_id" property="joinId" jdbcType="INTEGER" />
     <result column="audit_seq" property="auditSeq" jdbcType="DECIMAL" />
     <result column="category" property="category" jdbcType="VARCHAR" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -78,7 +79,7 @@
   <sql id="Base_Column_List" >
     id, order_id, create_time, auditing_process, auditing_user_id, auditing_user_name, 
     next_auditing_process, next_auditing_user_id, auditing_msg, operation, type, join_id, 
-    audit_seq, category
+    audit_seq, category, tenant
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.CheckLogExample" >
     select
@@ -115,14 +116,14 @@
       auditing_process, auditing_user_id, auditing_user_name, 
       next_auditing_process, next_auditing_user_id, 
       auditing_msg, operation, type, 
-      join_id, audit_seq, category
-      )
+      join_id, audit_seq, category, 
+      tenant)
     values (#{id,jdbcType=INTEGER}, #{orderId,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
       #{auditingProcess,jdbcType=VARCHAR}, #{auditingUserId,jdbcType=INTEGER}, #{auditingUserName,jdbcType=VARCHAR}, 
       #{nextAuditingProcess,jdbcType=VARCHAR}, #{nextAuditingUserId,jdbcType=VARCHAR}, 
       #{auditingMsg,jdbcType=VARCHAR}, #{operation,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, 
-      #{joinId,jdbcType=INTEGER}, #{auditSeq,jdbcType=DECIMAL}, #{category,jdbcType=VARCHAR}
-      )
+      #{joinId,jdbcType=INTEGER}, #{auditSeq,jdbcType=DECIMAL}, #{category,jdbcType=VARCHAR}, 
+      #{tenant,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.CheckLog" >
     insert into check_log
@@ -169,6 +170,9 @@
       <if test="category != null" >
         category,
       </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -212,6 +216,9 @@
       </if>
       <if test="category != null" >
         #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -266,6 +273,9 @@
       <if test="record.category != null" >
         category = #{record.category,jdbcType=VARCHAR},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -286,7 +296,8 @@
       type = #{record.type,jdbcType=INTEGER},
       join_id = #{record.joinId,jdbcType=INTEGER},
       audit_seq = #{record.auditSeq,jdbcType=DECIMAL},
-      category = #{record.category,jdbcType=VARCHAR}
+      category = #{record.category,jdbcType=VARCHAR},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -333,6 +344,9 @@
       <if test="category != null" >
         category = #{category,jdbcType=VARCHAR},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -350,7 +364,8 @@
       type = #{type,jdbcType=INTEGER},
       join_id = #{joinId,jdbcType=INTEGER},
       audit_seq = #{auditSeq,jdbcType=DECIMAL},
-      category = #{category,jdbcType=VARCHAR}
+      category = #{category,jdbcType=VARCHAR},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

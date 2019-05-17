@@ -8,6 +8,10 @@ public class PurchGoods {
 
     private Integer projectId;
 
+    private Integer purchContractId;
+
+    private Integer purchContractGoodsId;
+
     private String projectNo;
 
     private Integer parentId;
@@ -42,6 +46,10 @@ public class PurchGoods {
 
     private Integer preInspectNum;
 
+    private String tenant;
+
+    private String qualityInspectType;
+
     public Integer getId() {
         return id;
     }
@@ -56,6 +64,22 @@ public class PurchGoods {
 
     public void setProjectId(Integer projectId) {
         this.projectId = projectId;
+    }
+
+    public Integer getPurchContractId() {
+        return purchContractId;
+    }
+
+    public void setPurchContractId(Integer purchContractId) {
+        this.purchContractId = purchContractId;
+    }
+
+    public Integer getPurchContractGoodsId() {
+        return purchContractGoodsId;
+    }
+
+    public void setPurchContractGoodsId(Integer purchContractGoodsId) {
+        this.purchContractGoodsId = purchContractGoodsId;
     }
 
     public String getProjectNo() {
@@ -192,5 +216,21 @@ public class PurchGoods {
 
     public void setPreInspectNum(Integer preInspectNum) {
         this.preInspectNum = preInspectNum;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
+    }
+
+    public String getQualityInspectType() {
+        return qualityInspectType;
+    }
+
+    public void setQualityInspectType(String qualityInspectType) {
+        this.qualityInspectType = qualityInspectType;
     }
 }

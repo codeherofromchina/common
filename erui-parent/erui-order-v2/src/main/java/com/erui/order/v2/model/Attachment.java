@@ -29,6 +29,8 @@ public class Attachment {
 
     private String category;
 
+    private String tenant;
+
     public Integer getId() {
         return id;
     }
@@ -131,5 +133,13 @@ public class Attachment {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

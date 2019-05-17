@@ -119,6 +119,8 @@ public class DeliverDetail {
 
     private Integer submenuId;
 
+    private String tenant;
+
     public Integer getId() {
         return id;
     }
@@ -583,6 +585,13 @@ public class DeliverDetail {
         this.submenuId = submenuId;
     }
 
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
+    }
 
     /**
      * 出库到物流的状态1：出库保存/草稿 2：出库提交 3：出库质检保存  4：出库质检提交 5：确认出库 6：完善物流状态中 7：项目完结

@@ -93,11 +93,10 @@ public class OrderStatisticsController {
 
             totalMoney = BigDecimal.ZERO;
         }
-//        Map<String, Object> data = new HashMap<>();
-//        data.put("totalMoney", totalMoney);
-//        data.put("pageInfo", pageInfo);
-//        result.setData(data);
-        result.setData(pageInfo);
+        Map<String, Object> data = new HashMap<>();
+        data.put("totalMoney", totalMoney);
+        data.put("pageInfo", pageInfo);
+        result.setData(data);
         return result;
     }
 

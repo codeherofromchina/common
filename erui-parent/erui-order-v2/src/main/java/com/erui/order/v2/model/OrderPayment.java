@@ -20,6 +20,8 @@ public class OrderPayment {
 
     private Integer receiptTime;
 
+    private String tenant;
+
     public Integer getId() {
         return id;
     }
@@ -82,5 +84,13 @@ public class OrderPayment {
 
     public void setReceiptTime(Integer receiptTime) {
         this.receiptTime = receiptTime;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

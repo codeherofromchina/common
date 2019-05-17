@@ -3,11 +3,10 @@ package com.erui.order.v2.service.impl;
 import com.erui.order.v2.dao.ProjectMapper;
 import com.erui.order.v2.dao.PurchProjectMapper;
 import com.erui.order.v2.model.*;
-import com.erui.order.v2.service.EmployeeService;
+import com.erui.order.v2.service.UserService;
 import com.erui.order.v2.service.ProjectService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +26,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private PurchProjectMapper purchProjectMapper;
     @Autowired
-    private EmployeeService employeeService;
+    private UserService userService;
 
 
     public Project findProjectByProcessId(String processId) {
@@ -64,7 +63,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
         // 设置审核人
         // 通过工号查找用户ID
-        Long userId = employeeService.findIdByUserNo(assignee);
+        Long userId = userService.findIdByUserNo(assignee);
         if (StringUtils.isNotBlank(audiRemark)) {
             if (userId != null && !audiRemark.contains("," + userId + ",")) {
                 audiRemark += "," + userId + ",";
@@ -140,9 +139,9 @@ public class ProjectServiceImpl implements ProjectService {
         List<Project> projects = null;
         PurchProjectExample purchProjectExample = new PurchProjectExample();
         purchProjectExample.createCriteria().andPurchIdEqualTo(purchId);
-        List<PurchProjectKey> purchProjectKeys = purchProjectMapper.selectByExample(purchProjectExample);
-        if (purchProjectKeys != null && purchProjectKeys.size() > 0) {
-            List<Integer> projectIds = purchProjectKeys.stream().map(vo -> vo.getProjectId()).collect(Collectors.toList());
+        List<PurchProject> purchProjects = purchProjectMapper.selectByExample(purchProjectExample);
+        if (purchProjects != null && purchProjects.size() > 0) {
+            List<Integer> projectIds = purchProjects.stream().map(vo -> vo.getProjectId()).collect(Collectors.toList());
             ProjectExample projectExample = new ProjectExample();
             projectExample.createCriteria().andIdIn(projectIds);
             projects = projectMapper.selectByExample(projectExample);

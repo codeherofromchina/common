@@ -1,5 +1,6 @@
 package com.erui.order.v2.dao;
 
+import com.erui.order.v2.model.DeliverNoticeAttach;
 import com.erui.order.v2.model.DeliverNoticeAttachExample;
 import com.erui.order.v2.model.DeliverNoticeAttachKey;
 import java.util.List;
@@ -12,13 +13,19 @@ public interface DeliverNoticeAttachMapper {
 
     int deleteByPrimaryKey(DeliverNoticeAttachKey key);
 
-    int insert(DeliverNoticeAttachKey record);
+    int insert(DeliverNoticeAttach record);
 
-    int insertSelective(DeliverNoticeAttachKey record);
+    int insertSelective(DeliverNoticeAttach record);
 
-    List<DeliverNoticeAttachKey> selectByExample(DeliverNoticeAttachExample example);
+    List<DeliverNoticeAttach> selectByExample(DeliverNoticeAttachExample example);
 
-    int updateByExampleSelective(@Param("record") DeliverNoticeAttachKey record, @Param("example") DeliverNoticeAttachExample example);
+    DeliverNoticeAttach selectByPrimaryKey(DeliverNoticeAttachKey key);
 
-    int updateByExample(@Param("record") DeliverNoticeAttachKey record, @Param("example") DeliverNoticeAttachExample example);
+    int updateByExampleSelective(@Param("record") DeliverNoticeAttach record, @Param("example") DeliverNoticeAttachExample example);
+
+    int updateByExample(@Param("record") DeliverNoticeAttach record, @Param("example") DeliverNoticeAttachExample example);
+
+    int updateByPrimaryKeySelective(DeliverNoticeAttach record);
+
+    int updateByPrimaryKey(DeliverNoticeAttach record);
 }

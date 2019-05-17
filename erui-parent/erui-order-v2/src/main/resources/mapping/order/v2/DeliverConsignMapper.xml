@@ -55,6 +55,7 @@
     <result column="booking_officer" property="bookingOfficer" jdbcType="VARCHAR" />
     <result column="operation_specialist_id" property="operationSpecialistId" jdbcType="INTEGER" />
     <result column="operation_specialist" property="operationSpecialist" jdbcType="VARCHAR" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
     <result column="process_id" property="processId" jdbcType="VARCHAR" />
     <result column="task_id" property="taskId" jdbcType="VARCHAR" />
   </resultMap>
@@ -129,7 +130,7 @@
     settlement_leader, logistics_leader_id, logistics_leader, business_leader_id, business_leader, 
     auditing_status, auditing_process, crm_code_or_name, audi_remark, auditing_user, 
     create_user_name, auditing_user_id, dept_name, contract_no, booking_officer_id, booking_officer, 
-    operation_specialist_id, operation_specialist, process_id, task_id
+    operation_specialist_id, operation_specialist, tenant, process_id, task_id
   </sql>
   <sql id="Blob_Column_List" >
     remarks
@@ -201,8 +202,8 @@
       auditing_user, create_user_name, auditing_user_id, 
       dept_name, contract_no, booking_officer_id, 
       booking_officer, operation_specialist_id, 
-      operation_specialist, process_id, task_id, 
-      remarks)
+      operation_specialist, tenant, process_id, 
+      task_id, remarks)
     values (#{id,jdbcType=INTEGER}, #{deliverConsignNo,jdbcType=VARCHAR}, #{orderId,jdbcType=INTEGER}, 
       #{deptId,jdbcType=INTEGER}, #{coId,jdbcType=VARCHAR}, #{execCoName,jdbcType=VARCHAR}, 
       #{writeDate,jdbcType=DATE}, #{bookingDate,jdbcType=DATE}, #{status,jdbcType=INTEGER}, 
@@ -221,8 +222,8 @@
       #{auditingUser,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR}, #{auditingUserId,jdbcType=VARCHAR}, 
       #{deptName,jdbcType=VARCHAR}, #{contractNo,jdbcType=VARCHAR}, #{bookingOfficerId,jdbcType=INTEGER}, 
       #{bookingOfficer,jdbcType=VARCHAR}, #{operationSpecialistId,jdbcType=INTEGER}, 
-      #{operationSpecialist,jdbcType=VARCHAR}, #{processId,jdbcType=VARCHAR}, #{taskId,jdbcType=VARCHAR}, 
-      #{remarks,jdbcType=LONGVARCHAR})
+      #{operationSpecialist,jdbcType=VARCHAR}, #{tenant,jdbcType=VARCHAR}, #{processId,jdbcType=VARCHAR}, 
+      #{taskId,jdbcType=VARCHAR}, #{remarks,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.DeliverConsign" >
     insert into deliver_consign
@@ -385,6 +386,9 @@
       </if>
       <if test="operationSpecialist != null" >
         operation_specialist,
+      </if>
+      <if test="tenant != null" >
+        tenant,
       </if>
       <if test="processId != null" >
         process_id,
@@ -555,6 +559,9 @@
       </if>
       <if test="operationSpecialist != null" >
         #{operationSpecialist,jdbcType=VARCHAR},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
       <if test="processId != null" >
         #{processId,jdbcType=VARCHAR},
@@ -735,6 +742,9 @@
       <if test="record.operationSpecialist != null" >
         operation_specialist = #{record.operationSpecialist,jdbcType=VARCHAR},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
       <if test="record.processId != null" >
         process_id = #{record.processId,jdbcType=VARCHAR},
       </if>
@@ -804,6 +814,7 @@
       booking_officer = #{record.bookingOfficer,jdbcType=VARCHAR},
       operation_specialist_id = #{record.operationSpecialistId,jdbcType=INTEGER},
       operation_specialist = #{record.operationSpecialist,jdbcType=VARCHAR},
+      tenant = #{record.tenant,jdbcType=VARCHAR},
       process_id = #{record.processId,jdbcType=VARCHAR},
       task_id = #{record.taskId,jdbcType=VARCHAR},
       remarks = #{record.remarks,jdbcType=LONGVARCHAR}
@@ -866,6 +877,7 @@
       booking_officer = #{record.bookingOfficer,jdbcType=VARCHAR},
       operation_specialist_id = #{record.operationSpecialistId,jdbcType=INTEGER},
       operation_specialist = #{record.operationSpecialist,jdbcType=VARCHAR},
+      tenant = #{record.tenant,jdbcType=VARCHAR},
       process_id = #{record.processId,jdbcType=VARCHAR},
       task_id = #{record.taskId,jdbcType=VARCHAR}
     <if test="_parameter != null" >
@@ -1031,6 +1043,9 @@
       <if test="operationSpecialist != null" >
         operation_specialist = #{operationSpecialist,jdbcType=VARCHAR},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
       <if test="processId != null" >
         process_id = #{processId,jdbcType=VARCHAR},
       </if>
@@ -1097,6 +1112,7 @@
       booking_officer = #{bookingOfficer,jdbcType=VARCHAR},
       operation_specialist_id = #{operationSpecialistId,jdbcType=INTEGER},
       operation_specialist = #{operationSpecialist,jdbcType=VARCHAR},
+      tenant = #{tenant,jdbcType=VARCHAR},
       process_id = #{processId,jdbcType=VARCHAR},
       task_id = #{taskId,jdbcType=VARCHAR},
       remarks = #{remarks,jdbcType=LONGVARCHAR}
@@ -1156,6 +1172,7 @@
       booking_officer = #{bookingOfficer,jdbcType=VARCHAR},
       operation_specialist_id = #{operationSpecialistId,jdbcType=INTEGER},
       operation_specialist = #{operationSpecialist,jdbcType=VARCHAR},
+      tenant = #{tenant,jdbcType=VARCHAR},
       process_id = #{processId,jdbcType=VARCHAR},
       task_id = #{taskId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}

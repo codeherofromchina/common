@@ -46,6 +46,7 @@
     <result column="total_project_cost" property="totalProjectCost" jdbcType="DECIMAL" />
     <result column="rear_fee" property="rearFee" jdbcType="DECIMAL" />
     <result column="platform_agent_cost" property="platformAgentCost" jdbcType="DECIMAL" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -113,7 +114,7 @@
     gross_profit_margin, agent_fee, raise_fee, guarance_fee, financing_interest, bank_fees, 
     domestic_taxs, foreign_taxes, manage_fee, after_profit, before_profit, quotation_profit, 
     purchasing_costs_d, purchasing_costs_f, direct_labor, manufacturing_costs, raise_rate, 
-    total_project_cost, rear_fee, platform_agent_cost
+    total_project_cost, rear_fee, platform_agent_cost, tenant
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.ProjectProfitExample" >
     select
@@ -161,7 +162,7 @@
       before_profit, quotation_profit, purchasing_costs_d, 
       purchasing_costs_f, direct_labor, manufacturing_costs, 
       raise_rate, total_project_cost, rear_fee, 
-      platform_agent_cost)
+      platform_agent_cost, tenant)
     values (#{id,jdbcType=INTEGER}, #{projectId,jdbcType=INTEGER}, #{country,jdbcType=VARCHAR}, 
       #{tradeTerm,jdbcType=VARCHAR}, #{projectType,jdbcType=VARCHAR}, #{contractAmountUsd,jdbcType=DECIMAL}, 
       #{contractAmount,jdbcType=DECIMAL}, #{exchangeRate,jdbcType=DECIMAL}, #{taxRefund,jdbcType=DECIMAL}, 
@@ -177,7 +178,7 @@
       #{beforeProfit,jdbcType=DECIMAL}, #{quotationProfit,jdbcType=DECIMAL}, #{purchasingCostsD,jdbcType=DECIMAL}, 
       #{purchasingCostsF,jdbcType=DECIMAL}, #{directLabor,jdbcType=DECIMAL}, #{manufacturingCosts,jdbcType=DECIMAL}, 
       #{raiseRate,jdbcType=DECIMAL}, #{totalProjectCost,jdbcType=DECIMAL}, #{rearFee,jdbcType=DECIMAL}, 
-      #{platformAgentCost,jdbcType=DECIMAL})
+      #{platformAgentCost,jdbcType=DECIMAL}, #{tenant,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.ProjectProfit" >
     insert into project_profit
@@ -314,6 +315,9 @@
       <if test="platformAgentCost != null" >
         platform_agent_cost,
       </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -447,6 +451,9 @@
       </if>
       <if test="platformAgentCost != null" >
         #{platformAgentCost,jdbcType=DECIMAL},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -591,6 +598,9 @@
       <if test="record.platformAgentCost != null" >
         platform_agent_cost = #{record.platformAgentCost,jdbcType=DECIMAL},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -641,7 +651,8 @@
       raise_rate = #{record.raiseRate,jdbcType=DECIMAL},
       total_project_cost = #{record.totalProjectCost,jdbcType=DECIMAL},
       rear_fee = #{record.rearFee,jdbcType=DECIMAL},
-      platform_agent_cost = #{record.platformAgentCost,jdbcType=DECIMAL}
+      platform_agent_cost = #{record.platformAgentCost,jdbcType=DECIMAL},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -778,6 +789,9 @@
       <if test="platformAgentCost != null" >
         platform_agent_cost = #{platformAgentCost,jdbcType=DECIMAL},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -825,7 +839,8 @@
       raise_rate = #{raiseRate,jdbcType=DECIMAL},
       total_project_cost = #{totalProjectCost,jdbcType=DECIMAL},
       rear_fee = #{rearFee,jdbcType=DECIMAL},
-      platform_agent_cost = #{platformAgentCost,jdbcType=DECIMAL}
+      platform_agent_cost = #{platformAgentCost,jdbcType=DECIMAL},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

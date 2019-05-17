@@ -45,6 +45,8 @@ public class PurchRequisition {
 
     private Date updateTime;
 
+    private String tenant;
+
     private String remarks;
 
     public Integer getId() {
@@ -213,6 +215,14 @@ public class PurchRequisition {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 
     public String getRemarks() {

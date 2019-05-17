@@ -1,0 +1,572 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.order.v2.dao.PurchContractMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.PurchContract" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="purch_contract_no" property="purchContractNo" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="signing_date" property="signingDate" jdbcType="DATE" />
+    <result column="supplier_id" property="supplierId" jdbcType="INTEGER" />
+    <result column="supplier_name" property="supplierName" jdbcType="VARCHAR" />
+    <result column="signing_place" property="signingPlace" jdbcType="VARCHAR" />
+    <result column="agent_id" property="agentId" jdbcType="INTEGER" />
+    <result column="agent_name" property="agentName" jdbcType="VARCHAR" />
+    <result column="tax_point" property="taxPoint" jdbcType="DECIMAL" />
+    <result column="capitalized_price" property="capitalizedPrice" jdbcType="VARCHAR" />
+    <result column="lowercase_price" property="lowercasePrice" jdbcType="DECIMAL" />
+    <result column="currency_bn" property="currencyBn" jdbcType="VARCHAR" />
+    <result column="country" property="country" jdbcType="VARCHAR" />
+    <result column="region" property="region" jdbcType="VARCHAR" />
+    <result column="version" property="version" jdbcType="INTEGER" />
+    <result column="create_user_id" property="createUserId" jdbcType="INTEGER" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.erui.order.v2.model.PurchContract" extends="BaseResultMap" >
+    <result column="goods_remarks" property="goodsRemarks" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, purch_contract_no, type, status, signing_date, supplier_id, supplier_name, signing_place, 
+    agent_id, agent_name, tax_point, capitalized_price, lowercase_price, currency_bn, 
+    country, region, version, create_user_id, create_user_name, update_time, create_time, 
+    tenant
+  </sql>
+  <sql id="Blob_Column_List" >
+    goods_remarks
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.erui.order.v2.model.PurchContractExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from purch_contract
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.PurchContractExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from purch_contract
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from purch_contract
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from purch_contract
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.order.v2.model.PurchContractExample" >
+    delete from purch_contract
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.order.v2.model.PurchContract" >
+    insert into purch_contract (id, purch_contract_no, type, 
+      status, signing_date, supplier_id, 
+      supplier_name, signing_place, agent_id, 
+      agent_name, tax_point, capitalized_price, 
+      lowercase_price, currency_bn, country, 
+      region, version, create_user_id, 
+      create_user_name, update_time, create_time, 
+      tenant, goods_remarks)
+    values (#{id,jdbcType=INTEGER}, #{purchContractNo,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, 
+      #{status,jdbcType=INTEGER}, #{signingDate,jdbcType=DATE}, #{supplierId,jdbcType=INTEGER}, 
+      #{supplierName,jdbcType=VARCHAR}, #{signingPlace,jdbcType=VARCHAR}, #{agentId,jdbcType=INTEGER}, 
+      #{agentName,jdbcType=VARCHAR}, #{taxPoint,jdbcType=DECIMAL}, #{capitalizedPrice,jdbcType=VARCHAR}, 
+      #{lowercasePrice,jdbcType=DECIMAL}, #{currencyBn,jdbcType=VARCHAR}, #{country,jdbcType=VARCHAR}, 
+      #{region,jdbcType=VARCHAR}, #{version,jdbcType=INTEGER}, #{createUserId,jdbcType=INTEGER}, 
+      #{createUserName,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{tenant,jdbcType=VARCHAR}, #{goodsRemarks,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.order.v2.model.PurchContract" >
+    insert into purch_contract
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="purchContractNo != null" >
+        purch_contract_no,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="signingDate != null" >
+        signing_date,
+      </if>
+      <if test="supplierId != null" >
+        supplier_id,
+      </if>
+      <if test="supplierName != null" >
+        supplier_name,
+      </if>
+      <if test="signingPlace != null" >
+        signing_place,
+      </if>
+      <if test="agentId != null" >
+        agent_id,
+      </if>
+      <if test="agentName != null" >
+        agent_name,
+      </if>
+      <if test="taxPoint != null" >
+        tax_point,
+      </if>
+      <if test="capitalizedPrice != null" >
+        capitalized_price,
+      </if>
+      <if test="lowercasePrice != null" >
+        lowercase_price,
+      </if>
+      <if test="currencyBn != null" >
+        currency_bn,
+      </if>
+      <if test="country != null" >
+        country,
+      </if>
+      <if test="region != null" >
+        region,
+      </if>
+      <if test="version != null" >
+        version,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="createUserName != null" >
+        create_user_name,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
+      <if test="goodsRemarks != null" >
+        goods_remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="purchContractNo != null" >
+        #{purchContractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="signingDate != null" >
+        #{signingDate,jdbcType=DATE},
+      </if>
+      <if test="supplierId != null" >
+        #{supplierId,jdbcType=INTEGER},
+      </if>
+      <if test="supplierName != null" >
+        #{supplierName,jdbcType=VARCHAR},
+      </if>
+      <if test="signingPlace != null" >
+        #{signingPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="agentId != null" >
+        #{agentId,jdbcType=INTEGER},
+      </if>
+      <if test="agentName != null" >
+        #{agentName,jdbcType=VARCHAR},
+      </if>
+      <if test="taxPoint != null" >
+        #{taxPoint,jdbcType=DECIMAL},
+      </if>
+      <if test="capitalizedPrice != null" >
+        #{capitalizedPrice,jdbcType=VARCHAR},
+      </if>
+      <if test="lowercasePrice != null" >
+        #{lowercasePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="currencyBn != null" >
+        #{currencyBn,jdbcType=VARCHAR},
+      </if>
+      <if test="country != null" >
+        #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="region != null" >
+        #{region,jdbcType=VARCHAR},
+      </if>
+      <if test="version != null" >
+        #{version,jdbcType=INTEGER},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="createUserName != null" >
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsRemarks != null" >
+        #{goodsRemarks,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.order.v2.model.PurchContractExample" resultType="java.lang.Integer" >
+    select count(*) from purch_contract
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update purch_contract
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.purchContractNo != null" >
+        purch_contract_no = #{record.purchContractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.type != null" >
+        type = #{record.type,jdbcType=INTEGER},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.signingDate != null" >
+        signing_date = #{record.signingDate,jdbcType=DATE},
+      </if>
+      <if test="record.supplierId != null" >
+        supplier_id = #{record.supplierId,jdbcType=INTEGER},
+      </if>
+      <if test="record.supplierName != null" >
+        supplier_name = #{record.supplierName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.signingPlace != null" >
+        signing_place = #{record.signingPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="record.agentId != null" >
+        agent_id = #{record.agentId,jdbcType=INTEGER},
+      </if>
+      <if test="record.agentName != null" >
+        agent_name = #{record.agentName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.taxPoint != null" >
+        tax_point = #{record.taxPoint,jdbcType=DECIMAL},
+      </if>
+      <if test="record.capitalizedPrice != null" >
+        capitalized_price = #{record.capitalizedPrice,jdbcType=VARCHAR},
+      </if>
+      <if test="record.lowercasePrice != null" >
+        lowercase_price = #{record.lowercasePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.currencyBn != null" >
+        currency_bn = #{record.currencyBn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.country != null" >
+        country = #{record.country,jdbcType=VARCHAR},
+      </if>
+      <if test="record.region != null" >
+        region = #{record.region,jdbcType=VARCHAR},
+      </if>
+      <if test="record.version != null" >
+        version = #{record.version,jdbcType=INTEGER},
+      </if>
+      <if test="record.createUserId != null" >
+        create_user_id = #{record.createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="record.createUserName != null" >
+        create_user_name = #{record.createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateTime != null" >
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="record.goodsRemarks != null" >
+        goods_remarks = #{record.goodsRemarks,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update purch_contract
+    set id = #{record.id,jdbcType=INTEGER},
+      purch_contract_no = #{record.purchContractNo,jdbcType=VARCHAR},
+      type = #{record.type,jdbcType=INTEGER},
+      status = #{record.status,jdbcType=INTEGER},
+      signing_date = #{record.signingDate,jdbcType=DATE},
+      supplier_id = #{record.supplierId,jdbcType=INTEGER},
+      supplier_name = #{record.supplierName,jdbcType=VARCHAR},
+      signing_place = #{record.signingPlace,jdbcType=VARCHAR},
+      agent_id = #{record.agentId,jdbcType=INTEGER},
+      agent_name = #{record.agentName,jdbcType=VARCHAR},
+      tax_point = #{record.taxPoint,jdbcType=DECIMAL},
+      capitalized_price = #{record.capitalizedPrice,jdbcType=VARCHAR},
+      lowercase_price = #{record.lowercasePrice,jdbcType=DECIMAL},
+      currency_bn = #{record.currencyBn,jdbcType=VARCHAR},
+      country = #{record.country,jdbcType=VARCHAR},
+      region = #{record.region,jdbcType=VARCHAR},
+      version = #{record.version,jdbcType=INTEGER},
+      create_user_id = #{record.createUserId,jdbcType=INTEGER},
+      create_user_name = #{record.createUserName,jdbcType=VARCHAR},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      tenant = #{record.tenant,jdbcType=VARCHAR},
+      goods_remarks = #{record.goodsRemarks,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update purch_contract
+    set id = #{record.id,jdbcType=INTEGER},
+      purch_contract_no = #{record.purchContractNo,jdbcType=VARCHAR},
+      type = #{record.type,jdbcType=INTEGER},
+      status = #{record.status,jdbcType=INTEGER},
+      signing_date = #{record.signingDate,jdbcType=DATE},
+      supplier_id = #{record.supplierId,jdbcType=INTEGER},
+      supplier_name = #{record.supplierName,jdbcType=VARCHAR},
+      signing_place = #{record.signingPlace,jdbcType=VARCHAR},
+      agent_id = #{record.agentId,jdbcType=INTEGER},
+      agent_name = #{record.agentName,jdbcType=VARCHAR},
+      tax_point = #{record.taxPoint,jdbcType=DECIMAL},
+      capitalized_price = #{record.capitalizedPrice,jdbcType=VARCHAR},
+      lowercase_price = #{record.lowercasePrice,jdbcType=DECIMAL},
+      currency_bn = #{record.currencyBn,jdbcType=VARCHAR},
+      country = #{record.country,jdbcType=VARCHAR},
+      region = #{record.region,jdbcType=VARCHAR},
+      version = #{record.version,jdbcType=INTEGER},
+      create_user_id = #{record.createUserId,jdbcType=INTEGER},
+      create_user_name = #{record.createUserName,jdbcType=VARCHAR},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.PurchContract" >
+    update purch_contract
+    <set >
+      <if test="purchContractNo != null" >
+        purch_contract_no = #{purchContractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="signingDate != null" >
+        signing_date = #{signingDate,jdbcType=DATE},
+      </if>
+      <if test="supplierId != null" >
+        supplier_id = #{supplierId,jdbcType=INTEGER},
+      </if>
+      <if test="supplierName != null" >
+        supplier_name = #{supplierName,jdbcType=VARCHAR},
+      </if>
+      <if test="signingPlace != null" >
+        signing_place = #{signingPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="agentId != null" >
+        agent_id = #{agentId,jdbcType=INTEGER},
+      </if>
+      <if test="agentName != null" >
+        agent_name = #{agentName,jdbcType=VARCHAR},
+      </if>
+      <if test="taxPoint != null" >
+        tax_point = #{taxPoint,jdbcType=DECIMAL},
+      </if>
+      <if test="capitalizedPrice != null" >
+        capitalized_price = #{capitalizedPrice,jdbcType=VARCHAR},
+      </if>
+      <if test="lowercasePrice != null" >
+        lowercase_price = #{lowercasePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="currencyBn != null" >
+        currency_bn = #{currencyBn,jdbcType=VARCHAR},
+      </if>
+      <if test="country != null" >
+        country = #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="region != null" >
+        region = #{region,jdbcType=VARCHAR},
+      </if>
+      <if test="version != null" >
+        version = #{version,jdbcType=INTEGER},
+      </if>
+      <if test="createUserId != null" >
+        create_user_id = #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="createUserName != null" >
+        create_user_name = #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsRemarks != null" >
+        goods_remarks = #{goodsRemarks,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.erui.order.v2.model.PurchContract" >
+    update purch_contract
+    set purch_contract_no = #{purchContractNo,jdbcType=VARCHAR},
+      type = #{type,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      signing_date = #{signingDate,jdbcType=DATE},
+      supplier_id = #{supplierId,jdbcType=INTEGER},
+      supplier_name = #{supplierName,jdbcType=VARCHAR},
+      signing_place = #{signingPlace,jdbcType=VARCHAR},
+      agent_id = #{agentId,jdbcType=INTEGER},
+      agent_name = #{agentName,jdbcType=VARCHAR},
+      tax_point = #{taxPoint,jdbcType=DECIMAL},
+      capitalized_price = #{capitalizedPrice,jdbcType=VARCHAR},
+      lowercase_price = #{lowercasePrice,jdbcType=DECIMAL},
+      currency_bn = #{currencyBn,jdbcType=VARCHAR},
+      country = #{country,jdbcType=VARCHAR},
+      region = #{region,jdbcType=VARCHAR},
+      version = #{version,jdbcType=INTEGER},
+      create_user_id = #{createUserId,jdbcType=INTEGER},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      tenant = #{tenant,jdbcType=VARCHAR},
+      goods_remarks = #{goodsRemarks,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.PurchContract" >
+    update purch_contract
+    set purch_contract_no = #{purchContractNo,jdbcType=VARCHAR},
+      type = #{type,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      signing_date = #{signingDate,jdbcType=DATE},
+      supplier_id = #{supplierId,jdbcType=INTEGER},
+      supplier_name = #{supplierName,jdbcType=VARCHAR},
+      signing_place = #{signingPlace,jdbcType=VARCHAR},
+      agent_id = #{agentId,jdbcType=INTEGER},
+      agent_name = #{agentName,jdbcType=VARCHAR},
+      tax_point = #{taxPoint,jdbcType=DECIMAL},
+      capitalized_price = #{capitalizedPrice,jdbcType=VARCHAR},
+      lowercase_price = #{lowercasePrice,jdbcType=DECIMAL},
+      currency_bn = #{currencyBn,jdbcType=VARCHAR},
+      country = #{country,jdbcType=VARCHAR},
+      region = #{region,jdbcType=VARCHAR},
+      version = #{version,jdbcType=INTEGER},
+      create_user_id = #{createUserId,jdbcType=INTEGER},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      tenant = #{tenant,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

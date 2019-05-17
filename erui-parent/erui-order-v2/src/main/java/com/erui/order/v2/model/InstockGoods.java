@@ -25,6 +25,8 @@ public class InstockGoods {
 
     private Date updateTime;
 
+    private String tenant;
+
     public Integer getId() {
         return id;
     }
@@ -111,5 +113,13 @@ public class InstockGoods {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

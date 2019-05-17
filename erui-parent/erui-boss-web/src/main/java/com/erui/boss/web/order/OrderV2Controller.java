@@ -150,7 +150,11 @@ public class OrderV2Controller {
     @RequestMapping(value = "nodes", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> nodes(@RequestBody Map<String, String> params) {
         Result result = new Result();
-        List<BpmStatusNode> nodes = bpmStatusNodeService.findNodeByCategory(params);
+        BpmStatusNode bpmStatusNode = new BpmStatusNode();
+        bpmStatusNode.setTenant(params.get("tenant"));
+        bpmStatusNode.setCategory(params.get("category"));
+        bpmStatusNode.setSubCategory(params.get("subCategory"));
+        List<BpmStatusNode> nodes = bpmStatusNodeService.findNodeByCategory(bpmStatusNode);
         result.setData(nodes);
         return result;
     }

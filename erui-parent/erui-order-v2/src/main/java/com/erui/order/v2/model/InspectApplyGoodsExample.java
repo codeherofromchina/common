@@ -965,6 +965,206 @@ public class InspectApplyGoodsExample {
             addCriterion("create_time not between", value1, value2, "createTime");
             return (Criteria) this;
         }
+
+        public Criteria andTenantIsNull() {
+            addCriterion("tenant is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantIsNotNull() {
+            addCriterion("tenant is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantEqualTo(String value) {
+            addCriterion("tenant =", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotEqualTo(String value) {
+            addCriterion("tenant <>", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantGreaterThan(String value) {
+            addCriterion("tenant >", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantGreaterThanOrEqualTo(String value) {
+            addCriterion("tenant >=", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantLessThan(String value) {
+            addCriterion("tenant <", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantLessThanOrEqualTo(String value) {
+            addCriterion("tenant <=", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantLike(String value) {
+            addCriterion("tenant like", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotLike(String value) {
+            addCriterion("tenant not like", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantIn(List<String> values) {
+            addCriterion("tenant in", values, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotIn(List<String> values) {
+            addCriterion("tenant not in", values, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantBetween(String value1, String value2) {
+            addCriterion("tenant between", value1, value2, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotBetween(String value1, String value2) {
+            addCriterion("tenant not between", value1, value2, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnqualifiedTypeIsNull() {
+            addCriterion("unqualified_type is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnqualifiedTypeIsNotNull() {
+            addCriterion("unqualified_type is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnqualifiedTypeEqualTo(Integer value) {
+            addCriterion("unqualified_type =", value, "unqualifiedType");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnqualifiedTypeNotEqualTo(Integer value) {
+            addCriterion("unqualified_type <>", value, "unqualifiedType");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnqualifiedTypeGreaterThan(Integer value) {
+            addCriterion("unqualified_type >", value, "unqualifiedType");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnqualifiedTypeGreaterThanOrEqualTo(Integer value) {
+            addCriterion("unqualified_type >=", value, "unqualifiedType");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnqualifiedTypeLessThan(Integer value) {
+            addCriterion("unqualified_type <", value, "unqualifiedType");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnqualifiedTypeLessThanOrEqualTo(Integer value) {
+            addCriterion("unqualified_type <=", value, "unqualifiedType");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnqualifiedTypeIn(List<Integer> values) {
+            addCriterion("unqualified_type in", values, "unqualifiedType");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnqualifiedTypeNotIn(List<Integer> values) {
+            addCriterion("unqualified_type not in", values, "unqualifiedType");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnqualifiedTypeBetween(Integer value1, Integer value2) {
+            addCriterion("unqualified_type between", value1, value2, "unqualifiedType");
+            return (Criteria) this;
+        }
+
+        public Criteria andUnqualifiedTypeNotBetween(Integer value1, Integer value2) {
+            addCriterion("unqualified_type not between", value1, value2, "unqualifiedType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeIsNull() {
+            addCriterion("quality_inspect_type is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeIsNotNull() {
+            addCriterion("quality_inspect_type is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeEqualTo(String value) {
+            addCriterion("quality_inspect_type =", value, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeNotEqualTo(String value) {
+            addCriterion("quality_inspect_type <>", value, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeGreaterThan(String value) {
+            addCriterion("quality_inspect_type >", value, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("quality_inspect_type >=", value, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeLessThan(String value) {
+            addCriterion("quality_inspect_type <", value, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeLessThanOrEqualTo(String value) {
+            addCriterion("quality_inspect_type <=", value, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeLike(String value) {
+            addCriterion("quality_inspect_type like", value, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeNotLike(String value) {
+            addCriterion("quality_inspect_type not like", value, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeIn(List<String> values) {
+            addCriterion("quality_inspect_type in", values, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeNotIn(List<String> values) {
+            addCriterion("quality_inspect_type not in", values, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeBetween(String value1, String value2) {
+            addCriterion("quality_inspect_type between", value1, value2, "qualityInspectType");
+            return (Criteria) this;
+        }
+
+        public Criteria andQualityInspectTypeNotBetween(String value1, String value2) {
+            addCriterion("quality_inspect_type not between", value1, value2, "qualityInspectType");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

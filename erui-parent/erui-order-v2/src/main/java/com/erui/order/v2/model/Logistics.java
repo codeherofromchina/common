@@ -29,6 +29,8 @@ public class Logistics {
 
     private Integer submenuId;
 
+    private String tenant;
+
     public Integer getId() {
         return id;
     }
@@ -139,5 +141,13 @@ public class Logistics {
 
     public void setSubmenuId(Integer submenuId) {
         this.submenuId = submenuId;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

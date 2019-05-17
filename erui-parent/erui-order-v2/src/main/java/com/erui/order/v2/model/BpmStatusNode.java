@@ -1,23 +1,19 @@
 package com.erui.order.v2.model;
 
-/**
- * 流程--流程状态节点
- */
 public class BpmStatusNode {
-    //  主键
     private Long id;
-    // 租户
-    private String tenant;
-    // '业务类型'
+
     private String category;
-    // '业务子类型'
+
     private String subCategory;
-    // '流程节点ID'
+
     private String actId;
-    // '流程节点名称'
+
     private String actName;
-    // '流程节点排序值'
+
     private Integer sort;
+
+    private String tenant;
 
     public Long getId() {
         return id;
@@ -75,4 +71,3 @@ public class BpmStatusNode {
         this.tenant = tenant;
     }
 }
-

@@ -1,5 +1,6 @@
 package com.erui.order.v2.dao;
 
+import com.erui.order.v2.model.DeliverDetailAttach;
 import com.erui.order.v2.model.DeliverDetailAttachExample;
 import com.erui.order.v2.model.DeliverDetailAttachKey;
 import java.util.List;
@@ -12,13 +13,19 @@ public interface DeliverDetailAttachMapper {
 
     int deleteByPrimaryKey(DeliverDetailAttachKey key);
 
-    int insert(DeliverDetailAttachKey record);
+    int insert(DeliverDetailAttach record);
 
-    int insertSelective(DeliverDetailAttachKey record);
+    int insertSelective(DeliverDetailAttach record);
 
-    List<DeliverDetailAttachKey> selectByExample(DeliverDetailAttachExample example);
+    List<DeliverDetailAttach> selectByExample(DeliverDetailAttachExample example);
 
-    int updateByExampleSelective(@Param("record") DeliverDetailAttachKey record, @Param("example") DeliverDetailAttachExample example);
+    DeliverDetailAttach selectByPrimaryKey(DeliverDetailAttachKey key);
 
-    int updateByExample(@Param("record") DeliverDetailAttachKey record, @Param("example") DeliverDetailAttachExample example);
+    int updateByExampleSelective(@Param("record") DeliverDetailAttach record, @Param("example") DeliverDetailAttachExample example);
+
+    int updateByExample(@Param("record") DeliverDetailAttach record, @Param("example") DeliverDetailAttachExample example);
+
+    int updateByPrimaryKeySelective(DeliverDetailAttach record);
+
+    int updateByPrimaryKey(DeliverDetailAttach record);
 }

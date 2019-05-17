@@ -1,21 +1,30 @@
 package com.erui.order.v2.dao;
 
+import com.erui.order.v2.model.BpmStatusNode;
+import com.erui.order.v2.model.BpmStatusNodeExample;
 import java.util.List;
-import java.util.Map;
+import org.apache.ibatis.annotations.Param;
 
-/**
- * Created by Sui Yingying on 2019/4/28.
- * 流程状态节点
- */
 public interface BpmStatusNodeMapper {
+    int countByExample(BpmStatusNodeExample example);
 
-    /**
-     * 查询流程的所有审批节点
-     *
-     * @param params tenant      租户
-     *               category    业务流程类别
-     *               sub_category业务流程模块类别
-     * @return
-     */
-    List<Map<String, String>> findNodeByCategory(Map<String, String> params);
+    int deleteByExample(BpmStatusNodeExample example);
+
+    int deleteByPrimaryKey(Long id);
+
+    int insert(BpmStatusNode record);
+
+    int insertSelective(BpmStatusNode record);
+
+    List<BpmStatusNode> selectByExample(BpmStatusNodeExample example);
+
+    BpmStatusNode selectByPrimaryKey(Long id);
+
+    int updateByExampleSelective(@Param("record") BpmStatusNode record, @Param("example") BpmStatusNodeExample example);
+
+    int updateByExample(@Param("record") BpmStatusNode record, @Param("example") BpmStatusNodeExample example);
+
+    int updateByPrimaryKeySelective(BpmStatusNode record);
+
+    int updateByPrimaryKey(BpmStatusNode record);
 }

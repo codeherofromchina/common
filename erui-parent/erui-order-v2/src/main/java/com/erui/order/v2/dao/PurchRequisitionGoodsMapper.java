@@ -1,5 +1,6 @@
 package com.erui.order.v2.dao;
 
+import com.erui.order.v2.model.PurchRequisitionGoods;
 import com.erui.order.v2.model.PurchRequisitionGoodsExample;
 import com.erui.order.v2.model.PurchRequisitionGoodsKey;
 import java.util.List;
@@ -12,13 +13,19 @@ public interface PurchRequisitionGoodsMapper {
 
     int deleteByPrimaryKey(PurchRequisitionGoodsKey key);
 
-    int insert(PurchRequisitionGoodsKey record);
+    int insert(PurchRequisitionGoods record);
 
-    int insertSelective(PurchRequisitionGoodsKey record);
+    int insertSelective(PurchRequisitionGoods record);
 
-    List<PurchRequisitionGoodsKey> selectByExample(PurchRequisitionGoodsExample example);
+    List<PurchRequisitionGoods> selectByExample(PurchRequisitionGoodsExample example);
 
-    int updateByExampleSelective(@Param("record") PurchRequisitionGoodsKey record, @Param("example") PurchRequisitionGoodsExample example);
+    PurchRequisitionGoods selectByPrimaryKey(PurchRequisitionGoodsKey key);
 
-    int updateByExample(@Param("record") PurchRequisitionGoodsKey record, @Param("example") PurchRequisitionGoodsExample example);
+    int updateByExampleSelective(@Param("record") PurchRequisitionGoods record, @Param("example") PurchRequisitionGoodsExample example);
+
+    int updateByExample(@Param("record") PurchRequisitionGoods record, @Param("example") PurchRequisitionGoodsExample example);
+
+    int updateByPrimaryKeySelective(PurchRequisitionGoods record);
+
+    int updateByPrimaryKey(PurchRequisitionGoods record);
 }

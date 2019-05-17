@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.erui.order.v2.dao.EmployeeMapper" >
-  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.Employee" >
+<mapper namespace="com.erui.order.v2.dao.UserMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.User" >
     <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
     <result column="user_no" property="userNo" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="nick_name" property="nickName" jdbcType="VARCHAR" />
     <result column="email" property="email" jdbcType="VARCHAR" />
     <result column="mobile" property="mobile" jdbcType="VARCHAR" />
     <result column="password_hash" property="passwordHash" jdbcType="VARCHAR" />
-    <result column="name" property="name" jdbcType="VARCHAR" />
-    <result column="name_en" property="nameEn" jdbcType="VARCHAR" />
-    <result column="show_name" property="showName" jdbcType="VARCHAR" />
-    <result column="employee_flag" property="employeeFlag" jdbcType="CHAR" />
+    <result column="post" property="post" jdbcType="VARCHAR" />
+    <result column="user_flag" property="userFlag" jdbcType="CHAR" />
     <result column="citizenship" property="citizenship" jdbcType="VARCHAR" />
     <result column="avatar" property="avatar" jdbcType="VARCHAR" />
     <result column="gender" property="gender" jdbcType="CHAR" />
@@ -19,16 +20,10 @@
     <result column="ext" property="ext" jdbcType="VARCHAR" />
     <result column="remarks" property="remarks" jdbcType="VARCHAR" />
     <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="password_status" property="passwordStatus" jdbcType="CHAR" />
     <result column="created_by" property="createdBy" jdbcType="BIGINT" />
     <result column="created_at" property="createdAt" jdbcType="TIMESTAMP" />
     <result column="deleted_flag" property="deletedFlag" jdbcType="CHAR" />
-    <result column="feedback" property="feedback" jdbcType="VARCHAR" />
-    <result column="im_token" property="imToken" jdbcType="VARCHAR" />
-    <result column="login_status" property="loginStatus" jdbcType="CHAR" />
-    <result column="organization" property="organization" jdbcType="VARCHAR" />
-    <result column="password_status" property="passwordStatus" jdbcType="CHAR" />
-    <result column="profession" property="profession" jdbcType="VARCHAR" />
-    <result column="password" property="password" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -89,18 +84,17 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, user_no, email, mobile, password_hash, name, name_en, show_name, employee_flag, 
-    citizenship, avatar, gender, mobile2, phone, ext, remarks, status, created_by, created_at, 
-    deleted_flag, feedback, im_token, login_status, organization, password_status, profession, 
-    password
+    id, tenant, user_no, `name`, nick_name, email, mobile, password_hash, post, user_flag,
+    citizenship, avatar, gender, mobile2, phone, ext, remarks, status, password_status, 
+    created_by, created_at, deleted_flag
   </sql>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.EmployeeExample" >
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.UserExample" >
     select
     <if test="distinct" >
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from erui_sys.employee
+    from erui_sys.`user`
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -111,49 +105,54 @@
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />
-    from erui_sys.employee
+    from erui_sys.`user`
     where id = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
-    delete from erui_sys.employee
+    delete from erui_sys.`user`
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <delete id="deleteByExample" parameterType="com.erui.order.v2.model.EmployeeExample" >
-    delete from erui_sys.employee
+  <delete id="deleteByExample" parameterType="com.erui.order.v2.model.UserExample" >
+    delete from erui_sys.`user`
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.erui.order.v2.model.Employee" >
-    insert into erui_sys.employee (id, user_no, email,
-      mobile, password_hash, name, 
-      name_en, show_name, employee_flag, 
-      citizenship, avatar, gender, 
-      mobile2, phone, ext, 
-      remarks, status, created_by, 
-      created_at, deleted_flag, feedback, 
-      im_token, login_status, organization, 
-      password_status, profession, password
-      )
-    values (#{id,jdbcType=BIGINT}, #{userNo,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
-      #{mobile,jdbcType=VARCHAR}, #{passwordHash,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{nameEn,jdbcType=VARCHAR}, #{showName,jdbcType=VARCHAR}, #{employeeFlag,jdbcType=CHAR}, 
-      #{citizenship,jdbcType=VARCHAR}, #{avatar,jdbcType=VARCHAR}, #{gender,jdbcType=CHAR}, 
-      #{mobile2,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{ext,jdbcType=VARCHAR}, 
-      #{remarks,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createdBy,jdbcType=BIGINT}, 
-      #{createdAt,jdbcType=TIMESTAMP}, #{deletedFlag,jdbcType=CHAR}, #{feedback,jdbcType=VARCHAR}, 
-      #{imToken,jdbcType=VARCHAR}, #{loginStatus,jdbcType=CHAR}, #{organization,jdbcType=VARCHAR}, 
-      #{passwordStatus,jdbcType=CHAR}, #{profession,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}
-      )
+  <insert id="insert" parameterType="com.erui.order.v2.model.User" >
+    insert into erui_sys.`user` (`id`, tenant, `user_no`,
+      name, nick_name, `email`,
+      `mobile`, password_hash, post,
+      user_flag, citizenship, `avatar`,
+      gender, mobile2, phone, 
+      ext, remarks, status, 
+      password_status, created_by, created_at, 
+      deleted_flag)
+    values (#{id,jdbcType=BIGINT}, #{tenant,jdbcType=VARCHAR}, #{userNo,jdbcType=VARCHAR}, 
+      #{name,jdbcType=VARCHAR}, #{nickName,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
+      #{mobile,jdbcType=VARCHAR}, #{passwordHash,jdbcType=VARCHAR}, #{post,jdbcType=VARCHAR}, 
+      #{userFlag,jdbcType=CHAR}, #{citizenship,jdbcType=VARCHAR}, #{avatar,jdbcType=VARCHAR}, 
+      #{gender,jdbcType=CHAR}, #{mobile2,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, 
+      #{ext,jdbcType=VARCHAR}, #{remarks,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
+      #{passwordStatus,jdbcType=CHAR}, #{createdBy,jdbcType=BIGINT}, #{createdAt,jdbcType=TIMESTAMP}, 
+      #{deletedFlag,jdbcType=CHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.erui.order.v2.model.Employee" >
-    insert into erui_sys.employee
+  <insert id="insertSelective" parameterType="com.erui.order.v2.model.User" >
+    insert into erui_sys.`user`
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
         id,
       </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
       <if test="userNo != null" >
         user_no,
+      </if>
+      <if test="name != null" >
+        `name`,
+      </if>
+      <if test="nickName != null" >
+        nick_name,
       </if>
       <if test="email != null" >
         email,
@@ -164,17 +163,11 @@
       <if test="passwordHash != null" >
         password_hash,
       </if>
-      <if test="name != null" >
-        name,
+      <if test="post != null" >
+        post,
       </if>
-      <if test="nameEn != null" >
-        name_en,
-      </if>
-      <if test="showName != null" >
-        show_name,
-      </if>
-      <if test="employeeFlag != null" >
-        employee_flag,
+      <if test="userFlag != null" >
+        user_flag,
       </if>
       <if test="citizenship != null" >
         citizenship,
@@ -200,6 +193,9 @@
       <if test="status != null" >
         status,
       </if>
+      <if test="passwordStatus != null" >
+        password_status,
+      </if>
       <if test="createdBy != null" >
         created_by,
       </if>
@@ -209,34 +205,22 @@
       <if test="deletedFlag != null" >
         deleted_flag,
       </if>
-      <if test="feedback != null" >
-        feedback,
-      </if>
-      <if test="imToken != null" >
-        im_token,
-      </if>
-      <if test="loginStatus != null" >
-        login_status,
-      </if>
-      <if test="organization != null" >
-        organization,
-      </if>
-      <if test="passwordStatus != null" >
-        password_status,
-      </if>
-      <if test="profession != null" >
-        profession,
-      </if>
-      <if test="password != null" >
-        password,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
         #{id,jdbcType=BIGINT},
       </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
+      </if>
       <if test="userNo != null" >
         #{userNo,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="nickName != null" >
+        #{nickName,jdbcType=VARCHAR},
       </if>
       <if test="email != null" >
         #{email,jdbcType=VARCHAR},
@@ -247,17 +231,11 @@
       <if test="passwordHash != null" >
         #{passwordHash,jdbcType=VARCHAR},
       </if>
-      <if test="name != null" >
-        #{name,jdbcType=VARCHAR},
+      <if test="post != null" >
+        #{post,jdbcType=VARCHAR},
       </if>
-      <if test="nameEn != null" >
-        #{nameEn,jdbcType=VARCHAR},
-      </if>
-      <if test="showName != null" >
-        #{showName,jdbcType=VARCHAR},
-      </if>
-      <if test="employeeFlag != null" >
-        #{employeeFlag,jdbcType=CHAR},
+      <if test="userFlag != null" >
+        #{userFlag,jdbcType=CHAR},
       </if>
       <if test="citizenship != null" >
         #{citizenship,jdbcType=VARCHAR},
@@ -283,6 +261,9 @@
       <if test="status != null" >
         #{status,jdbcType=VARCHAR},
       </if>
+      <if test="passwordStatus != null" >
+        #{passwordStatus,jdbcType=CHAR},
+      </if>
       <if test="createdBy != null" >
         #{createdBy,jdbcType=BIGINT},
       </if>
@@ -292,43 +273,31 @@
       <if test="deletedFlag != null" >
         #{deletedFlag,jdbcType=CHAR},
       </if>
-      <if test="feedback != null" >
-        #{feedback,jdbcType=VARCHAR},
-      </if>
-      <if test="imToken != null" >
-        #{imToken,jdbcType=VARCHAR},
-      </if>
-      <if test="loginStatus != null" >
-        #{loginStatus,jdbcType=CHAR},
-      </if>
-      <if test="organization != null" >
-        #{organization,jdbcType=VARCHAR},
-      </if>
-      <if test="passwordStatus != null" >
-        #{passwordStatus,jdbcType=CHAR},
-      </if>
-      <if test="profession != null" >
-        #{profession,jdbcType=VARCHAR},
-      </if>
-      <if test="password != null" >
-        #{password,jdbcType=VARCHAR},
-      </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.erui.order.v2.model.EmployeeExample" resultType="java.lang.Integer" >
-    select count(*) from erui_sys.employee
+  <select id="countByExample" parameterType="com.erui.order.v2.model.UserExample" resultType="java.lang.Integer" >
+    select count(*) from erui_sys.`user`
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map" >
-    update erui_sys.employee
+    update erui_sys.`user`
     <set >
       <if test="record.id != null" >
         id = #{record.id,jdbcType=BIGINT},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
       <if test="record.userNo != null" >
         user_no = #{record.userNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null" >
+        `name` = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nickName != null" >
+        nick_name = #{record.nickName,jdbcType=VARCHAR},
       </if>
       <if test="record.email != null" >
         email = #{record.email,jdbcType=VARCHAR},
@@ -339,17 +308,11 @@
       <if test="record.passwordHash != null" >
         password_hash = #{record.passwordHash,jdbcType=VARCHAR},
       </if>
-      <if test="record.name != null" >
-        name = #{record.name,jdbcType=VARCHAR},
+      <if test="record.post != null" >
+        post = #{record.post,jdbcType=VARCHAR},
       </if>
-      <if test="record.nameEn != null" >
-        name_en = #{record.nameEn,jdbcType=VARCHAR},
-      </if>
-      <if test="record.showName != null" >
-        show_name = #{record.showName,jdbcType=VARCHAR},
-      </if>
-      <if test="record.employeeFlag != null" >
-        employee_flag = #{record.employeeFlag,jdbcType=CHAR},
+      <if test="record.userFlag != null" >
+        user_flag = #{record.userFlag,jdbcType=CHAR},
       </if>
       <if test="record.citizenship != null" >
         citizenship = #{record.citizenship,jdbcType=VARCHAR},
@@ -375,6 +338,9 @@
       <if test="record.status != null" >
         status = #{record.status,jdbcType=VARCHAR},
       </if>
+      <if test="record.passwordStatus != null" >
+        password_status = #{record.passwordStatus,jdbcType=CHAR},
+      </if>
       <if test="record.createdBy != null" >
         created_by = #{record.createdBy,jdbcType=BIGINT},
       </if>
@@ -384,70 +350,53 @@
       <if test="record.deletedFlag != null" >
         deleted_flag = #{record.deletedFlag,jdbcType=CHAR},
       </if>
-      <if test="record.feedback != null" >
-        feedback = #{record.feedback,jdbcType=VARCHAR},
-      </if>
-      <if test="record.imToken != null" >
-        im_token = #{record.imToken,jdbcType=VARCHAR},
-      </if>
-      <if test="record.loginStatus != null" >
-        login_status = #{record.loginStatus,jdbcType=CHAR},
-      </if>
-      <if test="record.organization != null" >
-        organization = #{record.organization,jdbcType=VARCHAR},
-      </if>
-      <if test="record.passwordStatus != null" >
-        password_status = #{record.passwordStatus,jdbcType=CHAR},
-      </if>
-      <if test="record.profession != null" >
-        profession = #{record.profession,jdbcType=VARCHAR},
-      </if>
-      <if test="record.password != null" >
-        password = #{record.password,jdbcType=VARCHAR},
-      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByExample" parameterType="map" >
-    update erui_sys.employee
-    set id = #{record.id,jdbcType=BIGINT},
-      user_no = #{record.userNo,jdbcType=VARCHAR},
-      email = #{record.email,jdbcType=VARCHAR},
-      mobile = #{record.mobile,jdbcType=VARCHAR},
+    update erui_sys.`user`
+    set `id` = #{record.id,jdbcType=BIGINT},
+      tenant = #{record.tenant,jdbcType=VARCHAR},
+      `user_no` = #{record.userNo,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      nick_name = #{record.nickName,jdbcType=VARCHAR},
+      `email` = #{record.email,jdbcType=VARCHAR},
+      `mobile` = #{record.mobile,jdbcType=VARCHAR},
       password_hash = #{record.passwordHash,jdbcType=VARCHAR},
-      name = #{record.name,jdbcType=VARCHAR},
-      name_en = #{record.nameEn,jdbcType=VARCHAR},
-      show_name = #{record.showName,jdbcType=VARCHAR},
-      employee_flag = #{record.employeeFlag,jdbcType=CHAR},
+      post = #{record.post,jdbcType=VARCHAR},
+      user_flag = #{record.userFlag,jdbcType=CHAR},
       citizenship = #{record.citizenship,jdbcType=VARCHAR},
-      avatar = #{record.avatar,jdbcType=VARCHAR},
+      `avatar` = #{record.avatar,jdbcType=VARCHAR},
       gender = #{record.gender,jdbcType=CHAR},
       mobile2 = #{record.mobile2,jdbcType=VARCHAR},
       phone = #{record.phone,jdbcType=VARCHAR},
       ext = #{record.ext,jdbcType=VARCHAR},
       remarks = #{record.remarks,jdbcType=VARCHAR},
       status = #{record.status,jdbcType=VARCHAR},
+      password_status = #{record.passwordStatus,jdbcType=CHAR},
       created_by = #{record.createdBy,jdbcType=BIGINT},
       created_at = #{record.createdAt,jdbcType=TIMESTAMP},
-      deleted_flag = #{record.deletedFlag,jdbcType=CHAR},
-      feedback = #{record.feedback,jdbcType=VARCHAR},
-      im_token = #{record.imToken,jdbcType=VARCHAR},
-      login_status = #{record.loginStatus,jdbcType=CHAR},
-      organization = #{record.organization,jdbcType=VARCHAR},
-      password_status = #{record.passwordStatus,jdbcType=CHAR},
-      profession = #{record.profession,jdbcType=VARCHAR},
-      password = #{record.password,jdbcType=VARCHAR}
+      deleted_flag = #{record.deletedFlag,jdbcType=CHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.Employee" >
-    update erui_sys.employee
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.User" >
+    update erui_sys.`user`
     <set >
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
       <if test="userNo != null" >
         user_no = #{userNo,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="nickName != null" >
+        nick_name = #{nickName,jdbcType=VARCHAR},
       </if>
       <if test="email != null" >
         email = #{email,jdbcType=VARCHAR},
@@ -458,17 +407,11 @@
       <if test="passwordHash != null" >
         password_hash = #{passwordHash,jdbcType=VARCHAR},
       </if>
-      <if test="name != null" >
-        name = #{name,jdbcType=VARCHAR},
+      <if test="post != null" >
+        post = #{post,jdbcType=VARCHAR},
       </if>
-      <if test="nameEn != null" >
-        name_en = #{nameEn,jdbcType=VARCHAR},
-      </if>
-      <if test="showName != null" >
-        show_name = #{showName,jdbcType=VARCHAR},
-      </if>
-      <if test="employeeFlag != null" >
-        employee_flag = #{employeeFlag,jdbcType=CHAR},
+      <if test="userFlag != null" >
+        user_flag = #{userFlag,jdbcType=CHAR},
       </if>
       <if test="citizenship != null" >
         citizenship = #{citizenship,jdbcType=VARCHAR},
@@ -494,6 +437,9 @@
       <if test="status != null" >
         status = #{status,jdbcType=VARCHAR},
       </if>
+      <if test="passwordStatus != null" >
+        password_status = #{passwordStatus,jdbcType=CHAR},
+      </if>
       <if test="createdBy != null" >
         created_by = #{createdBy,jdbcType=BIGINT},
       </if>
@@ -503,58 +449,32 @@
       <if test="deletedFlag != null" >
         deleted_flag = #{deletedFlag,jdbcType=CHAR},
       </if>
-      <if test="feedback != null" >
-        feedback = #{feedback,jdbcType=VARCHAR},
-      </if>
-      <if test="imToken != null" >
-        im_token = #{imToken,jdbcType=VARCHAR},
-      </if>
-      <if test="loginStatus != null" >
-        login_status = #{loginStatus,jdbcType=CHAR},
-      </if>
-      <if test="organization != null" >
-        organization = #{organization,jdbcType=VARCHAR},
-      </if>
-      <if test="passwordStatus != null" >
-        password_status = #{passwordStatus,jdbcType=CHAR},
-      </if>
-      <if test="profession != null" >
-        profession = #{profession,jdbcType=VARCHAR},
-      </if>
-      <if test="password != null" >
-        password = #{password,jdbcType=VARCHAR},
-      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.Employee" >
-    update erui_sys.employee
-    set user_no = #{userNo,jdbcType=VARCHAR},
-      email = #{email,jdbcType=VARCHAR},
-      mobile = #{mobile,jdbcType=VARCHAR},
+  <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.User" >
+    update erui_sys.`user`
+    set tenant = #{tenant,jdbcType=VARCHAR},
+      `user_no` = #{userNo,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      nick_name = #{nickName,jdbcType=VARCHAR},
+      `email` = #{email,jdbcType=VARCHAR},
+      `mobile` = #{mobile,jdbcType=VARCHAR},
       password_hash = #{passwordHash,jdbcType=VARCHAR},
-      name = #{name,jdbcType=VARCHAR},
-      name_en = #{nameEn,jdbcType=VARCHAR},
-      show_name = #{showName,jdbcType=VARCHAR},
-      employee_flag = #{employeeFlag,jdbcType=CHAR},
+      post = #{post,jdbcType=VARCHAR},
+      user_flag = #{userFlag,jdbcType=CHAR},
       citizenship = #{citizenship,jdbcType=VARCHAR},
-      avatar = #{avatar,jdbcType=VARCHAR},
+      `avatar` = #{avatar,jdbcType=VARCHAR},
       gender = #{gender,jdbcType=CHAR},
       mobile2 = #{mobile2,jdbcType=VARCHAR},
       phone = #{phone,jdbcType=VARCHAR},
       ext = #{ext,jdbcType=VARCHAR},
       remarks = #{remarks,jdbcType=VARCHAR},
       status = #{status,jdbcType=VARCHAR},
+      password_status = #{passwordStatus,jdbcType=CHAR},
       created_by = #{createdBy,jdbcType=BIGINT},
       created_at = #{createdAt,jdbcType=TIMESTAMP},
-      deleted_flag = #{deletedFlag,jdbcType=CHAR},
-      feedback = #{feedback,jdbcType=VARCHAR},
-      im_token = #{imToken,jdbcType=VARCHAR},
-      login_status = #{loginStatus,jdbcType=CHAR},
-      organization = #{organization,jdbcType=VARCHAR},
-      password_status = #{passwordStatus,jdbcType=CHAR},
-      profession = #{profession,jdbcType=VARCHAR},
-      password = #{password,jdbcType=VARCHAR}
+      deleted_flag = #{deletedFlag,jdbcType=CHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

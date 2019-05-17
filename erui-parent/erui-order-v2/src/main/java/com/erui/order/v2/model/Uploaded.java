@@ -19,6 +19,8 @@ public class Uploaded {
 
     private String message;
 
+    private String tenant;
+
     public Integer getId() {
         return id;
     }
@@ -89,5 +91,13 @@ public class Uploaded {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

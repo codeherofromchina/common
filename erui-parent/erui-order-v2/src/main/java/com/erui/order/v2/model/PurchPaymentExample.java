@@ -562,6 +562,136 @@ public class PurchPaymentExample {
             addCriterion("create_time not between", value1, value2, "createTime");
             return (Criteria) this;
         }
+
+        public Criteria andDaysIsNull() {
+            addCriterion("days is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDaysIsNotNull() {
+            addCriterion("days is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDaysEqualTo(Integer value) {
+            addCriterion("days =", value, "days");
+            return (Criteria) this;
+        }
+
+        public Criteria andDaysNotEqualTo(Integer value) {
+            addCriterion("days <>", value, "days");
+            return (Criteria) this;
+        }
+
+        public Criteria andDaysGreaterThan(Integer value) {
+            addCriterion("days >", value, "days");
+            return (Criteria) this;
+        }
+
+        public Criteria andDaysGreaterThanOrEqualTo(Integer value) {
+            addCriterion("days >=", value, "days");
+            return (Criteria) this;
+        }
+
+        public Criteria andDaysLessThan(Integer value) {
+            addCriterion("days <", value, "days");
+            return (Criteria) this;
+        }
+
+        public Criteria andDaysLessThanOrEqualTo(Integer value) {
+            addCriterion("days <=", value, "days");
+            return (Criteria) this;
+        }
+
+        public Criteria andDaysIn(List<Integer> values) {
+            addCriterion("days in", values, "days");
+            return (Criteria) this;
+        }
+
+        public Criteria andDaysNotIn(List<Integer> values) {
+            addCriterion("days not in", values, "days");
+            return (Criteria) this;
+        }
+
+        public Criteria andDaysBetween(Integer value1, Integer value2) {
+            addCriterion("days between", value1, value2, "days");
+            return (Criteria) this;
+        }
+
+        public Criteria andDaysNotBetween(Integer value1, Integer value2) {
+            addCriterion("days not between", value1, value2, "days");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantIsNull() {
+            addCriterion("tenant is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantIsNotNull() {
+            addCriterion("tenant is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantEqualTo(String value) {
+            addCriterion("tenant =", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotEqualTo(String value) {
+            addCriterion("tenant <>", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantGreaterThan(String value) {
+            addCriterion("tenant >", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantGreaterThanOrEqualTo(String value) {
+            addCriterion("tenant >=", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantLessThan(String value) {
+            addCriterion("tenant <", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantLessThanOrEqualTo(String value) {
+            addCriterion("tenant <=", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantLike(String value) {
+            addCriterion("tenant like", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotLike(String value) {
+            addCriterion("tenant not like", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantIn(List<String> values) {
+            addCriterion("tenant in", values, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotIn(List<String> values) {
+            addCriterion("tenant not in", values, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantBetween(String value1, String value2) {
+            addCriterion("tenant between", value1, value2, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotBetween(String value1, String value2) {
+            addCriterion("tenant not between", value1, value2, "tenant");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

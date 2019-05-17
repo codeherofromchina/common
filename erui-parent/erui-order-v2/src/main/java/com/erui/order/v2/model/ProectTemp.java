@@ -9,6 +9,8 @@ public class ProectTemp {
 
     private BigDecimal preProfit;
 
+    private String tenant;
+
     public Integer getId() {
         return id;
     }
@@ -31,5 +33,13 @@ public class ProectTemp {
 
     public void setPreProfit(BigDecimal preProfit) {
         this.preProfit = preProfit;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

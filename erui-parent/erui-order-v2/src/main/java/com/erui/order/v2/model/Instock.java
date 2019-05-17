@@ -33,6 +33,8 @@ public class Instock {
 
     private Integer submenuId;
 
+    private String tenant;
+
     private String remarks;
 
     public Integer getId() {
@@ -153,6 +155,14 @@ public class Instock {
 
     public void setSubmenuId(Integer submenuId) {
         this.submenuId = submenuId;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 
     public String getRemarks() {

@@ -11,6 +11,7 @@
     <result column="group" property="group" jdbcType="VARCHAR" />
     <result column="status" property="status" jdbcType="INTEGER" />
     <result column="message" property="message" jdbcType="VARCHAR" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -71,7 +72,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, upload_at, contact_no, file_name, url, type, group, status, message
+    id, upload_at, contact_no, file_name, url, type, group, status, message, tenant
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.UploadedExample" >
     select
@@ -106,12 +107,12 @@
   <insert id="insert" parameterType="com.erui.order.v2.model.Uploaded" >
     insert into uploaded (id, upload_at, contact_no, 
       file_name, url, type, 
-      group, status, message
-      )
+      group, status, message, 
+      tenant)
     values (#{id,jdbcType=INTEGER}, #{uploadAt,jdbcType=VARCHAR}, #{contactNo,jdbcType=VARCHAR}, 
       #{fileName,jdbcType=VARCHAR}, #{url,jdbcType=VARCHAR}, #{type,jdbcType=TINYINT}, 
-      #{group,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{message,jdbcType=VARCHAR}
-      )
+      #{group,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{message,jdbcType=VARCHAR}, 
+      #{tenant,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.Uploaded" >
     insert into uploaded
@@ -143,6 +144,9 @@
       <if test="message != null" >
         message,
       </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -171,6 +175,9 @@
       </if>
       <if test="message != null" >
         #{message,jdbcType=VARCHAR},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -210,6 +217,9 @@
       <if test="record.message != null" >
         message = #{record.message,jdbcType=VARCHAR},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -225,7 +235,8 @@
       type = #{record.type,jdbcType=TINYINT},
       group = #{record.group,jdbcType=VARCHAR},
       status = #{record.status,jdbcType=INTEGER},
-      message = #{record.message,jdbcType=VARCHAR}
+      message = #{record.message,jdbcType=VARCHAR},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -257,6 +268,9 @@
       <if test="message != null" >
         message = #{message,jdbcType=VARCHAR},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -269,7 +283,8 @@
       type = #{type,jdbcType=TINYINT},
       group = #{group,jdbcType=VARCHAR},
       status = #{status,jdbcType=INTEGER},
-      message = #{message,jdbcType=VARCHAR}
+      message = #{message,jdbcType=VARCHAR},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

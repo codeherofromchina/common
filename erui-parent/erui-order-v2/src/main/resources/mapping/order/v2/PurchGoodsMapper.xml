@@ -4,6 +4,8 @@
   <resultMap id="BaseResultMap" type="com.erui.order.v2.model.PurchGoods" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="project_id" property="projectId" jdbcType="INTEGER" />
+    <result column="purch_contract_id" property="purchContractId" jdbcType="INTEGER" />
+    <result column="purch_contract_goods_id" property="purchContractGoodsId" jdbcType="INTEGER" />
     <result column="project_no" property="projectNo" jdbcType="VARCHAR" />
     <result column="parent_id" property="parentId" jdbcType="INTEGER" />
     <result column="contract_no" property="contractNo" jdbcType="VARCHAR" />
@@ -21,6 +23,8 @@
     <result column="total_price" property="totalPrice" jdbcType="DECIMAL" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="pre_inspect_num" property="preInspectNum" jdbcType="INTEGER" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
+    <result column="quality_inspect_type" property="qualityInspectType" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -81,9 +85,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, project_id, project_no, parent_id, contract_no, purch_id, goods_id, exchanged, 
-    purchase_num, inspect_num, good_num, non_tax_price, purchase_price, purchase_total_price, 
-    purchase_remark, tax_price, total_price, create_time, pre_inspect_num
+    id, project_id, purch_contract_id, purch_contract_goods_id, project_no, parent_id, 
+    contract_no, purch_id, goods_id, exchanged, purchase_num, inspect_num, good_num, 
+    non_tax_price, purchase_price, purchase_total_price, purchase_remark, tax_price, 
+    total_price, create_time, pre_inspect_num, tenant, quality_inspect_type
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.PurchGoodsExample" >
     select
@@ -116,20 +121,22 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.erui.order.v2.model.PurchGoods" >
-    insert into purch_goods (id, project_id, project_no, 
-      parent_id, contract_no, purch_id, 
-      goods_id, exchanged, purchase_num, 
-      inspect_num, good_num, non_tax_price, 
-      purchase_price, purchase_total_price, purchase_remark, 
-      tax_price, total_price, create_time, 
-      pre_inspect_num)
-    values (#{id,jdbcType=INTEGER}, #{projectId,jdbcType=INTEGER}, #{projectNo,jdbcType=VARCHAR}, 
-      #{parentId,jdbcType=INTEGER}, #{contractNo,jdbcType=VARCHAR}, #{purchId,jdbcType=INTEGER}, 
-      #{goodsId,jdbcType=INTEGER}, #{exchanged,jdbcType=BIT}, #{purchaseNum,jdbcType=INTEGER}, 
-      #{inspectNum,jdbcType=INTEGER}, #{goodNum,jdbcType=INTEGER}, #{nonTaxPrice,jdbcType=DECIMAL}, 
-      #{purchasePrice,jdbcType=DECIMAL}, #{purchaseTotalPrice,jdbcType=DECIMAL}, #{purchaseRemark,jdbcType=VARCHAR}, 
-      #{taxPrice,jdbcType=DECIMAL}, #{totalPrice,jdbcType=DECIMAL}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{preInspectNum,jdbcType=INTEGER})
+    insert into purch_goods (id, project_id, purch_contract_id, 
+      purch_contract_goods_id, project_no, parent_id, 
+      contract_no, purch_id, goods_id, 
+      exchanged, purchase_num, inspect_num, 
+      good_num, non_tax_price, purchase_price, 
+      purchase_total_price, purchase_remark, tax_price, 
+      total_price, create_time, pre_inspect_num, 
+      tenant, quality_inspect_type)
+    values (#{id,jdbcType=INTEGER}, #{projectId,jdbcType=INTEGER}, #{purchContractId,jdbcType=INTEGER}, 
+      #{purchContractGoodsId,jdbcType=INTEGER}, #{projectNo,jdbcType=VARCHAR}, #{parentId,jdbcType=INTEGER}, 
+      #{contractNo,jdbcType=VARCHAR}, #{purchId,jdbcType=INTEGER}, #{goodsId,jdbcType=INTEGER}, 
+      #{exchanged,jdbcType=BIT}, #{purchaseNum,jdbcType=INTEGER}, #{inspectNum,jdbcType=INTEGER}, 
+      #{goodNum,jdbcType=INTEGER}, #{nonTaxPrice,jdbcType=DECIMAL}, #{purchasePrice,jdbcType=DECIMAL}, 
+      #{purchaseTotalPrice,jdbcType=DECIMAL}, #{purchaseRemark,jdbcType=VARCHAR}, #{taxPrice,jdbcType=DECIMAL}, 
+      #{totalPrice,jdbcType=DECIMAL}, #{createTime,jdbcType=TIMESTAMP}, #{preInspectNum,jdbcType=INTEGER}, 
+      #{tenant,jdbcType=VARCHAR}, #{qualityInspectType,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.PurchGoods" >
     insert into purch_goods
@@ -139,6 +146,12 @@
       </if>
       <if test="projectId != null" >
         project_id,
+      </if>
+      <if test="purchContractId != null" >
+        purch_contract_id,
+      </if>
+      <if test="purchContractGoodsId != null" >
+        purch_contract_goods_id,
       </if>
       <if test="projectNo != null" >
         project_no,
@@ -191,6 +204,12 @@
       <if test="preInspectNum != null" >
         pre_inspect_num,
       </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
+      <if test="qualityInspectType != null" >
+        quality_inspect_type,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -198,6 +217,12 @@
       </if>
       <if test="projectId != null" >
         #{projectId,jdbcType=INTEGER},
+      </if>
+      <if test="purchContractId != null" >
+        #{purchContractId,jdbcType=INTEGER},
+      </if>
+      <if test="purchContractGoodsId != null" >
+        #{purchContractGoodsId,jdbcType=INTEGER},
       </if>
       <if test="projectNo != null" >
         #{projectNo,jdbcType=VARCHAR},
@@ -250,6 +275,12 @@
       <if test="preInspectNum != null" >
         #{preInspectNum,jdbcType=INTEGER},
       </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="qualityInspectType != null" >
+        #{qualityInspectType,jdbcType=VARCHAR},
+      </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="com.erui.order.v2.model.PurchGoodsExample" resultType="java.lang.Integer" >
@@ -266,6 +297,12 @@
       </if>
       <if test="record.projectId != null" >
         project_id = #{record.projectId,jdbcType=INTEGER},
+      </if>
+      <if test="record.purchContractId != null" >
+        purch_contract_id = #{record.purchContractId,jdbcType=INTEGER},
+      </if>
+      <if test="record.purchContractGoodsId != null" >
+        purch_contract_goods_id = #{record.purchContractGoodsId,jdbcType=INTEGER},
       </if>
       <if test="record.projectNo != null" >
         project_no = #{record.projectNo,jdbcType=VARCHAR},
@@ -318,6 +355,12 @@
       <if test="record.preInspectNum != null" >
         pre_inspect_num = #{record.preInspectNum,jdbcType=INTEGER},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="record.qualityInspectType != null" >
+        quality_inspect_type = #{record.qualityInspectType,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -327,6 +370,8 @@
     update purch_goods
     set id = #{record.id,jdbcType=INTEGER},
       project_id = #{record.projectId,jdbcType=INTEGER},
+      purch_contract_id = #{record.purchContractId,jdbcType=INTEGER},
+      purch_contract_goods_id = #{record.purchContractGoodsId,jdbcType=INTEGER},
       project_no = #{record.projectNo,jdbcType=VARCHAR},
       parent_id = #{record.parentId,jdbcType=INTEGER},
       contract_no = #{record.contractNo,jdbcType=VARCHAR},
@@ -343,7 +388,9 @@
       tax_price = #{record.taxPrice,jdbcType=DECIMAL},
       total_price = #{record.totalPrice,jdbcType=DECIMAL},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      pre_inspect_num = #{record.preInspectNum,jdbcType=INTEGER}
+      pre_inspect_num = #{record.preInspectNum,jdbcType=INTEGER},
+      tenant = #{record.tenant,jdbcType=VARCHAR},
+      quality_inspect_type = #{record.qualityInspectType,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -353,6 +400,12 @@
     <set >
       <if test="projectId != null" >
         project_id = #{projectId,jdbcType=INTEGER},
+      </if>
+      <if test="purchContractId != null" >
+        purch_contract_id = #{purchContractId,jdbcType=INTEGER},
+      </if>
+      <if test="purchContractGoodsId != null" >
+        purch_contract_goods_id = #{purchContractGoodsId,jdbcType=INTEGER},
       </if>
       <if test="projectNo != null" >
         project_no = #{projectNo,jdbcType=VARCHAR},
@@ -405,12 +458,20 @@
       <if test="preInspectNum != null" >
         pre_inspect_num = #{preInspectNum,jdbcType=INTEGER},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="qualityInspectType != null" >
+        quality_inspect_type = #{qualityInspectType,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.PurchGoods" >
     update purch_goods
     set project_id = #{projectId,jdbcType=INTEGER},
+      purch_contract_id = #{purchContractId,jdbcType=INTEGER},
+      purch_contract_goods_id = #{purchContractGoodsId,jdbcType=INTEGER},
       project_no = #{projectNo,jdbcType=VARCHAR},
       parent_id = #{parentId,jdbcType=INTEGER},
       contract_no = #{contractNo,jdbcType=VARCHAR},
@@ -427,7 +488,9 @@
       tax_price = #{taxPrice,jdbcType=DECIMAL},
       total_price = #{totalPrice,jdbcType=DECIMAL},
       create_time = #{createTime,jdbcType=TIMESTAMP},
-      pre_inspect_num = #{preInspectNum,jdbcType=INTEGER}
+      pre_inspect_num = #{preInspectNum,jdbcType=INTEGER},
+      tenant = #{tenant,jdbcType=VARCHAR},
+      quality_inspect_type = #{qualityInspectType,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

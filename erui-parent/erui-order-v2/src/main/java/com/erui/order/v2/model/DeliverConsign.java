@@ -110,6 +110,8 @@ public class DeliverConsign {
 
     private String operationSpecialist;
 
+    private String tenant;
+
     private String processId;
 
     private String taskId;
@@ -538,6 +540,14 @@ public class DeliverConsign {
 
     public void setOperationSpecialist(String operationSpecialist) {
         this.operationSpecialist = operationSpecialist;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 
     public String getProcessId() {

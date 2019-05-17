@@ -32,6 +32,12 @@ public class InspectApplyGoods {
 
     private Date createTime;
 
+    private String tenant;
+
+    private Integer unqualifiedType;
+
+    private String qualityInspectType;
+
     private String remarks;
 
     public Integer getId() {
@@ -144,6 +150,30 @@ public class InspectApplyGoods {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
+    }
+
+    public Integer getUnqualifiedType() {
+        return unqualifiedType;
+    }
+
+    public void setUnqualifiedType(Integer unqualifiedType) {
+        this.unqualifiedType = unqualifiedType;
+    }
+
+    public String getQualityInspectType() {
+        return qualityInspectType;
+    }
+
+    public void setQualityInspectType(String qualityInspectType) {
+        this.qualityInspectType = qualityInspectType;
     }
 
     public String getRemarks() {

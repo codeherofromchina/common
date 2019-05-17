@@ -36,6 +36,8 @@ public class OrderAccount {
 
     private Integer creditLogId;
 
+    private String tenant;
+
     public Integer getId() {
         return id;
     }
@@ -162,5 +164,13 @@ public class OrderAccount {
 
     public void setCreditLogId(Integer creditLogId) {
         this.creditLogId = creditLogId;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

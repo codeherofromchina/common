@@ -16,6 +16,9 @@
     <result column="unqualified_desc" property="unqualifiedDesc" jdbcType="VARCHAR" />
     <result column="instock_num" property="instockNum" jdbcType="INTEGER" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
+    <result column="unqualified_type" property="unqualifiedType" jdbcType="INTEGER" />
+    <result column="quality_inspect_type" property="qualityInspectType" jdbcType="VARCHAR" />
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.erui.order.v2.model.InspectApplyGoods" extends="BaseResultMap" >
     <result column="remarks" property="remarks" jdbcType="LONGVARCHAR" />
@@ -80,7 +83,8 @@
   </sql>
   <sql id="Base_Column_List" >
     id, inspect_apply_id, inspect_report_id, goods_id, purch_goods_id, purchase_num, 
-    inspect_num, height, lwh, samples, unqualified, unqualified_desc, instock_num, create_time
+    inspect_num, height, lwh, samples, unqualified, unqualified_desc, instock_num, create_time, 
+    tenant, unqualified_type, quality_inspect_type
   </sql>
   <sql id="Blob_Column_List" >
     remarks
@@ -138,13 +142,15 @@
       goods_id, purch_goods_id, purchase_num, 
       inspect_num, height, lwh, 
       samples, unqualified, unqualified_desc, 
-      instock_num, create_time, remarks
+      instock_num, create_time, tenant, 
+      unqualified_type, quality_inspect_type, remarks
       )
     values (#{id,jdbcType=INTEGER}, #{inspectApplyId,jdbcType=INTEGER}, #{inspectReportId,jdbcType=INTEGER}, 
       #{goodsId,jdbcType=INTEGER}, #{purchGoodsId,jdbcType=INTEGER}, #{purchaseNum,jdbcType=INTEGER}, 
       #{inspectNum,jdbcType=INTEGER}, #{height,jdbcType=DECIMAL}, #{lwh,jdbcType=VARCHAR}, 
       #{samples,jdbcType=INTEGER}, #{unqualified,jdbcType=INTEGER}, #{unqualifiedDesc,jdbcType=VARCHAR}, 
-      #{instockNum,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{remarks,jdbcType=LONGVARCHAR}
+      #{instockNum,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{tenant,jdbcType=VARCHAR}, 
+      #{unqualifiedType,jdbcType=INTEGER}, #{qualityInspectType,jdbcType=VARCHAR}, #{remarks,jdbcType=LONGVARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.InspectApplyGoods" >
@@ -192,6 +198,15 @@
       <if test="createTime != null" >
         create_time,
       </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
+      <if test="unqualifiedType != null" >
+        unqualified_type,
+      </if>
+      <if test="qualityInspectType != null" >
+        quality_inspect_type,
+      </if>
       <if test="remarks != null" >
         remarks,
       </if>
@@ -238,6 +253,15 @@
       </if>
       <if test="createTime != null" >
         #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="unqualifiedType != null" >
+        #{unqualifiedType,jdbcType=INTEGER},
+      </if>
+      <if test="qualityInspectType != null" >
+        #{qualityInspectType,jdbcType=VARCHAR},
       </if>
       <if test="remarks != null" >
         #{remarks,jdbcType=LONGVARCHAR},
@@ -295,6 +319,15 @@
       <if test="record.createTime != null" >
         create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="record.unqualifiedType != null" >
+        unqualified_type = #{record.unqualifiedType,jdbcType=INTEGER},
+      </if>
+      <if test="record.qualityInspectType != null" >
+        quality_inspect_type = #{record.qualityInspectType,jdbcType=VARCHAR},
+      </if>
       <if test="record.remarks != null" >
         remarks = #{record.remarks,jdbcType=LONGVARCHAR},
       </if>
@@ -319,6 +352,9 @@
       unqualified_desc = #{record.unqualifiedDesc,jdbcType=VARCHAR},
       instock_num = #{record.instockNum,jdbcType=INTEGER},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      tenant = #{record.tenant,jdbcType=VARCHAR},
+      unqualified_type = #{record.unqualifiedType,jdbcType=INTEGER},
+      quality_inspect_type = #{record.qualityInspectType,jdbcType=VARCHAR},
       remarks = #{record.remarks,jdbcType=LONGVARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -339,7 +375,10 @@
       unqualified = #{record.unqualified,jdbcType=INTEGER},
       unqualified_desc = #{record.unqualifiedDesc,jdbcType=VARCHAR},
       instock_num = #{record.instockNum,jdbcType=INTEGER},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP}
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      tenant = #{record.tenant,jdbcType=VARCHAR},
+      unqualified_type = #{record.unqualifiedType,jdbcType=INTEGER},
+      quality_inspect_type = #{record.qualityInspectType,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -386,6 +425,15 @@
       <if test="createTime != null" >
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="unqualifiedType != null" >
+        unqualified_type = #{unqualifiedType,jdbcType=INTEGER},
+      </if>
+      <if test="qualityInspectType != null" >
+        quality_inspect_type = #{qualityInspectType,jdbcType=VARCHAR},
+      </if>
       <if test="remarks != null" >
         remarks = #{remarks,jdbcType=LONGVARCHAR},
       </if>
@@ -407,6 +455,9 @@
       unqualified_desc = #{unqualifiedDesc,jdbcType=VARCHAR},
       instock_num = #{instockNum,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=TIMESTAMP},
+      tenant = #{tenant,jdbcType=VARCHAR},
+      unqualified_type = #{unqualifiedType,jdbcType=INTEGER},
+      quality_inspect_type = #{qualityInspectType,jdbcType=VARCHAR},
       remarks = #{remarks,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -424,7 +475,10 @@
       unqualified = #{unqualified,jdbcType=INTEGER},
       unqualified_desc = #{unqualifiedDesc,jdbcType=VARCHAR},
       instock_num = #{instockNum,jdbcType=INTEGER},
-      create_time = #{createTime,jdbcType=TIMESTAMP}
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      tenant = #{tenant,jdbcType=VARCHAR},
+      unqualified_type = #{unqualifiedType,jdbcType=INTEGER},
+      quality_inspect_type = #{qualityInspectType,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

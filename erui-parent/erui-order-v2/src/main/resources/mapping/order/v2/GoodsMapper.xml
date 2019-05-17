@@ -31,6 +31,7 @@
     <result column="outstock_num" property="outstockNum" jdbcType="INTEGER" />
     <result column="exchanged" property="exchanged" jdbcType="BIT" />
     <result column="pre_purchased_num" property="prePurchasedNum" jdbcType="INTEGER" />
+    <result column="pre_purch_contract_num" property="prePurchContractNum" jdbcType="INTEGER" />
     <result column="start_date" property="startDate" jdbcType="TIMESTAMP" />
     <result column="delivery_date" property="deliveryDate" jdbcType="VARCHAR" />
     <result column="pur_chg_date" property="purChgDate" jdbcType="TIMESTAMP" />
@@ -61,6 +62,7 @@
     <result column="department" property="department" jdbcType="VARCHAR" />
     <result column="price" property="price" jdbcType="DECIMAL" />
     <result column="mete_name" property="meteName" jdbcType="VARCHAR" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.erui.order.v2.model.GoodsWithBLOBs" extends="BaseResultMap" >
     <result column="model" property="model" jdbcType="LONGVARCHAR" />
@@ -129,11 +131,12 @@
     pro_type, name_en, name_zh, unit, brand, contract_goods_num, require_purchase_date, 
     tech_require, check_type, check_method, send_num, certificate, tech_audit, purchased_num, 
     inspect_num, instock_num, outstock_apply_num, outstock_num, exchanged, pre_purchased_num, 
-    start_date, delivery_date, pur_chg_date, signing_date, agent_id, arrival_date, inspect_date, 
-    check_user_id, check_date, check_done_date, uid, instock_date, release_date, send_date, 
-    sender_id, booking_time, sailing_date, customs_clearance, leave_port_time, arrival_port_time, 
-    accomplish_date, exe_chg_date, project_require_purchase_date, inspect_instock_num, 
-    null_instock_num, ware_houseman, leave_date, department, price, mete_name
+    pre_purch_contract_num, start_date, delivery_date, pur_chg_date, signing_date, agent_id, 
+    arrival_date, inspect_date, check_user_id, check_date, check_done_date, uid, instock_date, 
+    release_date, send_date, sender_id, booking_time, sailing_date, customs_clearance, 
+    leave_port_time, arrival_port_time, accomplish_date, exe_chg_date, project_require_purchase_date, 
+    inspect_instock_num, null_instock_num, ware_houseman, leave_date, department, price, 
+    mete_name, tenant
   </sql>
   <sql id="Blob_Column_List" >
     model, client_desc
@@ -196,18 +199,19 @@
       check_method, send_num, certificate, 
       tech_audit, purchased_num, inspect_num, 
       instock_num, outstock_apply_num, outstock_num, 
-      exchanged, pre_purchased_num, start_date, 
-      delivery_date, pur_chg_date, signing_date, 
-      agent_id, arrival_date, inspect_date, 
-      check_user_id, check_date, check_done_date, 
-      uid, instock_date, release_date, 
-      send_date, sender_id, booking_time, 
-      sailing_date, customs_clearance, leave_port_time, 
-      arrival_port_time, accomplish_date, exe_chg_date, 
-      project_require_purchase_date, inspect_instock_num, 
+      exchanged, pre_purchased_num, pre_purch_contract_num, 
+      start_date, delivery_date, pur_chg_date, 
+      signing_date, agent_id, arrival_date, 
+      inspect_date, check_user_id, check_date, 
+      check_done_date, uid, instock_date, 
+      release_date, send_date, sender_id, 
+      booking_time, sailing_date, customs_clearance, 
+      leave_port_time, arrival_port_time, accomplish_date, 
+      exe_chg_date, project_require_purchase_date, inspect_instock_num, 
       null_instock_num, ware_houseman, leave_date, 
       department, price, mete_name, 
-      model, client_desc)
+      tenant, model, client_desc
+      )
     values (#{id,jdbcType=INTEGER}, #{parentId,jdbcType=INTEGER}, #{orderId,jdbcType=INTEGER}, 
       #{projectId,jdbcType=INTEGER}, #{seq,jdbcType=INTEGER}, #{contractNo,jdbcType=VARCHAR}, 
       #{projectNo,jdbcType=VARCHAR}, #{sku,jdbcType=VARCHAR}, #{meteType,jdbcType=VARCHAR}, 
@@ -217,18 +221,19 @@
       #{checkMethod,jdbcType=VARCHAR}, #{sendNum,jdbcType=INTEGER}, #{certificate,jdbcType=VARCHAR}, 
       #{techAudit,jdbcType=VARCHAR}, #{purchasedNum,jdbcType=INTEGER}, #{inspectNum,jdbcType=INTEGER}, 
       #{instockNum,jdbcType=INTEGER}, #{outstockApplyNum,jdbcType=INTEGER}, #{outstockNum,jdbcType=INTEGER}, 
-      #{exchanged,jdbcType=BIT}, #{prePurchasedNum,jdbcType=INTEGER}, #{startDate,jdbcType=TIMESTAMP}, 
-      #{deliveryDate,jdbcType=VARCHAR}, #{purChgDate,jdbcType=TIMESTAMP}, #{signingDate,jdbcType=TIMESTAMP}, 
-      #{agentId,jdbcType=INTEGER}, #{arrivalDate,jdbcType=TIMESTAMP}, #{inspectDate,jdbcType=TIMESTAMP}, 
-      #{checkUserId,jdbcType=INTEGER}, #{checkDate,jdbcType=TIMESTAMP}, #{checkDoneDate,jdbcType=TIMESTAMP}, 
-      #{uid,jdbcType=INTEGER}, #{instockDate,jdbcType=TIMESTAMP}, #{releaseDate,jdbcType=TIMESTAMP}, 
-      #{sendDate,jdbcType=TIMESTAMP}, #{senderId,jdbcType=INTEGER}, #{bookingTime,jdbcType=TIMESTAMP}, 
-      #{sailingDate,jdbcType=TIMESTAMP}, #{customsClearance,jdbcType=TIMESTAMP}, #{leavePortTime,jdbcType=TIMESTAMP}, 
-      #{arrivalPortTime,jdbcType=TIMESTAMP}, #{accomplishDate,jdbcType=TIMESTAMP}, #{exeChgDate,jdbcType=DATE}, 
-      #{projectRequirePurchaseDate,jdbcType=DATE}, #{inspectInstockNum,jdbcType=INTEGER}, 
+      #{exchanged,jdbcType=BIT}, #{prePurchasedNum,jdbcType=INTEGER}, #{prePurchContractNum,jdbcType=INTEGER}, 
+      #{startDate,jdbcType=TIMESTAMP}, #{deliveryDate,jdbcType=VARCHAR}, #{purChgDate,jdbcType=TIMESTAMP}, 
+      #{signingDate,jdbcType=TIMESTAMP}, #{agentId,jdbcType=INTEGER}, #{arrivalDate,jdbcType=TIMESTAMP}, 
+      #{inspectDate,jdbcType=TIMESTAMP}, #{checkUserId,jdbcType=INTEGER}, #{checkDate,jdbcType=TIMESTAMP}, 
+      #{checkDoneDate,jdbcType=TIMESTAMP}, #{uid,jdbcType=INTEGER}, #{instockDate,jdbcType=TIMESTAMP}, 
+      #{releaseDate,jdbcType=TIMESTAMP}, #{sendDate,jdbcType=TIMESTAMP}, #{senderId,jdbcType=INTEGER}, 
+      #{bookingTime,jdbcType=TIMESTAMP}, #{sailingDate,jdbcType=TIMESTAMP}, #{customsClearance,jdbcType=TIMESTAMP}, 
+      #{leavePortTime,jdbcType=TIMESTAMP}, #{arrivalPortTime,jdbcType=TIMESTAMP}, #{accomplishDate,jdbcType=TIMESTAMP}, 
+      #{exeChgDate,jdbcType=DATE}, #{projectRequirePurchaseDate,jdbcType=DATE}, #{inspectInstockNum,jdbcType=INTEGER}, 
       #{nullInstockNum,jdbcType=INTEGER}, #{wareHouseman,jdbcType=INTEGER}, #{leaveDate,jdbcType=DATE}, 
       #{department,jdbcType=VARCHAR}, #{price,jdbcType=DECIMAL}, #{meteName,jdbcType=VARCHAR}, 
-      #{model,jdbcType=LONGVARCHAR}, #{clientDesc,jdbcType=LONGVARCHAR})
+      #{tenant,jdbcType=VARCHAR}, #{model,jdbcType=LONGVARCHAR}, #{clientDesc,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.GoodsWithBLOBs" >
     insert into goods
@@ -320,6 +325,9 @@
       <if test="prePurchasedNum != null" >
         pre_purchased_num,
       </if>
+      <if test="prePurchContractNum != null" >
+        pre_purch_contract_num,
+      </if>
       <if test="startDate != null" >
         start_date,
       </if>
@@ -409,6 +417,9 @@
       </if>
       <if test="meteName != null" >
         mete_name,
+      </if>
+      <if test="tenant != null" >
+        tenant,
       </if>
       <if test="model != null" >
         model,
@@ -505,6 +516,9 @@
       <if test="prePurchasedNum != null" >
         #{prePurchasedNum,jdbcType=INTEGER},
       </if>
+      <if test="prePurchContractNum != null" >
+        #{prePurchContractNum,jdbcType=INTEGER},
+      </if>
       <if test="startDate != null" >
         #{startDate,jdbcType=TIMESTAMP},
       </if>
@@ -594,6 +608,9 @@
       </if>
       <if test="meteName != null" >
         #{meteName,jdbcType=VARCHAR},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
       <if test="model != null" >
         #{model,jdbcType=LONGVARCHAR},
@@ -699,6 +716,9 @@
       <if test="record.prePurchasedNum != null" >
         pre_purchased_num = #{record.prePurchasedNum,jdbcType=INTEGER},
       </if>
+      <if test="record.prePurchContractNum != null" >
+        pre_purch_contract_num = #{record.prePurchContractNum,jdbcType=INTEGER},
+      </if>
       <if test="record.startDate != null" >
         start_date = #{record.startDate,jdbcType=TIMESTAMP},
       </if>
@@ -789,6 +809,9 @@
       <if test="record.meteName != null" >
         mete_name = #{record.meteName,jdbcType=VARCHAR},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
       <if test="record.model != null" >
         model = #{record.model,jdbcType=LONGVARCHAR},
       </if>
@@ -831,6 +854,7 @@
       outstock_num = #{record.outstockNum,jdbcType=INTEGER},
       exchanged = #{record.exchanged,jdbcType=BIT},
       pre_purchased_num = #{record.prePurchasedNum,jdbcType=INTEGER},
+      pre_purch_contract_num = #{record.prePurchContractNum,jdbcType=INTEGER},
       start_date = #{record.startDate,jdbcType=TIMESTAMP},
       delivery_date = #{record.deliveryDate,jdbcType=VARCHAR},
       pur_chg_date = #{record.purChgDate,jdbcType=TIMESTAMP},
@@ -861,6 +885,7 @@
       department = #{record.department,jdbcType=VARCHAR},
       price = #{record.price,jdbcType=DECIMAL},
       mete_name = #{record.meteName,jdbcType=VARCHAR},
+      tenant = #{record.tenant,jdbcType=VARCHAR},
       model = #{record.model,jdbcType=LONGVARCHAR},
       client_desc = #{record.clientDesc,jdbcType=LONGVARCHAR}
     <if test="_parameter != null" >
@@ -898,6 +923,7 @@
       outstock_num = #{record.outstockNum,jdbcType=INTEGER},
       exchanged = #{record.exchanged,jdbcType=BIT},
       pre_purchased_num = #{record.prePurchasedNum,jdbcType=INTEGER},
+      pre_purch_contract_num = #{record.prePurchContractNum,jdbcType=INTEGER},
       start_date = #{record.startDate,jdbcType=TIMESTAMP},
       delivery_date = #{record.deliveryDate,jdbcType=VARCHAR},
       pur_chg_date = #{record.purChgDate,jdbcType=TIMESTAMP},
@@ -927,7 +953,8 @@
       leave_date = #{record.leaveDate,jdbcType=DATE},
       department = #{record.department,jdbcType=VARCHAR},
       price = #{record.price,jdbcType=DECIMAL},
-      mete_name = #{record.meteName,jdbcType=VARCHAR}
+      mete_name = #{record.meteName,jdbcType=VARCHAR},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -1019,6 +1046,9 @@
       <if test="prePurchasedNum != null" >
         pre_purchased_num = #{prePurchasedNum,jdbcType=INTEGER},
       </if>
+      <if test="prePurchContractNum != null" >
+        pre_purch_contract_num = #{prePurchContractNum,jdbcType=INTEGER},
+      </if>
       <if test="startDate != null" >
         start_date = #{startDate,jdbcType=TIMESTAMP},
       </if>
@@ -1109,6 +1139,9 @@
       <if test="meteName != null" >
         mete_name = #{meteName,jdbcType=VARCHAR},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
       <if test="model != null" >
         model = #{model,jdbcType=LONGVARCHAR},
       </if>
@@ -1148,6 +1181,7 @@
       outstock_num = #{outstockNum,jdbcType=INTEGER},
       exchanged = #{exchanged,jdbcType=BIT},
       pre_purchased_num = #{prePurchasedNum,jdbcType=INTEGER},
+      pre_purch_contract_num = #{prePurchContractNum,jdbcType=INTEGER},
       start_date = #{startDate,jdbcType=TIMESTAMP},
       delivery_date = #{deliveryDate,jdbcType=VARCHAR},
       pur_chg_date = #{purChgDate,jdbcType=TIMESTAMP},
@@ -1178,6 +1212,7 @@
       department = #{department,jdbcType=VARCHAR},
       price = #{price,jdbcType=DECIMAL},
       mete_name = #{meteName,jdbcType=VARCHAR},
+      tenant = #{tenant,jdbcType=VARCHAR},
       model = #{model,jdbcType=LONGVARCHAR},
       client_desc = #{clientDesc,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=INTEGER}
@@ -1212,6 +1247,7 @@
       outstock_num = #{outstockNum,jdbcType=INTEGER},
       exchanged = #{exchanged,jdbcType=BIT},
       pre_purchased_num = #{prePurchasedNum,jdbcType=INTEGER},
+      pre_purch_contract_num = #{prePurchContractNum,jdbcType=INTEGER},
       start_date = #{startDate,jdbcType=TIMESTAMP},
       delivery_date = #{deliveryDate,jdbcType=VARCHAR},
       pur_chg_date = #{purChgDate,jdbcType=TIMESTAMP},
@@ -1241,7 +1277,8 @@
       leave_date = #{leaveDate,jdbcType=DATE},
       department = #{department,jdbcType=VARCHAR},
       price = #{price,jdbcType=DECIMAL},
-      mete_name = #{meteName,jdbcType=VARCHAR}
+      mete_name = #{meteName,jdbcType=VARCHAR},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

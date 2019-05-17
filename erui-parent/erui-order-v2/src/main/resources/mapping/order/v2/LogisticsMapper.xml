@@ -16,6 +16,7 @@
     <result column="out_yn" property="outYn" jdbcType="INTEGER" />
     <result column="submenu_name" property="submenuName" jdbcType="VARCHAR" />
     <result column="submenu_id" property="submenuId" jdbcType="INTEGER" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -78,7 +79,7 @@
   <sql id="Base_Column_List" >
     id, deliver_detail_id, deliver_detail_no, logistics_no, contract_no, deliver_consign_no, 
     logistics_user_id, logistics_user_name, project_no, pid, out_check, out_yn, submenu_name, 
-    submenu_id
+    submenu_id, tenant
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.LogisticsExample" >
     select
@@ -115,12 +116,14 @@
       logistics_no, contract_no, deliver_consign_no, 
       logistics_user_id, logistics_user_name, project_no, 
       pid, out_check, out_yn, 
-      submenu_name, submenu_id)
+      submenu_name, submenu_id, tenant
+      )
     values (#{id,jdbcType=INTEGER}, #{deliverDetailId,jdbcType=INTEGER}, #{deliverDetailNo,jdbcType=VARCHAR}, 
       #{logisticsNo,jdbcType=VARCHAR}, #{contractNo,jdbcType=VARCHAR}, #{deliverConsignNo,jdbcType=VARCHAR}, 
       #{logisticsUserId,jdbcType=INTEGER}, #{logisticsUserName,jdbcType=VARCHAR}, #{projectNo,jdbcType=VARCHAR}, 
       #{pid,jdbcType=INTEGER}, #{outCheck,jdbcType=INTEGER}, #{outYn,jdbcType=INTEGER}, 
-      #{submenuName,jdbcType=VARCHAR}, #{submenuId,jdbcType=INTEGER})
+      #{submenuName,jdbcType=VARCHAR}, #{submenuId,jdbcType=INTEGER}, #{tenant,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.Logistics" >
     insert into logistics
@@ -167,6 +170,9 @@
       <if test="submenuId != null" >
         submenu_id,
       </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -210,6 +216,9 @@
       </if>
       <if test="submenuId != null" >
         #{submenuId,jdbcType=INTEGER},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -264,6 +273,9 @@
       <if test="record.submenuId != null" >
         submenu_id = #{record.submenuId,jdbcType=INTEGER},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -284,7 +296,8 @@
       out_check = #{record.outCheck,jdbcType=INTEGER},
       out_yn = #{record.outYn,jdbcType=INTEGER},
       submenu_name = #{record.submenuName,jdbcType=VARCHAR},
-      submenu_id = #{record.submenuId,jdbcType=INTEGER}
+      submenu_id = #{record.submenuId,jdbcType=INTEGER},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -331,6 +344,9 @@
       <if test="submenuId != null" >
         submenu_id = #{submenuId,jdbcType=INTEGER},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -348,7 +364,8 @@
       out_check = #{outCheck,jdbcType=INTEGER},
       out_yn = #{outYn,jdbcType=INTEGER},
       submenu_name = #{submenuName,jdbcType=VARCHAR},
-      submenu_id = #{submenuId,jdbcType=INTEGER}
+      submenu_id = #{submenuId,jdbcType=INTEGER},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

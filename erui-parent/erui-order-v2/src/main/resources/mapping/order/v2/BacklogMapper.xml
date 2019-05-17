@@ -14,6 +14,7 @@
     <result column="uid" property="uid" jdbcType="INTEGER" />
     <result column="del_yn" property="delYn" jdbcType="INTEGER" />
     <result column="delete_time" property="deleteTime" jdbcType="TIMESTAMP" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -75,7 +76,7 @@
   </sql>
   <sql id="Base_Column_List" >
     id, create_date, place_system, function_explain_name, function_explain_id, return_no, 
-    inform_the_content, host_id, follow_id, uid, del_yn, delete_time
+    inform_the_content, host_id, follow_id, uid, del_yn, delete_time, tenant
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.BacklogExample" >
     select
@@ -112,12 +113,12 @@
       function_explain_name, function_explain_id, 
       return_no, inform_the_content, host_id, 
       follow_id, uid, del_yn, 
-      delete_time)
+      delete_time, tenant)
     values (#{id,jdbcType=INTEGER}, #{createDate,jdbcType=VARCHAR}, #{placeSystem,jdbcType=VARCHAR}, 
       #{functionExplainName,jdbcType=VARCHAR}, #{functionExplainId,jdbcType=INTEGER}, 
       #{returnNo,jdbcType=VARCHAR}, #{informTheContent,jdbcType=VARCHAR}, #{hostId,jdbcType=INTEGER}, 
       #{followId,jdbcType=INTEGER}, #{uid,jdbcType=INTEGER}, #{delYn,jdbcType=INTEGER}, 
-      #{deleteTime,jdbcType=TIMESTAMP})
+      #{deleteTime,jdbcType=TIMESTAMP}, #{tenant,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.Backlog" >
     insert into backlog
@@ -158,6 +159,9 @@
       <if test="deleteTime != null" >
         delete_time,
       </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -195,6 +199,9 @@
       </if>
       <if test="deleteTime != null" >
         #{deleteTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -243,6 +250,9 @@
       <if test="record.deleteTime != null" >
         delete_time = #{record.deleteTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -261,7 +271,8 @@
       follow_id = #{record.followId,jdbcType=INTEGER},
       uid = #{record.uid,jdbcType=INTEGER},
       del_yn = #{record.delYn,jdbcType=INTEGER},
-      delete_time = #{record.deleteTime,jdbcType=TIMESTAMP}
+      delete_time = #{record.deleteTime,jdbcType=TIMESTAMP},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -302,6 +313,9 @@
       <if test="deleteTime != null" >
         delete_time = #{deleteTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -317,7 +331,8 @@
       follow_id = #{followId,jdbcType=INTEGER},
       uid = #{uid,jdbcType=INTEGER},
       del_yn = #{delYn,jdbcType=INTEGER},
-      delete_time = #{deleteTime,jdbcType=TIMESTAMP}
+      delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

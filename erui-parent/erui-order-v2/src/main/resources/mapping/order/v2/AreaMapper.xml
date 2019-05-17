@@ -8,6 +8,7 @@
     <result column="bn" property="bn" jdbcType="VARCHAR" />
     <result column="status" property="status" jdbcType="VARCHAR" />
     <result column="deleted_flag" property="deletedFlag" jdbcType="CHAR" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -68,7 +69,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, name, lang, bn, status, deleted_flag
+    id, name, lang, bn, status, deleted_flag, tenant
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.AreaExample" >
     select
@@ -102,11 +103,11 @@
   </delete>
   <insert id="insert" parameterType="com.erui.order.v2.model.Area" >
     insert into area (id, name, lang, 
-      bn, status, deleted_flag
-      )
+      bn, status, deleted_flag, 
+      tenant)
     values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{lang,jdbcType=VARCHAR}, 
-      #{bn,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{deletedFlag,jdbcType=CHAR}
-      )
+      #{bn,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{deletedFlag,jdbcType=CHAR}, 
+      #{tenant,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.Area" >
     insert into area
@@ -129,6 +130,9 @@
       <if test="deletedFlag != null" >
         deleted_flag,
       </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -148,6 +152,9 @@
       </if>
       <if test="deletedFlag != null" >
         #{deletedFlag,jdbcType=CHAR},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -178,6 +185,9 @@
       <if test="record.deletedFlag != null" >
         deleted_flag = #{record.deletedFlag,jdbcType=CHAR},
       </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -190,7 +200,8 @@
       lang = #{record.lang,jdbcType=VARCHAR},
       bn = #{record.bn,jdbcType=VARCHAR},
       status = #{record.status,jdbcType=VARCHAR},
-      deleted_flag = #{record.deletedFlag,jdbcType=CHAR}
+      deleted_flag = #{record.deletedFlag,jdbcType=CHAR},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -213,6 +224,9 @@
       <if test="deletedFlag != null" >
         deleted_flag = #{deletedFlag,jdbcType=CHAR},
       </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -222,7 +236,8 @@
       lang = #{lang,jdbcType=VARCHAR},
       bn = #{bn,jdbcType=VARCHAR},
       status = #{status,jdbcType=VARCHAR},
-      deleted_flag = #{deletedFlag,jdbcType=CHAR}
+      deleted_flag = #{deletedFlag,jdbcType=CHAR},
+      tenant = #{tenant,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

@@ -23,6 +23,8 @@ public class DeliverConsignGoods {
 
     private Integer straightNum;
 
+    private String tenant;
+
     public Integer getId() {
         return id;
     }
@@ -101,5 +103,13 @@ public class DeliverConsignGoods {
 
     public void setStraightNum(Integer straightNum) {
         this.straightNum = straightNum;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

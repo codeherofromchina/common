@@ -13,6 +13,8 @@ public class Company {
 
     private String enName;
 
+    private String tenant;
+
     public Integer getId() {
         return id;
     }
@@ -51,5 +53,13 @@ public class Company {
 
     public void setEnName(String enName) {
         this.enName = enName;
+    }
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(String tenant) {
+        this.tenant = tenant;
     }
 }

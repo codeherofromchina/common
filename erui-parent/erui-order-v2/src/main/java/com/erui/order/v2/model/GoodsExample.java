@@ -2013,6 +2013,66 @@ public class GoodsExample {
             return (Criteria) this;
         }
 
+        public Criteria andPrePurchContractNumIsNull() {
+            addCriterion("pre_purch_contract_num is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrePurchContractNumIsNotNull() {
+            addCriterion("pre_purch_contract_num is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrePurchContractNumEqualTo(Integer value) {
+            addCriterion("pre_purch_contract_num =", value, "prePurchContractNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrePurchContractNumNotEqualTo(Integer value) {
+            addCriterion("pre_purch_contract_num <>", value, "prePurchContractNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrePurchContractNumGreaterThan(Integer value) {
+            addCriterion("pre_purch_contract_num >", value, "prePurchContractNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrePurchContractNumGreaterThanOrEqualTo(Integer value) {
+            addCriterion("pre_purch_contract_num >=", value, "prePurchContractNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrePurchContractNumLessThan(Integer value) {
+            addCriterion("pre_purch_contract_num <", value, "prePurchContractNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrePurchContractNumLessThanOrEqualTo(Integer value) {
+            addCriterion("pre_purch_contract_num <=", value, "prePurchContractNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrePurchContractNumIn(List<Integer> values) {
+            addCriterion("pre_purch_contract_num in", values, "prePurchContractNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrePurchContractNumNotIn(List<Integer> values) {
+            addCriterion("pre_purch_contract_num not in", values, "prePurchContractNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrePurchContractNumBetween(Integer value1, Integer value2) {
+            addCriterion("pre_purch_contract_num between", value1, value2, "prePurchContractNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrePurchContractNumNotBetween(Integer value1, Integer value2) {
+            addCriterion("pre_purch_contract_num not between", value1, value2, "prePurchContractNum");
+            return (Criteria) this;
+        }
+
         public Criteria andStartDateIsNull() {
             addCriterion("start_date is null");
             return (Criteria) this;
@@ -3840,6 +3900,76 @@ public class GoodsExample {
 
         public Criteria andMeteNameNotBetween(String value1, String value2) {
             addCriterion("mete_name not between", value1, value2, "meteName");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantIsNull() {
+            addCriterion("tenant is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantIsNotNull() {
+            addCriterion("tenant is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantEqualTo(String value) {
+            addCriterion("tenant =", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotEqualTo(String value) {
+            addCriterion("tenant <>", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantGreaterThan(String value) {
+            addCriterion("tenant >", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantGreaterThanOrEqualTo(String value) {
+            addCriterion("tenant >=", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantLessThan(String value) {
+            addCriterion("tenant <", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantLessThanOrEqualTo(String value) {
+            addCriterion("tenant <=", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantLike(String value) {
+            addCriterion("tenant like", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotLike(String value) {
+            addCriterion("tenant not like", value, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantIn(List<String> values) {
+            addCriterion("tenant in", values, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotIn(List<String> values) {
+            addCriterion("tenant not in", values, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantBetween(String value1, String value2) {
+            addCriterion("tenant between", value1, value2, "tenant");
+            return (Criteria) this;
+        }
+
+        public Criteria andTenantNotBetween(String value1, String value2) {
+            addCriterion("tenant not between", value1, value2, "tenant");
             return (Criteria) this;
         }
     }
