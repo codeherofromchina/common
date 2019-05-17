@@ -4,7 +4,9 @@ import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.pojo.TodoShowNeedContentRequest;
 import com.erui.order.OrderConf;
+import com.erui.order.v2.model.DeliverConsign;
 import com.erui.order.v2.model.Order;
+import com.erui.order.v2.model.Purch;
 import com.erui.order.v2.service.DeliverConsignService;
 import com.erui.order.v2.service.OrderService;
 import com.erui.order.v2.service.ProjectService;
@@ -49,30 +51,49 @@ public class BpmNotifyController {
         Map<String, Object> data = new HashMap<>();
         Result<Object> result = new Result<>(data);
         // 验证安全性，// 如果秘钥不正确，返回失败
+        String bizKey = todoShowNeedContentRequest.getBizKey();
         if (!validate(todoShowNeedContentRequest.getKey())) {
             result.setStatus(ResultStatusEnum.FAIL);
             return result;
         }
-        if (StringUtils.isBlank(todoShowNeedContentRequest.getBizKey())) {
+        if (StringUtils.isBlank(bizKey)) {
             result.setStatus(ResultStatusEnum.PARAM_ERROR);
             return result;
         }
 
-        if (todoShowNeedContentRequest.getBizKey().startsWith("order:")) {
-            // 订单审核流程
-            String orderId = todoShowNeedContentRequest.getBizKey().substring(6);
-            if (StringUtils.isNumeric(orderId)) {
-                Order order = orderService.findOrderById(Integer.parseInt(orderId));
-                if (order != null && StringUtils.isNotBlank(order.getContractNo())) {
-                    data.put("needContent", order.getContractNo());
-                }
+        // 获取实体ID
+        Integer objId = null;
+        if (bizKey.indexOf(":") != -1)  {
+            String substring = bizKey.substring(bizKey.indexOf(":") + 1);
+            if (StringUtils.isNumeric(substring)) {
+                objId = Integer.parseInt(substring);
             }
         }
-
+        if (objId == null) {
+            result.setStatus(ResultStatusEnum.DATA_NULL);
+            return result;
+        }
+        // 获取实际业务的编号
+        if (todoShowNeedContentRequest.getBizKey().startsWith("order:")) {
+            // 订单审核流程
+            Order order = orderService.findOrderById(objId);
+            if (order != null && StringUtils.isNotBlank(order.getContractNo())) {
+                data.put("needContent", order.getContractNo());
+            }
+        } else if (todoShowNeedContentRequest.getBizKey().startsWith("deliver_consign:")) {
+            DeliverConsign deliverConsign = deliverConsignService.selectById(objId);
+            if (deliverConsign != null) {
+                data.put("needContent", deliverConsign.getDeliverConsignNo());
+            }
+        } else if (todoShowNeedContentRequest.getBizKey().startsWith("purch:")) {
+            Purch purch = purchService.selectById(objId);
+            if (purch != null) {
+                data.put("needContent", purch.getPurchNo());
+            }
+        }
         if (data.size() == 0) {
             result.setStatus(ResultStatusEnum.DATA_NULL);
         }
-
         return result;
     }
 
