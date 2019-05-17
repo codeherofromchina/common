@@ -67,7 +67,7 @@ public class OrderChangeEvent implements ApplicationListener<ChangeEvent> {
             if (iogisticsDatas != null && iogisticsDatas.size() > 0) {
                 for (IogisticsData iogisticsData : iogisticsDatas) {
                     //物流跟踪状态为5为变更状态
-                    iogisticsData.setStatus(5);
+                    iogisticsData.setStatus(9);
                 }
                 iogisticsDataDao.save(iogisticsDatas);
             }
