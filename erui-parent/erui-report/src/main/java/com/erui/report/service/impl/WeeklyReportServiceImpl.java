@@ -12,6 +12,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -614,8 +615,10 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
 
 
         List<String> orgList = new ArrayList<>(); // 存放事业部列表
-        List<Integer> currentWeekCounts = new ArrayList<>(); // 存放本周各事业部询单数量
-        List<Integer> lastWeekCounts = new ArrayList<>(); // 存放上周个事业部询单数量
+        List<? super Number> currentWeekCounts = new ArrayList<>(); // 存放本周各事业部询单数量
+        List<? super Number> lastWeekCounts = new ArrayList<>(); // 存放上周个事业部询单数量
+        long currentWeekTotal = 0;
+        long lastWeekTotal = 0;
         for (String org : ORGS) {
             orgList.add(org);
             // 本周指定事业部数据处理
@@ -623,6 +626,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             if (curMap != null) {
                 Long total = (Long) curMap.get("total");
                 currentWeekCounts.add(total.intValue());
+                currentWeekTotal += total;
             } else {
                 currentWeekCounts.add(0);
             }
@@ -631,6 +635,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             if (lastMap != null) {
                 Long total = (Long) lastMap.get("total");
                 lastWeekCounts.add(total.intValue());
+                lastWeekTotal += total;
             } else {
                 lastWeekCounts.add(0);
             }
@@ -644,6 +649,12 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         orgList.add("其他");
         currentWeekCounts.add(curWeekOtherOrgCount);
         lastWeekCounts.add(lastWeekOtherOrgCount);
+
+        currentWeekTotal += curWeekOtherOrgCount.longValue();
+        lastWeekTotal += lastWeekOtherOrgCount.longValue();
+        orgList.add("总计");
+        currentWeekCounts.add(currentWeekTotal);
+        lastWeekCounts.add(lastWeekTotal);
 
         Map<String, Object> result = new HashMap<>();
         result.put("orgList", orgList);
@@ -672,12 +683,15 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         Map<String, Map<String, Object>> lastWeekDataMap = lastWeekData.stream()
                 .collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
 
-
         List<String> orgList = new ArrayList<>(); //存放事业部列表
-        List<Integer> currentWeekCounts = new ArrayList<>(); //存放本周各事业部报价数量
-        List<Integer> lastWeekCounts = new ArrayList<>(); //存放上周各事业部报价数量
+        List<? super Number> currentWeekCounts = new ArrayList<>(); //存放本周各事业部报价数量
+        List<? super Number> lastWeekCounts = new ArrayList<>(); //存放上周各事业部报价数量
         List<BigDecimal> currentWeekAmounts = new ArrayList<>(); //存放本周事业部报价金额
         List<BigDecimal> lastWeekAmounts = new ArrayList<>(); //存放上周事业部报价金额
+        BigDecimal curAmountTotal = BigDecimal.ZERO;
+        long curNumTotal = 0;
+        BigDecimal lastAmountTotal = BigDecimal.ZERO;
+        long lastNumTotal = 0;
         for (String org : ORGS) {
             orgList.add(org);
             // 本周指定事业部报价数量处理
@@ -688,6 +702,8 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 totalPrice = totalPrice.divide(WAN_DOLLOR, 2, BigDecimal.ROUND_HALF_UP);
                 currentWeekCounts.add(totalNum.intValue());
                 currentWeekAmounts.add(totalPrice);
+                curNumTotal += totalNum;
+                curAmountTotal = curAmountTotal.add(totalPrice);
             } else {
                 currentWeekCounts.add(0);
                 currentWeekAmounts.add(BigDecimal.ZERO);
@@ -701,6 +717,9 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 totalPrice = totalPrice.divide(WAN_DOLLOR, 2, BigDecimal.ROUND_HALF_UP);
                 lastWeekCounts.add(totalNum.intValue());
                 lastWeekAmounts.add(totalPrice);
+
+                lastNumTotal += totalNum;
+                lastAmountTotal = lastAmountTotal.add(totalPrice);
             } else {
                 lastWeekCounts.add(0);
                 lastWeekAmounts.add(BigDecimal.ZERO);
@@ -725,7 +744,16 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         currentWeekAmounts.add(curWeekOtherOrgAmount);
         lastWeekCounts.add(lastWeekOtherOrgCount);
         lastWeekAmounts.add(lastWeekOtherOrgAmount);
+        curNumTotal += curWeekOtherOrgCount;
+        curAmountTotal = curAmountTotal.add(curWeekOtherOrgAmount).setScale(2, RoundingMode.DOWN);
+        lastNumTotal += lastWeekOtherOrgCount;
+        lastAmountTotal = lastAmountTotal.add(lastWeekOtherOrgAmount).setScale(2, RoundingMode.DOWN);
 
+        orgList.add("总计");
+        currentWeekCounts.add(curNumTotal);
+        currentWeekAmounts.add(curAmountTotal);
+        lastWeekCounts.add(lastNumTotal);
+        lastWeekAmounts.add(lastAmountTotal);
 
         Map<String, Object> result = new HashMap<>();
         result.put("orgList", orgList);
@@ -824,12 +852,17 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 .collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
         // 处理数据
         List<String> orgList = new ArrayList<>(); //存放事业部列表
-        List<Integer> currentWeekCounts = new ArrayList<>(); //存放本周各事业部订单数量
-        List<Integer> lastWeekCounts = new ArrayList<>(); //存放上周各事业部订单数量
+        List<? super Number> currentWeekCounts = new ArrayList<>(); //存放本周各事业部订单数量
+        List<? super Number> lastWeekCounts = new ArrayList<>(); //存放上周各事业部订单数量
         List<BigDecimal> currentWeekAmount = new ArrayList<>(); //存放本周各事业部订单金额
         List<BigDecimal> lastWeekAmount = new ArrayList<>(); //存放上周各事业部订单金额
         List<BigDecimal> historyAmount = new ArrayList<>(); //存放各事业部订单金额
 
+        long curCountTotal = 0;
+        long lastCountTotal = 0;
+        BigDecimal curAmountTotal = BigDecimal.ZERO;
+        BigDecimal lastAmountTotal = BigDecimal.ZERO;
+        BigDecimal historyAmountTotal = BigDecimal.ZERO;
         for (String org : ORGS) {
             orgList.add(org);
             // 本周数据
@@ -840,6 +873,8 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 totalPrice = totalPrice.divide(WAN_DOLLOR, 2, BigDecimal.ROUND_HALF_UP);
                 currentWeekCounts.add(totalNum);
                 currentWeekAmount.add(totalPrice);
+                curCountTotal += totalNum;
+                curAmountTotal = curAmountTotal.add(totalPrice);
             } else {
                 currentWeekCounts.add(0);
                 currentWeekAmount.add(BigDecimal.ZERO);
@@ -852,6 +887,8 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 totalPrice = totalPrice.divide(WAN_DOLLOR, 2, BigDecimal.ROUND_HALF_UP);
                 lastWeekCounts.add(totalNum);
                 lastWeekAmount.add(totalPrice);
+                lastCountTotal += totalNum;
+                lastAmountTotal = lastAmountTotal.add(totalPrice);
             } else {
                 lastWeekCounts.add(0);
                 lastWeekAmount.add(BigDecimal.ZERO);
@@ -862,6 +899,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 BigDecimal totalPrice = (BigDecimal) historyMap.get("total_price");
                 totalPrice = totalPrice.divide(WAN_DOLLOR, 2, BigDecimal.ROUND_HALF_UP);
                 historyAmount.add(totalPrice);
+                historyAmountTotal = historyAmountTotal.add(totalPrice);
             } else {
                 historyAmount.add(BigDecimal.ZERO);
             }
@@ -893,6 +931,19 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         lastWeekAmount.add(lastWeekOtherOrgPrice);
         historyAmount.add(historyOtherOrgPrice);
 
+        // 总计
+        curCountTotal += curWeekOtherOrgCount;
+        lastCountTotal += lastWeekOtherOrgCount;
+        curAmountTotal = curAmountTotal.add(curWeekOtherOrgPrice);
+        lastAmountTotal = lastAmountTotal.add(lastWeekOtherOrgPrice);
+        historyAmountTotal = historyAmountTotal.add(historyOtherOrgPrice);
+        orgList.add("总计");
+        currentWeekCounts.add(curCountTotal);
+        currentWeekAmount.add(curAmountTotal);
+        lastWeekCounts.add(lastCountTotal);
+        lastWeekAmount.add(lastAmountTotal);
+        historyAmount.add(historyAmountTotal);
+
         // 存放结果
         Map<String, Object> result = new HashMap<>();
         result.put("orgList", orgList);
@@ -919,8 +970,10 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
                 .collect(Collectors.toMap(vo -> (String) vo.get("name"), vo -> vo));
         // 处理数据
         List<String> orgList = new ArrayList<>(); //存放事业部列表
-        List<Integer> currentWeekCounts = new ArrayList<>(); //存放本周各事业部供应商数
-        List<Integer> historyCounts = new ArrayList<>(); //存放历史个事业部供应商数
+        List<? super Number> currentWeekCounts = new ArrayList<>(); //存放本周各事业部供应商数
+        List<? super Number> historyCounts = new ArrayList<>(); //存放历史个事业部供应商数
+        long curCountTotal = 0;
+        long historyCountTotal = 0;
         for (String org : ORGS) {
             orgList.add(org);
             // 本周指定事业部报价用时处理
@@ -928,6 +981,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             if (curMap != null) {
                 int total = ((Long) curMap.get("total")).intValue();
                 currentWeekCounts.add(total);
+                curCountTotal += total;
             } else {
                 currentWeekCounts.add(0);
             }
@@ -936,6 +990,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             if (historyMap != null) {
                 int total = ((Long) historyMap.get("total")).intValue();
                 historyCounts.add(total);
+                historyCountTotal += total;
             } else {
                 historyCounts.add(0);
             }
@@ -948,6 +1003,12 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         orgList.add("其他");
         currentWeekCounts.add(curWeekOtherOrgNum);
         historyCounts.add(historyOtherOrgNum);
+        // 总计
+        curCountTotal += curWeekOtherOrgNum;
+        historyCountTotal += historyOtherOrgNum;
+        orgList.add("总计");
+        currentWeekCounts.add(curCountTotal);
+        historyCounts.add(historyCountTotal);
 
         Map<String, Object> result = new HashMap<>();
         result.put("orgList", orgList);
@@ -1123,10 +1184,14 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
 
         // 处理数据
         List<String> orgList = new ArrayList<>(); //存放事业部列表
-        List<Integer> currentWeekSpuCounts = new ArrayList<>();
-        List<Integer> currentWeekSkuCounts = new ArrayList<>();
-        List<Integer> historySpuCounts = new ArrayList<>();
-        List<Integer> historySkuCounts = new ArrayList<>();
+        List<Number> currentWeekSpuCounts = new ArrayList<>();
+        List<Number> currentWeekSkuCounts = new ArrayList<>();
+        List<Number> historySpuCounts = new ArrayList<>();
+        List<Number> historySkuCounts = new ArrayList<>();
+        long curSpuNumTotal = 0;
+        long curSkuNumTotal = 0;
+        long historySpuNumTotal = 0;
+        long historySkuNumTotal = 0;
         for (String org : ORGS) {
             orgList.add(org);
             // 本周spu数据
@@ -1134,6 +1199,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             if (curSpuMap != null) {
                 int totalSpu = Integer.parseInt(curSpuMap.get("doc_count").toString());
                 currentWeekSpuCounts.add(totalSpu);
+                curSpuNumTotal += totalSpu;
             } else {
                 currentWeekSpuCounts.add(0);
             }
@@ -1142,6 +1208,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             if (curSkuMap != null) {
                 int totalSku = Integer.parseInt(curSkuMap.get("doc_count").toString());
                 currentWeekSkuCounts.add(totalSku);
+                curSkuNumTotal += totalSku;
             } else {
                 currentWeekSkuCounts.add(0);
             }
@@ -1150,6 +1217,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             if (historySpuMap != null) {
                 int totalSpu = Integer.parseInt(historySpuMap.get("doc_count").toString());
                 historySpuCounts.add(totalSpu);
+                historySpuNumTotal += totalSpu;
             } else {
                 historySpuCounts.add(0);
             }
@@ -1158,6 +1226,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             if (historySkuMap != null) {
                 int totalSku = Integer.parseInt(historySkuMap.get("doc_count").toString());
                 historySkuCounts.add(totalSku);
+                historySkuNumTotal += totalSku;
             } else {
                 historySkuCounts.add(0);
             }
@@ -1176,6 +1245,16 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         currentWeekSkuCounts.add(curWeekOtherOrgSkuNum);
         historySpuCounts.add(historyOtherOrgSpuNum);
         historySkuCounts.add(historyOtherOrgSkuNum);
+        // 总计
+        curSpuNumTotal += curWeekOtherOrgSpuNum;
+        curSkuNumTotal += curWeekOtherOrgSkuNum;
+        historySpuNumTotal += historyOtherOrgSpuNum;
+        historySkuNumTotal += historyOtherOrgSkuNum;
+        orgList.add("总计");
+        currentWeekSpuCounts.add(curSpuNumTotal);
+        currentWeekSkuCounts.add(curSkuNumTotal);
+        historySpuCounts.add(historySpuNumTotal);
+        historySkuCounts.add(historySkuNumTotal);
 
         Map<String, Object> result = new HashMap<>();
         result.put("orgList", orgList);
@@ -1406,9 +1485,10 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         Map<String, Object> supplierNumInfoData = selectSupplierNumInfoGroupByOrg(params);
 
         // 标题
-        String[] header = new String[ORGS.length + 2];
+        String[] header = new String[ORGS.length + 3];
         System.arraycopy(ORGS, 0, header, 1, ORGS.length);
         header[ORGS.length + 1] = "其他";
+        header[ORGS.length + 2] = "总计";
 
         // 处理数据
 //        List<Object> row01 = new ArrayList<>();
