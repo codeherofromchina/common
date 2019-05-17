@@ -688,8 +688,7 @@ public class PurchServiceImpl implements PurchService {
                 }
             }
         }, request);
-
-
+        
         if (page.hasContent()) {
             page.getContent().stream().forEach(vo -> {
                 findByPurchNo2(vo.getPurchNo());
@@ -698,6 +697,9 @@ public class PurchServiceImpl implements PurchService {
                 vo.getProjects().stream().forEach(project -> {
                     projectNoList.add(project.getProjectNo());
                     contractNoList.add(project.getContractNo());
+                /*    if ("CHANGE".equals(project.getProjectStatus())){
+                        vo.setStatus(4);
+                    }*/
                 });
                 vo.setProjectNos(StringUtils.join(projectNoList, ","));
                 vo.setContractNos(StringUtils.join(contractNoList, ","));

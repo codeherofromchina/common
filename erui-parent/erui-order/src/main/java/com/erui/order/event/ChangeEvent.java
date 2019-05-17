@@ -6,22 +6,23 @@ import org.springframework.context.ApplicationEvent;
  * 自定义事件
  * Created by shigs on 2018/4/8.
  */
-public class OrderProgressEvent extends ApplicationEvent {
+public class ChangeEvent extends ApplicationEvent {
 
-    private Integer type = 0;
+    private Integer orderId;
     private final String token;
     /**
      * Create a new ApplicationEvent.
      *
      * @param source the object on which the event initially occurred (never {@code null})
      */
-    public OrderProgressEvent(Object source, Integer type, String token) {
+    public ChangeEvent(Object source, Integer orderId, String token) {
         super(source);
         this.token = token;
-        this.type = type;
+        this.orderId = orderId;
     }
-    public Integer getType() {
-        return type;
+
+    public Integer getOrderId() {
+        return orderId;
     }
 
     public String getToken() {
