@@ -236,7 +236,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 if (deliverD.getWareHouseman() != null) {
                     list.add(cb.equal(root.get("wareHouseman").as(Integer.class), deliverD.getWareHouseman()));
                 }
-                //根据出库状态   status    1：未质检    2：质检中   3：质检完成   4：已出库
+                //根据出库状态   status    1：未质检    2：质检中   3：质检完成   4：已出库 9： 已变更
                 if (deliverD.getStatus() != null) {
                     if (deliverD.getStatus() == 1) {
                         list.add(cb.lessThan(root.get("status").as(Integer.class), 2)); //未质检
@@ -248,6 +248,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                         list.add(cb.lessThan(root.get("status").as(Integer.class), 5));
                     } else if (deliverD.getStatus() == 4) {
                         list.add(cb.greaterThan(root.get("status").as(Integer.class), 4));//已出库
+                        list.add(cb.greaterThan(root.get("status").as(Integer.class), 9));
+                    } else {
+                        list.add(cb.equal(root.get("status").as(Integer.class), 9));
                     }
                 }
                 Predicate[] predicates = new Predicate[list.size()];
