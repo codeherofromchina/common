@@ -80,7 +80,7 @@ public class OrderChangeEvent implements ApplicationListener<ChangeEvent> {
                 if (oldProject.getPurchReqCreate() == 3 && oldProject.getPurchRequisition() != null) {
                     PurchRequisition oPurchRequisition = oldProject.getPurchRequisition();
                     //采购申请状态为5为变更状态
-                    oPurchRequisition.setStatus(5);
+                    oPurchRequisition.setPurchStatus(5);
                     purchRequisitionDao.save(oPurchRequisition);
                 }
                 List<PurchContractGoods> purchContractGoods = purchContractGoodsDao.findByContractNo(oldOrder.getContractNo());
