@@ -188,6 +188,9 @@ public class InstockController {
                 map.put("nameZh", goods.getNameZh()); // 中文品名
                 map.put("inspectNum", inspectApplyGoods.getInspectNum()); // 报检数量
                 map.put("unqualified", inspectApplyGoods.getUnqualified()); // 不合格数量
+                map.put("unqualifiedDesc", inspectApplyGoods.getUnqualifiedDesc()); // 不合格描述
+                map.put("unqualifiedType", inspectApplyGoods.getUnqualifiedType()); // 不合格类型
+                map.put("qualityInspectType", inspectApplyGoods.getQualityInspectType()); // 质量检验类型
                 map.put("instockNum", instockGoods.getInstockNum()); // 入库数量
                 map.put("unit", goods.getUnit()); // 单位
                 map.put("nonTaxPrice", purchGoods.getNonTaxPrice()); // 不含税单价

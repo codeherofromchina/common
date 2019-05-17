@@ -186,7 +186,7 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from order
+    from `order`
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -200,7 +200,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from order
+    from `order`
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -213,21 +213,21 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from order
+    from `order`
     where id = #{id,jdbcType=INTEGER}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
-    delete from order
+    delete from `order`
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <delete id="deleteByExample" parameterType="com.erui.order.v2.model.OrderExample" >
-    delete from order
+    delete from `order`
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
   <insert id="insert" parameterType="com.erui.order.v2.model.OrderWithBLOBs" >
-    insert into order (id, contract_no, framework_no, 
+    insert into `order` (id, contract_no, framework_no,
       contract_no_os, po_no, logi_quote_no, 
       inquiry_no, order_type, order_source, 
       signing_date, delivery_date, signing_co, 
@@ -295,7 +295,7 @@
       )
   </insert>
   <insert id="insertSelective" parameterType="com.erui.order.v2.model.OrderWithBLOBs" >
-    insert into order
+    insert into `order`
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
         id,
@@ -866,13 +866,13 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="com.erui.order.v2.model.OrderExample" resultType="java.lang.Integer" >
-    select count(*) from order
+    select count(*) from `order`
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map" >
-    update order
+    update `order`
     <set >
       <if test="record.id != null" >
         id = #{record.id,jdbcType=INTEGER},
@@ -1162,7 +1162,7 @@
     </if>
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map" >
-    update order
+    update `order`
     set id = #{record.id,jdbcType=INTEGER},
       contract_no = #{record.contractNo,jdbcType=VARCHAR},
       framework_no = #{record.frameworkNo,jdbcType=VARCHAR},
@@ -1262,7 +1262,7 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map" >
-    update order
+    update `order`
     set id = #{record.id,jdbcType=INTEGER},
       contract_no = #{record.contractNo,jdbcType=VARCHAR},
       framework_no = #{record.frameworkNo,jdbcType=VARCHAR},
@@ -1360,7 +1360,7 @@
     </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.OrderWithBLOBs" >
-    update order
+    update `order`
     <set >
       <if test="contractNo != null" >
         contract_no = #{contractNo,jdbcType=VARCHAR},
@@ -1645,7 +1645,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.erui.order.v2.model.OrderWithBLOBs" >
-    update order
+    update `order`
     set contract_no = #{contractNo,jdbcType=VARCHAR},
       framework_no = #{frameworkNo,jdbcType=VARCHAR},
       contract_no_os = #{contractNoOs,jdbcType=VARCHAR},
@@ -1742,7 +1742,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.Order" >
-    update order
+    update `order`
     set contract_no = #{contractNo,jdbcType=VARCHAR},
       framework_no = #{frameworkNo,jdbcType=VARCHAR},
       contract_no_os = #{contractNoOs,jdbcType=VARCHAR},
