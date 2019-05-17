@@ -143,7 +143,7 @@ public class BpmUtils {
         params.put("callerId", callerId);
 
         Map<String, String> header = new HashMap<>();
-        header.put("Content-Type", "application/json");
+        header.put("Content-Type", "application/json;charset=utf-8");
         header.put("Cookie", "eruitoken=" + token);
 
         String resp = HttpRequest.sendPost(bpmUrl + "/process/instance/" + processId + "/runtime", params.toJSONString(), header);
