@@ -97,7 +97,7 @@ public class InspectReport {
     /**
      * 质检报告状态 0:未编辑 1:草稿/保存 2:质检完成
      */
-    private Integer status ;
+    private Integer status;
 
     @Column(name = "create_time")
     @JsonIgnore

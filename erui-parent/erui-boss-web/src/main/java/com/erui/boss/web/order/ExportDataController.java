@@ -316,7 +316,7 @@ public class ExportDataController {
 //            response.setHeader("Content-Disposition",
 //                    "attachment; filename=\"%e6%8a%a5%e4%bb%b7%e5%88%a9%e6%b6%a6%e6%a0%b8%e7%ae%97%e5%8d%95" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, new Date()) + suffix + "\"");
             response.setHeader("Content-Disposition",
-                    "attachment; filename=\"" + project.getContractNo() + DateUtil.format(DateUtil.SHORT_FORMAT_STR, new Date()) + suffix + "\"");
+                    "attachment; filename=\"%e6%8a%a5%e4%bb%b7%e5%88%a9%e6%b6%a6%e6%a0%b8%e7%ae%97%e5%8d%95" + project.getContractNo() + suffix + "\"");
 
             // 新建一个Excel的工作空间
             XSSFWorkbook workbook = new XSSFWorkbook();
