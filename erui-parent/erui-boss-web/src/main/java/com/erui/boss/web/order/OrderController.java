@@ -242,15 +242,9 @@ public class OrderController {
             } else if (addOrderVo.getAgentId() == null) {
                 result.setMsg("市场经办人不能为空");
                 result.setEnMsg("Market manager must be filled in");
-            } else if (addOrderVo.getExecCoId() == null) {
-                result.setMsg("执行分公司不能为空");
-                result.setEnMsg("Executing company must be filled in");
             } else if (StringUtils.isBlank(addOrderVo.getRegion())) {
                 result.setMsg("所属地区不能为空");
                 result.setEnMsg("Affiliating area must be filled in");
-            } else if (StringUtils.isBlank(addOrderVo.getDistributionDeptName())) {
-                result.setMsg("分销部不能为空");
-                result.setEnMsg("Distribution must be filled in");
             } else if (StringUtils.isBlank(addOrderVo.getCountry())) {
                 result.setMsg("国家不能为空");
                 result.setEnMsg("Country name must be filled in");
