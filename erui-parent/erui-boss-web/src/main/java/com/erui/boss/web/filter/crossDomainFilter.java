@@ -36,7 +36,8 @@ public class crossDomainFilter implements Filter {
                 httpResponse.addHeader("Access-Control-Allow-Origin", origin);
             }
 
-            httpResponse.addHeader("Access-Control-Allow-Headers", "Origin, x-requested-with, Content-Type, Accept,X-Cookie,token,eruitoken");
+//            httpResponse.addHeader("Access-Control-Allow-Headers", "Origin, x-requested-with, Content-Type, Accept,X-Cookie,token,eruitoken");
+            httpResponse.addHeader("Access-Control-Allow-Headers", "*");
             httpResponse.addHeader("Access-Control-Allow-Credentials", "true");
             httpResponse.addHeader("Access-Control-Allow-Methods", "GET,POST,PUT,OPTIONS,DELETE");
             if (httpRequest.getMethod().equals("OPTIONS")) {
