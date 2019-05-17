@@ -298,7 +298,7 @@ public class OrderController {
         Integer id;
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
-        if (addOrderVo.getId() != null) {
+        if (addOrderVo.getId() != null && (addOrderVo.getOrderChange() == null || addOrderVo.getOrderChange() != 1)) {
             id = orderService.updateOrder(addOrderVo);
         } else {
             id = orderService.addOrder(addOrderVo);
