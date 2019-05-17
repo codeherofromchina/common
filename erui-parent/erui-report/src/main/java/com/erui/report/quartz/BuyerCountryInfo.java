@@ -494,6 +494,8 @@ public class BuyerCountryInfo {
                     pstm2.execute();
                 }
             }
+
+
             pstm.close();
             pstm2.close();
         } catch (Exception ex) {
