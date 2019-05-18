@@ -212,6 +212,7 @@ public class Order {
 
     @Column(name = "business_unit_name")
     private String businessUnitName;
+
     @Column(name = "acquire_id")
     private Integer acquireId;
     //合同总价（美元）
