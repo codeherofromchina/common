@@ -48,7 +48,7 @@ public class IogisticsController {
             iogisticsList = iogisticsService.queIogistics(iogistics);
             for (Iogistics iogistics1 : iogisticsList) {
                 DeliverDetail deliverDetail = iogistics1.getDeliverDetail();
-                //设置出库信息管理状态 5为已变更
+                //设置出库信息管理状态 9为已变更
                 iogistics1.setStatus(deliverDetail.getStatus());
                 iogistics1.setHandleDepartment(deliverDetail.getHandleDepartment()); //经办部门
                 iogistics1.setBillingDate(deliverDetail.getBillingDate());  //开单日期

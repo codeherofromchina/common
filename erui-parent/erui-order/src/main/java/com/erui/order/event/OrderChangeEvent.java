@@ -57,7 +57,7 @@ public class OrderChangeEvent implements ApplicationListener<ChangeEvent> {
                     if (deliverConsign.getDeliverDetail() != null) {
                         DeliverDetail deliverDetail = deliverConsign.getDeliverDetail();
                         //出库质检状态为5为变更状态
-                        deliverDetail.setStatus(5);
+                        deliverDetail.setStatus(9);
                         deliverDetailDao.save(deliverDetail);
                     }
                 }

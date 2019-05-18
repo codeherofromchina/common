@@ -248,6 +248,8 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                         list.add(cb.lessThan(root.get("status").as(Integer.class), 5));
                     } else if (deliverD.getStatus() == 4) {
                         list.add(cb.greaterThan(root.get("status").as(Integer.class), 4));//已出库
+                    } else if (deliverD.getStatus() == 5) {
+                        list.add(cb.equal(root.get("status").as(Integer.class), 9));//已变更
                     }
                 }
                 Predicate[] predicates = new Predicate[list.size()];
@@ -345,9 +347,11 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     } else if (deliverW.getStatus() == 3) {
                         list.add(cb.equal(root.get("status").as(Integer.class), 7));
                         /*list.add(cb.greaterThan(root.get("status").as(Integer.class), 6));*/
+                    } else if (deliverW.getStatus() == 9) {
+                        list.add(cb.equal(root.get("status").as(Integer.class), 9));
                     }
                 } else {
-                    list.add(cb.greaterThan(root.get("status").as(Integer.class), 4));
+                    list.add(cb.greaterThan(root.get("status").as(Integer.class), 9));
                 }
 
 
