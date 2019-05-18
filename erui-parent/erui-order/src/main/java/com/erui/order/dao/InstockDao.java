@@ -24,5 +24,5 @@ public interface InstockDao extends JpaRepository<Instock, Serializable>, JpaSpe
      * @param inspectApplyNos
      * @return
      */
-    List<Instock> findByInspectApplyNo(List<String> inspectApplyNos);
+    List<Instock> findByInspectApplyNoIn(List<String> inspectApplyNos);
 }
