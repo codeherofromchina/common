@@ -181,12 +181,14 @@ public class ProjectController {
                 userId = Integer.parseInt(String.valueOf(sessionUserIdObj));
             }
 
-            // 审核流出添加代码 2018-08-27
-            Order order = proStatus.getOrder();
-            if (order.getAuditingStatus() == null || order.getAuditingStatus() != Order.AuditingStatusEnum.THROUGH.getStatus()) {
-                /// 订单的审核状态未通过，则项目办理失败
-                return new Result<>(ResultStatusEnum.ORDER_AUDIT_NOT_DONE_ERROR);
-            }
+
+            // 2019-05-19 订单流程和项目流程合并，取消状态检查
+//            // 审核流出添加代码 2018-08-27
+//            Order order = proStatus.getOrder();
+//            if (order.getAuditingStatus() == null || order.getAuditingStatus() != Order.AuditingStatusEnum.THROUGH.getStatus()) {
+//                /// 订单的审核状态未通过，则项目办理失败
+//                return new Result<>(ResultStatusEnum.ORDER_AUDIT_NOT_DONE_ERROR);
+//            }
 
             if (projectService.updateProject(project, userId)) {
                 return new Result<>();
