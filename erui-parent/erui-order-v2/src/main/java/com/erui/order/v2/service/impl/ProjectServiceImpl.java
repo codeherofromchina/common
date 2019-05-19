@@ -34,7 +34,7 @@ public class ProjectServiceImpl implements ProjectService {
         ProjectExample.Criteria criteria = example.createCriteria();
         criteria.andProcessIdEqualTo(processId);
         List<Project> projects = projectMapper.selectByExample(example);
-        if (projects != null || projects.size() > 0) {
+        if (projects != null && projects.size() > 0) {
             return projects.get(0);
         }
         return null;

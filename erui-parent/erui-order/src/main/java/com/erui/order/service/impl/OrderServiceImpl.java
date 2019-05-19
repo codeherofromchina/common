@@ -1131,6 +1131,7 @@ public class OrderServiceImpl implements OrderService {
             projectAdd.setUpdateTime(new Date());
             projectAdd.setBusinessName(orderUpdate.getBusinessName());
             projectAdd.setAuditingStatus(0);
+            projectAdd.setProcessId(orderUpdate.getProcessId());
             //商务技术经办人名称
             Project project = projectDao.save(projectAdd);
             List<Goods> goodsList1 = orderUpdate.getGoodsList();
