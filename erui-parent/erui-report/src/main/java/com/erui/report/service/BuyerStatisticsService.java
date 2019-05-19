@@ -46,6 +46,13 @@ public interface BuyerStatisticsService {
     Map<String, Object> orderBuyerStatistics(Map<String, Object> params);
 
     /**
+     * 地区会员统计
+     * @param params
+     * @return
+     */
+    Map<String, Object> selectBuyerCountDetail(Map<String, Object> params);
+
+    /**
      * 获取订单用户统计的excel
      * @param params
      * @return
@@ -72,4 +79,6 @@ public interface BuyerStatisticsService {
      * @return
      */
     HSSFWorkbook genApplyBuyerListExcel(Map<String, String> params);
+
+
 }

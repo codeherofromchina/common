@@ -132,6 +132,23 @@
             </if>
         GROUP BY area_bn , area_name , country_bn , country_name
         ORDER BY 5 DESC
+    </select>
 
+
+
+    <select id="selectBuyerNumGroupByArea" resultType="java.util.Map">
+        SELECT
+          area_bn, area_name, COUNT(buyer_code) AS num
+        FROM
+          erui_report.rep_buyer_country_info
+        WHERE
+            membership_time IS NOT NULL
+            <if test="startTime != null and startTime != ''">
+                AND membership_time <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND membership_time <![CDATA[<=]]> #{endTime}
+            </if>
+        GROUP BY area_bn , area_name
     </select>
 </mapper>
