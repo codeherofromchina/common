@@ -210,6 +210,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     public DeliverDetail pushOutbound(DeliverConsign deliverConsign, String deliverDetailNo) {
         // 1:未编辑 2：保存/草稿 3:已提交'        当状态为已提交的时候，推送到出库管理
         DeliverDetailWithBLOBs deliverDetail = new DeliverDetailWithBLOBs();
+        deliverDetail.setTenant("erui");
         deliverDetail.setDeliverConsignId(deliverConsign.getId());  //出库通知单
         deliverDetail.setDeliverDetailNo(deliverDetailNo);   //产品放行单
 

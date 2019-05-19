@@ -119,7 +119,7 @@ public class DeliverDetail {
 
     private Integer submenuId;
 
-    private String tenant;
+    private String tenant = "erui";
 
     public Integer getId() {
         return id;
