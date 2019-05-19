@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -104,6 +105,8 @@ public class OrderChangeEvent implements ApplicationListener<ChangeEvent> {
                     }
                     purchDao.save(oldProject.getPurchs());
                     if (inspectApplyList != null && inspectApplyList.size() > 0) {
+                        inspectReportList = new ArrayList<>();
+                        inspectApplyNos = new ArrayList<>();
                         for (InspectApply inspect : inspectApplyList) {
                             inspectReportList.add(inspect.getId());
                             inspectApplyNos.add(inspect.getInspectApplyNo());
@@ -121,7 +124,7 @@ public class OrderChangeEvent implements ApplicationListener<ChangeEvent> {
                         inspectReportDao.save(inspectReports);
                     }
                     if (inspectApplyNos != null && inspectApplyNos.size() > 0) {
-                        List<Instock> instocks = instockDao.findByInspectApplyNo(inspectApplyNos);
+                        List<Instock> instocks = instockDao.findByInspectApplyNoIn(inspectApplyNos);
                         if (instocks != null && instocks.size() > 0) {
                             for (Instock instock : instocks) {
                                 //入库状态为5为变更状态
