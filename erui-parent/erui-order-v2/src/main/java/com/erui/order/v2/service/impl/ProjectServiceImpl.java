@@ -87,7 +87,17 @@ public class ProjectServiceImpl implements ProjectService {
             return;
         }
         // 处理订单的审核状态和审核进度
-        Integer auditingStatus = 2; // 2:审核中
+        // 1:未审核（待审核） 2：审核中  3：驳回  4：审核完成
+        int auditingStatus = 2;
+        if ("task_pm".equals(auditingProcess)) {
+            // 如果是进入到项目负责人审核，需要设置是驳回还是
+            auditingStatus = 3; // 正常按照驳回走
+            if (Project.ProjectStatusEnum.SUBMIT.getCode().equals(project.getProjectStatus())) {
+                // 这里是从上走过来的
+                auditingStatus = 1; // 1:未审核（待审核） 2：审核中  3：驳回  4：审核完成
+            }
+        }
+
         String auditingProcess2 = project.getAuditingProcess();
         if (StringUtils.isNotBlank(auditingProcess2)) {
             auditingProcess2 = auditingProcess2 + "," + auditingProcess;
