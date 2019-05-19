@@ -175,6 +175,12 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         String deliverDetailNo = createDeliverDetailNo();   //产品放行单号
         DeliverDetail deliverDetail = pushOutbound(deliverConsign, deliverDetailNo);
 
+        // 更新修正后的状态
+        DeliverConsign deliverConsignSelective = new DeliverConsign();
+        deliverConsignSelective.setId(deliverConsign.getId());
+        deliverConsignSelective.setAuditingStatus(4);
+        deliverConsignMapper.updateByPrimaryKeySelective(deliverConsignSelective);
+
         // 出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
         Map<String, Object> map = new HashMap<>();
         map.put("deliverConsignNo", deliverConsign.getDeliverConsignNo());  //出口通知单号
@@ -191,12 +197,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        // 更新修正后的状态
-        DeliverConsign deliverConsignSelective = new DeliverConsign();
-        deliverConsignSelective.setId(deliverConsign.getId());
-        deliverConsignSelective.setAuditingStatus(4);
-        deliverConsignMapper.updateByPrimaryKeySelective(deliverConsignSelective);
     }
 
 
