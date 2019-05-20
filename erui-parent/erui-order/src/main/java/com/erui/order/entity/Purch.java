@@ -212,7 +212,8 @@ public class Purch {
     @Column(name = "supply_area")
     private String supplyArea;
 
-    // 合同版本：1标准版本 2非标版本
+
+    // 合同类型 1:简易合同 2:标准合同 3:非标合同
     @Column(name = "contract_version")
     private String contractVersion;
 
