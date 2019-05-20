@@ -1059,36 +1059,31 @@ public class OrderServiceImpl implements OrderService {
                 }
                 bpmInitVar.put("task_fn_check", task_fn_check);
                 JSONObject processResp = null;
-                Integer userId = addOrderVo.getCreateUserId();
-                String userNo = null;
-                if (null!=userId){
-                    userNo = userService.findUserNoById(userId.longValue());
-                }
                 switch (addOrderVo.getOrderCategory()) {
                     case 1:
                         // 预投订单
-                        processResp = BpmUtils.startProcessInstanceByKey("stocking_order", userNo, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        processResp = BpmUtils.startProcessInstanceByKey("stocking_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
                         break;
                     case 3:
                         // 试用订单
-                        processResp = BpmUtils.startProcessInstanceByKey("sample_order", userNo, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        processResp = BpmUtils.startProcessInstanceByKey("sample_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
                         break;
                     case 4:
                         // 现货订单
-                        processResp = BpmUtils.startProcessInstanceByKey("spot_order", userNo, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
                         break;
                     case 6:
                         // 国内订单
-                        processResp = BpmUtils.startProcessInstanceByKey("domestic_order", userNo, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        processResp = BpmUtils.startProcessInstanceByKey("domestic_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
                         break;
                     default:
                         Integer overseasSales = addOrderVo.getOverseasSales();
                         if (overseasSales != null && overseasSales == 3) {
                             // 海外销售类型 为3 海外销（当地采购 走现货审核流程
-                            processResp = BpmUtils.startProcessInstanceByKey("spot_order", userNo, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                            processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
                         } else {
                             // 非国内订单审批流程 process_order
-                            processResp = BpmUtils.startProcessInstanceByKey("overseas_order", userNo, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                            processResp = BpmUtils.startProcessInstanceByKey("overseas_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
                         }
                 }
                 orderUpdate.setProcessId(processResp.getString("instanceId"));
@@ -1364,36 +1359,31 @@ public class OrderServiceImpl implements OrderService {
                 // ID -> userNo
                 bpmInitVar.put("assignee_pm",techicalUserNo);
             }
-            Integer userId = addOrderVo.getCreateUserId();
-            String userNo = null;
-            if (null!=userId){
-                userNo = userService.findUserNoById(userId.longValue());
-            }
             switch (addOrderVo.getOrderCategory()) {
                 case 1:
                     // 预投订单
-                    processResp = BpmUtils.startProcessInstanceByKey("stocking_order", userNo, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    processResp = BpmUtils.startProcessInstanceByKey("stocking_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
                     break;
                 case 3:
                     // 试用订单
-                    processResp = BpmUtils.startProcessInstanceByKey("sample_order", userNo, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    processResp = BpmUtils.startProcessInstanceByKey("sample_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
                     break;
                 case 4:
                     // 现货订单
-                    processResp = BpmUtils.startProcessInstanceByKey("spot_order", userNo, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
                     break;
                 case 6:
                     // 国内订单
-                    processResp = BpmUtils.startProcessInstanceByKey("domestic_order", userNo, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                    processResp = BpmUtils.startProcessInstanceByKey("domestic_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
                     break;
                 default:
                     Integer overseasSales = addOrderVo.getOverseasSales();
                     if (overseasSales != null && overseasSales == 3) {
                         // 海外销售类型 为3 海外销（当地采购 走现货审核流程
-                        processResp = BpmUtils.startProcessInstanceByKey("spot_order", userNo, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                        processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
                     } else {
                         // 非国内订单审批流程 process_order
-                        processResp = BpmUtils.startProcessInstanceByKey("overseas_order", userNo, eruiToken, "order:" + order1.getId(), bpmInitVar);
+                        processResp = BpmUtils.startProcessInstanceByKey("overseas_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
                     }
             }
             // 设置订单和业务流标示关联
