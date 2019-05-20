@@ -190,6 +190,9 @@ public class InspectReportServiceImpl implements InspectReportService {
                 if (condition.getProcess() != null) {
                     list.add(cb.equal(root.get("process").as(Boolean.class), condition.getProcess()));
                 }
+                // 不显示不需要质检的QRL1
+                list.add(cb.equal(root.get("isShow").as(Integer.class), 1));
+
                 // 只查询是第一次报检单的质检信息
                 list.add(cb.equal(root.get("reportFirst"), Boolean.TRUE));
 
