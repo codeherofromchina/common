@@ -275,6 +275,7 @@ public class PurchController {
                     map.put("purchasePrice", vo.getPurchasePrice());
                     map.put("totalPrice", vo.getTotalPrice());
                     map.put("purchaseRemark", vo.getPurchaseRemark());
+                    map.put("qualityInspectType", vo.getQualityInspectType());
                     return map;
                 }).collect(Collectors.toList());
                 data.put("goodsList", list);
