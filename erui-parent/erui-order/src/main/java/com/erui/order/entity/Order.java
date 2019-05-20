@@ -754,7 +754,9 @@ public class Order {
                 return "市场询单";
             } else if (getOrderSource() == 3) {
                 return "线下订单";
-            }
+            }else if (getOrderSource() == 4) {
+            return "EACP";
+        }
         }
         return null;
     }
