@@ -474,7 +474,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public boolean updateProjectQualityInspectType(Project project) throws Exception {
         Project projectUpdate = findById(project.getId());
-        projectUpdate.setQualityInspectType(project.getQualityInspectType());
+        projectUpdate.setQualityInspectType(project.getQualityInspectType().trim());
         projectDao.save(projectUpdate);
         return true;
     }
