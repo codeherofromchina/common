@@ -63,7 +63,7 @@ public class BpmUtils {
         if (StringUtils.isBlank(callerId) && StringUtils.isNotBlank(token) && token.length() >= 6) {
             callerId = token.substring(token.length() - 6);
         }
-        params.put("callerId", StringUtils.isNoneBlank(callerId));
+        params.put("callerId", StringUtils.isNoneBlank(callerId) ? callerId : null);
         params.put("definitionKey", definitionKey);
         params.put("bizKey", businessKey);
         if (initVar != null && initVar.size() > 0) {
