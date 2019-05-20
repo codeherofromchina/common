@@ -299,6 +299,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             predicateList.add(cb.lessThan(signingDatePath, endDate));
         }
         predicateList.add(cb.greaterThanOrEqualTo(orderStatus, 3)); // 过滤订单状态
+        predicateList.add(cb.lessThanOrEqualTo(orderStatus, 4)); // 订单状态已变更不显示
 
         Predicate[] predicates = new Predicate[predicateList.size()];
         predicates = predicateList.toArray(predicates);
