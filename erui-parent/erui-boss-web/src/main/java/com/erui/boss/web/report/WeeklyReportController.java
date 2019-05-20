@@ -6,6 +6,7 @@ import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.report.service.BuyerStatisticsService;
 import com.erui.report.service.WeeklyReportService;
 import com.erui.report.util.ParamsUtils;
 import org.apache.commons.collections.map.HashedMap;
@@ -42,6 +43,8 @@ public class WeeklyReportController {
 
     @Autowired
     private WeeklyReportService weeklyReportService;
+    @Autowired
+    private BuyerStatisticsService buyerStatisticsService;
 
     /**
      * 地区明细
@@ -72,8 +75,15 @@ public class WeeklyReportController {
         //查询各地区的时间段内会员数 中国算一个地区
         //Map<String, Object> buyerData = weeklyReportService.selectBuyerCountGroupByArea(params);
 
+        /**
+         * 2019-05-19 统计周报的会员数  修改按照首单时间，和新增会员的数据一致
         //查询各地区的时间段内普通会员Erui数、普通会员ERUI&KERUI数、高级会员Erui数、高级会员ERUI&KERUI数，中国算一个地区
         Map<String, Object> buyerData = weeklyReportService.selectBuyerCountDetail(params);
+         */
+        // 2019-05-19 添加代码
+        Map<String, Object> buyerData = buyerStatisticsService.selectBuyerCountDetail(params);
+
+
         // 查询各地区时间段内询单数
         Map<String, Object> inqNumInfoData = weeklyReportService.selectInqNumGroupByArea(params);
         // 查询各个地区时间段内的报价数量和金额信息

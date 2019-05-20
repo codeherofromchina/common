@@ -158,6 +158,7 @@ public class InspectApplyController {
             map.put("height", vo.getHeight());
             map.put("lwh", vo.getLwh());
             map.put("purchaseRemark", purchGoods.getPurchaseRemark());
+            map.put("qualityInspectType", vo.getQualityInspectType()); //质检类型
             inspectApplyGoodsList.add(map);
         }
         data.put("inspectApplyGoodsList", inspectApplyGoodsList);
