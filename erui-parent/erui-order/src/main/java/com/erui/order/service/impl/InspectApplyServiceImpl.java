@@ -427,7 +427,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                     goods.setInspectDate(dbInspectApply.getInspectDate());
                 }
                 goodsDao.save(goods);
-                //已报检
+                // 已报检
                 applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 4, eruiToken));
             }
             // 更新预报检数量
