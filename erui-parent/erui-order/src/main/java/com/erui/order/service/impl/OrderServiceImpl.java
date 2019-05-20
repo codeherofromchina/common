@@ -1412,7 +1412,6 @@ public class OrderServiceImpl implements OrderService {
                     sendDingtalk(order, order.getAuditingUserId(), false, 1);
                 }
             }
-            //auditBackLogHandle(order, false, order.getAuditingUserId());
             signingDate = order1.getSigningDate();
             //添加订单未执行事件
             applicationContext.publishEvent(new OrderProgressEvent(order1, 1, eruiToken));

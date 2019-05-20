@@ -168,7 +168,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateDeliverConsign(DeliverConsign deliverConsign) throws Exception {
+    public Integer updateDeliverConsign(DeliverConsign deliverConsign) throws Exception {
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignUpdate = findById(deliverConsign.getId());
         deliverConsignUpdate.setOrder(order);
@@ -304,7 +304,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 throw new Exception(e.getMessage());
             }
         }
-        return true;
+        return deliverConsign1.getId();
     }
 
     private void pushOutStock(DeliverConsign deliverConsign) throws Exception {
@@ -337,7 +337,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean addDeliverConsign(DeliverConsign deliverConsign) throws Exception {
+    public Integer addDeliverConsign(DeliverConsign deliverConsign) throws Exception {
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignAdd = new DeliverConsign();
         // 根据数据库中最后的发货通知单单号重新自动生成
@@ -456,7 +456,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsignBookingSpace.setDeliverConsign(deliverConsign1);
             deliverConsignBookingSpaceDao.saveAndFlush(deliverConsignBookingSpace);
         }
-        return true;
+        return deliverConsign1.getId();
     }
 
     @Override
@@ -529,15 +529,15 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 // 可以看到列表的人
                 String eruiToken = (String) ThreadLocalUtil.getObject();
                 if (StringUtils.isNotBlank(eruiToken)) {
-                    List<Integer>userList = getUserListByRoleNo(eruiToken, "O42"); // 获取O42订舱负责人
+                    List<Integer> userList = getUserListByRoleNo(eruiToken, "O42"); // 获取O42订舱负责人
                     Map<String, String> stringStringMap = getInstockServiceImpl.ssoUser(eruiToken);
                     String submenuId = stringStringMap.get("id");
 
                     // O42订舱负责人角色下面的人可以看到所有列表信息。
-                    if(userList != null && userList.contains(Integer.parseInt(submenuId))){
-                        Predicate[] predicates = new Predicate[userList.size()*2 + 1];
+                    if (userList != null && userList.contains(Integer.parseInt(submenuId))) {
+                        Predicate[] predicates = new Predicate[userList.size() * 2 + 1];
                         int i = 0;
-                        for(Integer userId : userList){
+                        for (Integer userId : userList) {
                             predicates[i] = cb.like(root.get("auditingUserId").as(String.class), "%" + userId + "%");
                             i++;
                             predicates[i] = cb.like(root.get("audiRemark").as(String.class), "%" + userId + "%");
@@ -545,7 +545,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         }
                         predicates[i] = cb.equal(root.get("createUserId").as(Integer.class), Integer.parseInt(submenuId));
                         searchList.add(cb.or(predicates));
-                    }else{
+                    } else {
                         Predicate auditingUserId01 = cb.like(root.get("auditingUserId").as(String.class), "%" + submenuId + "%");
                         Predicate auditingUserId02 = cb.equal(root.get("createUserId").as(Integer.class), Integer.parseInt(submenuId));
                         Predicate auditingUserId03 = cb.like(root.get("audiRemark").as(String.class), "%" + submenuId + "%");
@@ -563,13 +563,13 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     }
 
     /**
-     *根据角色获取人员列表
+     * 根据角色获取人员列表
      *
      * @param eruiToken
      * @param roleNo
      * @return
      */
-    private List<Integer>getUserListByRoleNo(String eruiToken, String roleNo){
+    private List<Integer> getUserListByRoleNo(String eruiToken, String roleNo) {
         // 获取人员id
         List<Integer> listAll = new ArrayList<>(); //分单员id
 
@@ -580,7 +580,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             header.put("accept", "*/*");
             try {
                 //获取物流分单员
-                String jsonParam = "{\"role_no\":\""+roleNo+"\"}";
+                String jsonParam = "{\"role_no\":\"" + roleNo + "\"}";
                 String s2 = HttpRequest.sendPost(memberList, jsonParam, header);
                 logger.info("人员详情返回信息：" + s2);
 
