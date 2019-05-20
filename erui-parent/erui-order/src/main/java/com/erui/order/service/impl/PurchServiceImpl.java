@@ -501,7 +501,7 @@ public class PurchServiceImpl implements PurchService {
         if(isSendQualityInspect){ // 采购订单提交需要给质检部门发送钉钉通知，设置商品质检类型
             //获取token
             final String eruiToken = (String) ThreadLocalUtil.getObject();
-            List<Integer>userList = getUserListByRoleNo(eruiToken, "O42"); // 获取O42订舱负责人
+            List<Integer>userList = getUserListByRoleNo(eruiToken, "O10"); // 获取O10品控经办人
             if(userList != null){
                 for (Integer userId : userList) {
                     sendDingtalk(purch, userId.toString(), false, true);
@@ -1014,7 +1014,7 @@ public class PurchServiceImpl implements PurchService {
             PurchGoods son = handleAddNewPurchGoods(project, purch, goods, purchGoods, purchContractGoods);
             purchGoods.setPurchContractGoods(purchContractGoods);
             purchGoods.setPurchContract(purchContractGoods.getPurchContract());
-            purchGoods.setQualityInspectType(project.getQualityInspectType()); // 质检类型默认赋值项目中的
+            purchGoods.setQualityInspectType(project.getQualityInspectType().trim()); // 质检类型默认赋值项目中的
             purchGoodsList.add(purchGoods);
             if (son != null) {
                 purchGoodsList.add(son);
@@ -1654,7 +1654,7 @@ public class PurchServiceImpl implements PurchService {
             }
             for(PurchGoods purchGoods : purchGoodsList){
                 if(purchGoods.getQualityInspectType() == null){
-                    purchGoods.setQualityInspectType(purchGoods.getProject().getQualityInspectType()); // 质检类型默认赋值项目中的
+                    purchGoods.setQualityInspectType(purchGoods.getProject().getQualityInspectType().trim()); // 质检类型默认赋值项目中的
                 }
             }
             dbPurch.setPurchGoodsList(purchGoodsList);
@@ -1976,7 +1976,7 @@ public class PurchServiceImpl implements PurchService {
         Map<Integer, PurchGoods> purchGoodsListMap = purch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(PurchGoods::getId, vo -> vo));
         List<PurchGoods>dbPurchGoodsList = purchdb.getPurchGoodsList();
         for(PurchGoods purchGoods : dbPurchGoodsList){
-            purchGoods.setQualityInspectType(purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType());
+            purchGoods.setQualityInspectType(purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType().trim());
         }
         purchdb.setPurchGoodsList(dbPurchGoodsList);
         purchdb.setQualityTime(new Date());
