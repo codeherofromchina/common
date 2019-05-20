@@ -5,11 +5,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
+import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.event.OrderProgressEvent;
+import com.erui.order.event.TasksAddEvent;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.BackLogService;
 import com.erui.order.service.InspectApplyService;
@@ -257,7 +259,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             }
             // 推送数据到入库质检中
             if (inspectApplyAdd.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && !directInstockGoods) {
-                InspectReport inspectReport = pushDataToInspectReport(inspectApplyAdd);
+                InspectReport inspectReport = pushDataToInspectReport(save);
                 //到货报检通知：到货报检单下达后同时通知质检经办人
                 Set<Integer> qualityNameList = new HashSet<>(); //质检经办人
                 Set<String> purchaseNameList = new HashSet<>(); //采购经办人
@@ -474,7 +476,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 完善提交后的后续操作
         if (dbInspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() && !directInstockGoods) {
             // 推送数据到入库质检中
-            InspectReport inspectReport = pushDataToInspectReport(dbInspectApply);
+            InspectReport inspectReport = pushDataToInspectReport(save);
 
             //到货报检通知：到货报检单下达后同时通知质检经办人
             disposeSmsDate(dbInspectApply, inspectApply);
@@ -665,7 +667,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
     /**
      * 向入库质检推送数据
      */
-    private InspectReport pushDataToInspectReport(InspectApply inspectApply) {
+    private InspectReport pushDataToInspectReport(InspectApply inspectApply) throws Exception {
+        // 报检单商品是否全部为QRL1商品
+        boolean isAllQRL1 = inspectApply.getInspectApplyGoodsList().parallelStream().allMatch(applygoods -> applygoods.getQualityInspectType() != null && "QRL1".equals(applygoods.getQualityInspectType()));
         // 新建质检信息并完善
         InspectReport report = new InspectReport();
         report.setInspectApply(inspectApply);
@@ -703,6 +707,30 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         report.setMsg(inspectApply.getMsg());
         report.setStatus(InspectReport.StatusEnum.INIT.getCode());
         report.setCreateTime(new Date());
+        report.setIsShow(1);
+
+        if(isAllQRL1){ // 质检类型全部为QRL1时，不需要入库质检了，直接在入库管理里面加入一条记录，入库质检不显示该记录，质检状态显示完成
+            report.setNcrNo("");
+            report.setReportRemarks("质检商品全部都是QRL1，所以不需要质检员质检商品。");
+            report.setStatus(InspectReport.StatusEnum.DONE.getCode());
+            report.setProcess(false); // 是否还在质检中 true:进行中 false:已结束
+            report.setIsShow(0);
+
+            for (InspectApplyGoods applyGoods : inspectApply.getInspectApplyGoodsList()) {
+                PurchGoods purchGoods = applyGoods.getPurchGoods();
+                applyGoods.setSamples(0);
+                applyGoods.setUnqualified(0);
+                inspectApplyGoodsDao.save(applyGoods);
+
+                // 设置采购商品的已合格数量
+                purchGoods.setGoodNum(purchGoods.getPurchaseNum());
+                purchGoodsDao.save(purchGoods);
+            }
+
+            inspectApply.setStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
+            inspectApply.setPubStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
+            inspectApplyDao.save(inspectApply);
+        }
 
         List<InspectApplyGoods> inspectApplyGoodsList = new ArrayList<>();
         // 设置质检关联到报检商品信息
@@ -715,13 +743,143 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             //applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),5));
         });
         report.setInspectGoodsList(inspectApplyGoodsList);
+
         // 保存推送的质检信息并等待人工质检
         InspectReport save = inspectReportDao.save(report);
         if (save != null) {
+            if(isAllQRL1){ // 质检类型全部为QRL1时，不需要入库质检了，直接在入库管理里面加入一条记录。
+                pushInstock(save);
+            }
             return save;
         }
 
         return null;
+    }
+
+    private void pushInstock(InspectReport inspectReport) throws Exception {
+        // 最后判断采购是否完成，且存在合格的商品数量
+        Purch purch = inspectReport.getInspectApply().getPurch();
+        List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
+        boolean doneFlag = true;
+        for (PurchGoods pg : purchGoodsList) {
+            if (pg.getGoodNum() < pg.getPurchaseNum()) {
+                doneFlag = false;
+                break;
+            }
+        }
+        if (doneFlag) {
+            purch.setStatus(Purch.StatusEnum.DONE.getCode());
+            purchDao.save(purch);
+            //当全部采购完成时设置供应商状态为COMPLETED
+            purchServiceImpl.updateSupplierStatus(purch.getId(), "COMPLETED");
+            //全部质检合格以后，删除   “办理报检单”  待办提示
+            BackLog backLog = new BackLog();
+            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSPECTAPPLY.getNum());    //功能访问路径标识
+            backLog.setHostId(purch.getId());
+            backLogService.updateBackLogByDelYn(backLog);
+
+        } else {
+            //当部分采购时设置供应商状态为PART_RECEIPT
+            purchServiceImpl.updateSupplierStatus(purch.getId(), "PART_RECEIPT");
+            purchDao.save(purch);
+        }
+        // 推送数据到入库部门
+        Instock instock = new Instock();
+        instock.setInspectReport(inspectReport);
+        instock.setInspectApplyNo(inspectReport.getInspectApplyNo()); // 报检单号
+        instock.setSupplierName(inspectReport.getInspectApply().getPurch().getSupplierName()); // 供应商
+        instock.setStatus(Instock.StatusEnum.INIT.getStatus());
+        instock.setCreateTime(new Date());
+        List<InstockGoods> instockGoodsList = new ArrayList<>();
+
+        // 入库商品
+        for (InspectApplyGoods inspectGoods : inspectReport.getInspectGoodsList()) {
+            int qualifiedNum = inspectGoods.getInspectNum() - inspectGoods.getUnqualified();
+            Goods goods = inspectGoods.getGoods();
+            if (qualifiedNum > 0) {
+                InstockGoods instockGoods = new InstockGoods();
+                instockGoods.setInstock(instock);
+                instockGoods.setContractNo(goods.getContractNo());
+                instockGoods.setProjectNo(goods.getProjectNo());
+                instockGoods.setInspectApplyGoods(inspectGoods);
+                instockGoods.setQualifiedNum(qualifiedNum);
+                instockGoods.setInstockNum(instockGoods.getQualifiedNum()); // 入库数量
+                Date date = new Date();
+                instockGoods.setCreateTime(date);
+                instockGoods.setUpdateTime(date);
+                instockGoods.setCreateUserId(inspectReport.getCreateUserId());
+                instockGoodsList.add(instockGoods);
+            }
+        }
+        instock.setInstockGoodsList(instockGoodsList);
+        instock.setOutCheck(1); //是否外检（ 0：否   1：是）
+        Instock save = instockDao.save(instock);
+
+        Set<String> projectNoSet = new HashSet<>();
+        List<InstockGoods> instockGoodsLists = save.getInstockGoodsList();
+        instockGoodsLists.stream().forEach(instockGoods -> {
+            PurchGoods purchGoods = instockGoods.getInspectApplyGoods().getPurchGoods();
+            Goods goods = purchGoods.getGoods();
+            if (StringUtil.isNotBlank(goods.getProjectNo())) {
+                projectNoSet.add(goods.getProjectNo());
+            }
+        });
+
+        //质检合格提交以后  通知分单员办理入库/分单
+        List<Integer> listAll = new ArrayList<>(); //分单员id
+
+        //获取token
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        if (StringUtils.isNotBlank(eruiToken)) {
+            Map<String, String> header = new HashMap<>();
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+            try {
+                //获取仓库分单员
+                String jsonParam = "{\"role_no\":\"O019\"}";
+                String s2 = HttpRequest.sendPost(memberList, jsonParam, header);
+                logger.info("人员详情返回信息：" + s2);
+
+                // 获取人员手机号
+                JSONObject jsonObjects = JSONObject.parseObject(s2);
+                Integer codes = jsonObjects.getInteger("code");
+                if (codes == 1) {    //判断请求是否成功
+                    // 获取数据信息
+                    JSONArray data1 = jsonObjects.getJSONArray("data");
+                    for (int i = 0; i < data1.size(); i++) {
+                        JSONObject ob = (JSONObject) data1.get(i);
+                        listAll.add(ob.getInteger("id"));    //获取物流分单员id
+                    }
+                } else {
+                    throw new Exception("出库分单员待办事项推送失败");
+                }
+            } catch (Exception e) {
+                throw new Exception("出库分单员待办事项推送失败");
+            }
+            if (listAll.size() > 0) {
+                String inspectApplyNo = inspectReport.getInspectApplyNo();  //报检单号
+                String supplierName = inspectReport.getSupplierName();  //供应商名称
+                String infoContent = StringUtils.join(projectNoSet, ",") + " | " + supplierName;  //提示内容
+                Integer hostId = save.getId();
+                Integer[] hostIdArr = listAll.toArray(new Integer[listAll.size()]);
+                // 推送待办事件
+                applicationContext.publishEvent(new TasksAddEvent(applicationContext, backLogService,
+                        BackLog.ProjectStatusEnum.INSTOCKSUBMENU,
+                        inspectApplyNo,
+                        infoContent,
+                        hostId,
+                        0,
+                        hostIdArr));
+            }
+        }
+
+        // 流程进度推送
+        String token = (String) ThreadLocalUtil.getObject();
+        for (InspectApplyGoods inspectGoods : inspectReport.getInspectGoodsList()) {
+            Goods goods = inspectGoods.getGoods();
+            applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 5, token));
+        }
     }
 
     @Override

@@ -959,6 +959,7 @@ public class PurchServiceImpl implements PurchService {
      */
     @Transactional(rollbackFor = Exception.class)
     public boolean insert(Purch purch) throws Exception {
+        purch.setQualityInspectStatus(0); // 重新评估风险等级状态 0：还未重新评估 1：已重新评估
         String eruiToken = (String) ThreadLocalUtil.getObject();
         Date now = new Date();
         /*String lastedByPurchNo = purchDao.findLastedByPurchNo();

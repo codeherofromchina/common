@@ -103,6 +103,12 @@ public class InspectReport {
     @JsonIgnore
     private Date createTime;
 
+    /**
+     * 是否显示 1显示 0不显示
+     */
+    @Column(name = "is_show")
+    private Integer isShow ;
+
 
    /* @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "inspect_report_attach",
@@ -391,6 +397,14 @@ public class InspectReport {
 
     public void setInspectApplyID(Integer inspectApplyID) {
         this.inspectApplyID = inspectApplyID;
+    }
+
+    public Integer getIsShow() {
+        return isShow;
+    }
+
+    public void setIsShow(Integer isShow) {
+        this.isShow = isShow;
     }
 
     public static enum StatusEnum {
