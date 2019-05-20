@@ -153,6 +153,7 @@ public class BuyerCountryInfo {
 
 	protected static Set<String> staticMembershipTimeUsers = new HashSet<>();
 	static {
+
 		staticMembershipTimeUsers.add("MYS/886333");
 		staticMembershipTimeUsers.add("OM14006");
 		staticMembershipTimeUsers.add("SA17083");
