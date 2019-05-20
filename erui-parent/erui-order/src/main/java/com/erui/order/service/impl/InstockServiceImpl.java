@@ -103,7 +103,9 @@ public class InstockServiceImpl implements InstockService {
                     if (status == 0) {
                         list.add(cb.lessThan(root.get("status").as(Integer.class), 3)); //小于
                     } else if (status == 1) {
-                        list.add(cb.greaterThan(root.get("status").as(Integer.class), 2));  //大于
+                        list.add(cb.equal(root.get("status").as(Integer.class), 3));  //大于
+                    } else if (status == 5) {
+                        list.add(cb.equal(root.get("status").as(Integer.class), status));  //大于
                     }
                 }
                 //是否外检（ 0：否   1：是）

@@ -220,7 +220,12 @@ public class AddOrderVo {
     private Integer returnToProcess;
     @Transient
     private Integer checkLogId;//要驳回日志Id
-
+    @Transient
+    private Integer orderChange = 0;//1 变更
+    @Transient
+    private Integer oldId;//原销售合同id
+    // --------------------不要传入的信息字段结束---------------------
+    private String taskId; // 流程内完善订单，传入taskId,只参数用，和数据库的taskid无关
 
     //附件信息
     private List<Attachment> attachDesc = new ArrayList<>();
@@ -229,6 +234,30 @@ public class AddOrderVo {
     private List<PGoods> goodDesc = new ArrayList<>();
     //合同信息
     private List<OrderPayment> contractDesc = new ArrayList<>();
+
+    public Integer getOldId() {
+        return oldId;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+
+    public void setOldId(Integer oldId) {
+        this.oldId = oldId;
+    }
+
+    public Integer getOrderChange() {
+        return orderChange;
+    }
+
+    public void setOrderChange(Integer orderChange) {
+        this.orderChange = orderChange;
+    }
 
     public Integer getFinancingCommissionerId() {
         return financingCommissionerId;

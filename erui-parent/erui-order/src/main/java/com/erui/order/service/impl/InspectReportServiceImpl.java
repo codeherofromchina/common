@@ -190,6 +190,9 @@ public class InspectReportServiceImpl implements InspectReportService {
                 if (condition.getProcess() != null) {
                     list.add(cb.equal(root.get("process").as(Boolean.class), condition.getProcess()));
                 }
+                // 不显示不需要质检的QRL1
+                list.add(cb.equal(root.get("isShow").as(Integer.class), 1));
+
                 // 只查询是第一次报检单的质检信息
                 list.add(cb.equal(root.get("reportFirst"), Boolean.TRUE));
 
@@ -316,7 +319,7 @@ public class InspectReportServiceImpl implements InspectReportService {
         boolean hegeFlag = true;
         int hegeNum = 0;    //合格商品总数量
 
-        int sum = 0;  //不合格商品总数量
+        int sum = 0;  // 不合格商品总数量
         Project project = null; //项目信息
 
         for (InspectApplyGoods applyGoods : inspectGoodsList) {
@@ -332,7 +335,7 @@ public class InspectReportServiceImpl implements InspectReportService {
 
             Integer samples = paramApplyGoods.getSamples();
             Integer unqualified = paramApplyGoods.getUnqualified();
-            if (samples == null || samples <= 0) {
+            if (samples == null || (samples <= 0 && (purchGoods.getQualityInspectType() == null || !"QRL1".equals(purchGoods.getQualityInspectType().trim()))) ) {
                 throw new Exception(String.format("%s%s%s", "抽样数错误【SKU:" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Sampling error [SKU:" + goods.getSku() + "]"));
 
             }
@@ -352,15 +355,14 @@ public class InspectReportServiceImpl implements InspectReportService {
             }
             applyGoods.setUnqualifiedDesc(paramApplyGoods.getUnqualifiedDesc());
             // 如果有不合格商品，则必须有不合格类型
-//            if (!hegeFlag && StringUtils.isBlank(paramApplyGoods.getUnqualifiedType()) && unqualified > 0) {
-//                throw new Exception(String.format("%s%s%s", "商品(SKU:" + goods.getSku() + ")的不合格类型不能为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unqualified Types of Unqualified Commodities (SKU:" + goods.getSku() + ") can not be empty"));
-//            }
+            if (!hegeFlag && paramApplyGoods.getUnqualifiedType() != null && unqualified > 0) {
+                throw new Exception(String.format("%s%s%s", "商品(SKU:" + goods.getSku() + ")的不合格类型不能为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unqualified Types of Unqualified Commodities (SKU:" + goods.getSku() + ") can not be empty"));
+            }
             applyGoods.setUnqualifiedType(paramApplyGoods.getUnqualifiedType());
             // 设置采购商品的已合格数量
             if (statusEnum == InspectReport.StatusEnum.DONE) { // 提交动作
 
                 project = project == null ? goods.getProject() : project;
-
                 // 合格数量
                 int qualifiedNum = applyGoods.getInspectNum() - unqualified;
                 hegeNum += qualifiedNum; // 统计合格总数量
