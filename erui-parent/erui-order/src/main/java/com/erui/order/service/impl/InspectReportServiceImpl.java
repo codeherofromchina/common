@@ -335,7 +335,7 @@ public class InspectReportServiceImpl implements InspectReportService {
 
             Integer samples = paramApplyGoods.getSamples();
             Integer unqualified = paramApplyGoods.getUnqualified();
-            if (samples == null || (samples <= 0 && (paramApplyGoods.getQualityInspectType() == null || !"QRL1".equals(paramApplyGoods.getQualityInspectType().trim()))) ) {
+            if (samples == null || (samples <= 0 && (purchGoods.getQualityInspectType() == null || !"QRL1".equals(purchGoods.getQualityInspectType().trim()))) ) {
                 throw new Exception(String.format("%s%s%s", "抽样数错误【SKU:" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Sampling error [SKU:" + goods.getSku() + "]"));
 
             }
