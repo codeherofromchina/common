@@ -247,11 +247,11 @@ public class WeeklyReportController {
         Long[] spuSkuCount = getSpuSkuCount(params.get("startTime").toString(), params.get("endTime").toString());
         Long[] historySpuSkuCount = getSpuSkuCount("2019-01-01 00:00:00", params.get("endTime").toString());
         Map<String, Object> spuSkuNumInfoData = new HashMap<>();
-        spuSkuNumInfoData.put("orgList",new String[]{"易瑞-钻完井设备事业部", "易瑞-采油工程事业部", "易瑞-工业品事业部", "其他", "总计"});
-        spuSkuNumInfoData.put("currentWeekSpuCounts",new Long[]{null,null,null,null,spuSkuCount[0]});
-        spuSkuNumInfoData.put("currentWeekSkuCounts",new Long[]{null,null,null,null,spuSkuCount[1]});
-        spuSkuNumInfoData.put("historySpuCounts",new Long[]{null,null,null,null,historySpuSkuCount[0]});
-        spuSkuNumInfoData.put("historySkuCounts",new Long[]{null,null,null,null,historySpuSkuCount[1]});
+        spuSkuNumInfoData.put("orgList",Arrays.asList(new String[]{"易瑞-钻完井设备事业部", "易瑞-采油工程事业部", "易瑞-工业品事业部", "其他", "总计"}));
+        spuSkuNumInfoData.put("currentWeekSpuCounts",Arrays.asList(new Long[]{null,null,null,null,spuSkuCount[0]}));
+        spuSkuNumInfoData.put("currentWeekSkuCounts",Arrays.asList(new Long[]{null,null,null,null,spuSkuCount[1]}));
+        spuSkuNumInfoData.put("historySpuCounts", Arrays.asList(new Long[]{null,null,null,null,historySpuSkuCount[0]}));
+        spuSkuNumInfoData.put("historySkuCounts",Arrays.asList(new Long[]{null,null,null,null,historySpuSkuCount[1]}));
 
         HSSFWorkbook wb = weeklyReportService.genOrgDetailExcel(params, spuSkuNumInfoData);
         //excel文件名
