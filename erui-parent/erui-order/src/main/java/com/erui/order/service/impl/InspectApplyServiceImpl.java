@@ -169,7 +169,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             iaGoods.setGoods(goods);
             iaGoods.setPurchGoods(purchGoods);
             iaGoods.setPurchaseNum(purchGoods.getPurchaseNum());
-            iaGoods.setQualityInspectType(purchGoods.getQualityInspectType()); // 质量检验类型
+            iaGoods.setQualityInspectType(purchGoods.getQualityInspectType().trim()); // 质量检验类型
             // 报检数量
             Integer inspectNum = iaGoods.getInspectNum();
             if (inspectNum == null || inspectNum == 0) {
@@ -409,7 +409,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             if (inspectNum < 0 || inspectNum - oldInspectNum > purchGoods.getPurchaseNum() - purchGoods.getPreInspectNum()) {
                 throw new Exception(String.format("%s%s%s", "报检数量错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Error in number of inspection"));
             }
-            applyGoods.setQualityInspectType(purchGoods.getQualityInspectType()); // 质量检验类型
+            applyGoods.setQualityInspectType(purchGoods.getQualityInspectType().trim()); // 质量检验类型
             // 如果是提交，则修改采购商品（父采购商品）中的已报检数量和商品（父商品）中的已报检数量
             if (dbInspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode()) {
                 purchGoods.setInspectNum(purchGoods.getInspectNum() + inspectNum);
@@ -669,7 +669,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
      */
     private InspectReport pushDataToInspectReport(InspectApply inspectApply) throws Exception {
         // 报检单商品是否全部为QRL1商品
-        boolean isAllQRL1 = inspectApply.getInspectApplyGoodsList().parallelStream().allMatch(applygoods -> applygoods.getQualityInspectType() != null && "QRL1".equals(applygoods.getQualityInspectType()));
+        boolean isAllQRL1 = inspectApply.getInspectApplyGoodsList().parallelStream().allMatch(applygoods -> applygoods.getQualityInspectType() != null && "QRL1".equals(applygoods.getQualityInspectType().trim()));
         // 新建质检信息并完善
         InspectReport report = new InspectReport();
         report.setInspectApply(inspectApply);
@@ -720,8 +720,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 PurchGoods purchGoods = applyGoods.getPurchGoods();
                 applyGoods.setSamples(0);
                 applyGoods.setUnqualified(0);
-                inspectApplyGoodsDao.save(applyGoods);
-
                 // 设置采购商品的已合格数量
                 purchGoods.setGoodNum(purchGoods.getPurchaseNum());
                 purchGoodsDao.save(purchGoods);
@@ -748,7 +746,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         InspectReport save = inspectReportDao.save(report);
         if (save != null) {
             if(isAllQRL1){ // 质检类型全部为QRL1时，不需要入库质检了，直接在入库管理里面加入一条记录。
-                pushInstock(save);
+                pushInstock(save, inspectApply.getInspectApplyGoodsList());
             }
             return save;
         }
@@ -756,7 +754,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         return null;
     }
 
-    private void pushInstock(InspectReport inspectReport) throws Exception {
+    private void pushInstock(InspectReport inspectReport, List<InspectApplyGoods> inspectApplyGoodsList) throws Exception {
         // 最后判断采购是否完成，且存在合格的商品数量
         Purch purch = inspectReport.getInspectApply().getPurch();
         List<PurchGoods> purchGoodsList = purch.getPurchGoodsList();
@@ -767,6 +765,19 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 break;
             }
         }
+        //采购订单付款方式
+        List<PurchPayment> purchPaymentList = purch.getPurchPaymentList();
+        Date doneDate = inspectReport.getCreateTime();
+        for (PurchPayment pay : purchPaymentList) {
+            //当付款方式为质保金时回执付款日期 当前质检日期加上质保金天数
+            if (pay.getType() == 5) {
+                //加的天数
+                int days = pay.getDays();
+                Date dateAfter = DateUtil.getDateAfter(doneDate, days);
+                pay.setReceiptDate(dateAfter);
+            }
+        }
+        purch.setPurchPaymentList(purchPaymentList);
         if (doneFlag) {
             purch.setStatus(Purch.StatusEnum.DONE.getCode());
             purchDao.save(purch);
@@ -793,7 +804,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         List<InstockGoods> instockGoodsList = new ArrayList<>();
 
         // 入库商品
-        for (InspectApplyGoods inspectGoods : inspectReport.getInspectGoodsList()) {
+        for (InspectApplyGoods inspectGoods : inspectApplyGoodsList) {
             int qualifiedNum = inspectGoods.getInspectNum() - inspectGoods.getUnqualified();
             Goods goods = inspectGoods.getGoods();
             if (qualifiedNum > 0) {
@@ -876,7 +887,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
         // 流程进度推送
         String token = (String) ThreadLocalUtil.getObject();
-        for (InspectApplyGoods inspectGoods : inspectReport.getInspectGoodsList()) {
+        for (InspectApplyGoods inspectGoods : inspectApplyGoodsList) {
             Goods goods = inspectGoods.getGoods();
             applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 5, token));
         }
