@@ -45,7 +45,7 @@ public class OrderController {
      */
     @RequestMapping(value = "orderManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderManage(@RequestBody OrderListCondition condition, HttpServletRequest request) {
-        //页数不能小于1
+        // 页数不能小于1
         if (condition.getPage() < 1) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
