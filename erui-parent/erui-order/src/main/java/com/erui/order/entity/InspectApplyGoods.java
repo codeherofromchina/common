@@ -16,7 +16,7 @@ public class InspectApplyGoods {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(cascade={CascadeType.PERSIST,CascadeType.MERGE})
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "inspect_apply_id")
     @JsonIgnore
     private InspectApply inspectApply;
@@ -70,7 +70,7 @@ public class InspectApplyGoods {
      * 不合格类型
      */
     @Column(name = "unqualified_type")
-    private String unqualifiedType;
+    private Integer unqualifiedType;
 
     @Column(name = "instock_num")
     private Integer instockNum;
@@ -84,11 +84,11 @@ public class InspectApplyGoods {
     @Column(name = "quality_inspect_type")
     private String qualityInspectType;
 
-    public String getUnqualifiedType() {
+    public Integer getUnqualifiedType() {
         return unqualifiedType;
     }
 
-    public void setUnqualifiedType(String unqualifiedType) {
+    public void setUnqualifiedType(Integer unqualifiedType) {
         this.unqualifiedType = unqualifiedType;
     }
 

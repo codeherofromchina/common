@@ -332,7 +332,7 @@ public class InspectReportServiceImpl implements InspectReportService {
 
             Integer samples = paramApplyGoods.getSamples();
             Integer unqualified = paramApplyGoods.getUnqualified();
-            if (samples == null || (samples <= 0 && (paramApplyGoods.getQualityInspectType() == null || !"QRL1".equals(paramApplyGoods.getQualityInspectType()))) ) {
+            if (samples == null || (samples <= 0 && (paramApplyGoods.getQualityInspectType() == null || !"QRL1".equals(paramApplyGoods.getQualityInspectType())))) {
                 throw new Exception(String.format("%s%s%s", "抽样数错误【SKU:" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Sampling error [SKU:" + goods.getSku() + "]"));
 
             }
@@ -352,7 +352,7 @@ public class InspectReportServiceImpl implements InspectReportService {
             }
             applyGoods.setUnqualifiedDesc(paramApplyGoods.getUnqualifiedDesc());
             // 如果有不合格商品，则必须有不合格类型
-            if (!hegeFlag && StringUtils.isBlank(paramApplyGoods.getUnqualifiedType()) && unqualified > 0) {
+            if (!hegeFlag && paramApplyGoods.getUnqualifiedType() != null && unqualified > 0) {
                 throw new Exception(String.format("%s%s%s", "商品(SKU:" + goods.getSku() + ")的不合格类型不能为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unqualified Types of Unqualified Commodities (SKU:" + goods.getSku() + ") can not be empty"));
             }
             applyGoods.setUnqualifiedType(paramApplyGoods.getUnqualifiedType());
@@ -360,7 +360,6 @@ public class InspectReportServiceImpl implements InspectReportService {
             if (statusEnum == InspectReport.StatusEnum.DONE) { // 提交动作
 
                 project = project == null ? goods.getProject() : project;
-
                 // 合格数量
                 int qualifiedNum = applyGoods.getInspectNum() - unqualified;
                 hegeNum += qualifiedNum; // 统计合格总数量
