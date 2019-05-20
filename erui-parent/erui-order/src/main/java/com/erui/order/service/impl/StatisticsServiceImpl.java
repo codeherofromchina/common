@@ -264,7 +264,6 @@ public class StatisticsServiceImpl implements StatisticsService {
         Path<BigDecimal> totalPricePath = orderRoot.get("totalPriceUsd");
         Path<Date> signingDatePath = orderRoot.get("signingDate");
         Path<Integer> orderStatus = orderRoot.get("status");
-
         List<Predicate> predicateList = new ArrayList<>();
         String sku = goodsStatistics.getSku();
         String proType = goodsStatistics.getProType();
