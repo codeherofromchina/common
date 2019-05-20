@@ -1625,6 +1625,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
 
             result.put("lastWeekPV", pv);
             result.put("lastWeekUV", uv);
+
             result.put("lastWeekAVG", avgDur == null ? BigDecimal.ZERO : avgDur.setScale(2, BigDecimal.ROUND_HALF_UP));
             result.put("lastWeekJUMP", jump == null ? BigDecimal.ZERO : jump.setScale(2, BigDecimal.ROUND_HALF_UP));
         }
