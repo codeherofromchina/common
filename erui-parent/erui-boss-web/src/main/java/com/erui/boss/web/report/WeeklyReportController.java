@@ -4,11 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.data.date.DateUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.report.service.BuyerStatisticsService;
 import com.erui.report.service.WeeklyReportService;
 import com.erui.report.util.ParamsUtils;
+import com.mchange.v2.lang.ThreadUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -174,16 +176,28 @@ public class WeeklyReportController {
 //        // 查询事业部spu和sku数量信息
 //        Map<String, Object> spuSkuNumInfoData = weeklyReportService.selectSpuAndSkuNumInfoGroupByOrg(params);
         Cookie[] cookies = request.getCookies();
-        Map<String, Object> spuSkuNumInfoData = getSpuSkuNumGroupByOrgToES(params, cookies);
-        if (spuSkuNumInfoData == null) {
-            return new Result<>(ResultStatusEnum.GET_USERINFO_ERROR);
-        }
+        String token = PerformanceController.getToken(cookies);
+        ThreadLocalUtil.setObject(token);
+//        Map<String, Object> spuSkuNumInfoData = getSpuSkuNumGroupByOrgToES(params, cookies);
+//        if (spuSkuNumInfoData == null) {
+//            return new Result<>(ResultStatusEnum.GET_USERINFO_ERROR);
+//        }
+        // 2019年05月20日 查询spu/sku总数
+        Long[] spuSkuCount = getSpuSkuCount(params.get("startTime").toString(), params.get("endTime").toString());
+        Long[] historySpuSkuCount = getSpuSkuCount("2019-01-01 00:00:00", params.get("endTime").toString());
+        Map<String, Object> spuSkuNumInfoData02 = new HashMap<>();
+        spuSkuNumInfoData02.put("orgList",new String[]{"易瑞-钻完井设备事业部", "易瑞-采油工程事业部", "易瑞-工业品事业部", "其他", "总计"});
+        spuSkuNumInfoData02.put("currentWeekSpuCounts",new Long[]{null,null,null,null,spuSkuCount[0]});
+        spuSkuNumInfoData02.put("currentWeekSkuCounts",new Long[]{null,null,null,null,spuSkuCount[1]});
+        spuSkuNumInfoData02.put("historySpuCounts",new Long[]{null,null,null,null,historySpuSkuCount[0]});
+        spuSkuNumInfoData02.put("historySkuCounts",new Long[]{null,null,null,null,historySpuSkuCount[1]});
+
         Map<String, Map> data = new HashMap<>();
         data.put("inqNumInfo", inqNumInfoData); // 询单数量数据信息
         data.put("quoteInfo", quoteInfoData); // 报价数据信息
         data.put("orderInfo", orderInfoData); // 订单数据信息
         data.put("supplierNumInfo", supplierNumInfoData); // 供应商数量数据信息
-        data.put("spuSkuNumInfoData", spuSkuNumInfoData); // spu/sku数量数据信息
+        data.put("spuSkuNumInfoData", spuSkuNumInfoData02); // spu/sku数量数据信息
 
         return new Result<>(data);
     }
@@ -213,6 +227,9 @@ public class WeeklyReportController {
         params.put("chainEndTime", DateUtil.format(DateUtil.DAY_END_TIME, chainEndTime));
 
         Cookie[] cookies = request.getCookies();
+        String token = PerformanceController.getToken(cookies);
+        ThreadLocalUtil.setObject(token);
+        /** 2019年05月20日 只显示sku/spu总数信息
         params.put("pageSize", "10");
         params.put("currentPage", "1");
         params.put("lang", "zh");
@@ -225,6 +242,16 @@ public class WeeklyReportController {
             spuSkuNumInfoData.put("historySpuCounts", zeroArr);
             spuSkuNumInfoData.put("historySkuCounts", zeroArr);
         }
+         */
+        // 2019年05月20日 查询spu/sku总数
+        Long[] spuSkuCount = getSpuSkuCount(params.get("startTime").toString(), params.get("endTime").toString());
+        Long[] historySpuSkuCount = getSpuSkuCount("2019-01-01 00:00:00", params.get("endTime").toString());
+        Map<String, Object> spuSkuNumInfoData = new HashMap<>();
+        spuSkuNumInfoData.put("orgList",new String[]{"易瑞-钻完井设备事业部", "易瑞-采油工程事业部", "易瑞-工业品事业部", "其他", "总计"});
+        spuSkuNumInfoData.put("currentWeekSpuCounts",new Long[]{null,null,null,null,spuSkuCount[0]});
+        spuSkuNumInfoData.put("currentWeekSkuCounts",new Long[]{null,null,null,null,spuSkuCount[1]});
+        spuSkuNumInfoData.put("historySpuCounts",new Long[]{null,null,null,null,historySpuSkuCount[0]});
+        spuSkuNumInfoData.put("historySkuCounts",new Long[]{null,null,null,null,historySpuSkuCount[1]});
 
         HSSFWorkbook wb = weeklyReportService.genOrgDetailExcel(params, spuSkuNumInfoData);
         //excel文件名
@@ -322,6 +349,56 @@ public class WeeklyReportController {
 
     @Value("#{webProp[esgoods_url]}")
     private String esgoodsUrl;
+
+    @Value("#{webProp[spusku_count_num_url]}")
+    private String spuSkuCountNumUrl;
+
+
+    /**
+     *  查询spu和sku总数
+     * @param startTime
+     * @param endTime
+     * @return [spu数量，sku数量]
+     * @throws IOException
+     */
+    public Long[] getSpuSkuCount(String startTime, String endTime) throws IOException {
+        try {
+            String token = (String) ThreadLocalUtil.getObject();
+            Map<String, Object> params = new HashMap<>();
+            params.put("token", token);
+            params.put("lang", "en");
+            params.put("status", "VALID");
+            params.put("onshelf_flag", "Y");
+            params.put("user_type", "updated");
+            params.put("date_type", "updated");
+            params.put("current_no", 1);
+            params.put("pagesize", 1);
+            params.put("sku_count", "Y");
+            params.put("onshelf_count", "Y");
+            params.put("onshelf_at_start", startTime);
+            params.put("onshelf_at_end", endTime);
+
+            CloseableHttpClient httpClient = HttpClients.createDefault();
+            HttpPut putMethod = new HttpPut(spuSkuCountNumUrl);
+            putMethod.setHeader("Cookie", "eruitoken=" + token);
+            StringEntity paramEntity = new StringEntity(JSON.toJSONString(params), "utf-8");
+            putMethod.setEntity(paramEntity);
+            CloseableHttpResponse execute = httpClient.execute(putMethod);
+            HttpEntity entity = execute.getEntity();
+            String result = null;
+            if (entity != null) {
+                result = EntityUtils.toString(entity, "UTF-8");
+            }
+            JSONObject resp = JSON.parseObject(result);
+            if (resp.getIntValue("code") == 1) {
+               return new Long[]{resp.getLong("count"),resp.getLong("sku_count")};
+            }
+        }catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+       return new Long[]{0l,0l};
+    }
 
     /**
      * 从es中获取各事业部的spu、sku数量
