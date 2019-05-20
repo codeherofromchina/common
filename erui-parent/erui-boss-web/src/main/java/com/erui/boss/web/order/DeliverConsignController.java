@@ -102,14 +102,14 @@ public class DeliverConsignController {
         ThreadLocalUtil.setObject(eruiToken);
 
         try {
-            boolean flag = false;
+            Integer id = null;
             if (deliverConsign.getId() != null) {
-                flag = deliverConsignService.updateDeliverConsign(deliverConsign);
+                id = deliverConsignService.updateDeliverConsign(deliverConsign);
             } else {
-                flag = deliverConsignService.addDeliverConsign(deliverConsign);
+                id = deliverConsignService.addDeliverConsign(deliverConsign);
             }
-            if (flag) {
-                return new Result<>();
+            if (id != null) {
+                return new Result<>(id);
             }
         } catch (Exception ex) {
             errMsg = ex.getMessage();
