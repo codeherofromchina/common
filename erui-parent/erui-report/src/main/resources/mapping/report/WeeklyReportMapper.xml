@@ -450,8 +450,8 @@
 
     <select id="selectWebStatisticsInfo" resultType="java.util.Map">
         SELECT
-            COUNT(pv) AS pv,
-            COUNT(uv) AS uv,
+            SUM(pv) AS pv,
+            SUM(uv) AS uv,
             SUM(avg_session_duration * sessions) / SUM(sessions) AS avgDur,
             AVG(bounce_rate) AS jump
         FROM
