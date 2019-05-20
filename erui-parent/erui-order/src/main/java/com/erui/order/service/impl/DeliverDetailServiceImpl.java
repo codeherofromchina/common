@@ -248,7 +248,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                         list.add(cb.lessThan(root.get("status").as(Integer.class), 5));
                     } else if (deliverD.getStatus() == 4) {
                         list.add(cb.greaterThan(root.get("status").as(Integer.class), 4));//已出库
-                    } else if (deliverD.getStatus() == 5) {
+                    } else if (deliverD.getStatus() == 9) {
                         list.add(cb.equal(root.get("status").as(Integer.class), 9));//已变更
                     }
                 }

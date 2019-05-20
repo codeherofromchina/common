@@ -5,7 +5,6 @@ import com.erui.order.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,7 +91,7 @@ public class OrderChangeEvent implements ApplicationListener<ChangeEvent> {
                     purchContractDao.save(purchContract);
                 }
                 if (oldProject.getPurchs() != null && oldProject.getPurchs().size() > 0) {
-                    List<InspectApply> inspectApplyList = null;
+                    List<InspectApply> inspectApplyList = new ArrayList<>();
                     List<Integer> inspectReportList = null;
                     List<String> inspectApplyNos = null;
                     //报检 和采购
@@ -100,10 +99,10 @@ public class OrderChangeEvent implements ApplicationListener<ChangeEvent> {
                         //采购状态状态为5为变更状态
                         purch.setStatus(5);
                         if (purch.getId() != null) {
-                            inspectApplyList = inspectApplyDao.findByPurchIdAndMasterOrderByCreateTimeAsc(purch.getId(), true);
+                            List<InspectApply> inspectApplys = inspectApplyDao.findByPurchIdAndMasterOrderByCreateTimeAsc(purch.getId(), true);
+                            inspectApplyList.addAll(inspectApplys);
                         }
                     }
-                    purchDao.save(oldProject.getPurchs());
                     if (inspectApplyList != null && inspectApplyList.size() > 0) {
                         inspectReportList = new ArrayList<>();
                         inspectApplyNos = new ArrayList<>();
@@ -113,26 +112,28 @@ public class OrderChangeEvent implements ApplicationListener<ChangeEvent> {
                             //质检状态为5为变更状态
                             inspect.setStatus(5);
                         }
+                        if (inspectReportList != null && inspectReportList.size() > 0) {
+                            List<InspectReport> inspectReports = inspectReportDao.findByInspectApplyIdInOrderByIdAsc(inspectReportList);
+                            for (InspectReport inspectReport : inspectReports) {
+                                //报检状态为5为变更状态
+                                inspectReport.setStatus(5);
+                            }
+                            inspectReportDao.save(inspectReports);
+                        }
+                        if (inspectApplyNos != null && inspectApplyNos.size() > 0) {
+                            List<Instock> instocks = instockDao.findByInspectApplyNoIn(inspectApplyNos);
+                            if (instocks != null && instocks.size() > 0) {
+                                for (Instock instock : instocks) {
+                                    //入库状态为5为变更状态
+                                    instock.setStatus(5);
+                                }
+                                instockDao.save(instocks);
+                            }
+                        }
                         inspectApplyDao.save(inspectApplyList);
                     }
-                    if (inspectReportList != null && inspectReportList.size() > 0) {
-                        List<InspectReport> inspectReports = inspectReportDao.findByInspectApplyIdInOrderByIdAsc(inspectReportList);
-                        for (InspectReport inspectReport : inspectReports) {
-                            //报检状态为5为变更状态
-                            inspectReport.setStatus(5);
-                        }
-                        inspectReportDao.save(inspectReports);
-                    }
-                    if (inspectApplyNos != null && inspectApplyNos.size() > 0) {
-                        List<Instock> instocks = instockDao.findByInspectApplyNoIn(inspectApplyNos);
-                        if (instocks != null && instocks.size() > 0) {
-                            for (Instock instock : instocks) {
-                                //入库状态为5为变更状态
-                                instock.setStatus(5);
-                            }
-                            instockDao.save(instocks);
-                        }
-                    }
+                    purchDao.save(oldProject.getPurchs());
+
                 }
             }
         }
