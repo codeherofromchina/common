@@ -1359,7 +1359,6 @@ public class OrderServiceImpl implements OrderService {
                 // ID -> userNo
                 bpmInitVar.put("assignee_pm",techicalUserNo);
             }
-
             switch (addOrderVo.getOrderCategory()) {
                 case 1:
                     // 预投订单
