@@ -360,7 +360,6 @@ public class InspectReportServiceImpl implements InspectReportService {
             if (statusEnum == InspectReport.StatusEnum.DONE) { // 提交动作
 
                 project = project == null ? goods.getProject() : project;
-
                 // 合格数量
                 int qualifiedNum = applyGoods.getInspectNum() - unqualified;
                 hegeNum += qualifiedNum; // 统计合格总数量
