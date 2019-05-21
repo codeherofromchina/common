@@ -202,7 +202,7 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
 
         Map<Object, Number> curMap = curDataList.stream().collect(Collectors.toMap(vo -> vo.get("area_name"), vo -> (Number) vo.get("num")));
         Map<Object, Number> lastMap = lastWeekDataList.stream().collect(Collectors.toMap(vo -> vo.get("area_name"), vo -> (Number) vo.get("num")));
-        Map<Object, Number> historyMap = curDataList.stream().collect(Collectors.toMap(vo -> vo.get("area_name"), vo -> (Number) vo.get("num")));
+        Map<Object, Number> historyMap = historyDataList.stream().collect(Collectors.toMap(vo -> vo.get("area_name"), vo -> (Number) vo.get("num")));
 
         int buyerCountsCount = 0;
         int lastWeekBuyerCountsCount = 0;
