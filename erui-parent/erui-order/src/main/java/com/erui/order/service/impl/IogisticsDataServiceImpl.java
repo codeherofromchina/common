@@ -37,9 +37,6 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
     private ApplicationContext applicationContext;
 
     @Autowired
-    private IogisticsDao iogisticsDao;
-
-    @Autowired
     OrderLogDao orderLogDao;
 
     @Autowired

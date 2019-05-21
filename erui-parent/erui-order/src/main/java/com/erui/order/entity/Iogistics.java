@@ -89,7 +89,17 @@ public class Iogistics {
 
     @Column(name = "submenu_id ")
     private Integer submenuId ; //出库信息分单人id
+    @Transient
+    private Integer status;
 
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
 
     public void setId(Integer id) {
         this.id = id;

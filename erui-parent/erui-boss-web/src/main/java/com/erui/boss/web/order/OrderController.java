@@ -45,7 +45,7 @@ public class OrderController {
      */
     @RequestMapping(value = "orderManage", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> orderManage(@RequestBody OrderListCondition condition, HttpServletRequest request) {
-        //页数不能小于1
+        // 页数不能小于1
         if (condition.getPage() < 1) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
@@ -240,16 +240,16 @@ public class OrderController {
             } else if (addOrderVo.getAgentId() == null) {
                 result.setMsg("市场经办人不能为空");
                 result.setEnMsg("Market manager must be filled in");
-            } else if (addOrderVo.getExecCoId() == null) {
+            } else if (addOrderVo.getExecCoName() == null) {
                 result.setMsg("执行分公司不能为空");
                 result.setEnMsg("Executing company must be filled in");
             } else if (StringUtils.isBlank(addOrderVo.getRegion())) {
                 result.setMsg("所属地区不能为空");
                 result.setEnMsg("Affiliating area must be filled in");
-            } else if (StringUtils.isBlank(addOrderVo.getDistributionDeptName())) {
+            } /*else if (StringUtils.isBlank(addOrderVo.getDistributionDeptName())) {
                 result.setMsg("分销部不能为空");
                 result.setEnMsg("Distribution must be filled in");
-            } else if (StringUtils.isBlank(addOrderVo.getCountry())) {
+            } */ else if (StringUtils.isBlank(addOrderVo.getCountry())) {
                 result.setMsg("国家不能为空");
                 result.setEnMsg("Country name must be filled in");
             } else if (StringUtils.isBlank(addOrderVo.getCrmCode()) && addOrderVo.getOrderCategory() != 1) {
@@ -298,7 +298,7 @@ public class OrderController {
         Integer id;
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
-        if (addOrderVo.getId() != null) {
+        if (addOrderVo.getId() != null && (addOrderVo.getOrderChange() == null || addOrderVo.getOrderChange() != 1)) {
             id = orderService.updateOrder(addOrderVo);
         } else {
             id = orderService.addOrder(addOrderVo);
