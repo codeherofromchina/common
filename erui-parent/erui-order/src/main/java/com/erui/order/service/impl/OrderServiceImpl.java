@@ -1396,9 +1396,13 @@ public class OrderServiceImpl implements OrderService {
                         order1.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
                     }
             }
+
             // 设置订单和业务流标示关联
             order1.setProcessId(processResp.getString("instanceId"));
             order1.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
+
+
+            Date signingDate = order1.getSigningDate();
 
             //添加订单未执行事件
             applicationContext.publishEvent(new OrderProgressEvent(order1, 1, eruiToken));

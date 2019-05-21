@@ -109,6 +109,9 @@ public class BuyerStatisticsController {
                 }
             }
         }
+        // 此接口没有分页信息
+        params.remove("pageSize");
+        params.remove("pageNum");
         Result<Object> result = new Result<>();
         Map<String, Object> data = buyerStatisticsService.orderBuyerStatistics(params);
         if (data == null || data.size() == 0) {

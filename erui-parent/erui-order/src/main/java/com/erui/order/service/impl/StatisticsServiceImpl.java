@@ -264,7 +264,6 @@ public class StatisticsServiceImpl implements StatisticsService {
         Path<BigDecimal> totalPricePath = orderRoot.get("totalPriceUsd");
         Path<Date> signingDatePath = orderRoot.get("signingDate");
         Path<Integer> orderStatus = orderRoot.get("status");
-
         List<Predicate> predicateList = new ArrayList<>();
         String sku = goodsStatistics.getSku();
         String proType = goodsStatistics.getProType();
@@ -299,6 +298,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             predicateList.add(cb.lessThan(signingDatePath, endDate));
         }
         predicateList.add(cb.greaterThanOrEqualTo(orderStatus, 3)); // 过滤订单状态
+        predicateList.add(cb.lessThanOrEqualTo(orderStatus, 4)); // 订单状态已变更不显示
 
         Predicate[] predicates = new Predicate[predicateList.size()];
         predicates = predicateList.toArray(predicates);

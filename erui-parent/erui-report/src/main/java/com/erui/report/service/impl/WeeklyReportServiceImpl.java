@@ -5,10 +5,12 @@ import com.erui.comm.util.excel.BuildExcel;
 import com.erui.comm.util.excel.BuildExcelImpl;
 import com.erui.comm.util.excel.ExcelCustomStyle;
 import com.erui.report.dao.WeeklyReportMapper;
+import com.erui.report.service.BuyerStatisticsService;
 import com.erui.report.service.WeeklyReportService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -18,12 +20,14 @@ import java.util.stream.Collectors;
 
 @Service
 public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> implements WeeklyReportService {
-
+    @Autowired
+    private BuyerStatisticsService buyerStatisticsService;
     private static final String[] AREAS = new String[]{"北美", "泛俄", "非洲", "南美", "欧洲", "亚太", "中东", "中国" };
     //    private static final String[] ORGS = new String[]{"易瑞-钻完井设备", "易瑞-工业工具", "易瑞-电力电工", "易瑞-工业品设备", "易瑞-安防和劳保设备", "油田设备", "康博瑞"};
 //    private static final String[] ORGS = new String[]{"易瑞-钻完井设备", "易瑞-采油工程事业部", "易瑞-工业品事业部", "油田设备", "康博瑞"};
     private static final String[] ORGS = new String[]{"易瑞-钻完井设备事业部", "易瑞-采油工程事业部", "易瑞-工业品事业部" };
     private static final BigDecimal WAN_DOLLOR = new BigDecimal("10000");
+
 
     @Override
     public Map<String, Object> selectBuyerRegistCountGroupByArea(Map<String, Object> params) {
@@ -164,12 +168,10 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             Map<String, Object> params03 = new HashMap<>();
             params03.put("startTime", params.get("chainStartTime"));
             params03.put("endTime", params.get("chainEndTime"));
-            lastWeekDataList = readMapper.selectBuyerCountDetail(params02);
+            lastWeekDataList = readMapper.selectBuyerCountDetail(params03);
         } else {
             lastWeekDataList = new ArrayList<>();
         }
-
-
 
         List<Integer> buyerCounts = new ArrayList<>(); //存放各地区 会员数
         List<Integer> allAddUpCounts = new ArrayList<>(); //存放从18.1.1开始的各地区会员数量
@@ -325,11 +327,11 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         normalEruiAndKeruiCounts.add(normalEruiAndKeruiCountsCount);
         seniorEruiCounts.add(seniorEruiCountsCount);
         seniorEruiAndKeruiCounts.add(seniorEruiAndKeruiCountsCount);
-        lastWeekBuyerCounts.add(buyerCountsCount);
-        lastWeekNormalEruiCounts.add(normalEruiCountsCount);
-        lastWeekNormalEruiAndKeruiCounts.add(normalEruiAndKeruiCountsCount);
-        lastWeekSeniorEruiCounts.add(seniorEruiCountsCount);
-        lastWeekSeniorEruiAndKeruiCounts.add(seniorEruiAndKeruiCountsCount);
+        lastWeekBuyerCounts.add(lastWeekBuyerCountsCount);
+        lastWeekNormalEruiCounts.add(lastWeekNormalEruiCountsCount);
+        lastWeekNormalEruiAndKeruiCounts.add(lastWeekNormalEruiAndKeruiCountsCount);
+        lastWeekSeniorEruiCounts.add(lastWeekSeniorEruiCountsCount);
+        lastWeekSeniorEruiAndKeruiCounts.add(lastWeekSeniorEruiAndKeruiCountsCount);
         allAddUpCounts.add(allAddUpCountsCount);
 
         //返回结果
@@ -1322,13 +1324,14 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
      */
     @Override
     public HSSFWorkbook genAreaDetailExcel(Map<String, Object> params) {
+
         // 准备数据
         // UV数据
         Map<String, Object> uvData = selectBuyerUVCountGroupByArea(params);
         //查询各地区的时间段内新用户注册数，中国算一个地区
         Map<String, Object> registerData = selectBuyerRegistCountGroupByArea(params);
         //查询各地区的时间段内会员数 中国算一个地区
-        Map<String, Object> buyerData = selectBuyerCountDetail(params);
+        Map<String, Object> buyerData = buyerStatisticsService.selectBuyerCountDetail(params);
         // 查询各地区时间段内询单数
         Map<String, Object> inqNumInfoData = selectInqNumGroupByArea(params);
         // 查询各个地区时间段内的报价数量和金额信息
@@ -1596,8 +1599,17 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         List<Map<String, Object>> currentWeekList = readMapper.selectWebStatisticsInfo(params);
         if (currentWeekList != null && currentWeekList.size() > 0) {
             Map<String, Object> map = currentWeekList.get(0);
-            Long pv = (Long) map.get("pv");
-            Long uv = (Long) map.get("uv");
+            Number pvNum = (Number) map.get("pv");
+            Number uvNum = (Number) map.get("uv");
+
+            long pv = 0;
+            long uv = 0;
+            if (pvNum != null) {
+                pv = pvNum.longValue();
+            }
+            if (uvNum != null) {
+                uv = uvNum.longValue();
+            }
             BigDecimal avgDur = (BigDecimal) map.get("avgDur");
             BigDecimal jump = (BigDecimal) map.get("jump");
 
@@ -1615,13 +1627,23 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         }
         if (lastWeekList != null && lastWeekList.size() > 0) {
             Map<String, Object> map = lastWeekList.get(0);
-            Long pv = (Long) map.get("pv");
-            Long uv = (Long) map.get("uv");
+            Number pvNum = (Number) map.get("pv");
+            Number uvNum = (Number) map.get("uv");
+
+            long pv = 0;
+            long uv = 0;
+            if (pvNum != null) {
+                pv = pvNum.longValue();
+            }
+            if (uvNum != null) {
+                uv = uvNum.longValue();
+            }
             BigDecimal avgDur = (BigDecimal) map.get("avgDur");
             BigDecimal jump = (BigDecimal) map.get("jump");
 
             result.put("lastWeekPV", pv);
             result.put("lastWeekUV", uv);
+
             result.put("lastWeekAVG", avgDur == null ? BigDecimal.ZERO : avgDur.setScale(2, BigDecimal.ROUND_HALF_UP));
             result.put("lastWeekJUMP", jump == null ? BigDecimal.ZERO : jump.setScale(2, BigDecimal.ROUND_HALF_UP));
         }

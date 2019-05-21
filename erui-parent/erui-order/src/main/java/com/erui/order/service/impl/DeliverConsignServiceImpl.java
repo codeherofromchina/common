@@ -170,7 +170,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Integer updateDeliverConsign(DeliverConsign deliverConsign) throws Exception {
+
         String eruitoken = (String) ThreadLocalUtil.getObject();
+
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignUpdate = findById(deliverConsign.getId());
         deliverConsignUpdate.setOrder(order);
@@ -342,6 +344,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Transactional(rollbackFor = Exception.class)
     public Integer addDeliverConsign(DeliverConsign deliverConsign) throws Exception {
         String eruitoken = (String) ThreadLocalUtil.getObject();
+
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignAdd = new DeliverConsign();
         // 根据数据库中最后的发货通知单单号重新自动生成

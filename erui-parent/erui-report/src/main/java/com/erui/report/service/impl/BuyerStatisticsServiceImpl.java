@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMapper> implements BuyerStatisticsService {
+    private static final String[] AREAS = new String[]{"北美", "泛俄", "非洲", "南美", "欧洲", "亚太", "中东", "中国" };
     @Autowired
     private BuyerStatisticsMapper buyerStatisticsMapper;
 
@@ -175,6 +176,80 @@ public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMappe
         return result;
     }
 
+
+    @Override
+    public Map<String, Object> selectBuyerCountDetail(Map<String, Object> params) {
+        List<String> areaList = new ArrayList<>(Arrays.asList(AREAS));
+        //查询各地区的时间段内新增会员数
+        List<Map<String, Object>> curDataList = readMapper.selectBuyerNumGroupByArea(params);
+        List<Map<String, Object>> lastWeekDataList = null; // 上周数据内容
+        //获取历史数据
+        Map<String, Object> params02 = new HashMap<>();
+        params02.put("startTime", "2019-01-01 00:00:00");
+        params02.put("endTime", params.get("endTime"));
+        List<Map<String, Object>> historyDataList = readMapper.selectBuyerNumGroupByArea(params02); // 历史数据
+        if (params.get("chainStartTime") != null) { // 存在上周数据
+            Map<String, Object> params03 = new HashMap<>();
+            params03.put("startTime", params.get("chainStartTime"));
+            params03.put("endTime", params.get("chainEndTime"));
+            lastWeekDataList = readMapper.selectBuyerNumGroupByArea(params03);
+        } else {
+            lastWeekDataList = new ArrayList<>();
+        }
+        List<Integer> buyerCounts = new ArrayList<>(); //存放各地区 会员数
+        List<Integer> historyBuyerCounts = new ArrayList<>(); //存放从19.1.1开始的各地区会员数量
+        List<Integer> lastWeekBuyerCounts = new ArrayList<>(); //存放各地区 上周会员数
+
+        Map<Object, Number> curMap = curDataList.stream().collect(Collectors.toMap(vo -> vo.get("area_name"), vo -> (Number) vo.get("num")));
+        Map<Object, Number> lastMap = lastWeekDataList.stream().collect(Collectors.toMap(vo -> vo.get("area_name"), vo -> (Number) vo.get("num")));
+        Map<Object, Number> historyMap = historyDataList.stream().collect(Collectors.toMap(vo -> vo.get("area_name"), vo -> (Number) vo.get("num")));
+
+        int buyerCountsCount = 0;
+        int lastWeekBuyerCountsCount = 0;
+        int historyBuyerCount = 0;
+
+        for (String area : areaList) {
+            Number aLong = curMap.get(area);
+            if (aLong == null) {
+                buyerCounts.add(Integer.valueOf(0));
+            } else {
+                int num = aLong.intValue();
+                buyerCountsCount += num ;
+                buyerCounts.add(num);
+            }
+
+            Number bLong = lastMap.get(area);
+            if (bLong == null) {
+                lastWeekBuyerCounts.add(Integer.valueOf(0));
+            } else {
+                int num = bLong.intValue();
+                lastWeekBuyerCountsCount += num;
+                lastWeekBuyerCounts.add(num);
+            }
+
+            Number cLong = historyMap.get(area);
+            if (cLong == null) {
+                historyBuyerCounts.add(Integer.valueOf(0));
+            } else {
+                int num = cLong.intValue();
+                historyBuyerCount += num;
+                historyBuyerCounts.add(num);
+            }
+        }
+        areaList.add("合计");
+        buyerCounts.add(buyerCountsCount);
+        lastWeekBuyerCounts.add(lastWeekBuyerCountsCount);
+        historyBuyerCounts.add(historyBuyerCount);
+
+
+        //返回结果
+        Map<String, Object> result = new HashMap<>();
+        result.put("areaList", areaList);
+        result.put("currentWeekCounts", buyerCounts);
+        result.put("lastWeekCounts", lastWeekBuyerCounts);
+        result.put("historyCounts", historyBuyerCounts);
+        return result;
+    }
 
     @Override
     public HSSFWorkbook genOrderBuyerStatisticsExcel(Map<String, Object> params) {

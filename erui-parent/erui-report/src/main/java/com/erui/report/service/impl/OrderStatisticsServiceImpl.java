@@ -123,7 +123,7 @@ public class OrderStatisticsServiceImpl extends BaseService<OrderStatisticsMappe
         p.remove("pageSize");
         BigDecimal totalMoney = readMapper.projectTotalMoney(p);
         if (totalMoney != null) {
-            totalMoney = totalMoney.subtract(new BigDecimal(10000)).setScale(2, RoundingMode.DOWN);
+            totalMoney = totalMoney.divide(new BigDecimal(10000)).setScale(2, RoundingMode.DOWN);
         }
         return totalMoney;
     }

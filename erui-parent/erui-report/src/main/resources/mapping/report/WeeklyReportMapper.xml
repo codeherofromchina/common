@@ -469,4 +469,6 @@
                 AND area_bn is not null
         GROUP BY area_bn , area_name
     </select>
+
+
 </mapper>

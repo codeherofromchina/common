@@ -100,7 +100,6 @@ public class DeliverConsignController {
 
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
-
         try {
             Integer id = null;
             if (deliverConsign.getId() != null) {
