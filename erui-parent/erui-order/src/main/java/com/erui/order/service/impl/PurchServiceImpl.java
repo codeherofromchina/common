@@ -1700,12 +1700,7 @@ public class PurchServiceImpl implements PurchService {
        /* if (dbPurch.getProjects().size() > 0 && dbPurch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
             dbPurch.setStatus(3);
         }*/
-            // 采购审批添加部分
-            if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-                dbPurch.setAuditingProcess("21,22");
-                dbPurch.setAuditingStatus(1);
-            }
-            CheckLog checkLog_i = null; //审批流日志
+
 
             Purch save = purchDao.save(dbPurch);
             // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
@@ -1723,7 +1718,7 @@ public class PurchServiceImpl implements PurchService {
                     // 启动采购合同订单流程实例（purchase_order）
                     Map<String, Object> bpmInitVar = new HashMap<>();
                     bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
-                    bpmInitVar.put("task_la_check", StringUtils.equals("1", purch.getContractVersion()) ? "Y" : "N"); // 标准版本
+                    bpmInitVar.put("task_la_check", StringUtils.equals("3", purch.getContractVersion()) ? "Y" : "N"); // 标准版本
                     JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
                     save.setProcessId(processResp.getString("instanceId"));
                 } else {
