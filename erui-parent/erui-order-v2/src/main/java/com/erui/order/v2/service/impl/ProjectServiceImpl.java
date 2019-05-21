@@ -125,6 +125,7 @@ public class ProjectServiceImpl implements ProjectService {
         Project projectSelective = new Project();
         projectSelective.setId(project.getId());
         projectSelective.setAuditingStatus(4);
+        projectSelective.setAuditingProcess("999"); // 999为审核进度审核完成
         projectMapper.updateByPrimaryKeySelective(projectSelective);
     }
 

@@ -128,6 +128,7 @@ public class PurchServiceImpl implements PurchService {
             }
         }
         purchSelective.setAuditingStatus(4); // 设置为审核完成 4：审核完成
+        purchSelective.setAuditingProcess("999"); //
         purchMapper.updateByPrimaryKeySelective(purchSelective);
     }
 

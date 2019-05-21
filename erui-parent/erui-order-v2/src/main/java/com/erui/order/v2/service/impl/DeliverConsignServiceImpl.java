@@ -179,6 +179,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         DeliverConsign deliverConsignSelective = new DeliverConsign();
         deliverConsignSelective.setId(deliverConsign.getId());
         deliverConsignSelective.setAuditingStatus(4);
+        deliverConsignSelective.setAuditingProcess("999"); // 999为审核进度审核完成
         deliverConsignMapper.updateByPrimaryKeySelective(deliverConsignSelective);
 
         // 出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)

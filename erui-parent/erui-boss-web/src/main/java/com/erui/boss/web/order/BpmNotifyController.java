@@ -158,7 +158,6 @@ public class BpmNotifyController {
             orderService.updateProcessCompleted(processInstanceId);
             projectService.updateProcessCompleted(processInstanceId);
         } else if (businessKey.startsWith("deliver_consign:")) {
-            System.out.println("----------------------ddddddd----");
             // 订舱审核流程
             deliverConsignService.updateProcessCompleted(processInstanceId);
         } else if (businessKey.startsWith("purch:")) {

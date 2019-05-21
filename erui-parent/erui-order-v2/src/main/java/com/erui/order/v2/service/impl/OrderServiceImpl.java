@@ -126,7 +126,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void updateProcessCompleted(String processInstanceId) {
         // 修改审核状态
-// 查询订单
+        // 查询订单
         Order order = findOrderByProcessId(processInstanceId);
         if (order == null) {
             return;
@@ -134,6 +134,7 @@ public class OrderServiceImpl implements OrderService {
         OrderWithBLOBs orderSelective = new OrderWithBLOBs();
         orderSelective.setId(order.getId());
         orderSelective.setAuditingStatus(4); // 2:审核中  4：审核完成
+        orderSelective.setAuditingProcess("999");  // 999为审核进度审核完成
         orderMapper.updateByPrimaryKeySelective(orderSelective);
     }
 }
