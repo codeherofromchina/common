@@ -26,7 +26,6 @@ public class Project {
 
     @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH, CascadeType.PERSIST})
     @JoinColumn(name = "order_id")
-    @JsonIgnore
     private Order order;
     @Transient
     private Integer oId;
