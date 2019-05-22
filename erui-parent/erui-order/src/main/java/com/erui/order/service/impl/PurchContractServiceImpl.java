@@ -177,13 +177,6 @@ public class PurchContractServiceImpl implements PurchContractService {
         for (PurchContractGoods pg : purchContract.getPurchContractGoodsList()) {
             Integer pgId = pg.getId();
             if (pgId == null) { // 新增加的采购商品信息
-                // 检查是否传入采购数量或者替换商品
-                Integer purchaseNum = pg.getPurchaseNum(); // 获取采购数量
-                PurchContractGoods tSon = pg.getSon(); // 获取替换商品
-                if ((purchaseNum == null || purchaseNum <= 0) && tSon == null) {
-                    // 传入的商品没有数量，表示不采购此商品
-                    continue;
-                }
                 // 获取要采购的商品
                 Goods goods = goodsDao.findOne(pg.getgId());
                 if (goods == null || goods.getExchanged()) {
