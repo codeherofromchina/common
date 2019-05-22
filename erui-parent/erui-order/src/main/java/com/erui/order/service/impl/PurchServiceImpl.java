@@ -1023,7 +1023,7 @@ public class PurchServiceImpl implements PurchService {
             purchGoods.setPurchContractGoods(purchContractGoods);
             purchGoods.setPurchContract(purchContractGoods.getPurchContract());
             purchGoods.setQualityInspectType(project.getQualityInspectType()==null?project.getQualityInspectType():project.getQualityInspectType().trim()); // 质检类型默认赋值项目中的
-            purchGoodsList.add(purchGoods);
+            if(purch.getStatus() == Purch.StatusEnum.BEING.getCode() && purchaseNum != null && purchaseNum > 0)purchGoodsList.add(purchGoods);
             if (son != null) {
                 purchGoodsList.add(son);
             }
@@ -1198,7 +1198,7 @@ public class PurchServiceImpl implements PurchService {
                     projectSet.add(project);
                     // 查看是否存在替换商品
                     PurchGoods son = handleAddNewPurchGoodsOld(project, dbPurch, goods, pg);
-                    purchGoodsList.add(pg);
+                    if(purch.getStatus() == Purch.StatusEnum.BEING.getCode() && purchaseNum != null && purchaseNum > 0) purchGoodsList.add(pg);
                     if (son != null) {
                         purchGoodsList.add(son);
                     }
@@ -1295,7 +1295,7 @@ public class PurchServiceImpl implements PurchService {
                         // 总价款
                         purchGoods.setTotalPrice(purchGoods.getPurchasePrice().multiply(new BigDecimal(purchGoods.getPurchaseNum().intValue())));
                     }
-                    purchGoodsList.add(purchGoods);
+                    if(purch.getStatus() == Purch.StatusEnum.BEING.getCode() && purchGoods.getPurchaseNum() != null && purchGoods.getPurchaseNum() > 0) purchGoodsList.add(purchGoods);
 
                     int purchaseNum = purchGoods.getPurchaseNum();
                     // 从数据库查询一次商品做修改
@@ -1496,7 +1496,7 @@ public class PurchServiceImpl implements PurchService {
                     PurchGoods son = handleAddNewPurchGoods(project, dbPurch, goods, pg, purchContractGoods);
                     pg.setPurchContractGoods(purchContractGoods);
                     pg.setPurchContract(purchContractGoods.getPurchContract());
-                    purchGoodsList.add(pg);
+                    if(purch.getStatus() == Purch.StatusEnum.BEING.getCode() && pg.getPurchaseNum() != null && pg.getPurchaseNum() > 0) purchGoodsList.add(pg);
                     if (son != null) {
                         purchGoodsList.add(son);
                     }
@@ -1600,7 +1600,7 @@ public class PurchServiceImpl implements PurchService {
                         // 总价款
                         purchGoods.setTotalPrice(purchGoods.getPurchasePrice().multiply(new BigDecimal(purchGoods.getPurchaseNum().intValue())));
                     }
-                    purchGoodsList.add(purchGoods);
+                    if(purch.getStatus() == Purch.StatusEnum.BEING.getCode() && purchGoods.getPurchaseNum() != null && purchGoods.getPurchaseNum() > 0) purchGoodsList.add(purchGoods);
 
                     int purchaseNum = pg.getPurchaseNum();
                     // 从数据库查询一次商品做修改
