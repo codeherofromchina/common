@@ -60,7 +60,6 @@
     <result column="exchange_rate" property="exchangeRate" jdbcType="DECIMAL" />
     <result column="chairman_board_id" property="chairmanBoardId" jdbcType="INTEGER" />
     <result column="chairman_board" property="chairmanBoard" jdbcType="VARCHAR" />
-    <result column="purch_contract_goods_id" property="purchContractGoodsId" jdbcType="INTEGER" />
     <result column="tenant" property="tenant" jdbcType="VARCHAR" />
     <result column="quality_inspect_status" property="qualityInspectStatus" jdbcType="INTEGER" />
     <result column="quality_leader_id" property="qualityLeaderId" jdbcType="INTEGER" />
@@ -140,7 +139,7 @@
     business_auditer_id, business_auditer, legal_auditer_id, legal_auditer, finance_auditer_id, 
     finance_auditer, bu_vp_auditer_id, bu_vp_auditer, chairman_id, chairman, audi_remark, 
     supply_area, contract_version, goal_cost, save_amount, save_mode, price_mode, profit_percent, 
-    contract_tag, tax_bearing, exchange_rate, chairman_board_id, chairman_board, purch_contract_goods_id, 
+    contract_tag, tax_bearing, exchange_rate, chairman_board_id, chairman_board,
     tenant, quality_inspect_status, quality_leader_id, quality_leader_name, quality_time, 
     process_id, task_id
   </sql>
@@ -215,7 +214,7 @@
       goal_cost, save_amount, save_mode, 
       price_mode, profit_percent, contract_tag, 
       tax_bearing, exchange_rate, chairman_board_id, 
-      chairman_board, purch_contract_goods_id, tenant, 
+      chairman_board, tenant,
       quality_inspect_status, quality_leader_id, 
       quality_leader_name, quality_time, process_id, 
       task_id, remarks)
@@ -238,7 +237,7 @@
       #{goalCost,jdbcType=DECIMAL}, #{saveAmount,jdbcType=DECIMAL}, #{saveMode,jdbcType=VARCHAR}, 
       #{priceMode,jdbcType=VARCHAR}, #{profitPercent,jdbcType=DECIMAL}, #{contractTag,jdbcType=VARCHAR}, 
       #{taxBearing,jdbcType=INTEGER}, #{exchangeRate,jdbcType=DECIMAL}, #{chairmanBoardId,jdbcType=INTEGER}, 
-      #{chairmanBoard,jdbcType=VARCHAR}, #{purchContractGoodsId,jdbcType=INTEGER}, #{tenant,jdbcType=VARCHAR}, 
+      #{chairmanBoard,jdbcType=VARCHAR}, #{tenant,jdbcType=VARCHAR},
       #{qualityInspectStatus,jdbcType=INTEGER}, #{qualityLeaderId,jdbcType=INTEGER}, 
       #{qualityLeaderName,jdbcType=VARCHAR}, #{qualityTime,jdbcType=TIMESTAMP}, #{processId,jdbcType=VARCHAR}, 
       #{taskId,jdbcType=VARCHAR}, #{remarks,jdbcType=LONGVARCHAR})
@@ -419,9 +418,6 @@
       </if>
       <if test="chairmanBoard != null" >
         chairman_board,
-      </if>
-      <if test="purchContractGoodsId != null" >
-        purch_contract_goods_id,
       </if>
       <if test="tenant != null" >
         tenant,
@@ -622,9 +618,6 @@
       </if>
       <if test="chairmanBoard != null" >
         #{chairmanBoard,jdbcType=VARCHAR},
-      </if>
-      <if test="purchContractGoodsId != null" >
-        #{purchContractGoodsId,jdbcType=INTEGER},
       </if>
       <if test="tenant != null" >
         #{tenant,jdbcType=VARCHAR},
@@ -835,9 +828,7 @@
       <if test="record.chairmanBoard != null" >
         chairman_board = #{record.chairmanBoard,jdbcType=VARCHAR},
       </if>
-      <if test="record.purchContractGoodsId != null" >
-        purch_contract_goods_id = #{record.purchContractGoodsId,jdbcType=INTEGER},
-      </if>
+
       <if test="record.tenant != null" >
         tenant = #{record.tenant,jdbcType=VARCHAR},
       </if>
@@ -927,7 +918,6 @@
       exchange_rate = #{record.exchangeRate,jdbcType=DECIMAL},
       chairman_board_id = #{record.chairmanBoardId,jdbcType=INTEGER},
       chairman_board = #{record.chairmanBoard,jdbcType=VARCHAR},
-      purch_contract_goods_id = #{record.purchContractGoodsId,jdbcType=INTEGER},
       tenant = #{record.tenant,jdbcType=VARCHAR},
       quality_inspect_status = #{record.qualityInspectStatus,jdbcType=INTEGER},
       quality_leader_id = #{record.qualityLeaderId,jdbcType=INTEGER},
@@ -1000,7 +990,6 @@
       exchange_rate = #{record.exchangeRate,jdbcType=DECIMAL},
       chairman_board_id = #{record.chairmanBoardId,jdbcType=INTEGER},
       chairman_board = #{record.chairmanBoard,jdbcType=VARCHAR},
-      purch_contract_goods_id = #{record.purchContractGoodsId,jdbcType=INTEGER},
       tenant = #{record.tenant,jdbcType=VARCHAR},
       quality_inspect_status = #{record.qualityInspectStatus,jdbcType=INTEGER},
       quality_leader_id = #{record.qualityLeaderId,jdbcType=INTEGER},
@@ -1186,9 +1175,6 @@
       <if test="chairmanBoard != null" >
         chairman_board = #{chairmanBoard,jdbcType=VARCHAR},
       </if>
-      <if test="purchContractGoodsId != null" >
-        purch_contract_goods_id = #{purchContractGoodsId,jdbcType=INTEGER},
-      </if>
       <if test="tenant != null" >
         tenant = #{tenant,jdbcType=VARCHAR},
       </if>
@@ -1275,7 +1261,6 @@
       exchange_rate = #{exchangeRate,jdbcType=DECIMAL},
       chairman_board_id = #{chairmanBoardId,jdbcType=INTEGER},
       chairman_board = #{chairmanBoard,jdbcType=VARCHAR},
-      purch_contract_goods_id = #{purchContractGoodsId,jdbcType=INTEGER},
       tenant = #{tenant,jdbcType=VARCHAR},
       quality_inspect_status = #{qualityInspectStatus,jdbcType=INTEGER},
       quality_leader_id = #{qualityLeaderId,jdbcType=INTEGER},
@@ -1345,7 +1330,6 @@
       exchange_rate = #{exchangeRate,jdbcType=DECIMAL},
       chairman_board_id = #{chairmanBoardId,jdbcType=INTEGER},
       chairman_board = #{chairmanBoard,jdbcType=VARCHAR},
-      purch_contract_goods_id = #{purchContractGoodsId,jdbcType=INTEGER},
       tenant = #{tenant,jdbcType=VARCHAR},
       quality_inspect_status = #{qualityInspectStatus,jdbcType=INTEGER},
       quality_leader_id = #{qualityLeaderId,jdbcType=INTEGER},

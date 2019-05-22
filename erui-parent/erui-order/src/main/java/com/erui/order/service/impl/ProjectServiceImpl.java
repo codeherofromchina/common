@@ -620,6 +620,7 @@ public class ProjectServiceImpl implements ProjectService {
         for (Project project : pageList) {
             if (project.getOrder() != null) {
                 project.setoId(project.getOrder().getId());
+                project.setOrder(null);
                 project.setPurchs(null);
             }
         }

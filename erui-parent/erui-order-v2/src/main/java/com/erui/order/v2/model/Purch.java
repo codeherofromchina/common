@@ -120,8 +120,6 @@ public class Purch {
 
     private String chairmanBoard;
 
-    private Integer purchContractGoodsId;
-
     private String tenant;
 
     private Integer qualityInspectStatus;
@@ -600,14 +598,6 @@ public class Purch {
 
     public void setChairmanBoard(String chairmanBoard) {
         this.chairmanBoard = chairmanBoard;
-    }
-
-    public Integer getPurchContractGoodsId() {
-        return purchContractGoodsId;
-    }
-
-    public void setPurchContractGoodsId(Integer purchContractGoodsId) {
-        this.purchContractGoodsId = purchContractGoodsId;
     }
 
     public String getTenant() {
