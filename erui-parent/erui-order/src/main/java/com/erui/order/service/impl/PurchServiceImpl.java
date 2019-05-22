@@ -985,6 +985,19 @@ public class PurchServiceImpl implements PurchService {
             vo.setId(null);
             vo.setCreateTime(now);
         });
+        // 提交时商品数量为0的商品不保存
+        if(purch.getStatus() == Purch.StatusEnum.BEING.getCode()){
+            List<PurchGoods> pgList = new ArrayList<>();
+            for (PurchGoods pgs : purch.getPurchGoodsList()) {
+                if(pgs.getPurchaseNum() != null && pgs.getPurchaseNum() > 0){
+                    pgList.add(pgs);
+                }
+            }
+            if (pgList.size() == 0) {
+                throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
+            }
+            purch.setPurchGoodsList(pgList);
+        }
         // 处理商品信息
         List<PurchGoods> purchGoodsList = new ArrayList<>();
         Set<Project> projectSet = new HashSet<>();
@@ -1023,7 +1036,7 @@ public class PurchServiceImpl implements PurchService {
             purchGoods.setPurchContractGoods(purchContractGoods);
             purchGoods.setPurchContract(purchContractGoods.getPurchContract());
             purchGoods.setQualityInspectType(project.getQualityInspectType()==null?project.getQualityInspectType():project.getQualityInspectType().trim()); // 质检类型默认赋值项目中的
-            if(purch.getStatus() == Purch.StatusEnum.BEING.getCode() && purchaseNum != null && purchaseNum > 0)purchGoodsList.add(purchGoods);
+            purchGoodsList.add(purchGoods);
             if (son != null) {
                 purchGoodsList.add(son);
             }
@@ -1165,6 +1178,19 @@ public class PurchServiceImpl implements PurchService {
             if (collect.size() > 0) {
                 purchPaymentDao.delete(collect.values());
             }
+            // 提交时商品数量为0的商品不保存
+            if(purch.getStatus() == Purch.StatusEnum.BEING.getCode()){
+                List<PurchGoods> pgList = new ArrayList<>();
+                for (PurchGoods pgs : purch.getPurchGoodsList()) {
+                    if(pgs.getPurchaseNum() != null && pgs.getPurchaseNum() > 0){
+                        pgList.add(pgs);
+                    }
+                }
+                if (pgList.size() == 0) {
+                    throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
+                }
+                purch.setPurchGoodsList(pgList);
+            }
             // 处理商品
             List<PurchGoods> purchGoodsList = new ArrayList<>(); // 声明最终采购商品容器
             Set<Project> projectSet = new HashSet<>(); // 声明项目的容器
@@ -1198,7 +1224,7 @@ public class PurchServiceImpl implements PurchService {
                     projectSet.add(project);
                     // 查看是否存在替换商品
                     PurchGoods son = handleAddNewPurchGoodsOld(project, dbPurch, goods, pg);
-                    if(purch.getStatus() == Purch.StatusEnum.BEING.getCode() && purchaseNum != null && purchaseNum > 0) purchGoodsList.add(pg);
+                    purchGoodsList.add(pg);
                     if (son != null) {
                         purchGoodsList.add(son);
                     }
@@ -1295,8 +1321,7 @@ public class PurchServiceImpl implements PurchService {
                         // 总价款
                         purchGoods.setTotalPrice(purchGoods.getPurchasePrice().multiply(new BigDecimal(purchGoods.getPurchaseNum().intValue())));
                     }
-                    if(purch.getStatus() == Purch.StatusEnum.BEING.getCode() && purchGoods.getPurchaseNum() != null && purchGoods.getPurchaseNum() > 0) purchGoodsList.add(purchGoods);
-
+                    purchGoodsList.add(purchGoods);
                     int purchaseNum = purchGoods.getPurchaseNum();
                     // 从数据库查询一次商品做修改
                     Goods goods = goodsDao.findOne(purchGoods.getGoods().getId());
@@ -1451,6 +1476,19 @@ public class PurchServiceImpl implements PurchService {
             if (collect.size() > 0) {
                 purchPaymentDao.delete(collect.values());
             }
+            // 提交时商品数量为0的商品不保存
+            if(purch.getStatus() == Purch.StatusEnum.BEING.getCode()){
+                List<PurchGoods> pgList = new ArrayList<>();
+                for (PurchGoods pgs : purch.getPurchGoodsList()) {
+                    if(pgs.getPurchaseNum() != null && pgs.getPurchaseNum() > 0){
+                        pgList.add(pgs);
+                    }
+                }
+                if (pgList.size() == 0) {
+                    throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
+                }
+                purch.setPurchGoodsList(pgList);
+            }
             // 处理商品
             List<PurchGoods> purchGoodsList = new ArrayList<>(); // 声明最终采购商品容器
             Set<Project> projectSet = new HashSet<>(); // 声明项目的容器
@@ -1496,7 +1534,7 @@ public class PurchServiceImpl implements PurchService {
                     PurchGoods son = handleAddNewPurchGoods(project, dbPurch, goods, pg, purchContractGoods);
                     pg.setPurchContractGoods(purchContractGoods);
                     pg.setPurchContract(purchContractGoods.getPurchContract());
-                    if(purch.getStatus() == Purch.StatusEnum.BEING.getCode() && pg.getPurchaseNum() != null && pg.getPurchaseNum() > 0) purchGoodsList.add(pg);
+                    purchGoodsList.add(pg);
                     if (son != null) {
                         purchGoodsList.add(son);
                     }
@@ -1600,8 +1638,7 @@ public class PurchServiceImpl implements PurchService {
                         // 总价款
                         purchGoods.setTotalPrice(purchGoods.getPurchasePrice().multiply(new BigDecimal(purchGoods.getPurchaseNum().intValue())));
                     }
-                    if(purch.getStatus() == Purch.StatusEnum.BEING.getCode() && purchGoods.getPurchaseNum() != null && purchGoods.getPurchaseNum() > 0) purchGoodsList.add(purchGoods);
-
+                    purchGoodsList.add(purchGoods);
                     int purchaseNum = pg.getPurchaseNum();
                     // 从数据库查询一次商品做修改
                     Goods goods = goodsDao.findOne(purchGoods.getGoods().getId());

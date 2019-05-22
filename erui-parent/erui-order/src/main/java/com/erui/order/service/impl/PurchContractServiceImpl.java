@@ -154,6 +154,19 @@ public class PurchContractServiceImpl implements PurchContractService {
         }
 
         dbPurchContract.setUpdateTime(now);
+        // 提交时商品数量为0的商品不保存
+        if(purchContract.getStatus() == PurchContract.StatusEnum.BEING.getCode()){
+            List<PurchContractGoods> pcgList = new ArrayList<>();
+            for (PurchContractGoods pcg : purchContract.getPurchContractGoodsList()) {
+                if(pcg.getPurchaseNum() != null && pcg.getPurchaseNum() > 0){
+                    pcgList.add(pcg);
+                }
+            }
+            if (pcgList.size() == 0) {
+                throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
+            }
+            purchContract.setPurchContractGoodsList(pcgList);
+        }
         // 处理商品
         List<PurchContractGoods> purchContractGoodsList = new ArrayList<>(); // 声明最终采购商品容器
         Set<Project> projectSet = new HashSet<>(); // 声明项目的容器
@@ -188,7 +201,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                 // 查看是否存在替换商品
                 PurchContractGoods son = handleAddNewPurchContractGoods(project, dbPurchContract, goods, pg);
                 pg.setCreateTime(now);
-                if(purchContract.getStatus() == PurchContract.StatusEnum.BEING.getCode() && pg.getPurchaseNum() != null && pg.getPurchaseNum() > 0) purchContractGoodsList.add(pg);
+                purchContractGoodsList.add(pg);
                 if (son != null) {
                     purchContractGoodsList.add(son);
                 }
@@ -196,7 +209,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
                 goodsDao.save(goods);
             } else if (dbPurchContractGoodsMap.containsKey(pgId)) {
-                Integer paramPurchaseNum = pg.getPurchaseNum();
                 // 编辑原来的采购商品
                 PurchContractGoods purchContractGoods = dbPurchContractGoodsMap.remove(pgId);
                 existId.add(pgId);
@@ -241,8 +253,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                     // 总价款
                     purchContractGoods.setTotalPrice(purchContractGoods.getPurchasePrice().multiply(new BigDecimal(purchContractGoods.getPurchaseNum().intValue())));
                 }
-                if(purchContract.getStatus() == PurchContract.StatusEnum.BEING.getCode() && purchContractGoods.getPurchaseNum() != null && purchContractGoods.getPurchaseNum() > 0) purchContractGoodsList.add(purchContractGoods);
-
+                purchContractGoodsList.add(purchContractGoods);
                 int purchaseNum = purchContractGoods.getPurchaseNum();
                 // 从数据库查询一次商品做修改
                 Goods goods = goodsDao.findOne(purchContractGoods.getGoods().getId());
@@ -345,8 +356,21 @@ public class PurchContractServiceImpl implements PurchContractService {
         for (PurchContractSignatories purchContractSignatories : purchContract.getPurchContractSignatoriesList()) {
             purchContractSignatories.setCreateTime(now);
         }
-        // 处理商品信息
+        // 提交时商品数量为0的商品不保存
+        if(purchContract.getStatus() == PurchContract.StatusEnum.BEING.getCode()){
+            List<PurchContractGoods> pcgList = new ArrayList<>();
+            for (PurchContractGoods pcg : purchContract.getPurchContractGoodsList()) {
+                if(pcg.getPurchaseNum() != null && pcg.getPurchaseNum() > 0){
+                    pcgList.add(pcg);
+                }
+            }
+            if (pcgList.size() == 0) {
+                throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
+            }
+            purchContract.setPurchContractGoodsList(pcgList);
+        }
         List<PurchContractGoods> purchContractGoodsList = new ArrayList<>();
+        // 处理商品信息
         Set<Project> projectSet = new HashSet<>();
         for (PurchContractGoods purchContractGoods : purchContract.getPurchContractGoodsList()) {
             // 获取要采购的商品
@@ -366,7 +390,7 @@ public class PurchContractServiceImpl implements PurchContractService {
             projectSet.add(project);
             PurchContractGoods son = handleAddNewPurchContractGoods(project, purchContract, goods, purchContractGoods);
             purchContractGoods.setCreateTime(now);
-            if(purchContract.getStatus() == PurchContract.StatusEnum.BEING.getCode() && purchContractGoods.getPurchaseNum() != null && purchContractGoods.getPurchaseNum() > 0) purchContractGoodsList.add(purchContractGoods);
+            purchContractGoodsList.add(purchContractGoods);
             if (son != null) {
                 purchContractGoodsList.add(son);
             }
