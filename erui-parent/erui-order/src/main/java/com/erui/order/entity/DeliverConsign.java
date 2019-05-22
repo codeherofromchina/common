@@ -412,6 +412,7 @@ public class DeliverConsign {
     private String taskId;
 
 
+
     public List<DeliverConsignPayment> getDeliverConsignPayments() {
         return deliverConsignPayments;
     }

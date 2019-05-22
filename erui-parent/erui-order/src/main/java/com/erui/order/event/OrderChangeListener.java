@@ -2,6 +2,7 @@ package com.erui.order.event;
 
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
+import com.erui.order.util.BpmUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,7 @@ import java.util.List;
  * Created by shigs on 2019/1/22.
  */
 @Component
-public class OrderChangeEvent implements ApplicationListener<ChangeEvent> {
+public class OrderChangeListener implements ApplicationListener<ChangeEvent> {
     @Autowired
     private OrderDao orderDao;
     @Autowired
@@ -43,16 +44,20 @@ public class OrderChangeEvent implements ApplicationListener<ChangeEvent> {
     @Override
     public void onApplicationEvent(ChangeEvent changeEvent) {
         Integer orderId = changeEvent.getOrderId();
+        String token = changeEvent.getToken();
         Order oldOrder = orderDao.findOne(orderId);
         if (oldOrder != null) {
+            List<String> tryStopInstanceIds = new ArrayList<>(); // 尝试终止流程实例ID集合
             //订单状态为5为变更状态
             oldOrder.setStatus(5);
             orderDao.save(oldOrder);
+            tryStopInstanceIds.add(oldOrder.getProcessId()); // J加入要停止订单的流程实例ID
             //订舱管理和出库信息管理
             if (oldOrder.getDeliverConsign() != null && oldOrder.getDeliverConsign().size() > 0) {
                 for (DeliverConsign deliverConsign : oldOrder.getDeliverConsign()) {
                     //订舱状态为5为变更状态
                     deliverConsign.setStatus(5);
+                    tryStopInstanceIds.add(deliverConsign.getProcessId()); // J加入要停止订舱的流程实例ID
                     if (deliverConsign.getDeliverDetail() != null) {
                         DeliverDetail deliverDetail = deliverConsign.getDeliverDetail();
                         //出库质检状态为5为变更状态
@@ -98,6 +103,7 @@ public class OrderChangeEvent implements ApplicationListener<ChangeEvent> {
                     for (Purch purch : oldProject.getPurchs()) {
                         //采购状态状态为5为变更状态
                         purch.setStatus(5);
+                        tryStopInstanceIds.add(purch.getProcessId()); // J加入要停止采购的流程实例ID
                         if (purch.getId() != null) {
                             List<InspectApply> inspectApplys = inspectApplyDao.findByPurchIdAndMasterOrderByCreateTimeAsc(purch.getId(), true);
                             inspectApplyList.addAll(inspectApplys);
@@ -137,6 +143,10 @@ public class OrderChangeEvent implements ApplicationListener<ChangeEvent> {
                     purchDao.save(oldProject.getPurchs());
 
                 }
+            }
+            // 尝试停止正在运行的流程
+            for(String processInstanceId : tryStopInstanceIds) {
+                BpmUtils.stopProcessInstance(processInstanceId, token);
             }
         }
     }

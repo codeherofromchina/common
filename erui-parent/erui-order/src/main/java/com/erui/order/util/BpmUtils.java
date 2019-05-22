@@ -2,6 +2,7 @@ package com.erui.order.util;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.OrderConf;
 import org.apache.commons.lang3.StringUtils;
@@ -91,6 +92,41 @@ public class BpmUtils {
         }
         throw new Exception("业务流程启动失败");
     }
+
+
+    /**
+     * 终止正在执行的流程实例
+     *
+     * @param instanceId
+     * @param token
+     * @return
+     */
+    public static void stopProcessInstance(String instanceId, String token) {
+        try {
+            if (StringUtils.isBlank(instanceId)) {
+                return;
+            }
+            JSONObject params = new JSONObject();
+            params.put("tenantId", tenantId);
+            String callerId;
+            if (StringUtils.isNotBlank(token) && token.length() >= 6) {
+                callerId = token.substring(token.length() - 6);
+            } else {
+                callerId = "";
+            }
+            params.put("callerId", callerId);
+            Map<String, String> header = new HashMap<>();
+            header.put("Content-Type", "application/json;charset=utf-8");
+            header.put("Cookie", "eruitoken=" + token);
+
+            String resp = HttpRequest.sendPost(bpmUrl + "/process/instance/" + instanceId + "/stop", params.toJSONString(), header);
+            LOGGER.info("终止正在运行的流程实例返回内容为：{}", resp);
+        }catch (Exception ex) {
+            // 为不引入影响正常流程，不引入异常
+            ex.printStackTrace();
+        }
+    }
+
 
     /**
      * 完成任务

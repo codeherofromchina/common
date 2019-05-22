@@ -138,6 +138,7 @@ public class HttpRequest {
             URL realUrl = new URL(url);
             // 打开和URL之间的连接
             URLConnection conn = realUrl.openConnection();
+            conn.setConnectTimeout(5000); // 5秒超时
 
             if (header != null && header.size() > 0) {
                 for (Map.Entry<String, String> entry : header.entrySet()) {
