@@ -1406,7 +1406,7 @@ public class PurchServiceImpl implements PurchService {
 
             Purch save = purchDao.save(dbPurch);
             // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
-            //save.setAttachmentList(save.getAttachmentList());
+            // save.setAttachmentList(save.getAttachmentList());
             List<Attachment> attachmentList = new ArrayList<>();
             if (purch.getAttachments() != null) {
                 attachmentList = purch.getAttachments();
