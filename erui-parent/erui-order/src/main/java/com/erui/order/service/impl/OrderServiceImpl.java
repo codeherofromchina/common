@@ -624,6 +624,7 @@ public class OrderServiceImpl implements OrderService {
     public boolean cancelorder(Integer id, String reason) throws Exception {
         Order order = null;
         if (id != null) {
+            String eruiToken = (String) ThreadLocalUtil.getObject();
             order = orderDao.findOne(id);
             //草稿状态或者未执行状态下可以取消
             if (order.getStatus() == 1 || order.getStatus() == 2) {
@@ -652,6 +653,11 @@ public class OrderServiceImpl implements OrderService {
             //向通过审核人发送钉钉取消通知
             for (CheckLog ck : dingList) {
                 sendDingtalk(order, ck.getAuditingUserId().toString(), true, 2);
+            }
+            // 取消订单通知业务流终止当前业务流
+            String processId = order.getProcessId();
+            if (StringUtils.isNotBlank(processId)) {
+                BpmUtils.stopProcessInstance(processId, eruiToken);
             }
             return true;
         }
