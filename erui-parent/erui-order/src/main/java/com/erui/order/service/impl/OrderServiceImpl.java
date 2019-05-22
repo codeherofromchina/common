@@ -1063,31 +1063,40 @@ public class OrderServiceImpl implements OrderService {
                     case 1:
                         // 预投订单
                         processResp = BpmUtils.startProcessInstanceByKey("stocking_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        orderUpdate.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
                         break;
                     case 3:
                         // 试用订单
                         processResp = BpmUtils.startProcessInstanceByKey("sample_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        orderUpdate.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
                         break;
                     case 4:
                         // 现货订单
                         processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        orderUpdate.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
                         break;
                     case 6:
                         // 国内订单
                         processResp = BpmUtils.startProcessInstanceByKey("domestic_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                        if ("Y".equals(task_fn_check)) {
+                            orderUpdate.setAuditingProcess("task_fn,task_la,task_fa"); //第一个节点通知失败，写固定第一个节点
+                        } else {
+                            orderUpdate.setAuditingProcess("task_la,task_fa"); //第一个节点通知失败，写固定第一个节点
+                        }
                         break;
                     default:
                         Integer overseasSales = addOrderVo.getOverseasSales();
                         if (overseasSales != null && overseasSales == 3) {
                             // 海外销售类型 为3 海外销（当地采购 走现货审核流程
                             processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                            orderUpdate.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
                         } else {
                             // 非国内订单审批流程 process_order
                             processResp = BpmUtils.startProcessInstanceByKey("overseas_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+                            orderUpdate.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
                         }
                 }
                 orderUpdate.setProcessId(processResp.getString("instanceId"));
-                orderUpdate.setAuditingProcess("task_cm"); // 第一个节点通知失败，写固定第一个节点
                 orderUpdate.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
             } else {
                 Map<String, Object> bpmVar = new HashMap<>();
