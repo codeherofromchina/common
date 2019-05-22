@@ -406,7 +406,6 @@ public class DeliverConsign {
 
 
 
-
     public List<DeliverConsignPayment> getDeliverConsignPayments() {
         return deliverConsignPayments;
     }
