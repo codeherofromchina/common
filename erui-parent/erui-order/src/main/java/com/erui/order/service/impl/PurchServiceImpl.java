@@ -993,13 +993,6 @@ public class PurchServiceImpl implements PurchService {
         List<PurchGoods> purchGoodsList = new ArrayList<>();
         Set<Project> projectSet = new HashSet<>();
         for (PurchGoods purchGoods : purch.getPurchGoodsList()) {
-            // 检查是否传入采购数量或者替换商品
-            Integer purchaseNum = purchGoods.getPurchaseNum(); // 获取采购数量
-            PurchGoods tSon = purchGoods.getSon(); // 获取替换商品
-            if ((purchaseNum == null || purchaseNum <= 0) && tSon == null) {
-                // 传入的商品没有数量，表示不采购此商品
-                continue;
-            }
             // 获取要采购的商品
             Goods goods = goodsDao.findOne(purchGoods.getgId());
             //获取采购合同商品
@@ -1191,13 +1184,6 @@ public class PurchServiceImpl implements PurchService {
             for (PurchGoods pg : purch.getPurchGoodsList()) {
                 Integer pgId = pg.getId();
                 if (pgId == null) { // 新增加的采购商品信息
-                    // 检查是否传入采购数量或者替换商品
-                    Integer purchaseNum = pg.getPurchaseNum(); // 获取采购数量
-                    PurchGoods tSon = pg.getSon(); // 获取替换商品
-                    if ((purchaseNum == null || purchaseNum <= 0) && tSon == null) {
-                        // 传入的商品没有数量，表示不采购此商品
-                        continue;
-                    }
                     // 获取要采购的商品
                     Goods goods = goodsDao.findOne(pg.getgId());
                     if (goods == null || goods.getExchanged()) {
@@ -1491,13 +1477,6 @@ public class PurchServiceImpl implements PurchService {
                 Integer pgId = pg.getId();
                 Integer cId = pg.getPcgId();
                 if (pgId == null) { // 新增加的采购商品信息
-                    // 检查是否传入采购数量或者替换商品
-                    Integer purchaseNum = pg.getPurchaseNum(); // 获取采购数量
-                    PurchGoods tSon = pg.getSon(); // 获取替换商品
-                    if ((purchaseNum == null || purchaseNum <= 0) && tSon == null) {
-                        // 传入的商品没有数量，表示不采购此商品
-                        continue;
-                    }
                     // 获取要采购的商品
                     Goods goods = goodsDao.findOne(pg.getgId());
                     // 获取要采购合同的商品
