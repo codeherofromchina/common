@@ -202,6 +202,9 @@ public class PurchContractServiceImpl implements PurchContractService {
                 PurchContractGoods son = handleAddNewPurchContractGoods(project, dbPurchContract, goods, pg);
                 pg.setCreateTime(now);
                 purchContractGoodsList.add(pg);
+                if (son != null) {
+                    purchContractGoodsList.add(son);
+                }
                 Integer intPurchaseNum = pg.getPurchaseNum();
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
                 goodsDao.save(goods);
