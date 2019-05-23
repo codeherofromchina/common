@@ -10,7 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 新的项目业务类
@@ -137,5 +140,21 @@ public class PurchServiceImpl implements PurchService {
     public Purch selectById(Integer id) {
         Purch purch = purchMapper.selectByPrimaryKey(id);
         return purch;
+    }
+
+    @Override
+    public Map<Integer, String> findPurchNoByPurchIds(List<Integer> purchIds) {
+        PurchExample example = new PurchExample();
+        PurchExample.Criteria criteria = example.createCriteria();
+        criteria.andIdIn(purchIds);
+        List<Purch> purches = purchMapper.selectByExample(example);
+        Map<Integer, String> result = null;
+        if (purches != null && purches.size() > 0) {
+            result = purches.stream().collect(Collectors.toMap(vo -> vo.getId(), vo -> vo.getPurchNo()));
+        }
+        if (result == null) {
+            result = new HashMap<>();
+        }
+        return result;
     }
 }

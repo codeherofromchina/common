@@ -2,6 +2,9 @@ package com.erui.order.v2.service;
 
 import com.erui.order.v2.model.Order;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @Auther 王晓丹
  * @Date 2019/4/28 下午2:16
@@ -51,4 +54,11 @@ public interface OrderService {
      * @param order
      */
     void updateById(Integer id,Order order);
+
+    /**
+     * 通过订单号查询采购合同号和订单ID的对应关系
+     * @param orderIds
+     * @return
+     */
+    Map<Integer, String> findContractsByOrderIds(List<Integer> orderIds);
 }

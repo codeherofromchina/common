@@ -341,6 +341,23 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         return deliverConsignMapper.selectByPrimaryKey(id);
     }
 
+    @Override
+    public Map<Integer, String> findDeliverConsignNoByDeliverConsignIds(List<Integer> deliverConsignIds) {
+        DeliverConsignExample example = new DeliverConsignExample();
+        DeliverConsignExample.Criteria criteria = example.createCriteria();
+        criteria.andIdIn(deliverConsignIds);
+        List<DeliverConsign> deliverConsigns = deliverConsignMapper.selectByExample(example);
+
+        Map<Integer, String> result = null;
+        if (deliverConsigns != null && deliverConsigns.size() > 0) {
+            result = deliverConsigns.stream().collect(Collectors.toMap(vo -> vo.getId(), vo -> vo.getDeliverConsignNo()));
+        }
+        if (result == null) {
+            result = new HashMap<>();
+        }
+        return result;
+    }
+
     //  出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
     public void sendSms(Map<String, Object> map1) throws Exception {
         //获取token
