@@ -210,8 +210,6 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
                             idList.add(order.getId());
                         }
                     }
-
-
                 }
             } else {  //不等于空，更新时间
                 for (OrderLog orderLog : orderLogList) {
