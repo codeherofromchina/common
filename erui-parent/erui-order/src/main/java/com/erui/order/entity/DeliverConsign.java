@@ -405,6 +405,7 @@ public class DeliverConsign {
     private String operationSpecialist;
 
 
+
     public List<DeliverConsignPayment> getDeliverConsignPayments() {
         return deliverConsignPayments;
     }
