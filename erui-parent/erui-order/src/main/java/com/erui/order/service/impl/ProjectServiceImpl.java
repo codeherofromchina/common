@@ -80,7 +80,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
     @Value("#{orderProp[ORDER_EACP]}")
-    private String orderEacp; //给银行提供eacp数据
+    private String orderEacp; //给提供eacp数据
 
     @Autowired
     private AttachmentDao attachmentDao;
