@@ -1,12 +1,14 @@
 package com.erui.comm.pojo;
 
+import java.util.List;
+
 /**
  * @Auther 王晓丹
  * @Date 2019/5/16 上午10:13
  */
 public class TodoShowNeedContentRequest {
     private String key;
-    private String bizKey;
+    private List<String> bizKeys;
 
 
     public String getKey() {
@@ -17,11 +19,11 @@ public class TodoShowNeedContentRequest {
         this.key = key;
     }
 
-    public String getBizKey() {
-        return bizKey;
+    public List<String> getBizKeys() {
+        return bizKeys;
     }
 
-    public void setBizKey(String bizKey) {
-        this.bizKey = bizKey;
+    public void setBizKeys(List<String> bizKeys) {
+        this.bizKeys = bizKeys;
     }
 }

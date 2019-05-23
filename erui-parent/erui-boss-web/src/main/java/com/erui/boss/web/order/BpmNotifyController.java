@@ -20,8 +20,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by wangxiaodan on 2017/12/11.
@@ -48,49 +51,60 @@ public class BpmNotifyController {
      */
     @RequestMapping(value = "todoShowNeedContent", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> todoShowNeedContent(@RequestBody TodoShowNeedContentRequest todoShowNeedContentRequest) {
-        Map<String, Object> data = new HashMap<>();
+        final Map<String, Object> data = new HashMap<>();
         Result<Object> result = new Result<>(data);
         // 验证安全性，// 如果秘钥不正确，返回失败
-        String bizKey = todoShowNeedContentRequest.getBizKey();
         if (!validate(todoShowNeedContentRequest.getKey())) {
             result.setStatus(ResultStatusEnum.FAIL);
             return result;
         }
-        if (StringUtils.isBlank(bizKey)) {
+        List<String> bizKeys = todoShowNeedContentRequest.getBizKeys();
+        if (bizKeys == null || bizKeys.size() == 0) {
             result.setStatus(ResultStatusEnum.PARAM_ERROR);
             return result;
         }
 
-        // 获取实体ID
-        Integer objId = null;
-        if (bizKey.indexOf(":") != -1)  {
-            String substring = bizKey.substring(bizKey.indexOf(":") + 1);
-            if (StringUtils.isNumeric(substring)) {
-                objId = Integer.parseInt(substring);
+        // 将业务标识分类
+        final Map<String, List<Integer>> bizMap = new HashMap<>();
+        bizKeys.stream().forEach(bizKey -> {
+            String[] split = bizKey.split(":");
+            if (split.length == 2)  {
+                if (StringUtils.isNumeric(split[1])) {
+                    List<Integer> list = bizMap.get(split[0]);
+                    if (list == null) {
+                        list = new ArrayList<>();
+                        bizMap.put(split[0], list);
+                    }
+                    list.add(Integer.parseInt(split[1]));
+                }
+            }
+        });
+
+        // 查询订单的采购号
+        List<Integer> orderIds = bizMap.get("order");
+        if (orderIds != null && orderIds.size() > 0) {
+            Map<Integer,String> contractMap = orderService.findContractsByOrderIds(orderIds);
+            for (Map.Entry<Integer,String> entry: contractMap.entrySet()) {
+                data.put("order:" + entry.getKey(), entry.getValue());
             }
         }
-        if (objId == null) {
-            result.setStatus(ResultStatusEnum.DATA_NULL);
-            return result;
-        }
-        // 获取实际业务的编号
-        if (todoShowNeedContentRequest.getBizKey().startsWith("order:")) {
-            // 订单审核流程
-            Order order = orderService.findOrderById(objId);
-            if (order != null && StringUtils.isNotBlank(order.getContractNo())) {
-                data.put("needContent", order.getContractNo());
-            }
-        } else if (todoShowNeedContentRequest.getBizKey().startsWith("deliver_consign:")) {
-            DeliverConsign deliverConsign = deliverConsignService.selectById(objId);
-            if (deliverConsign != null) {
-                data.put("needContent", deliverConsign.getDeliverConsignNo());
-            }
-        } else if (todoShowNeedContentRequest.getBizKey().startsWith("purch:")) {
-            Purch purch = purchService.selectById(objId);
-            if (purch != null) {
-                data.put("needContent", purch.getPurchNo());
+        // 查询订舱号
+        List<Integer> deliverConsignIds = bizMap.get("deliver_consign");
+        if (deliverConsignIds != null && deliverConsignIds.size() > 0) {
+            Map<Integer,String> deliverConsignNoMap = deliverConsignService.findDeliverConsignNoByDeliverConsignIds(deliverConsignIds);
+            for (Map.Entry<Integer,String> entry: deliverConsignNoMap.entrySet()) {
+                data.put("deliver_consign:" + entry.getKey(), entry.getValue());
             }
         }
+        // 查询采购号
+        List<Integer> purchIds = bizMap.get("purch");
+        if (purchIds != null && purchIds.size() > 0) {
+            Map<Integer,String> purchNoMap = purchService.findPurchNoByPurchIds(purchIds);
+            for (Map.Entry<Integer,String> entry: purchNoMap.entrySet()) {
+                data.put("purch:" + entry.getKey(), entry.getValue());
+            }
+        }
+
         if (data.size() == 0) {
             result.setStatus(ResultStatusEnum.DATA_NULL);
         }

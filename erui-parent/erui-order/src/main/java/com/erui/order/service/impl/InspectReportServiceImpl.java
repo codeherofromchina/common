@@ -317,10 +317,10 @@ public class InspectReportServiceImpl implements InspectReportService {
             throw new Exception(String.format("%s%s%s", "传入质检商品数量不正确", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The number of commodities introduced to the quality inspection is incorrect"));
         }
         boolean hegeFlag = true;
-        int hegeNum = 0;    //合格商品总数量
+        int hegeNum = 0;    // 合格商品总数量
 
         int sum = 0;  // 不合格商品总数量
-        Project project = null; //项目信息
+        Project project = null; // 项目信息
 
         for (InspectApplyGoods applyGoods : inspectGoodsList) {
             InspectApplyGoods paramApplyGoods = inspectGoodsMap.get(applyGoods.getId());
@@ -355,7 +355,7 @@ public class InspectReportServiceImpl implements InspectReportService {
             }
             applyGoods.setUnqualifiedDesc(paramApplyGoods.getUnqualifiedDesc());
             // 如果有不合格商品，则必须有不合格类型
-            if (!hegeFlag && paramApplyGoods.getUnqualifiedType() != null && unqualified > 0) {
+            if (!hegeFlag && (paramApplyGoods.getUnqualifiedType() == null || paramApplyGoods.getUnqualifiedType() == 0)&& unqualified > 0) {
                 throw new Exception(String.format("%s%s%s", "商品(SKU:" + goods.getSku() + ")的不合格类型不能为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unqualified Types of Unqualified Commodities (SKU:" + goods.getSku() + ") can not be empty"));
             }
             applyGoods.setUnqualifiedType(paramApplyGoods.getUnqualifiedType());
