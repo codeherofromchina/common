@@ -38,7 +38,7 @@ public class OrderServiceImpl implements OrderService {
         OrderExample.Criteria criteria = example.createCriteria();
         criteria.andProcessIdEqualTo(processId);
         List<Order> orders = orderMapper.selectByExample(example);
-        if (orders != null || orders.size() > 0) {
+        if (orders != null && orders.size() > 0) {
             return orders.get(0);
         }
         return null;
