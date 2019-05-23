@@ -236,7 +236,7 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
                 if (deliverDetail.getDeliverConsign() != null && deliverDetail.getDeliverConsign().getOrder().getOrderSource() == 4) {
                     if (StringUtils.isNotBlank(eruiToken)) {
                         Map<String, Object> jsonMap = new HashMap<>();
-                        jsonMap.put("exportId", deliverDetail.getId());
+                        jsonMap.put("exportId", deliverDetail.getDeliverConsign().getId());
                         jsonMap.put("exportStatus", "SHIPPEND");
                         Map<String, String> header = new HashMap<>();
                         header.put(CookiesUtil.TOKEN_NAME, eruiToken);
