@@ -141,6 +141,9 @@ public class ProjectController {
         // 修改项目的商品风险等级
         if(!StringUtils.isBlank(pProject.getQualityInspectType())){
             projectService.updateProjectQualityInspectType(pProject);
+            if (StringUtils.isNotBlank(pProject.getTaskId())) {
+                return new Result<>();
+            }
         }
 //        project.setCheckLogId(checkLogId);
 
