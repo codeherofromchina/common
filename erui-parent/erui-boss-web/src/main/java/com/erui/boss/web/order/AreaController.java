@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,10 +56,28 @@ public class AreaController {
      */
     @RequestMapping(value = "a1")
     @Transactional
-    public Result<Object> a1() {
+    public Result<Object> a1(HttpServletRequest request) {
+        String servletPath = request.getServletPath();
+        System.out.println(servletPath);
+        String getContextPath = request.getContextPath();
+        StringBuffer requestURL = request.getRequestURL();
+
         Map<String, Object> map1 = new HashMap();
         map1.put("abc", str);
         map1.put("abc2", "shuaiguo222222222");
+        map1.put("servletPath", servletPath);
+        map1.put("getContextPath", getContextPath);
+        map1.put("requestURL", requestURL);
+
+        System.out.println("0------------");
+        System.out.println(request.getContextPath() == null);// /wkwm
+        System.out.println(request.getPathInfo());// null
+        System.out.println(request.getPathTranslated());// null
+        System.out.println(request.getQueryString()); // custNo=001&authType=2
+        System.out.println(request.getRequestURI());// /wkwm/wx/auth/view
+        System.out.println(request.getRequestURL().toString());// http://192.168.2.78/wkwm/wx/auth/view
+        System.out.println(request.getServletPath());
+        System.out.println("0------------");
         return new Result<>(map1);
 
 
