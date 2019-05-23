@@ -129,13 +129,6 @@ public class ProjectController {
         if (project == null) {
             return new Result<>(ResultStatusEnum.PROJECT_NOT_EXIST);
         }
-        // 获取当前登录用户ID并比较是否是当前用户审核
-        Object userId = request.getSession().getAttribute("userid");
-        Object realname = request.getSession().getAttribute("realname");
-        String auditingUserIds = project.getAuditingUserId();
-        if (auditingUserIds == null || !equalsAny(String.valueOf(userId), auditingUserIds)) {
-            return new Result<>(ResultStatusEnum.NOT_NOW_AUDITOR);
-        }
 
         // 判断是否是驳回并判断原因参数
         boolean rejectFlag = "-1".equals(type);
