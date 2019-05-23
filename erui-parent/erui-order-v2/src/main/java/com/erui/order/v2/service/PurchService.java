@@ -41,6 +41,7 @@ public interface PurchService {
      */
     Purch selectById(Integer id);
 
+
     /**
      * 采购ID查询采购号和采购ID的对应关系
      * @param purchIds
