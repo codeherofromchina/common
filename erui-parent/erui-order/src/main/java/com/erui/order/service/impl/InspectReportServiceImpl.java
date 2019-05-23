@@ -320,7 +320,7 @@ public class InspectReportServiceImpl implements InspectReportService {
         int hegeNum = 0;    //合格商品总数量
 
         int sum = 0;  // 不合格商品总数量
-        Project project = null; //项目信息
+        Project project = null; // 项目信息
 
         for (InspectApplyGoods applyGoods : inspectGoodsList) {
             InspectApplyGoods paramApplyGoods = inspectGoodsMap.get(applyGoods.getId());
