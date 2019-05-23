@@ -1325,7 +1325,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
                 if (subtract1.compareTo(BigDecimal.valueOf(0)) == -1) {   //先判断是否有预收，预收够不够本次发货的
 
-                    //判断授信额度够不够
+                    // 判断授信额度够不够
                     BigDecimal add1 = divide.add(subtract1);
 
                     if (add1.compareTo(BigDecimal.valueOf(0)) == 1 || add1.compareTo(BigDecimal.valueOf(0)) == 0) {  //可用授信额度 大于 使用的授信的额度 或者等于时 ，  可以发货
