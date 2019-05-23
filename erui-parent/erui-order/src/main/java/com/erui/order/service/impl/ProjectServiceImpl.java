@@ -302,9 +302,18 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateProjectQualityInspectType(Project project) throws Exception {
+
         Project projectUpdate = findById(project.getId());
         projectUpdate.setQualityInspectType(project.getQualityInspectType().trim());
         projectDao.save(projectUpdate);
+        // 2019-05-23 添加完成业务流节点任务
+        String eruitoken = (String) ThreadLocalUtil.getObject();
+        String taskId = project.getTaskId();
+        if (StringUtils.isNotBlank(taskId)) {
+            Map<String, Object> localVariables = new HashMap<>();
+            localVariables.put("audit_status", "APPROVED");
+            BpmUtils.completeTask(taskId, eruitoken, null, localVariables, "同意");
+        }
         return true;
     }
 
