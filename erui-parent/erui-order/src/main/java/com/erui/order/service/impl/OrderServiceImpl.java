@@ -1093,6 +1093,8 @@ public class OrderServiceImpl implements OrderService {
                         break;
                     case 6:
                         // 国内订单
+                        // 国内订单需要传递订单的人民币金额
+                        bpmInitVar.put("order_amount", addOrderVo.getTotalPrice().doubleValue());
                         processResp = BpmUtils.startProcessInstanceByKey("domestic_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
                         if ("Y".equals(task_fn_check)) {
                             orderUpdate.setAuditingProcess("task_fn,task_la,task_fa"); //第一个节点通知失败，写固定第一个节点
@@ -1413,6 +1415,7 @@ public class OrderServiceImpl implements OrderService {
                     break;
                 case 6:
                     // 国内订单
+                    bpmInitVar.put("order_amount", addOrderVo.getTotalPrice().doubleValue());
                     processResp = BpmUtils.startProcessInstanceByKey("domestic_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
                     if ("Y".equals(task_fn_check)) {
                         order1.setAuditingProcess("task_fn,task_la,task_fa"); //第一个节点通知失败，写固定第一个节点
