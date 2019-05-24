@@ -261,7 +261,8 @@ public class BpmNotifyController {
      */
     @RequestMapping(value = "rejectPurch", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result rejectPurch(@RequestBody Map<String, String> params) {
-        // 验证安全性，// 如果秘钥不正确，返回失败
+        // 验证安全性，
+        // 如果秘钥不正确，返回失败
         if (!validate(params.get("key"))) {
             return new Result<>(ResultStatusEnum.FAIL);
         }
