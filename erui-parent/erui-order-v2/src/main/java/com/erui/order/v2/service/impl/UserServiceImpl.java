@@ -49,4 +49,22 @@ public class UserServiceImpl implements UserService {
         }
         return null;
     }
+
+
+    @Override
+    public User findUserNoByUserNo(String userNo) {
+        if (StringUtils.isBlank(userNo)) {
+            return null;
+        }
+        UserExample example = new UserExample();
+        UserExample.Criteria criteria = example.createCriteria();
+        criteria.andUserNoEqualTo(userNo).andDeletedFlagEqualTo("N")
+                .andStatusEqualTo("NORMAL");
+
+        List<User> Users = UserMapper.selectByExample(example);
+        if (Users != null && Users.size() > 0) {
+            return Users.get(0);
+        }
+        return null;
+    }
 }

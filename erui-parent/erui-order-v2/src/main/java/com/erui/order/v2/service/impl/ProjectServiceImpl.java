@@ -62,19 +62,28 @@ public class ProjectServiceImpl implements ProjectService {
         }
         // 设置审核人
         // 通过工号查找用户ID
-        Long userId = userService.findIdByUserNo(assignee);
-        if (StringUtils.isNotBlank(audiRemark)) {
-            if (userId != null && !audiRemark.contains("," + userId + ",")) {
-                audiRemark += "," + userId + ",";
+        User user = userService.findUserNoByUserNo(assignee);
+        if (user != null) {
+            Long userId = user.getId();
+            if (StringUtils.isNotBlank(audiRemark)) {
+                if (userId != null && !audiRemark.contains("," + userId + ",")) {
+                    audiRemark += "," + userId + ",";
+                }
+            } else if (userId != null) {
+                audiRemark = "," + userId + ",";
             }
-        } else if (userId != null) {
-            audiRemark = "," + userId + ",";
         }
         // 更新修正后的状态
         Project projectSelective = new Project();
         projectSelective.setId(project.getId());
         projectSelective.setAuditingProcess(auditingProcess2);
         projectSelective.setAudiRemark(audiRemark);
+        if ("task_pc".equals(auditingProcess) && user != null) {
+            // 品控审批的，则设置品控负责人
+            projectSelective.setQualityUid(user.getId().intValue());
+            projectSelective.setQualityName(user.getName());
+
+        }
         projectMapper.updateByPrimaryKeySelective(projectSelective);
     }
 
