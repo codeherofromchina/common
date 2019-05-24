@@ -175,20 +175,14 @@ public class PurchServiceImpl implements PurchService {
      */
     @Override
     public void rejectPurch(Integer id) {
-        PurchGoodsExample example = new PurchGoodsExample();
-        PurchGoodsExample.Criteria criteria = example.createCriteria();
-        criteria.andPurchIdEqualTo(id);
-
-        List<PurchGoods>purchGoodsList = purchGoodsMapper.selectByExample(example);
-        if(purchGoodsList != null){
-            for (PurchGoods purchGoods : purchGoodsList){
-                Goods goods = goodsMapper.selectByPrimaryKey(purchGoods.getGoodsId());
-                goods.setPurchasedNum(goods.getPurchasedNum() - purchGoods.getPurchaseNum());
-                goodsMapper.updateByPrimaryKey(goods);
-                PurchContractGoods purchContractGoods = purchContractGoodsMapper.selectByPrimaryKey(purchGoods.getPurchContractId());
-                purchContractGoods.setPurchasedNum(purchContractGoods.getPurchasedNum() - purchGoods.getPurchaseNum());
-                purchContractGoodsMapper.updateByPrimaryKeySelective(purchContractGoods);
-            }
+        // 查询采购
+        Purch purch = purchMapper.selectByPrimaryKey(id);
+        if (purch == null) {
+            return;
         }
+        Purch purchSelective = new Purch();
+        purchSelective.setId(purch.getId());
+        purchSelective.setAuditingStatus(3); // 设置为审核驳回 3：驳回
+        purchMapper.updateByPrimaryKeySelective(purchSelective);
     }
 }
