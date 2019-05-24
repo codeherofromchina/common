@@ -92,6 +92,7 @@ public class Project {
     @Column(name = "quality_name")
     private String qualityName;
 
+
     @Column(name = "business_uid")
     private Integer businessUid;
 
