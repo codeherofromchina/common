@@ -1,5 +1,8 @@
 package com.erui.order.v2.service.impl;
 
+import com.erui.order.v2.dao.GoodsMapper;
+import com.erui.order.v2.dao.PurchContractGoodsMapper;
+import com.erui.order.v2.dao.PurchGoodsMapper;
 import com.erui.order.v2.dao.PurchMapper;
 import com.erui.order.v2.model.*;
 import com.erui.order.v2.service.UserService;
@@ -28,6 +31,12 @@ public class PurchServiceImpl implements PurchService {
     private UserService userService;
     @Autowired
     private ProjectService projectService;
+    @Autowired
+    private PurchGoodsMapper purchGoodsMapper;
+    @Autowired
+    private GoodsMapper goodsMapper;
+    @Autowired
+    private PurchContractGoodsMapper purchContractGoodsMapper;
 
     /**
      * 根据业务流的实例ID查找订单信息
@@ -157,5 +166,29 @@ public class PurchServiceImpl implements PurchService {
             result = new HashMap<>();
         }
         return result;
+    }
+
+    /**
+     * 驳回采购订单返还已采购数量
+     *
+     * @param id
+     */
+    @Override
+    public void rejectPurch(Integer id) {
+        PurchGoodsExample example = new PurchGoodsExample();
+        PurchGoodsExample.Criteria criteria = example.createCriteria();
+        criteria.andPurchIdEqualTo(id);
+
+        List<PurchGoods>purchGoodsList = purchGoodsMapper.selectByExample(example);
+        if(purchGoodsList != null){
+            for (PurchGoods purchGoods : purchGoodsList){
+                Goods goods = goodsMapper.selectByPrimaryKey(purchGoods.getGoodsId());
+                goods.setPurchasedNum(goods.getPurchasedNum() - purchGoods.getPurchaseNum());
+                goodsMapper.updateByPrimaryKey(goods);
+                PurchContractGoods purchContractGoods = purchContractGoodsMapper.selectByPrimaryKey(purchGoods.getPurchContractId());
+                purchContractGoods.setPurchasedNum(purchContractGoods.getPurchasedNum() - purchGoods.getPurchaseNum());
+                purchContractGoodsMapper.updateByPrimaryKeySelective(purchContractGoods);
+            }
+        }
     }
 }

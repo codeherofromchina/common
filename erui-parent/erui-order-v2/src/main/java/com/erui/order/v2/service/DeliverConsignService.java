@@ -48,4 +48,11 @@ public interface DeliverConsignService {
      */
     Map<Integer, String> findDeliverConsignNoByDeliverConsignIds(List<Integer> deliverConsignIds);
 
+    /**
+     * 驳回出口通知单补偿授信额度
+     *
+     * @param id
+     */
+    void rejectDeliverConsign(Integer id) throws Exception;
+
 }

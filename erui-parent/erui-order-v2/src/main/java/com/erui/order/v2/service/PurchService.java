@@ -48,4 +48,11 @@ public interface PurchService {
      * @return
      */
     Map<Integer, String> findPurchNoByPurchIds(List<Integer> purchIds);
+
+    /**
+     * 驳回采购订单返还已采购数量
+     *
+     * @param id
+     */
+    void rejectPurch(Integer id);
 }

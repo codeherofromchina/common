@@ -2,7 +2,9 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.pojo.TodoShowNeedContentRequest;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.order.OrderConf;
 import com.erui.order.v2.model.DeliverConsign;
 import com.erui.order.v2.model.Order;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -215,5 +218,68 @@ public class BpmNotifyController {
      */
     private boolean validate(String key) {
         return StringUtils.equalsIgnoreCase(key, orderConf.getBpmKey());
+    }
+
+    /**
+     * 驳回出口通知单补偿授信额度
+     *
+     * @param params
+     */
+    @RequestMapping(value = "rejectDeliverConsign", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result rejectDeliverConsign(@RequestBody Map<String, String> params) {
+        // 验证安全性，// 如果秘钥不正确，返回失败
+        if (!validate(params.get("key"))) {
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
+        Result<Object> result = new Result<>();
+        // 检查参数
+        String eruiToken = params.get("eruiToken");
+        if (StringUtils.isAnyBlank(eruiToken)) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        ThreadLocalUtil.setObject(eruiToken);
+        String id = params.get("id");
+        if (StringUtils.isAnyBlank(id)) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        try {
+            if(id == null){
+                return new Result<>(ResultStatusEnum.FAIL).setMsg("id不能为空！");
+            }else {
+                deliverConsignService.rejectDeliverConsign(Integer.parseInt(id));
+            }
+        }catch (Exception e){
+            return new Result<>(ResultStatusEnum.FAIL).setMsg(e.getMessage());
+        }
+        return result;
+    }
+
+    /**
+     * 驳回出口通知单补偿授信额度
+     *
+     * @param params
+     */
+    @RequestMapping(value = "rejectPurch", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result rejectPurch(@RequestBody Map<String, String> params) {
+        // 验证安全性，// 如果秘钥不正确，返回失败
+        if (!validate(params.get("key"))) {
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
+        Result<Object> result = new Result<>();
+        // 检查参数
+        String id = params.get("id");
+        if (StringUtils.isAnyBlank(id)) {
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
+        }
+        try {
+            if(id == null){
+                return new Result<>(ResultStatusEnum.FAIL).setMsg("id不能为空！");
+            }else {
+                purchService.rejectPurch(Integer.parseInt(id));
+            }
+        }catch (Exception e){
+            return new Result<>(ResultStatusEnum.FAIL).setMsg(e.getMessage());
+        }
+        return result;
     }
 }
