@@ -1740,6 +1740,7 @@ public class PurchServiceImpl implements PurchService {
                     JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
                     save.setProcessId(processResp.getString("instanceId"));
                 } else {
+
                     // 完善订单任务调用
                     Map<String, Object> localVariables = new HashMap<>();
                     localVariables.put("audit_status", "APPROVED");
