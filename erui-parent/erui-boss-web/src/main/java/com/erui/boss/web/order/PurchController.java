@@ -132,6 +132,7 @@ public class PurchController {
             continueFlag = false;
             errorMsg = "采购合同号不能为空";
         }
+
         if (continueFlag) {
             try {
                 boolean flag = false;
