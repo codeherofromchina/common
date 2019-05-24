@@ -1121,6 +1121,7 @@ public class OrderServiceImpl implements OrderService {
                 if (orderUpdate.getFinancing() != null && orderUpdate.getFinancing() == 1) {
                     task_fn_check = "Y";
                 }
+
                 bpmVar.put("task_fn_check", task_fn_check);
                 bpmVar.put("audit_status", "APPROVED");
                 if (StringUtils.isNotBlank(techicalUserNo)) {
