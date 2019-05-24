@@ -180,6 +180,7 @@ public class PurchServiceImpl implements PurchService {
         if (purch == null) {
             return;
         }
+
         Purch purchSelective = new Purch();
         purchSelective.setId(purch.getId());
         purchSelective.setAuditingStatus(3); // 设置为审核驳回 3：驳回
