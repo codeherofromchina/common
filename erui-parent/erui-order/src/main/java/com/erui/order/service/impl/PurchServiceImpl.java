@@ -1739,6 +1739,8 @@ public class PurchServiceImpl implements PurchService {
                     bpmInitVar.put("task_la_check", StringUtils.equals("3", purch.getContractVersion()) ? "Y" : "N"); // 标准版本
                     JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
                     save.setProcessId(processResp.getString("instanceId"));
+                    save.setAuditingProcess("task_pu,task_pm"); // 第一个节点通知失败，写固定前两个并行的节点
+                    save.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
                 } else {
                     // 完善订单任务调用
                     Map<String, Object> localVariables = new HashMap<>();
@@ -1747,8 +1749,6 @@ public class PurchServiceImpl implements PurchService {
                     localVariables.put("task_la_check", StringUtils.equals("3", save.getContractVersion()) ? "Y" : "N"); // 标准版本
                     BpmUtils.completeTask(taskId, eruiToken, null, localVariables, "同意");
                 }
-                save.setAuditingProcess("task_pu,task_pm"); // 第一个节点通知失败，写固定前两个并行的节点
-                save.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
             }
             if (save.getStatus() == 2) {
                 List<Project> projects = save.getProjects();

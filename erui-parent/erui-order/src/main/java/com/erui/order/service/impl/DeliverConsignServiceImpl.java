@@ -281,14 +281,15 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 JSONObject processResp = BpmUtils.startProcessInstanceByKey("booking_order", null, eruitoken, "deliver_consign:" + deliverConsign1.getId(), null);
                 // 设置订单和业务流标示关联
                 deliverConsign1.setProcessId(processResp.getString("instanceId"));
+                deliverConsign1.setAuditingProcess("task_cm"); // 第一个节点通知失败，写固定的第一个节点
+                deliverConsign1.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
             } else {
                 // 完善订单任务调用
                 Map<String, Object> localVariables = new HashMap<>();
                 localVariables.put("audit_status", "APPROVED");
                 BpmUtils.completeTask(taskId, eruitoken, null, localVariables, "同意");
             }
-            deliverConsign1.setAuditingProcess("task_cm"); // 第一个节点通知失败，写固定的第一个节点
-            deliverConsign1.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
+
         }
         List<Attachment> attachmentList = deliverConsign.getAttachmentSet();
         Map<Integer, Attachment> dbAttahmentsMap = deliverConsignUpdate.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));

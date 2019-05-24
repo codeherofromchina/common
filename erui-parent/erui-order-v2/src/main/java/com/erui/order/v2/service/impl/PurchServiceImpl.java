@@ -10,9 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -98,7 +96,10 @@ public class PurchServiceImpl implements PurchService {
         Integer auditingStatus = 2; // 2:审核中
         String auditingProcess2 = purch.getAuditingProcess();
         if (StringUtils.isNotBlank(auditingProcess2)) {
-            auditingProcess2 = auditingProcess2 + "," + auditingProcess;
+            Set<String> set = new HashSet<>(Arrays.asList(auditingProcess2.split(",")));
+            if (!set.contains(auditingProcess)) {
+                auditingProcess2 = auditingProcess2 + "," + auditingProcess;
+            }
         } else {
             auditingProcess2 = auditingProcess;
         }
