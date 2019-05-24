@@ -1054,6 +1054,12 @@ public class OrderServiceImpl implements OrderService {
         }
         //审核日志 钉钉通知 和待办
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            // 事业部项目负责人
+            Integer technicalId = orderUpdate.getTechnicalId();
+            String techicalUserNo = null;
+            if (technicalId != null) {
+                techicalUserNo = userService.findUserNoById(technicalId.longValue());
+            }
             // 初始化订单提交后的后续工作
             if (StringUtils.isBlank(addOrderVo.getTaskId())) {
                 // 调用业务流，开启业务审核流程系统 // 非国内订单审批流程
@@ -1064,6 +1070,10 @@ public class OrderServiceImpl implements OrderService {
                     task_fn_check = "Y";
                 }
                 bpmInitVar.put("task_fn_check", task_fn_check);
+                if (StringUtils.isNotBlank(techicalUserNo)) {
+                    // ID -> userNo
+                    bpmInitVar.put("assignee_pm",techicalUserNo);
+                }
                 JSONObject processResp = null;
                 switch (addOrderVo.getOrderCategory()) {
                     case 1:
@@ -1113,6 +1123,10 @@ public class OrderServiceImpl implements OrderService {
                 }
                 bpmVar.put("task_fn_check", task_fn_check);
                 bpmVar.put("audit_status", "APPROVED");
+                if (StringUtils.isNotBlank(techicalUserNo)) {
+                    // ID -> userNo
+                    bpmVar.put("assignee_pm",techicalUserNo);
+                }
                 // 完善订单节点，完成任务
                 BpmUtils.completeTask(addOrderVo.getTaskId(), eruiToken, null, bpmVar, "同意");
             }
