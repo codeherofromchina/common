@@ -298,6 +298,7 @@ public class OrderController {
         if (!continueFlag) {
             return result;
         }
+
         Integer id;
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
