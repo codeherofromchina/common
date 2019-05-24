@@ -1106,6 +1106,12 @@ public class OrderServiceImpl implements OrderService {
                 orderUpdate.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
             } else {
                 Map<String, Object> bpmVar = new HashMap<>();
+                bpmVar.put("order_amount", orderUpdate.getTotalPriceUsd().doubleValue());
+                String task_fn_check = "N";
+                if (orderUpdate.getFinancing() != null && orderUpdate.getFinancing() == 1) {
+                    task_fn_check = "Y";
+                }
+                bpmVar.put("task_fn_check", task_fn_check);
                 bpmVar.put("audit_status", "APPROVED");
                 // 完善订单节点，完成任务
                 BpmUtils.completeTask(addOrderVo.getTaskId(), eruiToken, null, bpmVar, "同意");
