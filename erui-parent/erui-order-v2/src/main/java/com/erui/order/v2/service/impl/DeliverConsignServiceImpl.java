@@ -123,7 +123,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         Integer auditingStatus = 2; // 2:审核中
         String auditingProcess2 = deliverConsign.getAuditingProcess();
         if (StringUtils.isNotBlank(auditingProcess2)) {
-            auditingProcess2 = auditingProcess2 + "," + auditingProcess;
+            Set<String> set = new HashSet<>(Arrays.asList(auditingProcess2.split(",")));
+            if (!set.contains(auditingProcess)) {
+                auditingProcess2 = auditingProcess2 + "," + auditingProcess;
+            }
         } else {
             auditingProcess2 = auditingProcess;
         }
