@@ -337,6 +337,16 @@ public class ProjectServiceImpl implements ProjectService {
             localVariables.put("audit_status", "APPROVED");
             BpmUtils.completeTask(taskId, eruitoken, null, localVariables, "同意");
         }
+        // 设置流程进度显示下已审核点
+        String auditingProcess = projectUpdate.getAuditingProcess();
+        if (auditingProcess != null) {
+            auditingProcess = auditingProcess.replace("task_pc", "");
+            auditingProcess = StringUtils.strip(auditingProcess, ",");
+            if (StringUtils.isBlank(auditingProcess)) {
+                auditingProcess = "task_gm";
+            }
+        }
+        projectUpdate.setAuditingProcess(auditingProcess);
         return true;
     }
 
