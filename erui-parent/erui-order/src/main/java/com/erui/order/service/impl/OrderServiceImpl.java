@@ -1131,6 +1131,16 @@ public class OrderServiceImpl implements OrderService {
                 }
                 // 完善订单节点，完成任务
                 BpmUtils.completeTask(addOrderVo.getTaskId(), eruiToken, null, bpmVar, "同意");
+                if (addOrderVo.getOrderCategory() == 6) {
+                    // 国内订单
+                    if ("Y".equals(task_fn_check)) {
+                        orderUpdate.setAuditingProcess("task_fn,task_la,task_fa"); //第一个节点通知失败，写固定第一个节点
+                    } else {
+                        orderUpdate.setAuditingProcess("task_la,task_fa"); //第一个节点通知失败，写固定第一个节点
+                    }
+                } else {
+                    orderUpdate.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
+                }
             }
 
             List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeAsc(orderUpdate.getId());
