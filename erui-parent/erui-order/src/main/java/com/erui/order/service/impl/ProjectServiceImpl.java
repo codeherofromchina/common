@@ -175,7 +175,7 @@ public class ProjectServiceImpl implements ProjectService {
                 Map<Integer, Attachment> dbAttahmentsMap = projectUpdate.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
                 attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, projectUpdate.getId(), Attachment.AttachmentCategory.PROJECT.getCode());
 
-                if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
+                if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum) && StringUtils.isNotBlank(projectUpdate.getProcessId())) {
                     // 现在这里是重点，现在的流程已经没有项目经理了，提交审核只能跑到这里来
                     // 完成项目的任务
                     Map<String, Object> localVariables = new HashMap<>();
