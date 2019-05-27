@@ -184,7 +184,6 @@ public class ProjectServiceImpl implements ProjectService {
                         localVariables.put("task_lg_check", "Y"); // 是否需要物流审批，现在是都需要物流审批
                         BpmUtils.completeTask(project.getTaskId(), eruiToken, null, localVariables, "同意");
                         // 设置下一流程进度，主要是因为当前项目操作中，异步回调此项目设置失败，再这里直接设置了 , 现货订单有区别/预投订单也有区别 TODO
-
                         projectUpdate.setAuditingStatus(2); // 审核中
                         switch (order.getOrderCategory()) {
                             case 1:
