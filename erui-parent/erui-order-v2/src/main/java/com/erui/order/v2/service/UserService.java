@@ -1,5 +1,7 @@
 package com.erui.order.v2.service;
 
+import com.erui.order.v2.model.User;
+
 /**
  * Created by wangxiaodan on 2018/5/7.
  */
@@ -16,4 +18,11 @@ public interface UserService {
      * @return
      */
     String findUserNoById(Long id);
+
+    /**
+     * 通过工号查询用户
+     * @param userNo
+     * @return
+     */
+    User findUserNoByUserNo(String userNo);
 }

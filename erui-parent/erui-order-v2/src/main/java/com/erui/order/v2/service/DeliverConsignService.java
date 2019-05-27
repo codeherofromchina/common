@@ -3,6 +3,9 @@ package com.erui.order.v2.service;
 import com.erui.order.v2.model.DeliverConsign;
 import com.erui.order.v2.model.Purch;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @Auther 王晓丹
  * @Date 2019/4/28 下午3:34
@@ -37,4 +40,19 @@ public interface DeliverConsignService {
      * @return
      */
     DeliverConsign selectById(Integer id);
+
+    /**
+     * 通过出口通知单ID查询出口通知单号和出口通知单ID的对应关系
+     * @param deliverConsignIds
+     * @return
+     */
+    Map<Integer, String> findDeliverConsignNoByDeliverConsignIds(List<Integer> deliverConsignIds);
+
+    /**
+     * 驳回出口通知单补偿授信额度
+     *
+     * @param id
+     */
+    void rejectDeliverConsign(Integer id) throws Exception;
+
 }

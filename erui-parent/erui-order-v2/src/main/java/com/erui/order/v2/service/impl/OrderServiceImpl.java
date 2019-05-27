@@ -11,11 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 新的订单业务类
  * 订单的新业务写到此业务类中
+ *
  * @Auther 王晓丹
  * @Date 2019/4/28 下午2:17
  */
@@ -29,11 +31,12 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * 根据业务流的实例ID查找订单信息
+     *
      * @param processId
      * @return
      */
     @Transactional(readOnly = true)
-    public Order findOrderByProcessId (String processId) {
+    public Order findOrderByProcessId(String processId) {
         OrderExample example = new OrderExample();
         OrderExample.Criteria criteria = example.createCriteria();
         criteria.andProcessIdEqualTo(processId);
@@ -43,6 +46,7 @@ public class OrderServiceImpl implements OrderService {
         }
         return null;
     }
+
 
     @Override
     public void updateAuditProcessDone(String processInstanceId, String auditingProcess, String assignee) {
@@ -96,7 +100,10 @@ public class OrderServiceImpl implements OrderService {
         Integer auditingStatus = 2; // 2:审核中
         String auditingProcess2 = order.getAuditingProcess();
         if (StringUtils.isNotBlank(auditingProcess2)) {
-            auditingProcess2 = auditingProcess2 + "," + auditingProcess;
+            Set<String> set = new HashSet<>(Arrays.asList(auditingProcess2.split(",")));
+            if (!set.contains(auditingProcess)) {
+                auditingProcess2 = auditingProcess2 + "," + auditingProcess;
+            }
         } else {
             auditingProcess2 = auditingProcess;
         }
@@ -118,9 +125,27 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    public void updateById(Integer id,Order order) {
+    public void updateById(Integer id, Order order) {
         order.setId(id);
         orderMapper.updateByPrimaryKey(order);
+    }
+
+    @Override
+    public Map<Integer, String> findContractsByOrderIds(List<Integer> orderIds) {
+        OrderExample example = new OrderExample();
+        OrderExample.Criteria criteria = example.createCriteria();
+        criteria.andIdIn(orderIds);
+        List<Order> orders = orderMapper.selectByExample(example);
+
+        Map<Integer, String> result = null;
+        if (orders != null && orders.size() > 0) {
+            result = orders.stream().collect(Collectors.toMap(vo -> vo.getId(), vo -> vo.getContractNo()));
+        }
+        if (result == null) {
+            result = new HashMap<>();
+        }
+
+        return result;
     }
 
     @Override

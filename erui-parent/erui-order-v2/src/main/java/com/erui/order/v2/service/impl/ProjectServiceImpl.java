@@ -10,8 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -63,21 +62,31 @@ public class ProjectServiceImpl implements ProjectService {
         }
         // 设置审核人
         // 通过工号查找用户ID
-        Long userId = userService.findIdByUserNo(assignee);
-        if (StringUtils.isNotBlank(audiRemark)) {
-            if (userId != null && !audiRemark.contains("," + userId + ",")) {
-                audiRemark += "," + userId + ",";
+        User user = userService.findUserNoByUserNo(assignee);
+        if (user != null) {
+            Long userId = user.getId();
+            if (StringUtils.isNotBlank(audiRemark)) {
+                if (userId != null && !audiRemark.contains("," + userId + ",")) {
+                    audiRemark += "," + userId + ",";
+                }
+            } else if (userId != null) {
+                audiRemark = "," + userId + ",";
             }
-        } else if (userId != null) {
-            audiRemark = "," + userId + ",";
         }
         // 更新修正后的状态
         Project projectSelective = new Project();
         projectSelective.setId(project.getId());
         projectSelective.setAuditingProcess(auditingProcess2);
         projectSelective.setAudiRemark(audiRemark);
+        if ("task_pc".equals(auditingProcess) && user != null) {
+            // 品控审批的，则设置品控负责人
+            projectSelective.setQualityUid(user.getId().intValue());
+            projectSelective.setQualityName(user.getName());
+
+        }
         projectMapper.updateByPrimaryKeySelective(projectSelective);
     }
+
 
     @Override
     public void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId) {
@@ -100,7 +109,10 @@ public class ProjectServiceImpl implements ProjectService {
 
         String auditingProcess2 = project.getAuditingProcess();
         if (StringUtils.isNotBlank(auditingProcess2)) {
-            auditingProcess2 = auditingProcess2 + "," + auditingProcess;
+            Set<String> set = new HashSet<>(Arrays.asList(auditingProcess2.split(",")));
+            if (!set.contains(auditingProcess)) {
+                auditingProcess2 = auditingProcess2 + "," + auditingProcess;
+            }
         } else {
             auditingProcess2 = auditingProcess;
         }

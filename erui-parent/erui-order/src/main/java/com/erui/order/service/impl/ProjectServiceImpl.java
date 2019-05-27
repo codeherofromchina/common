@@ -174,17 +174,40 @@ public class ProjectServiceImpl implements ProjectService {
                 List<Attachment> attachmentList = project.getAttachmentList();
                 Map<Integer, Attachment> dbAttahmentsMap = projectUpdate.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
                 attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, projectUpdate.getId(), Attachment.AttachmentCategory.PROJECT.getCode());
-
-                if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
+ 
+                if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum) && StringUtils.isNotBlank(projectUpdate.getProcessId())) {
                     // 现在这里是重点，现在的流程已经没有项目经理了，提交审核只能跑到这里来
                     // 完成项目的任务
                     Map<String, Object> localVariables = new HashMap<>();
                     localVariables.put("audit_status", "APPROVED");
                     localVariables.put("task_lg_check", "Y"); // 是否需要物流审批，现在是都需要物流审批
                     BpmUtils.completeTask(project.getTaskId(), eruiToken, null, localVariables, "同意");
-                    // 设置下一流程进度，主要是因为当前项目操作中，异步回调此项目设置失败，再这里直接设置了
-                    projectUpdate.setAuditingProcess("task_pc,task_lg,task_pu");
+                    // 设置下一流程进度，主要是因为当前项目操作中，异步回调此项目设置失败，再这里直接设置了 , 现货订单有区别/预投订单也有区别 TODO
+
                     projectUpdate.setAuditingStatus(2); // 审核中
+                    switch (order.getOrderCategory()) {
+                        case 1:
+                        case 4:
+                            // 预投订单/现货订单
+                            projectUpdate.setAuditingProcess("task_gm");
+                            break;
+                        case 3:
+                            projectUpdate.setAuditingProcess("task_pc,task_lg,task_pu");
+                        case 6:
+                            // 国内订单
+                            projectUpdate.setAuditingProcess("task_pu");
+                            break;
+                        default:
+                            Integer overseasSales = order.getOverseasSales();
+                            if (overseasSales != null && overseasSales == 3) {
+                                // 海外销售类型 为3 海外销（当地采购 走现货审核流程
+                                projectUpdate.setAuditingProcess("task_gm");
+                            } else {
+                                projectUpdate.setAuditingProcess("task_pc,task_lg,task_pu");
+                            }
+                    }
+
+                    // 设置审核人信息
                     String audiRemark = projectUpdate.getAudiRemark();
                     if (StringUtils.isBlank(audiRemark)) {
                         audiRemark = "";
@@ -315,8 +338,19 @@ public class ProjectServiceImpl implements ProjectService {
             localVariables.put("audit_status", "APPROVED");
             BpmUtils.completeTask(taskId, eruitoken, null, localVariables, "同意");
         }
+        // 设置流程进度显示下已审核点
+        String auditingProcess = projectUpdate.getAuditingProcess();
+        if (auditingProcess != null) {
+            auditingProcess = auditingProcess.replace("task_pc", "");
+            auditingProcess = StringUtils.strip(auditingProcess, ",");
+            if (StringUtils.isBlank(auditingProcess)) {
+                auditingProcess = "task_gm";
+            }
+        }
+        projectUpdate.setAuditingProcess(auditingProcess);
         return true;
     }
+
 
 
     /**

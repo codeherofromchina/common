@@ -152,7 +152,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                 dbpgs.setUpdateTime(now);
             }
         }
-
         dbPurchContract.setUpdateTime(now);
         // 提交时商品数量为0的商品不保存
         if(purchContract.getStatus() == PurchContract.StatusEnum.BEING.getCode()){

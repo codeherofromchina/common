@@ -29,6 +29,7 @@ public class Project {
     @JsonIgnore
     private Order order;
 
+
     @Transient
     private Integer oId;
     @OneToOne(mappedBy = "project", fetch = FetchType.LAZY)
@@ -90,6 +91,7 @@ public class Project {
 
     @Column(name = "quality_name")
     private String qualityName;
+
 
     @Column(name = "business_uid")
     private Integer businessUid;

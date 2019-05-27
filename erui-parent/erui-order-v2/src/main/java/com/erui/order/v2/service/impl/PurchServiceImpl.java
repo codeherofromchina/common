@@ -1,5 +1,8 @@
 package com.erui.order.v2.service.impl;
 
+import com.erui.order.v2.dao.GoodsMapper;
+import com.erui.order.v2.dao.PurchContractGoodsMapper;
+import com.erui.order.v2.dao.PurchGoodsMapper;
 import com.erui.order.v2.dao.PurchMapper;
 import com.erui.order.v2.model.*;
 import com.erui.order.v2.service.UserService;
@@ -10,7 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 新的项目业务类
@@ -27,6 +31,12 @@ public class PurchServiceImpl implements PurchService {
     private UserService userService;
     @Autowired
     private ProjectService projectService;
+    @Autowired
+    private PurchGoodsMapper purchGoodsMapper;
+    @Autowired
+    private GoodsMapper goodsMapper;
+    @Autowired
+    private PurchContractGoodsMapper purchContractGoodsMapper;
 
     /**
      * 根据业务流的实例ID查找订单信息
@@ -95,7 +105,10 @@ public class PurchServiceImpl implements PurchService {
         Integer auditingStatus = 2; // 2:审核中
         String auditingProcess2 = purch.getAuditingProcess();
         if (StringUtils.isNotBlank(auditingProcess2)) {
-            auditingProcess2 = auditingProcess2 + "," + auditingProcess;
+            Set<String> set = new HashSet<>(Arrays.asList(auditingProcess2.split(",")));
+            if (!set.contains(auditingProcess)) {
+                auditingProcess2 = auditingProcess2 + "," + auditingProcess;
+            }
         } else {
             auditingProcess2 = auditingProcess;
         }
@@ -137,5 +150,45 @@ public class PurchServiceImpl implements PurchService {
     public Purch selectById(Integer id) {
         Purch purch = purchMapper.selectByPrimaryKey(id);
         return purch;
+    }
+
+    @Override
+    public Map<Integer, String> findPurchNoByPurchIds(List<Integer> purchIds) {
+        PurchExample example = new PurchExample();
+        PurchExample.Criteria criteria = example.createCriteria();
+        criteria.andIdIn(purchIds);
+        List<Purch> purches = purchMapper.selectByExample(example);
+        Map<Integer, String> result = null;
+        if (purches != null && purches.size() > 0) {
+            result = purches.stream().collect(Collectors.toMap(vo -> vo.getId(), vo -> vo.getPurchNo()));
+        }
+        if (result == null) {
+            result = new HashMap<>();
+        }
+        return result;
+    }
+
+    /**
+     * 驳回采购订单返还已采购数量
+     *
+     * @param id
+     */
+    @Override
+    public void rejectPurch(Integer id) {
+        PurchGoodsExample example = new PurchGoodsExample();
+        PurchGoodsExample.Criteria criteria = example.createCriteria();
+        criteria.andPurchIdEqualTo(id);
+
+        List<PurchGoods>purchGoodsList = purchGoodsMapper.selectByExample(example);
+        if(purchGoodsList != null){
+            for (PurchGoods purchGoods : purchGoodsList){
+                Goods goods = goodsMapper.selectByPrimaryKey(purchGoods.getGoodsId());
+                goods.setPurchasedNum(goods.getPurchasedNum() - purchGoods.getPurchaseNum());
+                goodsMapper.updateByPrimaryKey(goods);
+                PurchContractGoods purchContractGoods = purchContractGoodsMapper.selectByPrimaryKey(purchGoods.getPurchContractId());
+                purchContractGoods.setPurchasedNum(purchContractGoods.getPurchasedNum() - purchGoods.getPurchaseNum());
+                purchContractGoodsMapper.updateByPrimaryKeySelective(purchContractGoods);
+            }
+        }
     }
 }

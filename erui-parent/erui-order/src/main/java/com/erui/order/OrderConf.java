@@ -68,6 +68,7 @@ public class OrderConf implements InitializingBean {
         return dingSendSms;
     }
 
+
     public void setDingSendSms(String dingSendSms) {
         this.dingSendSms = dingSendSms;
     }

@@ -1054,6 +1054,12 @@ public class OrderServiceImpl implements OrderService {
         }
         //审核日志 钉钉通知 和待办
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
+            // 事业部项目负责人
+            Integer technicalId = orderUpdate.getTechnicalId();
+            String techicalUserNo = null;
+            if (technicalId != null) {
+                techicalUserNo = userService.findUserNoById(technicalId.longValue());
+            }
             // 初始化订单提交后的后续工作
             if (StringUtils.isBlank(addOrderVo.getTaskId())) {
                 // 调用业务流，开启业务审核流程系统 // 非国内订单审批流程
@@ -1064,6 +1070,10 @@ public class OrderServiceImpl implements OrderService {
                     task_fn_check = "Y";
                 }
                 bpmInitVar.put("task_fn_check", task_fn_check);
+                if (StringUtils.isNotBlank(techicalUserNo)) {
+                    // ID -> userNo
+                    bpmInitVar.put("assignee_pm",techicalUserNo);
+                }
                 JSONObject processResp = null;
                 switch (addOrderVo.getOrderCategory()) {
                     case 1:
@@ -1083,6 +1093,8 @@ public class OrderServiceImpl implements OrderService {
                         break;
                     case 6:
                         // 国内订单
+                        // 国内订单需要传递订单的人民币金额
+                        bpmInitVar.put("order_amount", addOrderVo.getTotalPrice().doubleValue());
                         processResp = BpmUtils.startProcessInstanceByKey("domestic_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
                         if ("Y".equals(task_fn_check)) {
                             orderUpdate.setAuditingProcess("task_fn,task_la,task_fa"); //第一个节点通知失败，写固定第一个节点
@@ -1106,9 +1118,30 @@ public class OrderServiceImpl implements OrderService {
                 orderUpdate.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
             } else {
                 Map<String, Object> bpmVar = new HashMap<>();
+                bpmVar.put("order_amount", orderUpdate.getTotalPriceUsd().doubleValue());
+                String task_fn_check = "N";
+                if (orderUpdate.getFinancing() != null && orderUpdate.getFinancing() == 1) {
+                    task_fn_check = "Y";
+                }
+
+                bpmVar.put("task_fn_check", task_fn_check);
                 bpmVar.put("audit_status", "APPROVED");
+                if (StringUtils.isNotBlank(techicalUserNo)) {
+                    // ID -> userNo
+                    bpmVar.put("assignee_pm",techicalUserNo);
+                }
                 // 完善订单节点，完成任务
                 BpmUtils.completeTask(addOrderVo.getTaskId(), eruiToken, null, bpmVar, "同意");
+                if (addOrderVo.getOrderCategory() == 6) {
+                    // 国内订单
+                    if ("Y".equals(task_fn_check)) {
+                        orderUpdate.setAuditingProcess("task_fn,task_la,task_fa"); //第一个节点通知失败，写固定第一个节点
+                    } else {
+                        orderUpdate.setAuditingProcess("task_la,task_fa"); //第一个节点通知失败，写固定第一个节点
+                    }
+                } else {
+                    orderUpdate.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
+                }
             }
 
             List<OrderLog> orderLog = orderLogDao.findByOrderIdOrderByCreateTimeAsc(orderUpdate.getId());
@@ -1392,6 +1425,7 @@ public class OrderServiceImpl implements OrderService {
                     break;
                 case 6:
                     // 国内订单
+                    bpmInitVar.put("order_amount", addOrderVo.getTotalPrice().doubleValue());
                     processResp = BpmUtils.startProcessInstanceByKey("domestic_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
                     if ("Y".equals(task_fn_check)) {
                         order1.setAuditingProcess("task_fn,task_la,task_fa"); //第一个节点通知失败，写固定第一个节点
