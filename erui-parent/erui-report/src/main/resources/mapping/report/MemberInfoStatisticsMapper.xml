@@ -302,7 +302,7 @@
         erui_order.`order`, erui_order.`project`
         WHERE
         `order`.id = `project`.order_id AND `order`.order_category != 1 AND `order`.order_category != 3
-        AND `status` >= 3 AND `order`.delete_flag = 0
+        AND `status` in (3,4) AND `order`.delete_flag = 0
         <if test="startTime!=null and startTime!=''">
             AND `project`.start_date BETWEEN #{startTime} AND #{endTime}
         </if>
@@ -366,7 +366,7 @@
         AND t3.deleted_flag = 'N',
         erui_order.`project` AS t2
         WHERE
-        t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0 AND t1.order_category != 1 AND t1.order_category != 3
+        t1.id = t2.order_id AND t1.`status` in (3,4) AND t1.delete_flag = 0 AND t1.order_category != 1 AND t1.order_category != 3
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t3.`name`
         ORDER BY 2
@@ -394,7 +394,7 @@
         AND t3.deleted_flag = 'N',
         erui_order.`project` AS t2
         WHERE
-        t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0 AND t1.order_category != 1 AND t1.order_category != 3
+        t1.id = t2.order_id AND t1.`status` in (3,4) AND t1.delete_flag = 0 AND t1.order_category != 1 AND t1.order_category != 3
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t3.`name`
         ORDER BY 2
@@ -422,7 +422,7 @@
         AND t3.deleted_flag = 'N',
         erui_order.`project` AS t2
         WHERE
-        t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0 AND t1.order_category != 1 AND t1.order_category != 3
+        t1.id = t2.order_id AND t1.`status` in (3,4) AND t1.delete_flag = 0 AND t1.order_category != 1 AND t1.order_category != 3
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t3.`name`
         ORDER BY 2
@@ -444,7 +444,7 @@
                 AND t3.deleted_flag = 'N',
             erui_order.`project` AS t2
         WHERE
-            t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
+            t1.id = t2.order_id AND t1.`status` in (3,4) AND t1.delete_flag = 0
             AND t1.order_category != 1 AND t1.order_category != 3
                 AND t2.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t3.`name`
@@ -463,7 +463,7 @@
         AND t3.deleted_flag = 'N',
         erui_order.`project` AS t2
         WHERE
-        t1.id = t2.order_id AND t1.`status` >= 3 AND t1.delete_flag = 0
+        t1.id = t2.order_id AND t1.`status` in (3,4) AND t1.delete_flag = 0
         AND t1.order_category != 1 AND t1.order_category != 3
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t3.`name`

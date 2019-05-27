@@ -77,7 +77,7 @@
         erui_order.`order` t1,
         erui_order.`project` t2
         WHERE
-        t1.id = t2.order_id AND t1.`status` >= 3
+        t1.id = t2.order_id AND t1.`status` in (3,4)
         AND t2.start_date IS NOT NULL
         AND t1.acquire_id IS NOT NULL
         <if test="startTime!=null and endTime!=null">
