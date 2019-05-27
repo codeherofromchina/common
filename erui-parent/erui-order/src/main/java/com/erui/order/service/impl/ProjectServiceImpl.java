@@ -263,7 +263,6 @@ public class ProjectServiceImpl implements ProjectService {
                     backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTPROJRCT.getNum());    //功能访问路径标识
                     backLog2.setHostId(projectUpdate.getOrder().getId());
                     backLogService.updateBackLogByDelYns(backLog, backLog2);
-
                     //项目状态是提交状态  通知商务技术经办人办理采购申请
                     BackLog newBackLog = new BackLog();
                     newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHREQUISITION.getMsg());  //功能名称
