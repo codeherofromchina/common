@@ -132,7 +132,6 @@ public class ProjectController {
         // 获取当前登录用户ID并比较是否是当前用户审核
         Object userId = request.getSession().getAttribute("userid");
         Object realname = request.getSession().getAttribute("realname");
-
         // 判断是否是驳回并判断原因参数
         boolean rejectFlag = "-1".equals(type);
         if (rejectFlag && (StringUtils.isBlank(reason) || checkLogId == null)) {
