@@ -151,6 +151,18 @@ public class DeliverConsignBookingSpace {
 	@Column(name = "contact_information")
 	private String contactInformation;
 
+    /**
+     * 税号
+     */
+    @Column(name = "duty_paragraph")
+    private String dutyParagraph;
+
+    /**
+     * 邮编
+     */
+    @Column(name = "zip_code")
+    private String zipCode;
+
 	public Integer getId() {
 		return id;
 	}
@@ -334,4 +346,20 @@ public class DeliverConsignBookingSpace {
 	public void setDeliverConsign(DeliverConsign deliverConsign) {
 		this.deliverConsign = deliverConsign;
 	}
+
+    public String getDutyParagraph() {
+        return dutyParagraph;
+    }
+
+    public void setDutyParagraph(String dutyParagraph) {
+        this.dutyParagraph = dutyParagraph;
+    }
+
+    public String getZipCode() {
+        return zipCode;
+    }
+
+    public void setZipCode(String zipCode) {
+        this.zipCode = zipCode;
+    }
 }
