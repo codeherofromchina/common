@@ -184,6 +184,7 @@ public class PurchServiceImpl implements PurchService {
         Purch purchSelective = new Purch();
         purchSelective.setId(purch.getId());
         purchSelective.setAuditingStatus(3); // 设置为审核驳回 3：驳回
+        purchSelective.setQualityInspectStatus(0); // 如果是驳回则重置质检部重新评估风险等级状态 0：还未重新评估 1：已重新评估
         purchMapper.updateByPrimaryKeySelective(purchSelective);
     }
 }
