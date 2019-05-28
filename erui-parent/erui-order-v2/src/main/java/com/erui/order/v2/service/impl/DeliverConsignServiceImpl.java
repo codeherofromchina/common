@@ -460,7 +460,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     if (multiply.compareTo(BigDecimal.valueOf(0)) == 1) {  //本批次发货金额 大于 预收金额时，调用授信接口，修改授信额度
                         BigDecimal creditAvailable1 = deliverConsignByCreditData.getCreditAvailable().divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);// 可用授信额度
                         BigDecimal lineOfCredit1 = deliverConsignByCreditData.getLineOfCredit().divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);    //授信额度
-                        BigDecimal subtract2 = lineOfCredit1.subtract(creditAvailable1);   //所欠授信额度
+                        BigDecimal subtract2 = lineOfCredit1.subtract(creditAvailable1);   // 所欠授信额度
                         BigDecimal subtract3 = multiply; //可以返还的授信额度
                         if(subtract2.subtract(multiply).compareTo(BigDecimal.valueOf(0)) == -1){ // 所欠授信额度小于可以返还的授信额度
                             subtract3 = subtract2; // 返还所欠授信额度
