@@ -385,7 +385,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 inspectApply.getCreateUserName());
         dbInspectApply.setAttachmentList(attachmentlist);*/
         //  厂家发货且不检查
-//        boolean directInstockGoods = inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() &&
+//       boolean directInstockGoods = inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() &&
 //                inspectApply.getDirect() && !inspectApply.getOutCheck();
         // 去掉采购报检的那块空入判断↑代码2019-05-28
         boolean directInstockGoods = false;
