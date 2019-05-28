@@ -174,8 +174,8 @@ public class ProjectServiceImpl implements ProjectService {
                 List<Attachment> attachmentList = project.getAttachmentList();
                 Map<Integer, Attachment> dbAttahmentsMap = projectUpdate.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
                 attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, projectUpdate.getId(), Attachment.AttachmentCategory.PROJECT.getCode());
-
-                if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
+ 
+                if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum) && StringUtils.isNotBlank(projectUpdate.getProcessId())) {
                     // 现在这里是重点，现在的流程已经没有项目经理了，提交审核只能跑到这里来
                     if (StringUtils.isNotBlank(projectUpdate.getProcessId())) {
                         // 完成项目的任务
@@ -268,7 +268,6 @@ public class ProjectServiceImpl implements ProjectService {
                     backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTPROJRCT.getNum());    //功能访问路径标识
                     backLog2.setHostId(projectUpdate.getOrder().getId());
                     backLogService.updateBackLogByDelYns(backLog, backLog2);
-
                     //项目状态是提交状态  通知商务技术经办人办理采购申请
                     BackLog newBackLog = new BackLog();
                     newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHREQUISITION.getMsg());  //功能名称
@@ -303,6 +302,7 @@ public class ProjectServiceImpl implements ProjectService {
                 jsonMap.put("transportType", order.getTransportType());
                 jsonMap.put("totalPriceUsd", order.getTotalPriceUsd());
                 jsonMap.put("currencyBn", order.getCurrencyBn());
+                jsonMap.put("paymentModeBn", order.getPaymentModeBn());
                 jsonMap.put("goodDesc", order.getGoodsList());
                 Map<String, String> header = new HashMap<>();
                 header.put(CookiesUtil.TOKEN_NAME, eruiToken);
