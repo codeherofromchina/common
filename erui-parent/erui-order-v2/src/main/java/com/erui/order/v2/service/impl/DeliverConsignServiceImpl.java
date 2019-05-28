@@ -496,7 +496,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         String crmCode = order.getCrmCode();
         if (crmCode != null && crmCode != "") {
             try {
-
                 //拼接查询授信路径
                 String url = creditExtension + "V2/Buyercredit/getCreditInfoByCrmCode";
                 //获取token
