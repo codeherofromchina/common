@@ -132,6 +132,7 @@ public class PurchServiceImpl implements PurchService {
 
     @Override
     public void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId) {
+
         // 查询采购
         Purch purch = findPurchByProcessId(processInstanceId);
         if (purch == null) {
