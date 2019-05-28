@@ -155,8 +155,10 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         //inspectApply.setAttachmentList(attachmentlist);
         // 处理商品信息处理商品信息处理商品信息
         //  厂家发货且不检查
-        boolean directInstockGoods = inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() &&
-                inspectApply.getDirect() && !inspectApply.getOutCheck();
+//        boolean directInstockGoods = inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() &&
+//                inspectApply.getDirect() && !inspectApply.getOutCheck();
+        // 去掉采购报检的那块空入判断↑代码2018-05-28
+        boolean directInstockGoods = false;
         // 获取本次报检采购中的商品
         Map<Integer, PurchGoods> purchGoodsMap = purch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(PurchGoods::getId, vo -> vo));
         // 处理报检商品信息
@@ -382,8 +384,10 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 inspectApply.getCreateUserName());
         dbInspectApply.setAttachmentList(attachmentlist);*/
         //  厂家发货且不检查
-        boolean directInstockGoods = inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() &&
-                inspectApply.getDirect() && !inspectApply.getOutCheck();
+//        boolean directInstockGoods = inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() &&
+//                inspectApply.getDirect() && !inspectApply.getOutCheck();
+        // 去掉采购报检的那块空入判断↑代码2018-05-28
+        boolean directInstockGoods = false;
         // 处理商品信息
         Purch purch = dbInspectApply.getPurch();
         Map<Integer, InspectApplyGoods> inspectApplyGoodsMap = dbInspectApply.getInspectApplyGoodsList().parallelStream()
