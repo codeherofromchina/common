@@ -333,6 +333,12 @@ public class ProjectServiceImpl implements ProjectService {
 
         Project projectUpdate = findById(project.getId());
         projectUpdate.setQualityInspectType(project.getQualityInspectType().trim());
+        if (project.getQualityUid() != null) {
+            projectUpdate.setQualityUid(project.getQualityUid());
+        }
+        if (StringUtils.isNotBlank(project.getQualityName())) {
+            projectUpdate.setQualityName(project.getQualityName());
+        }
         projectDao.save(projectUpdate);
         // 2019-05-23 添加完成业务流节点任务
         String eruitoken = (String) ThreadLocalUtil.getObject();

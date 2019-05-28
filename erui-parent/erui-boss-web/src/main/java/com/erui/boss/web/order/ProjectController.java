@@ -140,6 +140,13 @@ public class ProjectController {
         }
         // 修改项目的商品风险等级
         if(!StringUtils.isBlank(pProject.getQualityInspectType())){
+            // 设置品控负责人
+            if (userId != null) {
+                if (StringUtils.isNumeric(String.valueOf(userId))) {
+                    pProject.setQualityUid(Integer.parseInt(String.valueOf(userId)));
+                    pProject.setQualityName((String)realname);
+                }
+            }
             projectService.updateProjectQualityInspectType(pProject);
             if (StringUtils.isNotBlank(pProject.getTaskId())) {
                 return new Result<>();
