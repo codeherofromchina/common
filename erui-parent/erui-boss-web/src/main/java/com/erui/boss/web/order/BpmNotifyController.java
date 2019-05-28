@@ -255,7 +255,7 @@ public class BpmNotifyController {
     }
 
     /**
-     * 驳回出口通知单补偿授信额度
+     * 驳回采购订单返还已采购数量
      *
      * @param params
      */
