@@ -141,8 +141,6 @@ public class ProjectServiceImpl implements ProjectService {
         Order order = projectUpdate.getOrder();
         Project.ProjectStatusEnum nowProjectStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         Project.ProjectStatusEnum paramProjectStatusEnum = Project.ProjectStatusEnum.fromCode(project.getProjectStatus());
-
-
         if ((new Integer(4).equals(project.getOrderCategory()) || new Integer(3).equals(project.getOverseasSales()))
                 && paramProjectStatusEnum == Project.ProjectStatusEnum.DONE) {
             ProjectProfit projectProfit = project.getProjectProfit();
