@@ -438,7 +438,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         BigDecimal advanceMoney = order.getAdvanceMoney() == null ? BigDecimal.valueOf(0) : order.getAdvanceMoney();//预收金额      /应收账款余额
         BigDecimal thisShipmentsMoney = deliverConsign.getThisShipmentsMoney() == null ? BigDecimal.valueOf(0.00) : deliverConsign.getThisShipmentsMoney();//本批次发货金额
         BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(1) : order.getExchangeRate();//订单中利率
-
         //获取授信额度信息
         DeliverConsign deliverConsignByCreditData = null;
         try {
@@ -451,7 +450,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
 
         if (deliverConsignByCreditData != null) {
-            BigDecimal creditAvailable = deliverConsignByCreditData.getCreditAvailable() == null ? BigDecimal.valueOf(0) : deliverConsignByCreditData.getCreditAvailable();//可用授信额度
             BigDecimal lineOfCredit = deliverConsignByCreditData.getLineOfCredit() == null ? BigDecimal.valueOf(0) : deliverConsignByCreditData.getLineOfCredit(); //授信额度
             if (lineOfCredit.compareTo(BigDecimal.valueOf(0)) == 1) {   // 判断是否有授信额度
                 BigDecimal subtract1 = advanceMoney.subtract(thisShipmentsMoney); //预收  减去  本次发货金额
@@ -460,8 +458,15 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     BigDecimal subtract = thisShipmentsMoney.subtract(advanceMoney);    // 本次发货金额  -  预收金额  = 需要使用授信的额度
                     BigDecimal multiply = subtract.multiply(exchangeRate);  //需要使用授信的额度 * 汇率
                     if (multiply.compareTo(BigDecimal.valueOf(0)) == 1) {  //本批次发货金额 大于 预收金额时，调用授信接口，修改授信额度
+                        BigDecimal creditAvailable1 = deliverConsignByCreditData.getCreditAvailable().divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);// 可用授信额度
+                        BigDecimal lineOfCredit1 = deliverConsignByCreditData.getLineOfCredit().divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);    //授信额度
+                        BigDecimal subtract2 = lineOfCredit1.subtract(creditAvailable1);   // 所欠授信额度
+                        BigDecimal subtract3 = multiply; //可以返还的授信额度
+                        if(subtract2.subtract(multiply).compareTo(BigDecimal.valueOf(0)) == -1){ // 所欠授信额度小于可以返还的授信额度
+                            subtract3 = subtract2; // 返还所欠授信额度
+                        }
                         try {
-                            JSONObject jsonObject = buyerCreditPaymentByOrder(order, 2, multiply);
+                            JSONObject jsonObject = buyerCreditPaymentByOrder(order, 2, subtract3);
                             JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
                             if (data == null) {  //查询数据正确返回 1
                                 throw new Exception("同步授信额度失败");
@@ -491,7 +496,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         String crmCode = order.getCrmCode();
         if (crmCode != null && crmCode != "") {
             try {
-
                 //拼接查询授信路径
                 String url = creditExtension + "V2/Buyercredit/getCreditInfoByCrmCode";
                 //获取token
