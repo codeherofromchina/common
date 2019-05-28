@@ -12,6 +12,7 @@ import com.erui.order.dao.GoodsDao;
 import com.erui.order.dao.InspectApplyGoodsDao;
 import com.erui.order.dao.InstockDao;
 import com.erui.order.entity.*;
+import com.erui.order.entity.Order;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.event.TasksAddEvent;
 import com.erui.order.service.AttachmentService;
@@ -96,6 +97,16 @@ public class InstockServiceImpl implements InstockService {
                 if (StringUtil.isNotBlank(condition.get("supplierName"))) {
                     list.add(cb.like(root.get("supplierName").as(String.class), "%" + condition.get("supplierName") + "%"));
                 }
+                // 根据报检日期查询
+                if (condition.get("checkDate") != null) {
+                    try {
+                        Join<Instock, InspectReport> instockRoot = root.join("inspectReport");
+                        Date checkDate = DateUtil.parseStringToDate(condition.get("checkDate"), "yyyy-MM-dd");
+                        list.add(cb.equal(instockRoot.get("checkDate").as(Date.class), NewDateUtil.getDate(checkDate)));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 //TODO 入库状态
                 if (StringUtil.isNotBlank(condition.get("status"))) {
                     //Status   0未入库   1已入库
@@ -105,7 +116,7 @@ public class InstockServiceImpl implements InstockService {
                     } else if (status == 1) {
                         list.add(cb.equal(root.get("status").as(Integer.class), 3));  //大于
                     } else if (status == 5) {
-                        list.add(cb.equal(root.get("status").as(Integer.class), status));  //大于
+                        list.add(cb.equal(root.get("status").as(Integer.class), status));  //等于
                     }
                 }
                 //是否外检（ 0：否   1：是）
