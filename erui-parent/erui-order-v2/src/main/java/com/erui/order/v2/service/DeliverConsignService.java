@@ -55,4 +55,11 @@ public interface DeliverConsignService {
      */
     void rejectDeliverConsign(Integer id) throws Exception;
 
+    /**
+     * 设置当前审核人
+     * @param deliverConsignId
+     * @param userId
+     * @param userName
+     */
+    void updateAuditUser(Long deliverConsignId, Long userId, String userName, String actId);
 }

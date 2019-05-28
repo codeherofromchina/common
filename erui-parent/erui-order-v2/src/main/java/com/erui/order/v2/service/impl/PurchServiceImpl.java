@@ -64,16 +64,50 @@ public class PurchServiceImpl implements PurchService {
         }
         // 更新审核进度，如果审核进度为空，则更新审核状态为通过
         String auditingProcess2 = purch.getAuditingProcess();
+        String auditingUserId = purch.getAuditingUserId();
+        String auditingUserName = purch.getAuditingUser();
         String audiRemark = purch.getAudiRemark();
         if (StringUtils.isNotBlank(auditingProcess2)) {
-            if (auditingProcess2.equals(auditingProcess)) {
-                auditingProcess2 = "";
+            List<String> auditingProcessList = Arrays.asList(auditingProcess2.split(","));
+            String[] auditingUserIdArr = null;
+            String[] auditingUserNameArr = null;
+            if (StringUtils.isNotBlank(auditingUserId)) {
+                auditingUserIdArr = auditingUserId.split(",");
             } else {
-                auditingProcess2 = auditingProcess2.replace(auditingProcess, "");
-                while (auditingProcess2.indexOf(",,") != -1) {
-                    auditingProcess2 = auditingProcess2.replace(",,", ",");
+                auditingUserIdArr = new String[auditingProcessList.size()];
+            }
+            if (StringUtils.isNotBlank(auditingUserName)) {
+                auditingUserNameArr = auditingUserName.split(",");
+            } else {
+                auditingUserNameArr = new String[auditingProcessList.size()];
+            }
+
+            String[] auditingUserIdArr02 = new String[auditingProcessList.size() -1];
+            String[] auditingUserNameArr02 = new String[auditingProcessList.size() -1];
+            Iterator<String> iterator = auditingProcessList.iterator();
+            int i = 0;
+            int n = 0;
+            boolean removed = false;
+            while (iterator.hasNext()) {
+                String next = iterator.next();
+                if (StringUtils.equals(next, auditingProcess)) {
+                    iterator.remove();
+                    removed = true;
+                } else {
+                    auditingUserIdArr02[n] = auditingUserIdArr[i];
+                    auditingUserNameArr02[n] = auditingUserNameArr[i];
+                    ++n;
                 }
-                auditingProcess2 = StringUtils.strip(auditingProcess2, ",");
+                ++i;
+            }
+
+            auditingProcess2 = StringUtils.join(auditingProcessList, ",");
+            if (removed) {
+                auditingUserId = StringUtils.join(auditingUserIdArr02, ",");
+                auditingUserName = StringUtils.join(auditingUserNameArr02, ",");
+            } else {
+                auditingUserId = StringUtils.join(auditingUserIdArr, ",");
+                auditingUserName = StringUtils.join(auditingUserNameArr02, ",");
             }
         }
         // 设置审核人
@@ -90,6 +124,8 @@ public class PurchServiceImpl implements PurchService {
         Purch purchSelective = new Purch();
         purchSelective.setId(purch.getId());
         purchSelective.setAuditingProcess(auditingProcess2);
+        purchSelective.setAuditingUserId(auditingUserId);
+        purchSelective.setAuditingUser(auditingUserName);
         purchSelective.setAudiRemark(audiRemark);
         purchMapper.updateByPrimaryKeySelective(purchSelective);
     }
@@ -104,10 +140,14 @@ public class PurchServiceImpl implements PurchService {
         // 处理采购的审核状态和审核进度
         Integer auditingStatus = 2; // 2:审核中
         String auditingProcess2 = purch.getAuditingProcess();
+        String auditingUserName = purch.getAuditingUser();
+        String auditingUserId = purch.getAuditingUserId();
         if (StringUtils.isNotBlank(auditingProcess2)) {
             Set<String> set = new HashSet<>(Arrays.asList(auditingProcess2.split(",")));
             if (!set.contains(auditingProcess)) {
                 auditingProcess2 = auditingProcess2 + "," + auditingProcess;
+                auditingUserName += ",";
+                auditingUserId += ",";
             }
         } else {
             auditingProcess2 = auditingProcess;
@@ -118,6 +158,8 @@ public class PurchServiceImpl implements PurchService {
         purchSelective.setId(purch.getId());
         purchSelective.setAuditingStatus(auditingStatus);
         purchSelective.setAuditingProcess(auditingProcess2);
+        purchSelective.setAuditingUser(auditingUserName);
+        purchSelective.setAuditingUserId(auditingUserId);
         purchSelective.setTaskId(taskId);
         purchMapper.updateByPrimaryKeySelective(purchSelective);
     }
@@ -185,5 +227,44 @@ public class PurchServiceImpl implements PurchService {
         purchSelective.setAuditingStatus(3); // 设置为审核驳回 3：驳回
         purchSelective.setQualityInspectStatus(0); // 如果是驳回则重置质检部重新评估风险等级状态 0：还未重新评估 1：已重新评估
         purchMapper.updateByPrimaryKeySelective(purchSelective);
+    }
+
+    @Override
+    public void updateAuditUser(Long purchId, Long userId, String userName, String actId) {
+        Purch purch = purchMapper.selectByPrimaryKey(purchId.intValue());
+        // 获取原来的审核进度和相应审核人
+        String auditingProcess = purch.getAuditingProcess();
+        String auditingUserId = purch.getAuditingUserId();
+        String auditingUser = purch.getAuditingUser();
+        if (StringUtils.isBlank(auditingProcess)) {
+            return;
+        }
+        // 处理审核人到审核进度的相应索引上
+        String[] split = auditingProcess.split(",");
+        String[] userIds ;
+        String[] userNames ;
+        if (StringUtils.isNotBlank(auditingUserId)) {
+            userIds = auditingUserId.split(",");
+            userNames = auditingUser.split(",");
+        } else {
+            userIds = new String[split.length];
+            userNames = new String[split.length];
+        }
+        for (int i=0; i< split.length; ++i) {
+            if (StringUtils.equals(split[i], actId) && userIds.length > i) {
+                userIds[i] = String.valueOf(userId);
+                if (userNames.length > i) {
+                    userNames[i] = userName;
+                }
+                break;
+            }
+        }
+
+        // 更新
+        Purch selectivePurch = new Purch();
+        selectivePurch.setId(purch.getId());
+        selectivePurch.setAuditingUserId(StringUtils.join(userIds));
+        selectivePurch.setAuditingUser(StringUtils.join(userNames));
+        purchMapper.updateByPrimaryKeySelective(selectivePurch);
     }
 }

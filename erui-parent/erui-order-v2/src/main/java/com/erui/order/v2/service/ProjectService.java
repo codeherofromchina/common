@@ -46,4 +46,13 @@ public interface ProjectService {
      * @return
      */
     List<Project> findProjectsByPurchId(Integer purchId);
+
+    /**
+     * 设置当前审核人
+     * @param projectId
+     * @param userId
+     * @param userName
+     * @param actId 审核进度
+     */
+    void updateAuditUser(Long projectId, Long userId, String userName, String actId);
 }

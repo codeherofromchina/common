@@ -57,17 +57,40 @@ public class OrderServiceImpl implements OrderService {
         }
         // 更新审核进度，如果审核进度为空，则更新审核状态为通过
         String auditingProcess2 = order.getAuditingProcess();
+        String auditingUserId = order.getAuditingUserId();
         String audiRemark = order.getAudiRemark();
 
         if (StringUtils.isNotBlank(auditingProcess2)) {
-            if (auditingProcess2.equals(auditingProcess)) {
-                auditingProcess2 = "";
+            List<String> auditingProcessList = Arrays.asList(auditingProcess2.split(","));
+            String[] auditingUserIdArr = null;
+            if (StringUtils.isNotBlank(auditingUserId)) {
+                auditingUserIdArr = auditingUserId.split(",");
             } else {
-                auditingProcess2 = auditingProcess2.replace(auditingProcess, "");
-                while (auditingProcess2.indexOf(",,") != -1) {
-                    auditingProcess2 = auditingProcess2.replace(",,", ",");
+                auditingUserIdArr = new String[auditingProcessList.size()];
+            }
+
+            String[] auditingUserIdArr02 = new String[auditingProcessList.size() -1];
+            Iterator<String> iterator = auditingProcessList.iterator();
+            int i = 0;
+            int n = 0;
+            boolean removed = false;
+            while (iterator.hasNext()) {
+                String next = iterator.next();
+                if (StringUtils.equals(next, auditingProcess)) {
+                    iterator.remove();
+                    removed = true;
+                } else {
+                    auditingUserIdArr02[n] = auditingUserIdArr[i];
+                    ++n;
                 }
-                auditingProcess2 = StringUtils.strip(auditingProcess2, ",");
+                ++i;
+            }
+
+            auditingProcess2 = StringUtils.join(auditingProcessList, ",");
+            if (removed) {
+                auditingUserId = StringUtils.join(auditingUserIdArr02, ",");
+            } else {
+                auditingUserId = StringUtils.join(auditingUserIdArr, ",");
             }
         }
         // 设置审核人
@@ -85,6 +108,7 @@ public class OrderServiceImpl implements OrderService {
         OrderWithBLOBs orderSelective = new OrderWithBLOBs();
         orderSelective.setId(order.getId());
         orderSelective.setAuditingProcess(auditingProcess2);
+        orderSelective.setAuditingUserId(auditingUserId);
         orderSelective.setAudiRemark(audiRemark);
         orderMapper.updateByPrimaryKeySelective(orderSelective);
     }
@@ -99,10 +123,12 @@ public class OrderServiceImpl implements OrderService {
         // 处理订单的审核状态和审核进度
         Integer auditingStatus = 2; // 2:审核中
         String auditingProcess2 = order.getAuditingProcess();
+        String auditingUserId = order.getAuditingUserId();
         if (StringUtils.isNotBlank(auditingProcess2)) {
             Set<String> set = new HashSet<>(Arrays.asList(auditingProcess2.split(",")));
             if (!set.contains(auditingProcess)) {
                 auditingProcess2 = auditingProcess2 + "," + auditingProcess;
+                auditingUserId += ",";
             }
         } else {
             auditingProcess2 = auditingProcess;
@@ -113,6 +139,7 @@ public class OrderServiceImpl implements OrderService {
         orderSelective.setId(order.getId());
         orderSelective.setAuditingStatus(auditingStatus);
         orderSelective.setAuditingProcess(auditingProcess2);
+        orderSelective.setAuditingUserId(auditingUserId);
         orderSelective.setTaskId(taskId);
         orderMapper.updateByPrimaryKeySelective(orderSelective);
     }
@@ -146,6 +173,37 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return result;
+    }
+
+    @Override
+    public void updateAuditUser(Long orderId, Long userId, String userName, String actId) {
+        OrderWithBLOBs order = orderMapper.selectByPrimaryKey(orderId.intValue());
+        // 获取原来的审核进度和相应审核人
+        String auditingProcess = order.getAuditingProcess();
+        String auditingUserId = order.getAuditingUserId();
+        if (StringUtils.isBlank(auditingProcess)) {
+            return;
+        }
+        // 处理审核人到审核进度的相应索引上
+        String[] split = auditingProcess.split(",");
+        String[] userIds ;
+        if (StringUtils.isNotBlank(auditingUserId)) {
+            userIds = auditingUserId.split(",");
+        } else {
+            userIds = new String[split.length];
+        }
+        for (int i=0; i< split.length; ++i) {
+            if (StringUtils.equals(split[i], actId) && userIds.length > i) {
+                userIds[i] = String.valueOf(userId);
+                break;
+            }
+        }
+
+        // 更新
+        OrderWithBLOBs selectiveOrder = new OrderWithBLOBs();
+        selectiveOrder.setId(order.getId());
+        selectiveOrder.setAuditingUserId(StringUtils.join(userIds));
+        orderMapper.updateByPrimaryKeySelective(selectiveOrder);
     }
 
     @Override

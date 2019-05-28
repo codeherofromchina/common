@@ -55,4 +55,12 @@ public interface PurchService {
      * @param id
      */
     void rejectPurch(Integer id);
+
+    /**
+     * 设置当前审核人
+     * @param purchId
+     * @param userId
+     * @param userName
+     */
+    void updateAuditUser(Long purchId, Long userId, String userName, String actId);
 }

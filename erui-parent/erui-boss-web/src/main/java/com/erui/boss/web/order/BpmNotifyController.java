@@ -5,14 +5,13 @@ import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.pojo.TodoShowNeedContentRequest;
 import com.erui.comm.util.CookiesUtil;
+import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.OrderConf;
 import com.erui.order.v2.model.DeliverConsign;
 import com.erui.order.v2.model.Order;
 import com.erui.order.v2.model.Purch;
-import com.erui.order.v2.service.DeliverConsignService;
-import com.erui.order.v2.service.OrderService;
-import com.erui.order.v2.service.ProjectService;
-import com.erui.order.v2.service.PurchService;
+import com.erui.order.v2.model.User;
+import com.erui.order.v2.service.*;
 import com.erui.report.model.BpmTaskRuntime;
 import com.erui.report.service.BpmTaskRuntimeService;
 import org.apache.commons.lang3.StringUtils;
@@ -47,9 +46,13 @@ public class BpmNotifyController {
     private DeliverConsignService deliverConsignService;
     @Autowired
     private PurchService purchService;
+    @Autowired
+    private UserService userService;
+
 
     /**
      * 获取待办中要显示的必要业务信息
+     *
      * @return
      */
     @RequestMapping(value = "todoShowNeedContent", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
@@ -71,7 +74,7 @@ public class BpmNotifyController {
         final Map<String, List<Integer>> bizMap = new HashMap<>();
         bizKeys.stream().forEach(bizKey -> {
             String[] split = bizKey.split(":");
-            if (split.length == 2)  {
+            if (split.length == 2) {
                 if (StringUtils.isNumeric(split[1])) {
                     List<Integer> list = bizMap.get(split[0]);
                     if (list == null) {
@@ -86,24 +89,24 @@ public class BpmNotifyController {
         // 查询订单的采购号
         List<Integer> orderIds = bizMap.get("order");
         if (orderIds != null && orderIds.size() > 0) {
-            Map<Integer,String> contractMap = orderService.findContractsByOrderIds(orderIds);
-            for (Map.Entry<Integer,String> entry: contractMap.entrySet()) {
+            Map<Integer, String> contractMap = orderService.findContractsByOrderIds(orderIds);
+            for (Map.Entry<Integer, String> entry : contractMap.entrySet()) {
                 data.put("order:" + entry.getKey(), entry.getValue());
             }
         }
         // 查询订舱号
         List<Integer> deliverConsignIds = bizMap.get("deliver_consign");
         if (deliverConsignIds != null && deliverConsignIds.size() > 0) {
-            Map<Integer,String> deliverConsignNoMap = deliverConsignService.findDeliverConsignNoByDeliverConsignIds(deliverConsignIds);
-            for (Map.Entry<Integer,String> entry: deliverConsignNoMap.entrySet()) {
+            Map<Integer, String> deliverConsignNoMap = deliverConsignService.findDeliverConsignNoByDeliverConsignIds(deliverConsignIds);
+            for (Map.Entry<Integer, String> entry : deliverConsignNoMap.entrySet()) {
                 data.put("deliver_consign:" + entry.getKey(), entry.getValue());
             }
         }
         // 查询采购号
         List<Integer> purchIds = bizMap.get("purch");
         if (purchIds != null && purchIds.size() > 0) {
-            Map<Integer,String> purchNoMap = purchService.findPurchNoByPurchIds(purchIds);
-            for (Map.Entry<Integer,String> entry: purchNoMap.entrySet()) {
+            Map<Integer, String> purchNoMap = purchService.findPurchNoByPurchIds(purchIds);
+            for (Map.Entry<Integer, String> entry : purchNoMap.entrySet()) {
                 data.put("purch:" + entry.getKey(), entry.getValue());
             }
         }
@@ -149,7 +152,6 @@ public class BpmNotifyController {
         bpmTaskRuntimeService.delBpmTaskRuntime(processInstanceId, taskId);
         return result;
     }
-
 
 
     /**
@@ -211,6 +213,40 @@ public class BpmNotifyController {
 
 
     /**
+     * 任务领取通知，设置相应审核的当前审核人
+     */
+    @RequestMapping(value = "taskAssigned", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result taskAssigned(@RequestBody BpmTaskRuntime bpmTaskRuntime) {
+        // 验证安全性
+        if (!validate(bpmTaskRuntime.getKey())) {
+            // 如果秘钥不正确，什么也不返回
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
+        if (StringUtils.isAnyBlank(bpmTaskRuntime.getAssignee(), bpmTaskRuntime.getBizType(), bpmTaskRuntime.getActId()) || bpmTaskRuntime.getBizObjId() == null) {
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
+        }
+
+        User user = userService.findUserNoByUserNo(bpmTaskRuntime.getAssignee());
+        if (user == null) {
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
+        String actId = bpmTaskRuntime.getActId();
+
+        if (StringUtils.equals("order", bpmTaskRuntime.getBizType())) {
+            // 订单审核流程
+            orderService.updateAuditUser(bpmTaskRuntime.getBizObjId(), user.getId(), user.getName(), actId);
+            projectService.updateAuditUser(bpmTaskRuntime.getBizObjId(), user.getId(), user.getName(), actId);
+        } else if (StringUtils.equals("deliver_consign", bpmTaskRuntime.getBizType())) {
+            // 订舱审核流程
+            deliverConsignService.updateAuditUser(bpmTaskRuntime.getBizObjId(), user.getId(), user.getName(), actId);
+        } else if (StringUtils.equals("purch", bpmTaskRuntime.getBizType())) {
+            // 采购审核流程
+            purchService.updateAuditUser(bpmTaskRuntime.getBizObjId(), user.getId(), user.getName(), actId);
+        }
+        return new Result();
+    }
+
+    /**
      * 验证秘钥是否一样
      *
      * @param key
@@ -243,12 +279,12 @@ public class BpmNotifyController {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         try {
-            if(id == null){
+            if (id == null) {
                 return new Result<>(ResultStatusEnum.FAIL).setMsg("id不能为空！");
-            }else {
+            } else {
                 deliverConsignService.rejectDeliverConsign(Integer.parseInt(id));
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             return new Result<>(ResultStatusEnum.FAIL).setMsg(e.getMessage());
         }
         return result;
@@ -273,12 +309,12 @@ public class BpmNotifyController {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         try {
-            if(id == null){
+            if (id == null) {
                 return new Result<>(ResultStatusEnum.FAIL).setMsg("id不能为空！");
-            }else {
+            } else {
                 purchService.rejectPurch(Integer.parseInt(id));
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             return new Result<>(ResultStatusEnum.FAIL).setMsg(e.getMessage());
         }
         return result;

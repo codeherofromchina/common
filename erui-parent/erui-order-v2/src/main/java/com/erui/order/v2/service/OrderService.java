@@ -61,4 +61,12 @@ public interface OrderService {
      * @return
      */
     Map<Integer, String> findContractsByOrderIds(List<Integer> orderIds);
+
+    /**
+     * 设置当前审核人
+     * @param orderId
+     * @param userId
+     * @param userName
+     */
+    void updateAuditUser(Long orderId, Long userId, String userName, String actId);
 }

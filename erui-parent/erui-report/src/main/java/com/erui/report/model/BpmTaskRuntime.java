@@ -31,7 +31,6 @@ public class BpmTaskRuntime {
     private Date createdAt;
     private String key;
 
-
     public Long getId() {
         return id;
     }
