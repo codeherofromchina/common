@@ -62,35 +62,40 @@ public class OrderServiceImpl implements OrderService {
 
         if (StringUtils.isNotBlank(auditingProcess2)) {
             List<String> auditingProcessList = Arrays.asList(auditingProcess2.split(","));
-            String[] auditingUserIdArr = null;
-            if (StringUtils.isNotBlank(auditingUserId)) {
-                auditingUserIdArr = auditingUserId.split(",");
+            if (auditingProcessList.size() == 1) {
+                auditingProcess2 = "";
+                auditingUserId = "";
             } else {
-                auditingUserIdArr = new String[auditingProcessList.size()];
-            }
-
-            String[] auditingUserIdArr02 = new String[auditingProcessList.size() -1];
-            Iterator<String> iterator = auditingProcessList.iterator();
-            int i = 0;
-            int n = 0;
-            boolean removed = false;
-            while (iterator.hasNext()) {
-                String next = iterator.next();
-                if (StringUtils.equals(next, auditingProcess)) {
-                    iterator.remove();
-                    removed = true;
+                String[] auditingUserIdArr = null;
+                if (StringUtils.isNotBlank(auditingUserId)) {
+                    auditingUserIdArr = auditingUserId.split(",");
                 } else {
-                    auditingUserIdArr02[n] = auditingUserIdArr[i];
-                    ++n;
+                    auditingUserIdArr = new String[auditingProcessList.size()];
                 }
-                ++i;
-            }
 
-            auditingProcess2 = StringUtils.join(auditingProcessList, ",");
-            if (removed) {
-                auditingUserId = StringUtils.join(auditingUserIdArr02, ",");
-            } else {
-                auditingUserId = StringUtils.join(auditingUserIdArr, ",");
+                String[] auditingUserIdArr02 = new String[auditingProcessList.size() - 1];
+                Iterator<String> iterator = auditingProcessList.iterator();
+                int i = 0;
+                int n = 0;
+                boolean removed = false;
+                while (iterator.hasNext()) {
+                    String next = iterator.next();
+                    if (StringUtils.equals(next, auditingProcess)) {
+                        iterator.remove();
+                        removed = true;
+                    } else {
+                        auditingUserIdArr02[n] = auditingUserIdArr[i];
+                        ++n;
+                    }
+                    ++i;
+                }
+
+                auditingProcess2 = StringUtils.join(auditingProcessList, ",");
+                if (removed) {
+                    auditingUserId = StringUtils.join(auditingUserIdArr02, ",");
+                } else {
+                    auditingUserId = StringUtils.join(auditingUserIdArr, ",");
+                }
             }
         }
         // 设置审核人
@@ -132,6 +137,7 @@ public class OrderServiceImpl implements OrderService {
             }
         } else {
             auditingProcess2 = auditingProcess;
+            auditingUserId = "";
         }
         // 更新订单的审核状态、审核进度和当前任务
         // 更新修正后的状态
