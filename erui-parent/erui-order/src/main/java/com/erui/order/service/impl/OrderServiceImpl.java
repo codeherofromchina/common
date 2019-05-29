@@ -1065,6 +1065,10 @@ public class OrderServiceImpl implements OrderService {
                 // 调用业务流，开启业务审核流程系统 // 非国内订单审批流程
                 Map<String, Object> bpmInitVar = new HashMap<>();
                 bpmInitVar.put("order_amount", addOrderVo.getTotalPriceUsd().doubleValue());
+                bpmInitVar.put("param_contract", orderUpdate.getContractNo());
+                bpmInitVar.put("task_cm_country", orderUpdate.getCountry());
+                bpmInitVar.put("task_rm_area", orderUpdate.getRegion());
+                bpmInitVar.put("task_pm_department", orderUpdate.getBusinessUnitId());
                 String task_fn_check = "N";
                 if (addOrderVo.getFinancing() != null && addOrderVo.getFinancing() == 1) {
                     task_fn_check = "Y";
@@ -1407,6 +1411,10 @@ public class OrderServiceImpl implements OrderService {
                 // ID -> userNo
                 bpmInitVar.put("assignee_pm",techicalUserNo);
             }
+            bpmInitVar.put("param_contract", order1.getContractNo());
+            bpmInitVar.put("task_cm_country", order1.getCountry());
+            bpmInitVar.put("task_rm_area", order1.getRegion());
+            bpmInitVar.put("task_pm_department", order1.getBusinessUnitId());
             switch (addOrderVo.getOrderCategory()) {
                 case 1:
                     // 预投订单

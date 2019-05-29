@@ -338,6 +338,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateProjectQualityInspectType(Project project) throws Exception {
+        System.out.println("ddddddddd");
         Project projectUpdate = findById(project.getId());
         projectUpdate.setQualityInspectType(project.getQualityInspectType().trim());
         if (project.getQualityUid() != null) {
@@ -1192,7 +1193,6 @@ public class ProjectServiceImpl implements ProjectService {
                 // }
             }
         }).start();
-
     }
 
 
