@@ -512,7 +512,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             deliverNotice.setPrepareReq(deliverDetail.getPrepareReq());
         }
 
-        one.setStatus(status);// 状态
+        one.setStatus(status); // 状态
 
         if (status == 2) one.setOutCheck(1); // 默认是否外检为1
 
