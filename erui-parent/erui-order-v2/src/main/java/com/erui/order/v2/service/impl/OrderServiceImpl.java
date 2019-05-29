@@ -68,7 +68,7 @@ public class OrderServiceImpl implements OrderService {
             } else {
                 String[] auditingUserIdArr = null;
                 if (StringUtils.isNotBlank(auditingUserId)) {
-                    auditingUserIdArr = auditingUserId.split(",");
+                    auditingUserIdArr = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
                 } else {
                     auditingUserIdArr = new String[auditingProcessList.size()];
                 }
@@ -194,7 +194,7 @@ public class OrderServiceImpl implements OrderService {
         String[] split = auditingProcess.split(",");
         String[] userIds ;
         if (StringUtils.isNotBlank(auditingUserId)) {
-            userIds = auditingUserId.split(",");
+            userIds = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
         } else {
             userIds = new String[split.length];
         }
@@ -204,6 +204,9 @@ public class OrderServiceImpl implements OrderService {
                 break;
             }
         }
+
+        System.out.println(userIds.length);
+        System.out.println("x" + StringUtils.join(userIds) + "x");
 
         // 更新
         OrderWithBLOBs selectiveOrder = new OrderWithBLOBs();

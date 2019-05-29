@@ -77,12 +77,12 @@ public class PurchServiceImpl implements PurchService {
                 String[] auditingUserIdArr = null;
                 String[] auditingUserNameArr = null;
                 if (StringUtils.isNotBlank(auditingUserId)) {
-                    auditingUserIdArr = auditingUserId.split(",");
+                    auditingUserIdArr = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
                 } else {
                     auditingUserIdArr = new String[auditingProcessList.size()];
                 }
                 if (StringUtils.isNotBlank(auditingUserName)) {
-                    auditingUserNameArr = auditingUserName.split(",");
+                    auditingUserNameArr = StringUtils.splitPreserveAllTokens(auditingUserName, ",");
                 } else {
                     auditingUserNameArr = new String[auditingProcessList.size()];
                 }
@@ -254,8 +254,8 @@ public class PurchServiceImpl implements PurchService {
         String[] userIds ;
         String[] userNames ;
         if (StringUtils.isNotBlank(auditingUserId)) {
-            userIds = auditingUserId.split(",");
-            userNames = auditingUser.split(",");
+            userIds = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
+            userNames = StringUtils.splitPreserveAllTokens(auditingUser, ",");
         } else {
             userIds = new String[split.length];
             userNames = new String[split.length];
