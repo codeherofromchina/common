@@ -381,7 +381,7 @@ public class InstockServiceImpl implements InstockService {
             throw new Exception(String.format("%s%s%s", "入库商品数量错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The number of goods in the warehouse"));
         }
         instockDao.save(dbInstock);
-        //附件处理
+        // 附件处理
         List<Attachment> attachmentList = null;
         if (instock.getAttachmentList() != null && instock.getAttachmentList().size() > 0) {
             attachmentList = instock.getAttachmentList();
