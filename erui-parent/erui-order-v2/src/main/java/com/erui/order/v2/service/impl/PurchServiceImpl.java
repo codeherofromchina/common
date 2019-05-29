@@ -87,6 +87,7 @@ public class PurchServiceImpl implements PurchService {
                     auditingUserNameArr = new String[auditingProcessList.size()];
                 }
 
+
                 String[] auditingUserIdArr02 = new String[auditingProcessList.size() - 1];
                 String[] auditingUserNameArr02 = new String[auditingProcessList.size() - 1];
                 Iterator<String> iterator = auditingProcessList.iterator();
