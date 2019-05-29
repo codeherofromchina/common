@@ -226,8 +226,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void updateAuditUser(Long projectId, Long userId, String userName, String actId) {
-        Project project = projectMapper.selectByPrimaryKey(projectId.intValue());
+    public void updateAuditUser(Long orderId, Long userId, String userName, String actId) {
+        Project project = findProjectByOrderId(orderId.intValue());
         // 获取原来的审核进度和相应审核人
         String auditingProcess = project.getAuditingProcess();
         String auditingUserId = project.getAuditingUserId();
