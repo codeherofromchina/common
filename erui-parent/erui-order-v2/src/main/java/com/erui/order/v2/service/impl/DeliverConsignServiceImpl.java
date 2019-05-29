@@ -91,7 +91,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         String auditingUserId = deliverConsign.getAuditingUserId();
         String audiRemark = deliverConsign.getAudiRemark();
         if (StringUtils.isNotBlank(auditingProcess2)) {
-            List<String> auditingProcessList = Arrays.asList(auditingProcess2.split(","));
+            List<String> auditingProcessList = new ArrayList<>(Arrays.asList(auditingProcess2.split(",")));
             if (auditingProcessList.size() == 1) {
                 auditingProcess2 = "";
                 auditingUserId = "";

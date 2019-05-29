@@ -61,7 +61,7 @@ public class OrderServiceImpl implements OrderService {
         String audiRemark = order.getAudiRemark();
 
         if (StringUtils.isNotBlank(auditingProcess2)) {
-            List<String> auditingProcessList = Arrays.asList(auditingProcess2.split(","));
+            List<String> auditingProcessList = new ArrayList<>(Arrays.asList(auditingProcess2.split(",")));
             if (auditingProcessList.size() == 1) {
                 auditingProcess2 = "";
                 auditingUserId = "";
