@@ -359,18 +359,21 @@ public class InstockServiceImpl implements InstockService {
                 Goods goods = inspectApplyGoods.getGoods();
                 if (goods != null) {
                     goods.setInstockNum(goods.getInstockNum() + instockGoods02.getInstockNum());
-
-                    if (instock.getOutCheck() != null) {
-                        if (instock.getOutCheck() == 0) {  //是否外检（ 0：否   1：是）
-                            Integer nullInstockNum = goods.getNullInstockNum();
-                            goods.setNullInstockNum(nullInstockNum = nullInstockNum == null ? 0 : nullInstockNum + instockGoods02.getInstockNum());  //质检入库数量
-                        } else {
-                            Integer inspectInstockNum = goods.getInspectInstockNum();
-                            goods.setInspectInstockNum(inspectInstockNum = inspectInstockNum == null ? 0 : inspectInstockNum + instockGoods02.getInstockNum());  //质检入库数量
-                        }
-
-                        goodsDao.save(goods);
-                    }
+                    // 去掉是否外检字段判断2019-05-29
+                    Integer inspectInstockNum = goods.getInspectInstockNum();
+                    goods.setInspectInstockNum(inspectInstockNum = inspectInstockNum == null ? 0 : inspectInstockNum + instockGoods02.getInstockNum());  //质检入库数量
+                    goodsDao.save(goods);
+//                    if (instock.getOutCheck() != null) {
+//                        if (instock.getOutCheck() == 0) {  //是否外检（ 0：否   1：是）
+//                            Integer nullInstockNum = goods.getNullInstockNum();
+//                            goods.setNullInstockNum(nullInstockNum = nullInstockNum == null ? 0 : nullInstockNum + instockGoods02.getInstockNum());  //质检入库数量
+//                        } else {
+//                            Integer inspectInstockNum = goods.getInspectInstockNum();
+//                            goods.setInspectInstockNum(inspectInstockNum = inspectInstockNum == null ? 0 : inspectInstockNum + instockGoods02.getInstockNum());  //质检入库数量
+//                        }
+//
+//                        goodsDao.save(goods);
+//                    }
                 }
             }
         }
