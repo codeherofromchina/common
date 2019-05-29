@@ -516,7 +516,6 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
         one.setOutCheck(1); // 默认外检
 
-
         Project project = null; //项目信息
 
 
