@@ -167,7 +167,17 @@ public class ProjectServiceImpl implements ProjectService {
                 ProjectProfit projectProfit = project.getProjectProfit();
                 projectProfit.setProject(project);
                 projectProfitDao.save(projectProfit);
-                project.copyProjectDescTo(projectUpdate);
+                if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
+                    // 执行项目
+                    projectUpdate.setStartDate(project.getStartDate());
+                    projectUpdate.setRequirePurchaseDate(project.getRequirePurchaseDate());
+                    projectUpdate.setRemarks(project.getRemarks());
+                    projectUpdate.setDeliveryDate(project.getDeliveryDate());
+                    projectUpdate.setExeChgDate(project.getExeChgDate());
+                } else {
+                    // 正常提交项目
+                    project.copyProjectDescTo(projectUpdate);
+                }
                 // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
                 List<Attachment> attachmentList = project.getAttachmentList();
                 Map<Integer, Attachment> dbAttahmentsMap = projectUpdate.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
