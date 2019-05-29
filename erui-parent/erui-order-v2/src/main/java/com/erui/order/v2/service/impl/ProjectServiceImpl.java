@@ -27,7 +27,6 @@ public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private UserService userService;
 
-
     public Project findProjectByProcessId(String processId) {
         ProjectExample example = new ProjectExample();
         ProjectExample.Criteria criteria = example.createCriteria();
@@ -52,7 +51,7 @@ public class ProjectServiceImpl implements ProjectService {
         String auditingUserId = project.getAuditingUserId();
         String audiRemark = project.getAudiRemark();
         if (StringUtils.isNotBlank(auditingProcess2)) {
-            List<String> auditingProcessList = Arrays.asList(auditingProcess2.split(","));
+            List<String> auditingProcessList = new ArrayList<>(Arrays.asList(auditingProcess2.split(",")));
             if (auditingProcessList.size() == 1) {
                 auditingProcess2 = "";
                 auditingUserId = "";
@@ -61,12 +60,12 @@ public class ProjectServiceImpl implements ProjectService {
                 String[] auditingUserIdArr = null;
                 String[] auditingUserNameArr = null;
                 if (StringUtils.isNotBlank(auditingUserId)) {
-                    auditingUserIdArr = auditingUserId.split(",");
+                    auditingUserIdArr = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
                 } else {
                     auditingUserIdArr = new String[auditingProcessList.size()];
                 }
                 if (StringUtils.isNotBlank(auditingUserName)) {
-                    auditingUserNameArr = auditingUserName.split(",");
+                    auditingUserNameArr =  StringUtils.splitPreserveAllTokens(auditingUserName, ",");
                 } else {
                     auditingUserNameArr = new String[auditingProcessList.size()];
                 }
@@ -226,8 +225,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void updateAuditUser(Long projectId, Long userId, String userName, String actId) {
-        Project project = projectMapper.selectByPrimaryKey(projectId.intValue());
+    public void updateAuditUser(Long orderId, Long userId, String userName, String actId) {
+        Project project = findProjectByOrderId(orderId.intValue());
         // 获取原来的审核进度和相应审核人
         String auditingProcess = project.getAuditingProcess();
         String auditingUserId = project.getAuditingUserId();
@@ -240,8 +239,8 @@ public class ProjectServiceImpl implements ProjectService {
         String[] userIds ;
         String[] userNames ;
         if (StringUtils.isNotBlank(auditingUserId)) {
-            userIds = auditingUserId.split(",");
-            userNames = auditingUser.split(",");
+            userIds = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
+            userNames = StringUtils.splitPreserveAllTokens(auditingUser, ",");
         } else {
             userIds = new String[split.length];
             userNames = new String[split.length];
@@ -259,8 +258,8 @@ public class ProjectServiceImpl implements ProjectService {
         // 更新
         Project selectiveProject = new Project();
         selectiveProject.setId(project.getId());
-        selectiveProject.setAuditingUserId(StringUtils.join(userIds));
-        selectiveProject.setAuditingUser(StringUtils.join(userNames));
+        selectiveProject.setAuditingUserId(StringUtils.join(userIds, ","));
+        selectiveProject.setAuditingUser(StringUtils.join(userNames, ","));
         projectMapper.updateByPrimaryKeySelective(selectiveProject);
     }
 }

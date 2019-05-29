@@ -68,7 +68,7 @@ public class PurchServiceImpl implements PurchService {
         String auditingUserName = purch.getAuditingUser();
         String audiRemark = purch.getAudiRemark();
         if (StringUtils.isNotBlank(auditingProcess2)) {
-            List<String> auditingProcessList = Arrays.asList(auditingProcess2.split(","));
+            List<String> auditingProcessList = new ArrayList<>(Arrays.asList(auditingProcess2.split(",")));
             if (auditingProcessList.size() == 1) {
                 auditingProcess2 = "";
                 auditingUserId = "";
@@ -77,16 +77,15 @@ public class PurchServiceImpl implements PurchService {
                 String[] auditingUserIdArr = null;
                 String[] auditingUserNameArr = null;
                 if (StringUtils.isNotBlank(auditingUserId)) {
-                    auditingUserIdArr = auditingUserId.split(",");
+                    auditingUserIdArr = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
                 } else {
                     auditingUserIdArr = new String[auditingProcessList.size()];
                 }
                 if (StringUtils.isNotBlank(auditingUserName)) {
-                    auditingUserNameArr = auditingUserName.split(",");
+                    auditingUserNameArr = StringUtils.splitPreserveAllTokens(auditingUserName, ",");
                 } else {
                     auditingUserNameArr = new String[auditingProcessList.size()];
                 }
-
 
                 String[] auditingUserIdArr02 = new String[auditingProcessList.size() - 1];
                 String[] auditingUserNameArr02 = new String[auditingProcessList.size() - 1];
@@ -115,6 +114,7 @@ public class PurchServiceImpl implements PurchService {
                     auditingUserId = StringUtils.join(auditingUserIdArr, ",");
                     auditingUserName = StringUtils.join(auditingUserNameArr02, ",");
                 }
+
             }
         }
         // 设置审核人
@@ -254,8 +254,8 @@ public class PurchServiceImpl implements PurchService {
         String[] userIds ;
         String[] userNames ;
         if (StringUtils.isNotBlank(auditingUserId)) {
-            userIds = auditingUserId.split(",");
-            userNames = auditingUser.split(",");
+            userIds = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
+            userNames = StringUtils.splitPreserveAllTokens(auditingUser, ",");
         } else {
             userIds = new String[split.length];
             userNames = new String[split.length];
@@ -273,8 +273,8 @@ public class PurchServiceImpl implements PurchService {
         // 更新
         Purch selectivePurch = new Purch();
         selectivePurch.setId(purch.getId());
-        selectivePurch.setAuditingUserId(StringUtils.join(userIds));
-        selectivePurch.setAuditingUser(StringUtils.join(userNames));
+        selectivePurch.setAuditingUserId(StringUtils.join(userIds, ","));
+        selectivePurch.setAuditingUser(StringUtils.join(userNames, ","));
         purchMapper.updateByPrimaryKeySelective(selectivePurch);
     }
 }

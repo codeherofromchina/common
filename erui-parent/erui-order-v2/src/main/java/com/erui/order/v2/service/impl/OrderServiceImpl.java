@@ -61,14 +61,14 @@ public class OrderServiceImpl implements OrderService {
         String audiRemark = order.getAudiRemark();
 
         if (StringUtils.isNotBlank(auditingProcess2)) {
-            List<String> auditingProcessList = Arrays.asList(auditingProcess2.split(","));
+            List<String> auditingProcessList = new ArrayList<>(Arrays.asList(auditingProcess2.split(",")));
             if (auditingProcessList.size() == 1) {
                 auditingProcess2 = "";
                 auditingUserId = "";
             } else {
                 String[] auditingUserIdArr = null;
                 if (StringUtils.isNotBlank(auditingUserId)) {
-                    auditingUserIdArr = auditingUserId.split(",");
+                    auditingUserIdArr = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
                 } else {
                     auditingUserIdArr = new String[auditingProcessList.size()];
                 }
@@ -194,7 +194,7 @@ public class OrderServiceImpl implements OrderService {
         String[] split = auditingProcess.split(",");
         String[] userIds ;
         if (StringUtils.isNotBlank(auditingUserId)) {
-            userIds = auditingUserId.split(",");
+            userIds = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
         } else {
             userIds = new String[split.length];
         }
@@ -208,7 +208,7 @@ public class OrderServiceImpl implements OrderService {
         // 更新
         OrderWithBLOBs selectiveOrder = new OrderWithBLOBs();
         selectiveOrder.setId(order.getId());
-        selectiveOrder.setAuditingUserId(StringUtils.join(userIds));
+        selectiveOrder.setAuditingUserId(StringUtils.join(userIds, ","));
         orderMapper.updateByPrimaryKeySelective(selectiveOrder);
     }
 

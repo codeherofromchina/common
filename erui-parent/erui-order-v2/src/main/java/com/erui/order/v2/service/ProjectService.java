@@ -49,10 +49,10 @@ public interface ProjectService {
 
     /**
      * 设置当前审核人
-     * @param projectId
+     * @param orderId
      * @param userId
      * @param userName
      * @param actId 审核进度
      */
-    void updateAuditUser(Long projectId, Long userId, String userName, String actId);
+    void updateAuditUser(Long orderId, Long userId, String userName, String actId);
 }

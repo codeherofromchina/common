@@ -91,7 +91,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         String auditingUserId = deliverConsign.getAuditingUserId();
         String audiRemark = deliverConsign.getAudiRemark();
         if (StringUtils.isNotBlank(auditingProcess2)) {
-            List<String> auditingProcessList = Arrays.asList(auditingProcess2.split(","));
+            List<String> auditingProcessList = new ArrayList<>(Arrays.asList(auditingProcess2.split(",")));
             if (auditingProcessList.size() == 1) {
                 auditingProcess2 = "";
                 auditingUserId = "";
@@ -100,12 +100,12 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 String[] auditingUserIdArr = null;
                 String[] auditingUserNameArr = null;
                 if (StringUtils.isNotBlank(auditingUserId)) {
-                    auditingUserIdArr = auditingUserId.split(",");
+                    auditingUserIdArr = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
                 } else {
                     auditingUserIdArr = new String[auditingProcessList.size()];
                 }
                 if (StringUtils.isNotBlank(auditingUserName)) {
-                    auditingUserNameArr = auditingUserName.split(",");
+                    auditingUserNameArr = StringUtils.splitPreserveAllTokens(auditingUserName, ",");
                 } else {
                     auditingUserNameArr = new String[auditingProcessList.size()];
                 }
@@ -548,8 +548,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         String[] userIds ;
         String[] userNames ;
         if (StringUtils.isNotBlank(auditingUserId)) {
-            userIds = auditingUserId.split(",");
-            userNames = auditingUser.split(",");
+            userIds = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
+            userNames = StringUtils.splitPreserveAllTokens(auditingUser, ",");
         } else {
             userIds = new String[split.length];
             userNames = new String[split.length];
@@ -567,8 +567,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         // 更新
         DeliverConsign selectiveDeliverConsign = new DeliverConsign();
         selectiveDeliverConsign.setId(deliverConsign.getId());
-        selectiveDeliverConsign.setAuditingUserId(StringUtils.join(userIds));
-        selectiveDeliverConsign.setAuditingUser(StringUtils.join(userNames));
+        selectiveDeliverConsign.setAuditingUserId(StringUtils.join(userIds, ","));
+        selectiveDeliverConsign.setAuditingUser(StringUtils.join(userNames, ","));
         deliverConsignMapper.updateByPrimaryKeySelective(selectiveDeliverConsign);
     }
 
