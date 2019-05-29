@@ -743,7 +743,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             iag.setId(vo.getId());
             inspectApplyGoodsList.add(iag);
             Goods goods = vo.getGoods();
-            //质检中
+            // 质检中
             //applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),5));
         });
         report.setInspectGoodsList(inspectApplyGoodsList);
