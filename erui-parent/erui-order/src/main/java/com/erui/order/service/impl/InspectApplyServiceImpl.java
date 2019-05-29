@@ -714,14 +714,8 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         report.setCreateTime(new Date());
         report.setIsShow(1);
 
-        if(isAllQRL1){ // 质检类型全部为QRL1时，不需要入库质检了，直接在入库管理里面加入一条记录，入库质检不显示该记录，质检状态显示完成
-            report.setNcrNo("");
-            report.setReportRemarks("质检商品全部都是QRL1，所以不需要质检员质检商品。");
-            report.setStatus(InspectReport.StatusEnum.DONE.getCode());
-            report.setProcess(false); // 是否还在质检中 true:进行中 false:已结束
-            report.setIsShow(0);
-
-            for (InspectApplyGoods applyGoods : inspectApply.getInspectApplyGoodsList()) {
+        for (InspectApplyGoods applyGoods : inspectApply.getInspectApplyGoodsList()) {
+            if(applyGoods.getQualityInspectType() != null && "QRL1".equals(applyGoods.getQualityInspectType().trim())){
                 PurchGoods purchGoods = applyGoods.getPurchGoods();
                 applyGoods.setSamples(0);
                 applyGoods.setUnqualified(0);
@@ -729,7 +723,14 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 purchGoods.setGoodNum(purchGoods.getPurchaseNum());
                 purchGoodsDao.save(purchGoods);
             }
+        }
 
+        if(isAllQRL1){ // 质检类型全部为QRL1时，不需要入库质检了，直接在入库管理里面加入一条记录，入库质检不显示该记录，质检状态显示完成
+            report.setNcrNo("");
+            report.setReportRemarks("质检商品全部都是QRL1，所以不需要质检员质检商品。");
+            report.setStatus(InspectReport.StatusEnum.DONE.getCode());
+            report.setProcess(false); // 是否还在质检中 true:进行中 false:已结束
+            report.setIsShow(0);
             inspectApply.setStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
             inspectApply.setPubStatus(InspectApply.StatusEnum.QUALIFIED.getCode());
             inspectApplyDao.save(inspectApply);
@@ -810,22 +811,19 @@ public class InspectApplyServiceImpl implements InspectApplyService {
 
         // 入库商品
         for (InspectApplyGoods inspectGoods : inspectApplyGoodsList) {
-            int qualifiedNum = inspectGoods.getInspectNum() - inspectGoods.getUnqualified();
             Goods goods = inspectGoods.getGoods();
-            if (qualifiedNum > 0) {
-                InstockGoods instockGoods = new InstockGoods();
-                instockGoods.setInstock(instock);
-                instockGoods.setContractNo(goods.getContractNo());
-                instockGoods.setProjectNo(goods.getProjectNo());
-                instockGoods.setInspectApplyGoods(inspectGoods);
-                instockGoods.setQualifiedNum(qualifiedNum);
-                instockGoods.setInstockNum(instockGoods.getQualifiedNum()); // 入库数量
-                Date date = new Date();
-                instockGoods.setCreateTime(date);
-                instockGoods.setUpdateTime(date);
-                instockGoods.setCreateUserId(inspectReport.getCreateUserId());
-                instockGoodsList.add(instockGoods);
-            }
+            InstockGoods instockGoods = new InstockGoods();
+            instockGoods.setInstock(instock);
+            instockGoods.setContractNo(goods.getContractNo());
+            instockGoods.setProjectNo(goods.getProjectNo());
+            instockGoods.setInspectApplyGoods(inspectGoods);
+            instockGoods.setQualifiedNum(inspectGoods.getInspectNum());
+            instockGoods.setInstockNum(instockGoods.getQualifiedNum()); // 入库数量
+            Date date = new Date();
+            instockGoods.setCreateTime(date);
+            instockGoods.setUpdateTime(date);
+            instockGoods.setCreateUserId(inspectReport.getCreateUserId());
+            instockGoodsList.add(instockGoods);
         }
         instock.setInstockGoodsList(instockGoodsList);
         instock.setOutCheck(1); //是否外检（ 0：否   1：是）
