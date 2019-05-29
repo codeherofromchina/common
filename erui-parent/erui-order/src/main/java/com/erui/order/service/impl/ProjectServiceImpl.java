@@ -188,20 +188,30 @@ public class ProjectServiceImpl implements ProjectService {
                             case 4:
                                 // 预投订单/现货订单
                                 projectUpdate.setAuditingProcess("task_gm");
+                                projectUpdate.setAuditingUser("");
+                                projectUpdate.setAuditingUserId("");
                                 break;
                             case 3:
                                 projectUpdate.setAuditingProcess("task_pc,task_lg,task_pu");
+                                projectUpdate.setAuditingUser(",,");
+                                projectUpdate.setAuditingUserId(",,");
                             case 6:
                                 // 国内订单
                                 projectUpdate.setAuditingProcess("task_pu");
+                                projectUpdate.setAuditingUser("");
+                                projectUpdate.setAuditingUserId("");
                                 break;
                             default:
                                 Integer overseasSales = order.getOverseasSales();
                                 if (overseasSales != null && overseasSales == 3) {
                                     // 海外销售类型 为3 海外销（当地采购 走现货审核流程
                                     projectUpdate.setAuditingProcess("task_gm");
+                                    projectUpdate.setAuditingUser("");
+                                    projectUpdate.setAuditingUserId("");
                                 } else {
                                     projectUpdate.setAuditingProcess("task_pc,task_lg,task_pu");
+                                    projectUpdate.setAuditingUser(",,");
+                                    projectUpdate.setAuditingUserId(",,");
                                 }
                         }
 
@@ -345,17 +355,64 @@ public class ProjectServiceImpl implements ProjectService {
             Map<String, Object> localVariables = new HashMap<>();
             localVariables.put("audit_status", "APPROVED");
             BpmUtils.completeTask(taskId, eruitoken, null, localVariables, "同意");
-        }
-        // 设置流程进度显示下已审核点
-        String auditingProcess = projectUpdate.getAuditingProcess();
-        if (auditingProcess != null) {
-            auditingProcess = auditingProcess.replace("task_pc", "");
-            auditingProcess = StringUtils.strip(auditingProcess, ",");
-            if (StringUtils.isBlank(auditingProcess)) {
+
+            // 设置审核进度和审核人字段格式
+            String auditingProcess = projectUpdate.getAuditingProcess();
+            String auditingUserId = projectUpdate.getAuditingUserId();
+            String auditingUserName = projectUpdate.getAuditingUser();
+            if (StringUtils.equals(auditingProcess,"task_pc")) {
                 auditingProcess = "task_gm";
+                auditingUserId = "";
+                auditingUserName = "";
+            } else if (StringUtils.isNotBlank(auditingProcess)) {
+                List<String> auditingProcessList = new ArrayList<>(Arrays.asList(auditingProcess.split(",")));
+                String[] auditingUserIdArr = null;
+                String[] auditingUserNameArr = null;
+                if (StringUtils.isNotBlank(auditingUserId)) {
+                    auditingUserIdArr = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
+                } else {
+                    auditingUserIdArr = new String[auditingProcessList.size()];
+                }
+                if (StringUtils.isNotBlank(auditingUserName)) {
+                    auditingUserNameArr =  StringUtils.splitPreserveAllTokens(auditingUserName, ",");
+                } else {
+                    auditingUserNameArr = new String[auditingProcessList.size()];
+                }
+
+                String[] auditingUserIdArr02 = new String[auditingProcessList.size() - 1];
+                String[] auditingUserNameArr02 = new String[auditingProcessList.size() - 1];
+                Iterator<String> iterator = auditingProcessList.iterator();
+                int i = 0;
+                int n = 0;
+                boolean removed = false;
+                while (iterator.hasNext()) {
+                    String next = iterator.next();
+                    if (StringUtils.equals(next, auditingProcess)) {
+                        iterator.remove();
+                        removed = true;
+                    } else {
+                        auditingUserIdArr02[n] = auditingUserIdArr[i];
+                        auditingUserNameArr02[n] = auditingUserNameArr[i];
+                        ++n;
+                    }
+                    ++i;
+                }
+
+                auditingProcess = StringUtils.join(auditingProcessList, ",");
+                if (removed) {
+                    auditingUserId = StringUtils.join(auditingUserIdArr02, ",");
+                    auditingUserName = StringUtils.join(auditingUserNameArr02, ",");
+                } else {
+                    auditingUserId = StringUtils.join(auditingUserIdArr, ",");
+                    auditingUserName = StringUtils.join(auditingUserNameArr02, ",");
+                }
+
             }
+            projectUpdate.setAuditingProcess(auditingProcess);
+            projectUpdate.setAuditingUserId(auditingUserId);
+            projectUpdate.setAuditingUser(auditingUserName);
         }
-        projectUpdate.setAuditingProcess(auditingProcess);
+
         return true;
     }
 
