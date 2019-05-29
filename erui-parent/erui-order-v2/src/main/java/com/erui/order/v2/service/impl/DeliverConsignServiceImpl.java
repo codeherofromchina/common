@@ -92,45 +92,51 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         String audiRemark = deliverConsign.getAudiRemark();
         if (StringUtils.isNotBlank(auditingProcess2)) {
             List<String> auditingProcessList = Arrays.asList(auditingProcess2.split(","));
-            String[] auditingUserIdArr = null;
-            String[] auditingUserNameArr = null;
-            if (StringUtils.isNotBlank(auditingUserId)) {
-                auditingUserIdArr = auditingUserId.split(",");
+            if (auditingProcessList.size() == 1) {
+                auditingProcess2 = "";
+                auditingUserId = "";
+                auditingUserName = "";
             } else {
-                auditingUserIdArr = new String[auditingProcessList.size()];
-            }
-            if (StringUtils.isNotBlank(auditingUserName)) {
-                auditingUserNameArr = auditingUserName.split(",");
-            } else {
-                auditingUserNameArr = new String[auditingProcessList.size()];
-            }
-
-            String[] auditingUserIdArr02 = new String[auditingProcessList.size() -1];
-            String[] auditingUserNameArr02 = new String[auditingProcessList.size() -1];
-            Iterator<String> iterator = auditingProcessList.iterator();
-            int i = 0;
-            int n = 0;
-            boolean removed = false;
-            while (iterator.hasNext()) {
-                String next = iterator.next();
-                if (StringUtils.equals(next, auditingProcess)) {
-                    iterator.remove();
-                    removed = true;
+                String[] auditingUserIdArr = null;
+                String[] auditingUserNameArr = null;
+                if (StringUtils.isNotBlank(auditingUserId)) {
+                    auditingUserIdArr = auditingUserId.split(",");
                 } else {
-                    auditingUserIdArr02[n] = auditingUserIdArr[i];
-                    auditingUserNameArr02[n] = auditingUserNameArr[i];
-                    ++n;
+                    auditingUserIdArr = new String[auditingProcessList.size()];
                 }
-                ++i;
-            }
+                if (StringUtils.isNotBlank(auditingUserName)) {
+                    auditingUserNameArr = auditingUserName.split(",");
+                } else {
+                    auditingUserNameArr = new String[auditingProcessList.size()];
+                }
 
-            auditingProcess2 = StringUtils.join(auditingProcessList, ",");
-            if (removed) {
-                auditingUserId = StringUtils.join(auditingUserIdArr02, ",");
-                auditingUserName = StringUtils.join(auditingUserNameArr02, ",");
-            } else {
-                auditingUserId = StringUtils.join(auditingUserIdArr, ",");
-                auditingUserName = StringUtils.join(auditingUserNameArr02, ",");
+                String[] auditingUserIdArr02 = new String[auditingProcessList.size() - 1];
+                String[] auditingUserNameArr02 = new String[auditingProcessList.size() - 1];
+                Iterator<String> iterator = auditingProcessList.iterator();
+                int i = 0;
+                int n = 0;
+                boolean removed = false;
+                while (iterator.hasNext()) {
+                    String next = iterator.next();
+                    if (StringUtils.equals(next, auditingProcess)) {
+                        iterator.remove();
+                        removed = true;
+                    } else {
+                        auditingUserIdArr02[n] = auditingUserIdArr[i];
+                        auditingUserNameArr02[n] = auditingUserNameArr[i];
+                        ++n;
+                    }
+                    ++i;
+                }
+
+                auditingProcess2 = StringUtils.join(auditingProcessList, ",");
+                if (removed) {
+                    auditingUserId = StringUtils.join(auditingUserIdArr02, ",");
+                    auditingUserName = StringUtils.join(auditingUserNameArr02, ",");
+                } else {
+                    auditingUserId = StringUtils.join(auditingUserIdArr, ",");
+                    auditingUserName = StringUtils.join(auditingUserNameArr02, ",");
+                }
             }
         }
         // 设置审核人
@@ -175,6 +181,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             }
         } else {
             auditingProcess2 = auditingProcess;
+            auditingUserName = "";
+            auditingUserId = "";
         }
         // 更新修正后的状态
         DeliverConsign deliverConsignSelective = new DeliverConsign();
