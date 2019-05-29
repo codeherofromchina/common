@@ -27,7 +27,6 @@ public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private UserService userService;
 
-
     public Project findProjectByProcessId(String processId) {
         ProjectExample example = new ProjectExample();
         ProjectExample.Criteria criteria = example.createCriteria();
