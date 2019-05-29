@@ -254,6 +254,7 @@ public class BpmNotifyController {
     @RequestMapping(value = "taskUnAssigned", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result taskUnAssigned(@RequestBody BpmTaskRuntime bpmTaskRuntime) {
         // 验证安全性
+
         if (!validate(bpmTaskRuntime.getKey())) {
             // 如果秘钥不正确，什么也不返回
             return new Result<>(ResultStatusEnum.FAIL);
