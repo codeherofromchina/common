@@ -1407,6 +1407,7 @@ public class OrderServiceImpl implements OrderService {
             if (technicalId != null) {
                 techicalUserNo = userService.findUserNoById(technicalId.longValue());
             }
+
             if (StringUtils.isNotBlank(techicalUserNo)) {
                 // ID -> userNo
                 bpmInitVar.put("assignee_pm",techicalUserNo);
