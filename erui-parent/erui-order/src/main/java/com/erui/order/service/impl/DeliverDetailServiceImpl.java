@@ -512,8 +512,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             deliverNotice.setPrepareReq(deliverDetail.getPrepareReq());
         }
 
-        one.setStatus(status);//状态
-
+        one.setStatus(status);// 状态
 
         Project project = null; //项目信息
 
