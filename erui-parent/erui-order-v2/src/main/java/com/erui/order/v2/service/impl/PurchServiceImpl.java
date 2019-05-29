@@ -115,6 +115,7 @@ public class PurchServiceImpl implements PurchService {
                     auditingUserId = StringUtils.join(auditingUserIdArr, ",");
                     auditingUserName = StringUtils.join(auditingUserNameArr02, ",");
                 }
+
             }
         }
         // 设置审核人
