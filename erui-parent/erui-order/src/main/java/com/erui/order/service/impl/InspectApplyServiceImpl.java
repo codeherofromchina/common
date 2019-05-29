@@ -720,7 +720,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 applyGoods.setSamples(0);
                 applyGoods.setUnqualified(0);
                 // 设置采购商品的已合格数量
-                purchGoods.setGoodNum(purchGoods.getPurchaseNum());
+                purchGoods.setInspectNum(purchGoods.getPurchaseNum());
+                purchGoods.setPreInspectNum(purchGoods.getPurchaseNum());
+                if(isAllQRL1) purchGoods.setGoodNum(purchGoods.getPurchaseNum());
                 purchGoodsDao.save(purchGoods);
             }
         }
@@ -743,7 +745,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             iag.setId(vo.getId());
             inspectApplyGoodsList.add(iag);
             Goods goods = vo.getGoods();
-            // 质检中
+            //质检中
             //applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(),5));
         });
         report.setInspectGoodsList(inspectApplyGoodsList);
