@@ -634,7 +634,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 推送数据到入库质检中
         pushDataToInspectReport(newInspectApply);
 
-        //到货报检通知：到货报检单下达后同时通知质检经办人
+        // 到货报检通知：到货报检单下达后同时通知质检经办人
         disposeSmsDate(newInspectApply, inspectApply);
 
         return true;
