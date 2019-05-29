@@ -258,8 +258,8 @@ public class ProjectServiceImpl implements ProjectService {
         // 更新
         Project selectiveProject = new Project();
         selectiveProject.setId(project.getId());
-        selectiveProject.setAuditingUserId(StringUtils.join(userIds));
-        selectiveProject.setAuditingUser(StringUtils.join(userNames));
+        selectiveProject.setAuditingUserId(StringUtils.join(userIds, ","));
+        selectiveProject.setAuditingUser(StringUtils.join(userNames, ","));
         projectMapper.updateByPrimaryKeySelective(selectiveProject);
     }
 }

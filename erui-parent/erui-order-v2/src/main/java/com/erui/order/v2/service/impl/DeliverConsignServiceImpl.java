@@ -567,8 +567,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         // 更新
         DeliverConsign selectiveDeliverConsign = new DeliverConsign();
         selectiveDeliverConsign.setId(deliverConsign.getId());
-        selectiveDeliverConsign.setAuditingUserId(StringUtils.join(userIds));
-        selectiveDeliverConsign.setAuditingUser(StringUtils.join(userNames));
+        selectiveDeliverConsign.setAuditingUserId(StringUtils.join(userIds, ","));
+        selectiveDeliverConsign.setAuditingUser(StringUtils.join(userNames, ","));
         deliverConsignMapper.updateByPrimaryKeySelective(selectiveDeliverConsign);
     }
 

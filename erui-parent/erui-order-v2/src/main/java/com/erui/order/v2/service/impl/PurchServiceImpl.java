@@ -273,8 +273,8 @@ public class PurchServiceImpl implements PurchService {
         // 更新
         Purch selectivePurch = new Purch();
         selectivePurch.setId(purch.getId());
-        selectivePurch.setAuditingUserId(StringUtils.join(userIds));
-        selectivePurch.setAuditingUser(StringUtils.join(userNames));
+        selectivePurch.setAuditingUserId(StringUtils.join(userIds, ","));
+        selectivePurch.setAuditingUser(StringUtils.join(userNames, ","));
         purchMapper.updateByPrimaryKeySelective(selectivePurch);
     }
 }

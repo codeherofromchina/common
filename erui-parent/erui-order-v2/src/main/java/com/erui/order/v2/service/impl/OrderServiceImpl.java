@@ -205,13 +205,10 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        System.out.println(userIds.length);
-        System.out.println("x" + StringUtils.join(userIds) + "x");
-
         // 更新
         OrderWithBLOBs selectiveOrder = new OrderWithBLOBs();
         selectiveOrder.setId(order.getId());
-        selectiveOrder.setAuditingUserId(StringUtils.join(userIds));
+        selectiveOrder.setAuditingUserId(StringUtils.join(userIds, ","));
         orderMapper.updateByPrimaryKeySelective(selectiveOrder);
     }
 
