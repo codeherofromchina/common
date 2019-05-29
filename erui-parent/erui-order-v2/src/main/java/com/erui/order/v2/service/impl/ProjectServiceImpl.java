@@ -119,11 +119,6 @@ public class ProjectServiceImpl implements ProjectService {
         projectSelective.setAuditingUserId(auditingUserId);
         projectSelective.setAuditingUser(auditingUserName);
         projectSelective.setAudiRemark(audiRemark);
-        if ("task_pc".equals(auditingProcess) && user != null) {
-            // 品控审批的，则设置品控负责人 TODO 这里先注释，需要测试
-            projectSelective.setQualityUid(user.getId().intValue());
-            projectSelective.setQualityName(String.valueOf(user.getName()) + "_wxdtest");
-        }
         projectMapper.updateByPrimaryKeySelective(projectSelective);
     }
 
