@@ -338,7 +338,6 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateProjectQualityInspectType(Project project) throws Exception {
-        System.out.println("ddddddddd");
         Project projectUpdate = findById(project.getId());
         projectUpdate.setQualityInspectType(project.getQualityInspectType().trim());
         if (project.getQualityUid() != null) {
@@ -387,10 +386,10 @@ public class ProjectServiceImpl implements ProjectService {
                 boolean removed = false;
                 while (iterator.hasNext()) {
                     String next = iterator.next();
-                    if (StringUtils.equals(next, auditingProcess)) {
+                    if (StringUtils.equals(next, "task_pc")) {
                         iterator.remove();
                         removed = true;
-                    } else {
+                    } else if (n < auditingUserIdArr02.length) {
                         auditingUserIdArr02[n] = auditingUserIdArr[i];
                         auditingUserNameArr02[n] = auditingUserNameArr[i];
                         ++n;

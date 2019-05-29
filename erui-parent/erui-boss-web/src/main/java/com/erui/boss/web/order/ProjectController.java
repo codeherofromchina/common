@@ -123,7 +123,6 @@ public class ProjectController {
         String reason = pProject.getAuditingReason(); // 驳回原因
         String type = pProject.getAuditingType(); // 驳回or审核
         Integer checkLogId = pProject.getCheckLogId();
-        System.out.println("eeeeeeeeeeeeeeeeeeee1");
         // 判断项目是否存在，
         Project project = projectService.findDesc(projectId);
         if (project == null) {
@@ -137,16 +136,13 @@ public class ProjectController {
         if (rejectFlag && (StringUtils.isBlank(reason) || checkLogId == null)) {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR).setMsg("驳回原因和驳回步骤为必填信息");
         }
-        System.out.println("eeeeeeeeeeeeeeeeeeee2");
         // 修改项目的商品风险等级
         if(!StringUtils.isBlank(pProject.getQualityInspectType())){
-            System.out.println("eeeeeeeeeeeeeeeeeeee");
             // 设置品控负责人
             if (userId != null) {
                 if (StringUtils.isNumeric(String.valueOf(userId))) {
                     pProject.setQualityUid(Integer.parseInt(String.valueOf(userId)));
                     pProject.setQualityName((String)realname);
-                    System.out.println("eeeeeeeeeeeeeeeeeeee" + (String)realname + "..." + String.valueOf(userId));
                 }
             }
             projectService.updateProjectQualityInspectType(pProject);
