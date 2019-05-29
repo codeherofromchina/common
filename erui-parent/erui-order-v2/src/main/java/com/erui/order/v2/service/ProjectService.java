@@ -55,4 +55,11 @@ public interface ProjectService {
      * @param actId 审核进度
      */
     void updateAuditUser(Long orderId, Long userId, String userName, String actId);
+
+    /**
+     * 取消进度的当前审核人
+     * @param orderId
+     * @param actId
+     */
+    void deleteAuditUser(Long orderId, String actId);
 }

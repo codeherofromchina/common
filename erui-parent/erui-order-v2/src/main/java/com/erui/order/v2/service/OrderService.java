@@ -69,4 +69,11 @@ public interface OrderService {
      * @param userName
      */
     void updateAuditUser(Long orderId, Long userId, String userName, String actId);
+
+    /**
+     * 取消进度的当前审核人
+     * @param orderId
+     * @param actId
+     */
+    void deleteAuditUser(Long orderId, String actId);
 }

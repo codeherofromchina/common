@@ -65,7 +65,7 @@ public class ProjectServiceImpl implements ProjectService {
                     auditingUserIdArr = new String[auditingProcessList.size()];
                 }
                 if (StringUtils.isNotBlank(auditingUserName)) {
-                    auditingUserNameArr =  StringUtils.splitPreserveAllTokens(auditingUserName, ",");
+                    auditingUserNameArr = StringUtils.splitPreserveAllTokens(auditingUserName, ",");
                 } else {
                     auditingUserNameArr = new String[auditingProcessList.size()];
                 }
@@ -189,7 +189,7 @@ public class ProjectServiceImpl implements ProjectService {
         ProjectExample example = new ProjectExample();
         example.createCriteria().andOrderIdEqualTo(orderId);
         List<Project> projects = projectMapper.selectByExample(example);
-        if (projects != null && projects.size() > 0){
+        if (projects != null && projects.size() > 0) {
             return projects.get(0);
         }
         return null;
@@ -197,6 +197,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     /**
      * 查找所有采购相关的项目列表
+     *
      * @param purchId
      * @return
      */
@@ -231,8 +232,8 @@ public class ProjectServiceImpl implements ProjectService {
         }
         // 处理审核人到审核进度的相应索引上
         String[] split = auditingProcess.split(",");
-        String[] userIds ;
-        String[] userNames ;
+        String[] userIds;
+        String[] userNames;
         if (StringUtils.isNotBlank(auditingUserId)) {
             userIds = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
             userNames = StringUtils.splitPreserveAllTokens(auditingUser, ",");
@@ -240,7 +241,7 @@ public class ProjectServiceImpl implements ProjectService {
             userIds = new String[split.length];
             userNames = new String[split.length];
         }
-        for (int i=0; i< split.length; ++i) {
+        for (int i = 0; i < split.length; ++i) {
             if (StringUtils.equals(split[i], actId) && userIds.length > i) {
                 userIds[i] = String.valueOf(userId);
                 if (userNames.length > i) {
@@ -250,6 +251,39 @@ public class ProjectServiceImpl implements ProjectService {
             }
         }
 
+        // 更新
+        Project selectiveProject = new Project();
+        selectiveProject.setId(project.getId());
+        selectiveProject.setAuditingUserId(StringUtils.join(userIds, ","));
+        selectiveProject.setAuditingUser(StringUtils.join(userNames, ","));
+        projectMapper.updateByPrimaryKeySelective(selectiveProject);
+    }
+
+
+    @Override
+    public void deleteAuditUser(Long orderId, String actId) {
+        Project project = findProjectByOrderId(orderId.intValue());
+        // 获取原来的审核进度和相应审核人
+        String auditingProcess = project.getAuditingProcess();
+        String auditingUserId = project.getAuditingUserId();
+        String auditingUser = project.getAuditingUser();
+        if (StringUtils.isBlank(auditingProcess)) {
+            return;
+        }
+        // 处理审核人到审核进度的相应索引上
+        String[] split = auditingProcess.split(",");
+        String[] userIds = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
+        String[] userNames = StringUtils.splitPreserveAllTokens(auditingUser, ",");
+        if (split.length != userIds.length) {
+            // 数据正常的情况下是一一对应的，所以大小是相等的
+            return;
+        }
+        for (int i = 0; i < split.length; ++i) {
+            if (StringUtils.equals(split[i], actId)) {
+                userIds[i] = "";
+                break;
+            }
+        }
         // 更新
         Project selectiveProject = new Project();
         selectiveProject.setId(project.getId());

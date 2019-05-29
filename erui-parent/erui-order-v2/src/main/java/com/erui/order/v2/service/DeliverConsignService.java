@@ -62,4 +62,11 @@ public interface DeliverConsignService {
      * @param userName
      */
     void updateAuditUser(Long deliverConsignId, Long userId, String userName, String actId);
+
+    /**
+     * 取消进度的当前审核人
+     * @param deliverConsignId
+     * @param actId
+     */
+    void deleteAuditUser(Long deliverConsignId, String actId);
 }

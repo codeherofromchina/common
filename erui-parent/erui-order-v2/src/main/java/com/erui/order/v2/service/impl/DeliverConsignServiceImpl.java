@@ -572,6 +572,39 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignMapper.updateByPrimaryKeySelective(selectiveDeliverConsign);
     }
 
+    @Override
+    public void deleteAuditUser(Long deliverConsignId, String actId) {
+        DeliverConsign deliverConsign = deliverConsignMapper.selectByPrimaryKey(deliverConsignId.intValue());
+        // 获取原来的审核进度和相应审核人
+        String auditingProcess = deliverConsign.getAuditingProcess();
+        String auditingUserId = deliverConsign.getAuditingUserId();
+        String auditingUserName = deliverConsign.getAuditingUser();
+        if (StringUtils.isBlank(auditingProcess)) {
+            return;
+        }
+        // 处理审核人到审核进度的相应索引上
+        String[] split = auditingProcess.split(",");
+        String[] userIds = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
+        String[] userNames = StringUtils.splitPreserveAllTokens(auditingUserName, ",");
+        if (split.length != userIds.length) {
+            // 数据正常的情况下是一一对应的，所以大小是相等的
+            return;
+        }
+        for (int i=0; i< split.length; ++i) {
+            if (StringUtils.equals(split[i], actId)) {
+                userIds[i] = "";
+                userNames[i] = "";
+                break;
+            }
+        }
+        // 更新
+        DeliverConsign selectiveDeliverConsign = new DeliverConsign();
+        selectiveDeliverConsign.setId(deliverConsign.getId());
+        selectiveDeliverConsign.setAuditingUserId(StringUtils.join(userIds, ","));
+        selectiveDeliverConsign.setAuditingUser(StringUtils.join(userNames, ","));
+        deliverConsignMapper.updateByPrimaryKeySelective(selectiveDeliverConsign);
+    }
+
     /**
      * 根据订单中crm编码，查询授信信息
      *

@@ -63,4 +63,11 @@ public interface PurchService {
      * @param userName
      */
     void updateAuditUser(Long purchId, Long userId, String userName, String actId);
+
+    /**
+     * 取消进度的当前审核人
+     * @param purchId
+     * @param actId
+     */
+    void deleteAuditUser(Long purchId, String actId);
 }

@@ -251,8 +251,8 @@ public class PurchServiceImpl implements PurchService {
         }
         // 处理审核人到审核进度的相应索引上
         String[] split = auditingProcess.split(",");
-        String[] userIds ;
-        String[] userNames ;
+        String[] userIds;
+        String[] userNames;
         if (StringUtils.isNotBlank(auditingUserId)) {
             userIds = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
             userNames = StringUtils.splitPreserveAllTokens(auditingUser, ",");
@@ -260,7 +260,7 @@ public class PurchServiceImpl implements PurchService {
             userIds = new String[split.length];
             userNames = new String[split.length];
         }
-        for (int i=0; i< split.length; ++i) {
+        for (int i = 0; i < split.length; ++i) {
             if (StringUtils.equals(split[i], actId) && userIds.length > i) {
                 userIds[i] = String.valueOf(userId);
                 if (userNames.length > i) {
@@ -270,6 +270,40 @@ public class PurchServiceImpl implements PurchService {
             }
         }
 
+        // 更新
+        Purch selectivePurch = new Purch();
+        selectivePurch.setId(purch.getId());
+        selectivePurch.setAuditingUserId(StringUtils.join(userIds, ","));
+        selectivePurch.setAuditingUser(StringUtils.join(userNames, ","));
+        purchMapper.updateByPrimaryKeySelective(selectivePurch);
+    }
+
+
+    @Override
+    public void deleteAuditUser(Long purchId, String actId) {
+        Purch purch = purchMapper.selectByPrimaryKey(purchId.intValue());
+        // 获取原来的审核进度和相应审核人
+        String auditingProcess = purch.getAuditingProcess();
+        String auditingUserId = purch.getAuditingUserId();
+        String auditingUser = purch.getAuditingUser();
+        if (StringUtils.isBlank(auditingProcess)) {
+            return;
+        }
+        // 处理审核人到审核进度的相应索引上
+        String[] split = auditingProcess.split(",");
+        String[] userIds = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
+        String[] userNames = StringUtils.splitPreserveAllTokens(auditingUser, ",");
+        if (split.length != userIds.length) {
+            // 数据正常的情况下是一一对应的，所以大小是相等的
+            return;
+        }
+        for (int i = 0; i < split.length; ++i) {
+            if (StringUtils.equals(split[i], actId)) {
+                userIds[i] = "";
+                userNames[i] = "";
+                break;
+            }
+        }
         // 更新
         Purch selectivePurch = new Purch();
         selectivePurch.setId(purch.getId());
