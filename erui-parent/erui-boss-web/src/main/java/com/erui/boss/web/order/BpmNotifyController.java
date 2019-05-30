@@ -196,16 +196,19 @@ public class BpmNotifyController {
             // 如果秘钥不正确，什么也不返回
             return new Result<>(ResultStatusEnum.FAIL);
         }
+
+        // 业务流中存在完善开头的就是业务的开头被驳回节点
+        boolean rejected = StringUtils.startsWith(bpmTaskRuntime.getActName(), "完善");
         if (StringUtils.equals("order", bpmTaskRuntime.getBizType())) {
             // 订单审核流程
-            orderService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId());
-            projectService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId());
+            orderService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId(), rejected);
+            projectService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId(), rejected);
         } else if (StringUtils.equals("deliver_consign", bpmTaskRuntime.getBizType())) {
             // 订舱审核流程
-            deliverConsignService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId());
+            deliverConsignService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId(), rejected);
         } else if (StringUtils.equals("purch", bpmTaskRuntime.getBizType())) {
             // 采购审核流程
-            purchService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId());
+            purchService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId(), rejected);
         }
         bpmTaskRuntimeService.addBpmTaskRuntime(bpmTaskRuntime);
         return new Result();

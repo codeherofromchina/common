@@ -138,15 +138,14 @@ public class PurchServiceImpl implements PurchService {
     }
 
     @Override
-    public void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId) {
-
+    public void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId, boolean rejected) {
         // 查询采购
         Purch purch = findPurchByProcessId(processInstanceId);
         if (purch == null) {
             return;
         }
         // 处理采购的审核状态和审核进度
-        Integer auditingStatus = 2; // 2:审核中
+        int auditingStatus = rejected ? Order.AuditingStatusEnum.REJECT.getStatus() : Order.AuditingStatusEnum.PROCESSING.getStatus();
         String auditingProcess2 = purch.getAuditingProcess();
         String auditingUserName = purch.getAuditingUser();
         String auditingUserId = purch.getAuditingUserId();

@@ -161,14 +161,14 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     }
 
     @Override
-    public void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId) {
+    public void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId, boolean rejected) {
         // 查询出口通知单
         DeliverConsign deliverConsign = findDeliverConsignByProcessId(processInstanceId);
         if (deliverConsign == null) {
             return;
         }
         // 处理出口通知单的审核状态和审核进度
-        Integer auditingStatus = 2; // 2:审核中
+        int auditingStatus = rejected ? Order.AuditingStatusEnum.REJECT.getStatus() : Order.AuditingStatusEnum.PROCESSING.getStatus();
         String auditingProcess2 = deliverConsign.getAuditingProcess();
         String auditingUserName = deliverConsign.getAuditingUser();
         String auditingUserId = deliverConsign.getAuditingUserId();
