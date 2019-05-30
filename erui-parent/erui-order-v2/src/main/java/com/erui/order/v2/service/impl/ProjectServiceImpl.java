@@ -278,6 +278,7 @@ public class ProjectServiceImpl implements ProjectService {
             // 数据正常的情况下是一一对应的，所以大小是相等的
             return;
         }
+
         for (int i = 0; i < split.length; ++i) {
             if (StringUtils.equals(split[i], actId)) {
                 userIds[i] = "";
