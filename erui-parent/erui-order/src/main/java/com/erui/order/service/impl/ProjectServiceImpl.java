@@ -336,7 +336,6 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return true;
     }
-
     //给EACP返回商品有效信息
     private List<Goods> eacpGoods(Order order) {
         List<Goods> goods = new ArrayList<>();
