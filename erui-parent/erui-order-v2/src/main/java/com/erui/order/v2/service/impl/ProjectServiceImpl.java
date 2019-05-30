@@ -281,6 +281,7 @@ public class ProjectServiceImpl implements ProjectService {
         for (int i = 0; i < split.length; ++i) {
             if (StringUtils.equals(split[i], actId)) {
                 userIds[i] = "";
+                userNames[i] = "";
                 break;
             }
         }
