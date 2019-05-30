@@ -210,7 +210,7 @@ public class PurchController {
         Purch data = purchService.findDetailInfo(purch.getId());
         try {
             if(data.getAuditingStatus() == 3){ // 采购在驳回的时候，数量为0的商品也需要显示。
-                PurchContract purchContract = purchContractService.findDetailInfo(purch.getPurchContractId());
+                PurchContract purchContract = purchContractService.findDetailInfo(data.getPurchContractId());
                 List<PurchGoods> purchGoodsList = data.getPurchGoodsList();
                 StringBuffer purchContractGoodsIds = new StringBuffer("");
                 List<PurchContractGoods> purchContractGoodsList = purchContract.getPurchContractGoodsList();
