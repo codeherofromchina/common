@@ -308,7 +308,6 @@ public class InspectReportServiceImpl implements InspectReportService {
         // 处理附件信息
         //List<Attachment> attachments = attachmentService.handleParamAttachment(dbInspectReport.getAttachments(), inspectReport.getAttachments(), inspectReport.getCreateUserId(), inspectReport.getCreateUserName());
         //dbInspectReport.setAttachments(attachments);
-
         // 处理商品信息
         Map<Integer, InspectApplyGoods> inspectGoodsMap = inspectReport.getInspectGoodsList().parallelStream().
                 collect(Collectors.toMap(InspectApplyGoods::getId, vo -> vo)); // 参数的质检商品
