@@ -123,7 +123,6 @@ public class ProjectController {
         String reason = pProject.getAuditingReason(); // 驳回原因
         String type = pProject.getAuditingType(); // 驳回or审核
         Integer checkLogId = pProject.getCheckLogId();
-
         // 判断项目是否存在，
         Project project = projectService.findDesc(projectId);
         if (project == null) {

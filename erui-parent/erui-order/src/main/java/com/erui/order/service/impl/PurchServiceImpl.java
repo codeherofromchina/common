@@ -1078,6 +1078,7 @@ public class PurchServiceImpl implements PurchService {
             // 提交业务流的采购合同订单流程
             Map<String, Object> bpmInitVar = new HashMap<>();
             bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
+            bpmInitVar.put("param_contract", purch.getPurchNo());
             String task_la_check = "N";
             if (StringUtils.equals("3", purch.getContractVersion())) {
                 // 非标合同走法务
@@ -1736,6 +1737,7 @@ public class PurchServiceImpl implements PurchService {
                     // 启动采购合同订单流程实例（purchase_order）
                     Map<String, Object> bpmInitVar = new HashMap<>();
                     bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
+                    bpmInitVar.put("param_contract", purch.getPurchNo()); // 采购合同号
                     bpmInitVar.put("task_la_check", StringUtils.equals("3", purch.getContractVersion()) ? "Y" : "N"); // 标准版本
                     JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
                     save.setProcessId(processResp.getString("instanceId"));

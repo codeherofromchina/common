@@ -212,6 +212,36 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.updateByPrimaryKeySelective(selectiveOrder);
     }
 
+
+    @Override
+    public void deleteAuditUser(Long orderId, String actId) {
+        OrderWithBLOBs order = orderMapper.selectByPrimaryKey(orderId.intValue());
+        // 获取原来的审核进度和相应审核人
+        String auditingProcess = order.getAuditingProcess();
+        String auditingUserId = order.getAuditingUserId();
+        if (StringUtils.isBlank(auditingProcess)) {
+            return;
+        }
+        // 处理审核人到审核进度的相应索引上
+        String[] split = auditingProcess.split(",");
+        String[] userIds = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
+        if (split.length != userIds.length) {
+            // 数据正常的情况下是一一对应的，所以大小是相等的
+            return;
+        }
+        for (int i=0; i< split.length; ++i) {
+            if (StringUtils.equals(split[i], actId)) {
+                userIds[i] = "";
+                break;
+            }
+        }
+        // 更新
+        OrderWithBLOBs selectiveOrder = new OrderWithBLOBs();
+        selectiveOrder.setId(order.getId());
+        selectiveOrder.setAuditingUserId(StringUtils.join(userIds, ","));
+        orderMapper.updateByPrimaryKeySelective(selectiveOrder);
+    }
+
     @Override
     public void updateProcessCompleted(String processInstanceId) {
         // 修改审核状态

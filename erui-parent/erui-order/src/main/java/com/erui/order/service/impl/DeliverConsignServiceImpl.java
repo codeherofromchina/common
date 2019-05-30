@@ -277,8 +277,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             String taskId = deliverConsign.getTaskId();
             if (StringUtils.isBlank(taskId)) {
+                Map<String, Object> initVar = new HashMap<>();
+                initVar.put("param_contract", deliverConsign1.getDeliverConsignNo());
                 // 启动业务流流程实例
-                JSONObject processResp = BpmUtils.startProcessInstanceByKey("booking_order", null, eruitoken, "deliver_consign:" + deliverConsign1.getId(), null);
+                JSONObject processResp = BpmUtils.startProcessInstanceByKey("booking_order", null, eruitoken, "deliver_consign:" + deliverConsign1.getId(), initVar);
                 // 设置订单和业务流标示关联
                 deliverConsign1.setProcessId(processResp.getString("instanceId"));
             } else {
@@ -439,8 +441,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignAdd);
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
+            Map<String, Object> initVar = new HashMap<>();
+            initVar.put("param_contract", deliverConsign1.getDeliverConsignNo());
             // 启动业务流流程实例
-            JSONObject processResp = BpmUtils.startProcessInstanceByKey("booking_order", null, eruitoken, "deliver_consign:" + deliverConsign1.getId(), null);
+            JSONObject processResp = BpmUtils.startProcessInstanceByKey("booking_order", null, eruitoken, "deliver_consign:" + deliverConsign1.getId(), initVar);
             // 设置订单和业务流标示关联
             deliverConsign1.setProcessId(processResp.getString("instanceId"));
             deliverConsign1.setAuditingProcess("task_cm"); // 第一个节点通知失败，写固定的第一个节点

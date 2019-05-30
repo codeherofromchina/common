@@ -160,7 +160,6 @@ public class BpmUtils {
         Map<String, String> header = new HashMap<>();
         header.put("Content-Type", "application/json;charset=utf-8");
         header.put("Cookie", "eruitoken=" + token);
-
         String resp = HttpRequest.sendPost(bpmUrl + "/task/instance/" + taskId + "/complete", params.toJSONString(), header);
         LOGGER.info("完成流程任务返回内容为：{}", resp);
         JSONObject respJson = JSONObject.parseObject(resp);

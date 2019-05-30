@@ -246,6 +246,38 @@ public class BpmNotifyController {
         return new Result();
     }
 
+
+
+    /**
+     * 任务放回任务池通知，删除相应审核的当前审核人
+     */
+    @RequestMapping(value = "taskUnAssigned", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result taskUnAssigned(@RequestBody BpmTaskRuntime bpmTaskRuntime) {
+        // 验证安全性
+
+        if (!validate(bpmTaskRuntime.getKey())) {
+            // 如果秘钥不正确，什么也不返回
+            return new Result<>(ResultStatusEnum.FAIL);
+        }
+        if (StringUtils.isAnyBlank(bpmTaskRuntime.getBizType(), bpmTaskRuntime.getActId()) || bpmTaskRuntime.getBizObjId() == null) {
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
+        }
+
+        String actId = bpmTaskRuntime.getActId();
+        if (StringUtils.equals("order", bpmTaskRuntime.getBizType())) {
+            // 订单审核流程
+            orderService.deleteAuditUser(bpmTaskRuntime.getBizObjId(), actId);
+            projectService.deleteAuditUser(bpmTaskRuntime.getBizObjId(), actId);
+        } else if (StringUtils.equals("deliver_consign", bpmTaskRuntime.getBizType())) {
+            // 订舱审核流程
+            deliverConsignService.deleteAuditUser(bpmTaskRuntime.getBizObjId(), actId);
+        } else if (StringUtils.equals("purch", bpmTaskRuntime.getBizType())) {
+            // 采购审核流程
+            purchService.deleteAuditUser(bpmTaskRuntime.getBizObjId(), actId);
+        }
+        return new Result();
+    }
+
     /**
      * 验证秘钥是否一样
      *
