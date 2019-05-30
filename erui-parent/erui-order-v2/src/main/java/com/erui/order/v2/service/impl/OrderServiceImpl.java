@@ -119,14 +119,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId) {
+    public void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId, boolean rejected) {
         // 查询订单
         Order order = findOrderByProcessId(processInstanceId);
         if (order == null) {
             return;
         }
         // 处理订单的审核状态和审核进度
-        Integer auditingStatus = 2; // 2:审核中
+        int auditingStatus = rejected ? Order.AuditingStatusEnum.REJECT.getStatus() : Order.AuditingStatusEnum.PROCESSING.getStatus();
         String auditingProcess2 = order.getAuditingProcess();
         String auditingUserId = order.getAuditingUserId();
         if (StringUtils.isNotBlank(auditingProcess2)) {

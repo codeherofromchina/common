@@ -923,4 +923,22 @@ public class Order {
     public void setTaskId(String taskId) {
         this.taskId = taskId;
     }
+
+    /**
+     * 审核状态
+     * //1：待审核、2：审核中、3：驳回、4：通过
+     */
+    public static enum AuditingStatusEnum {
+        WAIT(1), PROCESSING(2), REJECT(3), THROUGH(4);
+
+        private int status;
+
+        private AuditingStatusEnum(int status) {
+            this.status = status;
+        }
+
+        public int getStatus() {
+            return status;
+        }
+    }
 }

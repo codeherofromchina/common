@@ -124,7 +124,7 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     @Override
-    public void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId) {
+    public void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId, boolean rejected) {
         // 查询项目
         Project project = findProjectByProcessId(processInstanceId);
         if (project == null) {
@@ -132,7 +132,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
         // 处理订单的审核状态和审核进度
         // 1:未审核（待审核） 2：审核中  3：驳回  4：审核完成
-        int auditingStatus = 2;
+        int auditingStatus = rejected ? Order.AuditingStatusEnum.REJECT.getStatus() : Order.AuditingStatusEnum.PROCESSING.getStatus();
         if ("task_pm".equals(auditingProcess)) {
             // 如果是进入到项目负责人审核，需要设置是驳回还是
             auditingStatus = 3; // 正常按照驳回走

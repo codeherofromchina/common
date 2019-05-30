@@ -25,8 +25,9 @@ public interface DeliverConsignService {
      *
      * @param processInstanceId
      * @param auditingProcess
+     * @param rejected    是否是驳回
      */
-    void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId);
+    void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId, boolean rejected);
 
     /**
      * 业务流实例执行结束更新
