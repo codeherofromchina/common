@@ -987,7 +987,7 @@ public class PurchServiceImpl implements PurchService {
             if (pgList.size() == 0) {
                 throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
             }
-            purch.setPurchGoodsList(pgList);
+//            purch.setPurchGoodsList(pgList);
         }
         // 处理商品信息
         List<PurchGoods> purchGoodsList = new ArrayList<>();
@@ -1172,7 +1172,7 @@ public class PurchServiceImpl implements PurchService {
                 if (pgList.size() == 0) {
                     throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
                 }
-                purch.setPurchGoodsList(pgList);
+//                purch.setPurchGoodsList(pgList);
             }
             // 处理商品
             List<PurchGoods> purchGoodsList = new ArrayList<>(); // 声明最终采购商品容器
@@ -1463,7 +1463,7 @@ public class PurchServiceImpl implements PurchService {
                 if (pgList.size() == 0) {
                     throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
                 }
-                purch.setPurchGoodsList(pgList);
+//                purch.setPurchGoodsList(pgList);
             }
             // 处理商品
             List<PurchGoods> purchGoodsList = new ArrayList<>(); // 声明最终采购商品容器
