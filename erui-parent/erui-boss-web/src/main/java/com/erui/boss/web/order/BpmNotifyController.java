@@ -225,7 +225,6 @@ public class BpmNotifyController {
         if (StringUtils.isAnyBlank(bpmTaskRuntime.getAssignee(), bpmTaskRuntime.getBizType(), bpmTaskRuntime.getActId()) || bpmTaskRuntime.getBizObjId() == null) {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
         }
-
         User user = userService.findUserNoByUserNo(bpmTaskRuntime.getAssignee());
         if (user == null) {
             return new Result<>(ResultStatusEnum.FAIL);
