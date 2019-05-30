@@ -6,7 +6,7 @@ import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.order.entity.*;
 import com.erui.order.requestVo.PurchParam;
-import com.erui.order.service.CheckLogService;
+import com.erui.order.service.PurchContractService;
 import com.erui.order.service.PurchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.apache.commons.lang3.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +37,8 @@ public class PurchController {
 
     @Autowired
     private PurchService purchService;
+    @Autowired
+    private PurchContractService purchContractService;
 
 
     /**
@@ -205,6 +208,47 @@ public class PurchController {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
         }
         Purch data = purchService.findDetailInfo(purch.getId());
+        try {
+            if(data.getAuditingStatus() == 3){ // 采购在驳回的时候，数量为0的商品也需要显示。
+                PurchContract purchContract = purchContractService.findDetailInfo(data.getPurchContractId());
+                List<PurchGoods> purchGoodsList = data.getPurchGoodsList();
+                StringBuffer purchContractGoodsIds = new StringBuffer("");
+                List<PurchContractGoods> purchContractGoodsList = purchContract.getPurchContractGoodsList();
+                if (purchGoodsList.size() > 0) {
+                    for (PurchGoods purchGoods : purchGoodsList) {
+                        purchContractGoodsIds.append(purchGoods.getPcgId() + ",");
+                    }
+                    PurchGoods pg = null;
+                    for (PurchContractGoods purchContractGoods : purchContractGoodsList) {
+                        if(purchContractGoods.getPurchaseNum() > purchContractGoods.getPrePurchContractNum()){
+                            if(purchContractGoods.getId().toString().indexOf(purchContractGoodsIds.toString()) == -1) {
+                                pg = new PurchGoods();
+                                pg.setProjectNo(purchContractGoods.getProjectNo());
+                                pg.setContractNo(purchContractGoods.getContractNo());
+                                pg.setGoods(purchContractGoods.getGoods());
+                                pg.setgId(purchContractGoods.getGoods().getId());
+                                pg.setPcgId(purchContractGoods.getId());
+                                pg.setPurchContractGoods(purchContractGoods);
+                                pg.setExchanged(false);
+                                pg.setPurchaseNum(0);
+                                pg.setInspectNum(0);
+                                pg.setPreInspectNum(0);
+                                pg.setGoodNum(0);
+                                pg.setPurchasePrice(purchContractGoods.getPurchasePrice());
+                                pg.setPurchaseTotalPrice(new BigDecimal(0));
+                                pg.setPurchaseRemark("");
+                                purchGoodsList.add(pg);
+                            }
+                        }
+                    }
+                    data.setPurchGoodsList(purchGoodsList);
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
         if (data != null) {
             return new Result<>(data);
         }
