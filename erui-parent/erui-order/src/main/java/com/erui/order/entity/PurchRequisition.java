@@ -311,7 +311,7 @@ public class PurchRequisition {
 
 
     public enum PurchStatusEnum {
-        ZERO(1, "未进行"), BEING(2, "进行中"), DONE(3, "完成"), CHANGE(5, "已变更");
+        ZERO(1, "未进行"), BEING(2, "进行中"), DONE(3, "完成");
 
         private int code;
         private String msg;

@@ -16,7 +16,6 @@ import com.erui.order.event.PurchDoneCheckEvent;
 import com.erui.order.event.TasksAddEvent;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.*;
-import com.erui.order.util.BpmUtils;
 import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
@@ -79,9 +78,6 @@ public class ProjectServiceImpl implements ProjectService {
     private String dingSendSms;  //发钉钉通知接口
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
-    @Value("#{orderProp[ORDER_EACP]}")
-    private String orderEacp; //给提供eacp数据
-
     @Autowired
     private AttachmentDao attachmentDao;
     @Autowired
@@ -135,190 +131,336 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean updateProject(Project project, Integer userIdP) throws Exception {
+    public boolean updateProject(Project project) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
         Project projectUpdate = findById(project.getId());
         Order order = projectUpdate.getOrder();
         Project.ProjectStatusEnum nowProjectStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         Project.ProjectStatusEnum paramProjectStatusEnum = Project.ProjectStatusEnum.fromCode(project.getProjectStatus());
 
+        //项目未执行状态 驳回项目 订单置为待确认状态 删除项目
+        if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT && paramProjectStatusEnum == Project.ProjectStatusEnum.TURNDOWN) {
+            System.out.println("***********1");
+            order.setStatus(Order.StatusEnum.INIT.getCode());
+            order.setProject(null);
+            orderDao.save(order);
+            projectDao.delete(projectUpdate.getId());
 
-        if ((new Integer(4).equals(project.getOrderCategory()) || new Integer(3).equals(project.getOverseasSales()))
-                && paramProjectStatusEnum == Project.ProjectStatusEnum.DONE) {
-            ProjectProfit projectProfit = project.getProjectProfit();
-            projectProfit.setProject(project);
-            projectProfitDao.save(projectProfit);
-            // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
-            List<Attachment> attachmentList = project.getAttachmentList();
-            Map<Integer, Attachment> dbAttahmentsMap = projectUpdate.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
-            attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, projectUpdate.getId(), Attachment.AttachmentCategory.PROJECT.getCode());
+            //项目驳回，删除   “办理项目”  待办提示
+            BackLog backLog = new BackLog();
+            backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
+            backLog.setHostId(order.getId());
+//            backLogService.updateBackLogByDelYn(backLog);
 
-            project.copyProjectDescTo(projectUpdate);
-        } else {
-            // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
-            if (nowProjectStatusEnum.getNum() >= Project.ProjectStatusEnum.EXECUTING.getNum()) {
-                if (paramProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum()) {
-                    throw new MyException(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error"));
-                }
-                projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
-            } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT) {
-                // 之前只保存了项目，则流程可以是提交到项目经理和执行
-                if (paramProjectStatusEnum.getNum() > Project.ProjectStatusEnum.EXECUTING.getNum()) {
-                    throw new MyException(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error"));
-                }
-                ProjectProfit projectProfit = project.getProjectProfit();
-                projectProfit.setProject(project);
-                projectProfitDao.save(projectProfit);
-                project.copyProjectDescTo(projectUpdate);
-                // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
-                List<Attachment> attachmentList = project.getAttachmentList();
-                Map<Integer, Attachment> dbAttahmentsMap = projectUpdate.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
-                attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, projectUpdate.getId(), Attachment.AttachmentCategory.PROJECT.getCode());
- 
-                if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
-                    // 现在这里是重点，现在的流程已经没有项目经理了，提交审核只能跑到这里来
-                    if (StringUtils.isNotBlank(projectUpdate.getProcessId())) {
-                        // 完成项目的任务
-                        Map<String, Object> localVariables = new HashMap<>();
-                        localVariables.put("audit_status", "APPROVED");
-                        localVariables.put("task_lg_check", "Y"); // 是否需要物流审批，现在是都需要物流审批
-                        BpmUtils.completeTask(project.getTaskId(), eruiToken, null, localVariables, "同意");
-                        // 设置下一流程进度，主要是因为当前项目操作中，异步回调此项目设置失败，再这里直接设置了 , 现货订单有区别/预投订单也有区别
-                        projectUpdate.setAuditingStatus(2); // 审核中
+            //项目驳回，删除    如果有项目经理驳回信息删除
+            BackLog backLog2 = new BackLog();
+            backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTPROJRCT.getNum());    //功能访问路径标识
+            backLog2.setHostId(projectUpdate.getId());
+            backLogService.updateBackLogByDelYns(backLog, backLog2);
 
-                        switch (order.getOrderCategory()) {
-                            case 1:
-                            case 4:
-                                // 预投订单/现货订单
-                                projectUpdate.setAuditingProcess("task_gm");
-                                break;
-                            case 3:
-                                projectUpdate.setAuditingProcess("task_pc,task_lg,task_pu");
-                            case 6:
-                                // 国内订单
-                                projectUpdate.setAuditingProcess("task_pu");
-                                break;
-                            default:
-                                Integer overseasSales = order.getOverseasSales();
-                                if (overseasSales != null && overseasSales == 3) {
-                                    // 海外销售类型 为3 海外销（当地采购 走现货审核流程
-                                    projectUpdate.setAuditingProcess("task_gm");
-                                } else {
-                                    projectUpdate.setAuditingProcess("task_pc,task_lg,task_pu");
-                                }
-                        }
-
-                        // 设置审核人信息
-                        String audiRemark = projectUpdate.getAudiRemark();
-                        if (StringUtils.isBlank(audiRemark)) {
-                            audiRemark = "";
-                        }
-                        if (userIdP != null) {
-                            projectUpdate.setAudiRemark(audiRemark + "," + String.valueOf(userIdP) + ","); // 设置审核人
-                        }
-                    } else {
-                        submitProjectProcessCheckAuditParams(project, projectUpdate, order);
-                        projectUpdate.getOrder().setAuditingProcess(projectUpdate.getAuditingProcess());
-                        projectUpdate.getOrder().setAuditingUserId(projectUpdate.getAuditingUserId());
-                    }
-                }
-            } else {
-                // 其他分支，错误
-                throw new MyException(String.format("%s%s%s", "项目状态数据错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project status data error"));
+            //订单中推送“项目驳回”待办信息
+            //获取推送人信息
+            Set<Integer> userIdS = new HashSet<>();
+            Integer agentId = order.getAgentId();   //市场经办人id
+            if (agentId != null) {
+                userIdS.add(agentId);
             }
-            //修改备注  在项目完成前商务技术可以修改项目备注
-            if (nowProjectStatusEnum != Project.ProjectStatusEnum.DONE) {
-                projectUpdate.setRemarks(project.getRemarks());
+            Integer createUserId = order.getCreateUserId();   //创建人id
+            if (createUserId != null) {
+                userIdS.add(createUserId);
             }
-            // 操作相关订单信息
-            if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING && !Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
-                if (nowProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum() && paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
-                    try {
-                        order.getGoodsList().forEach(gd -> {
-                                    gd.setStartDate(project.getStartDate());
-                                    gd.setDeliveryDate(project.getDeliveryDate());
-                                    gd.setProjectRequirePurchaseDate(project.getRequirePurchaseDate());
-                                    gd.setExeChgDate(project.getExeChgDate());
-                                }
-                        );
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
-                projectUpdate.setRequirePurchaseDate(project.getRequirePurchaseDate());
-                if (projectUpdate.getExeChgDate() == null) {
-                    // 只有为空才能设置，就是只可以设置一次
-                    projectUpdate.setExeChgDate(project.getExeChgDate());
-                }
-                order.setStatus(Order.StatusEnum.EXECUTING.getCode());
-                applicationContext.publishEvent(new OrderProgressEvent(order, 2, eruiToken));
-                //现货出库和海外销（当地采购）的单子流程状态改为 已发运
-                applicationContext.publishEvent(new OrderProgressEvent(order, 10, eruiToken));
-                orderDao.save(order);
-
-                if (purchRequisitionDao.countByProjectNo(projectUpdate.getProjectNo()) == 0) {//如果已经办理过采购申请，就不需要再发送待办申请了
-                    //如果是直接执行项目，删除   “执行项目”  待办提示信息
-                    BackLog backLog = new BackLog();
-                    backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum());    //功能访问路径标识
-                    backLog.setHostId(projectUpdate.getOrder().getId());
-
-                    //如果项目是提交状态    如果有项目经理驳回信息删除
-                    BackLog backLog2 = new BackLog();
-                    backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTPROJRCT.getNum());    //功能访问路径标识
-                    backLog2.setHostId(projectUpdate.getOrder().getId());
-                    backLogService.updateBackLogByDelYns(backLog, backLog2);
-
-                    //项目状态是提交状态  通知商务技术经办人办理采购申请
+            if (userIdS.size() > 0) {
+                for (Integer userId : userIdS) {
                     BackLog newBackLog = new BackLog();
-                    newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHREQUISITION.getMsg());  //功能名称
-                    newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHREQUISITION.getNum());    //功能访问路径标识
-                    newBackLog.setReturnNo(projectUpdate.getContractNo());  //返回单号    销售合同号
-                    String region = projectUpdate.getOrder().getRegion();   //所属地区
+                    newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.REJECTORDER.getMsg());  //功能名称
+                    newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
+                    String contractNo = order.getContractNo();  //销售合同号
+                    newBackLog.setReturnNo(contractNo);  // 返回单号
+                    String region = order.getRegion();//地区
                     Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
-                    String country = projectUpdate.getOrder().getCountry();  //国家
+                    String country = order.getCountry();//国家
                     Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
                     newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
-                    newBackLog.setHostId(order.getId());  //父ID，列表页id
-                    newBackLog.setPlaceSystem("项目");
-                    newBackLog.setFollowId(projectUpdate.getId());    //子ID，详情中列表页id
-                    Integer businessUid = projectUpdate.getBusinessUid(); //商务技术经办人id
-                    newBackLog.setUid(businessUid);   ////经办人id
+                    newBackLog.setHostId(order.getId());    //父ID，列表页id    订单id
+                    newBackLog.setUid(userId);   ////经办人id
                     backLogService.addBackLogByDelYn(newBackLog);
                 }
             }
-        }
-        projectUpdate.setUpdateTime(new Date());
-        Project project1 = projectDao.save(projectUpdate);
-        if (projectUpdate.getOrder() != null && projectUpdate.getOrder().getOrderSource() == 4 && "EXECUTING".equals(projectUpdate.getProjectStatus())) {
-            if (StringUtils.isNotBlank(eruiToken)) {
-                //String jsonParam = "{\"orderId\":\"" + order.getId() + "\"}";
-                Map<String, Object> jsonMap = new HashMap<>();
-                jsonMap.put("orderId", order.getId());
-                jsonMap.put("orderStatus", "EXECUTING");
-                jsonMap.put("toCountry", order.getToCountry());
-                jsonMap.put("toPort", order.getToPort());
-                jsonMap.put("toPlace", order.getToPlace());
-                jsonMap.put("tradeTerms", order.getTradeTerms());
-                jsonMap.put("transportType", order.getTransportType());
-                jsonMap.put("totalPriceUsd", order.getTotalPriceUsd());
-                jsonMap.put("currencyBn", order.getCurrencyBn());
-                jsonMap.put("goodDesc", order.getGoodsList());
-                Map<String, String> header = new HashMap<>();
-                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
-                header.put("Content-Type", "application/json");
-                header.put("accept", "*/*");
-                HttpRequest.sendPost(orderEacp, JSONObject.toJSONString(jsonMap), header);
+
+            return true;
+        } else {
+            if ((new Integer(4).equals(project.getOrderCategory()) || new Integer(3).equals(project.getOverseasSales()))
+                    && paramProjectStatusEnum == Project.ProjectStatusEnum.DONE) {
+                //System.out.println("***********2");
+                //Order order = projectUpdate.getOrder();
+                //projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
+                ProjectProfit projectProfit = project.getProjectProfit();
+                projectProfit.setProject(project);
+                projectProfitDao.save(projectProfit);
+                // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
+                //projectUpdate.setAttachmentList(project.getAttachmentList());
+                List<Attachment> attachmentList = project.getAttachmentList();
+                Map<Integer, Attachment> dbAttahmentsMap = projectUpdate.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+                attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, projectUpdate.getId(), Attachment.AttachmentCategory.PROJECT.getCode());
+
+                project.copyProjectDescTo(projectUpdate);
+                //order.setStatus(Order.StatusEnum.DONE.getCode());
+                //applicationContext.publishEvent(new OrderProgressEvent(order, 2));
+
+                //现货的情况直接完成 ，删除 “办理项目/驳回”  待办提示
+                BackLog backLog = new BackLog();
+                backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
+                backLog.setHostId(projectUpdate.getId());
+                backLogService.updateBackLogByDelYn(backLog);
+
+            } else {
+                //System.out.println("***********3");
+                // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
+                if (nowProjectStatusEnum.getNum() >= Project.ProjectStatusEnum.EXECUTING.getNum()) {
+                    if (paramProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum()) {
+                        throw new MyException(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error"));
+                    }
+                    projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
+                } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.SUBMIT) {
+                    //System.out.println("***********4");
+                    // 之前只保存了项目，则流程可以是提交到项目经理和执行
+                    if (paramProjectStatusEnum.getNum() > Project.ProjectStatusEnum.EXECUTING.getNum()) {
+                        throw new MyException(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error"));
+                    }
+                    ProjectProfit projectProfit = project.getProjectProfit();
+                    projectProfit.setProject(project);
+                    projectProfitDao.save(projectProfit);
+                    project.copyProjectDescTo(projectUpdate);
+                    // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
+                    //projectUpdate.setAttachmentList(project.getAttachmentList());
+                    List<Attachment> attachmentList = project.getAttachmentList();
+                    Map<Integer, Attachment> dbAttahmentsMap = projectUpdate.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+                    attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, projectUpdate.getId(), Attachment.AttachmentCategory.PROJECT.getCode());
+
+                    Integer auditingLevel = project.getAuditingLevel();
+                    Integer orderCategory = order.getOrderCategory();
+                    if (orderCategory != null && orderCategory == 1) { // 预投
+                        auditingLevel = 4; // 四级审核
+                    } else if (orderCategory != null && orderCategory == 3) { // 试用
+                        auditingLevel = 2; // 二级审核
+                    } else if (auditingLevel == null || (auditingLevel < 0 || auditingLevel > 3)) {
+                        // 既不是预投。又不是试用，则需要检查参数
+                        throw new MyException(String.format("%s%s%s", "参数错误，审批等级参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, approval level parameter error."));
+                    }
+                    projectUpdate.setBuVpAuditer(project.getBuVpAuditer());
+                    projectUpdate.setBuVpAuditerId(project.getBuVpAuditerId());
+                    projectUpdate.setCeo(project.getCeo());
+                    projectUpdate.setCeoId(project.getCeoId());
+                    projectUpdate.setChairman(project.getChairman());
+                    projectUpdate.setChairmanId(project.getChairmanId());
+                    projectUpdate.setAuditingLevel(auditingLevel);
+                    if (paramProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
+                        //System.out.println("***********5");
+                        // 提交到项目经理，则项目成员不能设置
+                        projectUpdate.setPurchaseUid(null);
+                        projectUpdate.setQualityName(null);
+                        projectUpdate.setQualityUid(null);
+                        projectUpdate.setLogisticsUid(null);
+                        projectUpdate.setLogisticsName(null);
+                        projectUpdate.setWarehouseName(null);
+                        projectUpdate.setWarehouseUid(null);
+                        projectUpdate.setPurchaseName(null);
+                        projectUpdate.setBuAuditerId(project.getBuAuditerId());
+                        projectUpdate.setBuAuditer(project.getBuAuditer());
+                        projectUpdate.setLogisticsAuditerId(project.getLogisticsAuditerId());
+                        projectUpdate.setLogisticsAuditer(project.getLogisticsAuditer());
+
+                        //项目驳回 商务技术经办人办理项目指定项目经理以后  ，删除经办人是商务技术经办人的  执行项目  待办提示
+                        BackLog backLog = new BackLog();
+                        backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
+                        backLog.setHostId(order.getId());
+//                        backLogService.updateBackLogByDelYn(backLog);
+
+                        //项目驳回 商务技术经办人办理项目指定项目经理以后    如果有项目经理驳回信息删除
+                        BackLog backLog2 = new BackLog();
+                        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTPROJRCT.getNum());    //功能访问路径标识
+                        backLog2.setHostId(projectUpdate.getId());
+                        backLogService.updateBackLogByDelYns(backLog, backLog2);
+
+
+                        //商务技术经办人办理项目指定项目经理以后  需要添加待办事项   执行项目  。提示项目经理办理
+                        BackLog newBackLog = new BackLog();
+                        newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getMsg());  //功能名称
+                        newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum());    //功能访问路径标识
+                        newBackLog.setReturnNo(projectUpdate.getContractNo());  //返回单号    销售合同号
+                        String region = projectUpdate.getOrder().getRegion();   //所属地区
+                        Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+                        String country = projectUpdate.getOrder().getCountry();  //国家
+                        Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+                        newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
+                        newBackLog.setHostId(order.getId());    //父ID，列表页id
+                        Integer managerUid = projectUpdate.getManagerUid();//项目经理
+                        newBackLog.setUid(managerUid);   //项目经理id
+                        backLogService.addBackLogByDelYn(newBackLog);
+                        //当参数项目状态为 AUDIT为提交审核状态 状态不入库
+                    } else if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
+                        //System.out.println("***********6");
+                        // 无项目经理提交项目时检查审核信息参数 2018-08-28
+                        submitProjectProcessCheckAuditParams(project, projectUpdate, order);
+                        projectUpdate.getOrder().setAuditingProcess(projectUpdate.getAuditingProcess());
+                        projectUpdate.getOrder().setAuditingUserId(projectUpdate.getAuditingUserId());
+//                        projectUpdate.getOrder().setAuditingProcess(String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess()));
+//                        projectUpdate.getOrder().setAuditingUserId(project.getLogisticsAuditerId().toString());
+
+                    }
+                } else if (nowProjectStatusEnum == Project.ProjectStatusEnum.HASMANAGER) {
+                    //System.out.println("***********7");
+                    if (paramProjectStatusEnum == Project.ProjectStatusEnum.TURNDOWN) {
+                        //System.out.println("***********8");
+                        projectUpdate.setProjectStatus(Project.ProjectStatusEnum.SUBMIT.getCode());
+                        projectDao.save(projectUpdate);
+
+                        //项目驳回 商务技术经办人办理项目指定项目经理以后  ，删除经办人是商务技术经办人的  执行项目  待办提示
+                        BackLog backLog2 = new BackLog();
+                        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
+                        backLog2.setHostId(projectUpdate.getId());
+//                        backLogService.updateBackLogByDelYn(backLog2);
+
+                        //项目经理办理的时候 如果是驳回状态  删除 项目经理的  执行项目  待办信息
+                        BackLog backLog = new BackLog();
+                        backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum());    //功能访问路径标识
+                        backLog.setHostId(projectUpdate.getId());
+                        backLogService.updateBackLogByDelYns(backLog, backLog2);
+
+
+                        //项目经理办理的时候 如果是驳回状态  添加 驳回项目 待办事项
+                        BackLog newBackLog = new BackLog();
+                        newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.REJECTPROJRCT.getMsg());  //功能名称
+                        newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTPROJRCT.getNum());    //功能访问路径标识
+                        String contractNo = order.getContractNo();  //销售合同号
+                        newBackLog.setReturnNo(contractNo);  //返回单号
+                        String region = order.getRegion();//地区
+                        Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+                        String country = order.getCountry();//国家
+                        Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+                        newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
+                        newBackLog.setHostId(projectUpdate.getId());    //父ID，列表页id    项目id
+                        Integer technicalId = order.getTechnicalId();   //商务技术经办人id
+                        newBackLog.setUid(technicalId);   ////经办人id
+                        backLogService.addBackLogByDelYn(newBackLog);
+
+
+                        return true;
+                    } else {
+                        System.out.println("***********9");
+                        // 交付配送中心项目经理只能保存后者执行
+                        if (paramProjectStatusEnum != Project.ProjectStatusEnum.EXECUTING && paramProjectStatusEnum != Project.ProjectStatusEnum.HASMANAGER) {
+                            throw new MyException(String.format("%s%s%s", "参数状态错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter state error"));
+                        }
+                        // 只设置项目成员
+                        projectUpdate.setPurchaseUid(project.getPurchaseUid());
+                        projectUpdate.setQualityName(project.getQualityName());
+                        projectUpdate.setQualityUid(project.getQualityUid());
+                        projectUpdate.setLogisticsUid(project.getLogisticsUid());
+                        projectUpdate.setLogisticsName(project.getLogisticsName());
+                        projectUpdate.setWarehouseName(project.getWarehouseName());
+                        projectUpdate.setWarehouseUid(project.getWarehouseUid());
+                        projectUpdate.setPurchaseName(project.getPurchaseName());
+                        // 修改备注和执行单变更日期
+                        projectUpdate.setRemarks(project.getRemarks());
+                        projectUpdate.setExeChgDate(project.getExeChgDate());
+
+                        /*//有项目经理提交   10月19日流程修改为先审核再填写项目经理信息
+                        if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
+                            // 2018-08-28 审核添加，有项目经理，项目经理需要填写 是否需要物流审核、物流审核人、事业部审核人、审批分级等信息
+                            submitProjectProcessCheckAuditParams(project, projectUpdate, order);
+                        }*/
+                        //项目经理 指定经办人完成以后，  需要让  商务技术执行项目
+                        BackLog backLogs = backLogDao.findByFunctionExplainIdAndUid(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum(), projectUpdate.getId());
+                        if (backLogs != null) {
+                            System.out.println("***********10");
+                            backLogs.setUid(projectUpdate.getBusinessUid()); //商务技术经办人id
+                            backLogDao.save(backLogs);
+                        }
+
+                    }
+                } else {
+                    // 其他分支，错误
+                    throw new MyException(String.format("%s%s%s", "项目状态数据错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project status data error"));
+                }
+                //修改备注  在项目完成前商务技术可以修改项目备注
+                if (nowProjectStatusEnum != Project.ProjectStatusEnum.DONE) {
+                    System.out.println("***********11");
+                    projectUpdate.setRemarks(project.getRemarks());
+                }
+                // 操作相关订单信息
+                if (paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING && !Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
+                    System.out.println("***********12");
+                    if (nowProjectStatusEnum.getNum() < Project.ProjectStatusEnum.EXECUTING.getNum() && paramProjectStatusEnum == Project.ProjectStatusEnum.EXECUTING) {
+                        System.out.println("***********13");
+                        try {
+                            order.getGoodsList().forEach(gd -> {
+                                        gd.setStartDate(project.getStartDate());
+                                        gd.setDeliveryDate(project.getDeliveryDate());
+                                        gd.setProjectRequirePurchaseDate(project.getRequirePurchaseDate());
+                                        gd.setExeChgDate(project.getExeChgDate());
+                                    }
+                            );
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    projectUpdate.setProjectStatus(paramProjectStatusEnum.getCode());
+                    projectUpdate.setRequirePurchaseDate(project.getRequirePurchaseDate());
+                    if (projectUpdate.getExeChgDate() == null) {
+                        // 只有为空才能设置，就是只可以设置一次
+                        projectUpdate.setExeChgDate(project.getExeChgDate());
+                    }
+                    order.setStatus(Order.StatusEnum.EXECUTING.getCode());
+                    applicationContext.publishEvent(new OrderProgressEvent(order, 2, eruiToken));
+                    //现货出库和海外销（当地采购）的单子流程状态改为 已发运
+                    applicationContext.publishEvent(new OrderProgressEvent(order, 10, eruiToken));
+                    orderDao.save(order);
+
+                    if(purchRequisitionDao.countByProjectNo(projectUpdate.getProjectNo()) == 0) {//如果已经办理过采购申请，就不需要再发送待办申请了
+                        //如果是直接执行项目，删除   “执行项目”  待办提示信息
+                        BackLog backLog = new BackLog();
+                        backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.EXECUTEPROJECT.getNum());    //功能访问路径标识
+                        backLog.setHostId(projectUpdate.getOrder().getId());
+
+                        //如果项目是提交状态    如果有项目经理驳回信息删除
+                        BackLog backLog2 = new BackLog();
+                        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTPROJRCT.getNum());    //功能访问路径标识
+                        backLog2.setHostId(projectUpdate.getOrder().getId());
+                        backLogService.updateBackLogByDelYns(backLog, backLog2);
+
+                        //项目状态是提交状态  通知商务技术经办人办理采购申请
+                        BackLog newBackLog = new BackLog();
+                        newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.PURCHREQUISITION.getMsg());  //功能名称
+                        newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCHREQUISITION.getNum());    //功能访问路径标识
+                        newBackLog.setReturnNo(projectUpdate.getContractNo());  //返回单号    销售合同号
+                        String region = projectUpdate.getOrder().getRegion();   //所属地区
+                        Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
+                        String country = projectUpdate.getOrder().getCountry();  //国家
+                        Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
+                        newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
+                        newBackLog.setHostId(order.getId());  //父ID，列表页id
+                        newBackLog.setPlaceSystem("项目");
+                        newBackLog.setFollowId(projectUpdate.getId());    //子ID，详情中列表页id
+                        Integer businessUid = projectUpdate.getBusinessUid(); //商务技术经办人id
+                        newBackLog.setUid(businessUid);   ////经办人id
+                        backLogService.addBackLogByDelYn(newBackLog);
+                    }
+                }
             }
-        }
-        //项目管理：办理项目的时候，如果指定了项目经理，需要短信通知
-        if (Project.ProjectStatusEnum.HASMANAGER.getCode().equals(project1.getProjectStatus())) {
-            Integer managerUid = project1.getManagerUid();      //交付配送中心项目经理ID
-            sendSms(project1, managerUid);
-        }
+            projectUpdate.setUpdateTime(new Date());
+            Project project1 = projectDao.save(projectUpdate);
+            System.out.println("***********14");
+            //项目管理：办理项目的时候，如果指定了项目经理，需要短信通知
+            if (Project.ProjectStatusEnum.HASMANAGER.getCode().equals(project1.getProjectStatus())) {
+                System.out.println("***********15");
+                Integer managerUid = project1.getManagerUid();      //交付配送中心项目经理ID
+                sendSms(project1, managerUid);
+            }
 
-
+        }
+        System.out.println("***********16");
         return true;
     }
 
@@ -331,31 +473,11 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateProjectQualityInspectType(Project project) throws Exception {
-
         Project projectUpdate = findById(project.getId());
         projectUpdate.setQualityInspectType(project.getQualityInspectType().trim());
         projectDao.save(projectUpdate);
-        // 2019-05-23 添加完成业务流节点任务
-        String eruitoken = (String) ThreadLocalUtil.getObject();
-        String taskId = project.getTaskId();
-        if (StringUtils.isNotBlank(taskId)) {
-            Map<String, Object> localVariables = new HashMap<>();
-            localVariables.put("audit_status", "APPROVED");
-            BpmUtils.completeTask(taskId, eruitoken, null, localVariables, "同意");
-        }
-        // 设置流程进度显示下已审核点
-        String auditingProcess = projectUpdate.getAuditingProcess();
-        if (auditingProcess != null) {
-            auditingProcess = auditingProcess.replace("task_pc", "");
-            auditingProcess = StringUtils.strip(auditingProcess, ",");
-            if (StringUtils.isBlank(auditingProcess)) {
-                auditingProcess = "task_gm";
-            }
-        }
-        projectUpdate.setAuditingProcess(auditingProcess);
         return true;
     }
-
 
 
     /**
@@ -392,8 +514,8 @@ public class ProjectServiceImpl implements ProjectService {
         //海外销售类型 1 海外销（装备采购） 2 海外销（易瑞采购） 3 海外销（当地采购） 4 易瑞销 5  装备销
         Integer overseasSales = projectUpdate.getOverseasSales();
         // 预投项目或现货或当地采购，则不需要物流、采购、品控审核，非预投则需要这三人审核
-        if ((orderCategory == null || (orderCategory != 1 && orderCategory != 4)) && (overseasSales == null || overseasSales != 3)) {
-            if (orderCategory != 6) {//国内订单不需要品控经办人审批
+        if ((orderCategory == null || (orderCategory != 1 && orderCategory != 4)) && (overseasSales == null || overseasSales != 3 )) {
+            if(orderCategory != 6){//国内订单不需要品控经办人审批
                 if (StringUtils.isBlank(qualityName) || qualityUid == null) {
                     throw new MyException(String.format("%s%s%s", "参数错误，品控经办人不可为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, logistics auditor should not be empty."));
                 }
@@ -432,20 +554,20 @@ public class ProjectServiceImpl implements ProjectService {
         String auditUserId = "";
         String auditProcessing = "";
         // 非现货、非当地采购、非预投则需要这三人审核，需要从物流、采购经办人、品控经办人并行开始审核
-        if ((orderCategory == null || (orderCategory != 1 && orderCategory != 4)) && (overseasSales == null || overseasSales != 3)) {
-            if (orderCategory != 6) {
+        if ((orderCategory == null || (orderCategory != 1 && orderCategory != 4)) && (overseasSales == null || overseasSales != 3 )) {
+            if(orderCategory != 6){
                 auditUserId = String.format("%d,%d,%d", logisticsAuditerId, project.getPurchaseUid(), project.getQualityUid());
                 auditProcessing = String.format("%d,%d,%d", CheckLog.AuditProcessingEnum.NEW_PRO_LOGISTICS.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess(), CheckLog.AuditProcessingEnum.NEW_PRO_QA.getProcess());
-            } else {// 国内订单需要从采购经办人开始审核，去掉品控、物流
+            }else{// 国内订单需要从采购经办人开始审核，去掉品控、物流
                 auditUserId = project.getPurchaseUid().toString();
-                auditProcessing = String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess());
+                auditProcessing =  String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_PURCHASE.getProcess());
             }
         } else {
             //  预投项目或判断金额是否小于等于1万美元，小于1万美元则审核结束，大于1万美元则事业部总经理审批
-            if (orderCategory == 1 || order.getTotalPriceUsd().compareTo(STEP_ONE_AMOUNT) > 0) {
+            if(orderCategory == 1 || order.getTotalPriceUsd().compareTo(STEP_ONE_AMOUNT) > 0){
                 auditUserId = buVpAuditerId.toString();
                 auditProcessing = String.valueOf(CheckLog.AuditProcessingEnum.NEW_PRO_MANAGER.getProcess());
-            } else {//现货或者当地采购直接审核结束或直接项目负责人审核
+            }else{//现货或者当地采购直接审核结束或直接项目负责人审核
                 // 结束
                 auditUserId = null;
                 auditProcessing = "999";
@@ -456,11 +578,11 @@ public class ProjectServiceImpl implements ProjectService {
         projectUpdate.setAuditingProcess(auditProcessing); // 审核流程
         projectUpdate.setAuditingUserId(auditUserId); // 审核人
 
-        if (auditUserId != null) {//审核完成不需要发送待办和钉钉
+        if(auditUserId != null){//审核完成不需要发送待办和钉钉
             for (String user : auditUserId.split(",")) {
                 sendDingtalk(projectUpdate.getOrder(), user, false);
             }
-        } else {
+        }else{
             projectUpdate.setAuditingStatus(4);//审核完成
         }
         auditBackLogHandle(projectUpdate, false, null, auditUserId, false);
@@ -486,13 +608,8 @@ public class ProjectServiceImpl implements ProjectService {
                     searchList.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
                 // 根据审核进度
-                if (StringUtils.isNotBlank(condition.getAuditingProcess())) {
-                    if ("999".equals(condition.getAuditingProcess())) {
-                        // 999 定位审核完成的查询
-                        searchList.add(cb.equal(root.get("auditingStatus").as(Integer.class), Order.AuditingStatusEnum.THROUGH.getStatus()));
-                    } else {
-                        searchList.add(cb.like(root.get("auditingProcess").as(String.class), "%" + condition.getAuditingProcess() + "%"));
-                    }
+                if (condition.getAuditingProcess() != null) {
+                    searchList.add(cb.equal(root.get("auditingProcess").as(String.class), condition.getAuditingProcess()));
                 }
                 //根据项目号
                 if (StringUtil.isNotBlank(condition.getProjectNo())) {
@@ -669,7 +786,6 @@ public class ProjectServiceImpl implements ProjectService {
         for (Project project : pageList) {
             if (project.getOrder() != null) {
                 project.setoId(project.getOrder().getId());
-                project.setOrder(null);
                 project.setPurchs(null);
             }
         }
@@ -1190,7 +1306,7 @@ public class ProjectServiceImpl implements ProjectService {
             String auditingUserId_i = null; // 操作完后的项目审核人
             boolean isComeMore = Boolean.FALSE;// 是否来自并行的审批，且并行还没走完。
             Integer orderCategory = project.getOrderCategory();//订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单 6 国内订单
-            if (orderCategory == null) orderCategory = 0;
+            if(orderCategory == null) orderCategory = 0;
             CheckLog checkLog_i = null; // 审核日志
             if (rejectFlag) { // 如果是驳回，则直接记录日志，修改审核进度
                 CheckLog checkLog = checkLogDao.findOne(paramProject.getCheckLogId());
@@ -1263,7 +1379,7 @@ public class ProjectServiceImpl implements ProjectService {
                                 auditingUserId_i = null;
                                 auditingStatus_i = 4;
                             }
-                        } else {
+                        }else {
                             isComeMore = true; //并行未走完
                         }
                         break;
@@ -1319,7 +1435,7 @@ public class ProjectServiceImpl implements ProjectService {
             project.setAuditingProcess(auditingProcess_i);
             project.setAuditingUserId(auditingUserId_i);
             project.setAuditingStatus(auditingStatus_i);
-            if (!isComeMore) {//并行走完发送钉钉
+            if(!isComeMore){//并行走完发送钉钉
                 for (String user : notifyUserList) {
                     sendDingtalk(project.getOrder(), user, rejectFlag);
                 }
@@ -1555,7 +1671,7 @@ public class ProjectServiceImpl implements ProjectService {
         return true;
     }
 
-    private void auditBackLogHandle(Project project, boolean rejectFlag, String auditorId, String auditingUserId, boolean isComeMore) {
+    private void auditBackLogHandle(Project project, boolean rejectFlag, String auditorId,String auditingUserId, boolean isComeMore) {
         try {
             // 删除上一个待办，上一个待办可能是以下几种情况
             BackLog backLog2 = new BackLog();
@@ -1571,7 +1687,7 @@ public class ProjectServiceImpl implements ProjectService {
                 backLogService.updateBackLogByDelYn(backLog2);
             }
 
-            if (StringUtils.isNotBlank(auditingUserId) && !isComeMore) {
+            if (StringUtils.isNotBlank(auditingUserId)&& !isComeMore) {
                 Integer[] userIdArr = Arrays.stream(auditingUserId.split(",")).map(vo -> Integer.parseInt(vo)).toArray(Integer[]::new);
                 // 推送待办事件
                 String infoContent = project.getProjectName();

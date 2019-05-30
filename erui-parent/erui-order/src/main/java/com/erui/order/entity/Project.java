@@ -28,8 +28,6 @@ public class Project {
     @JoinColumn(name = "order_id")
     @JsonIgnore
     private Order order;
-
-
     @Transient
     private Integer oId;
     @OneToOne(mappedBy = "project", fetch = FetchType.LAZY)
@@ -91,7 +89,6 @@ public class Project {
 
     @Column(name = "quality_name")
     private String qualityName;
-
 
     @Column(name = "business_uid")
     private Integer businessUid;
@@ -244,20 +241,6 @@ public class Project {
 
     public void setQualityInspectType(String qualityInspectType) {
         this.qualityInspectType = qualityInspectType;
-    }
-
-    // 流程实例ID
-    @Column(name="process_id")
-    private String processId;
-    @Column(name="task_id")
-    private String taskId;
-
-    public String getProcessId() {
-        return processId;
-    }
-
-    public void setProcessId(String processId) {
-        this.processId = processId;
     }
 
     public List<Attachment> getAttachmentList() {
@@ -514,14 +497,6 @@ public class Project {
 
     public void setoId(Integer oId) {
         this.oId = oId;
-    }
-
-    public String getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
     }
 
     public PurchRequisition getPurchRequisition() {

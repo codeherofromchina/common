@@ -66,12 +66,12 @@
         </dependency>
         <dependency>
             <groupId>com.erui</groupId>
-            <artifactId>erui-order</artifactId>
+            <artifactId>erui-power</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.erui</groupId>
-            <artifactId>erui-order-v2</artifactId>
+            <artifactId>erui-order</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -172,6 +172,7 @@
         </dependency>
     </dependencies>
 
+
     <repositories>
         <repository>
             <id>nexus-releases</id>
@@ -179,7 +180,6 @@
             <url>http://172.18.19.140:8081/nexus/repository/3dpp/</url>
         </repository>
     </repositories>
-
 
 
     <build>
@@ -238,7 +238,7 @@
                 <dependency>
                     <groupId>com.erui</groupId>
                     <artifactId>erui-sso-client-dev</artifactId>
-                    <version>2.1</version>
+                    <version>1.0</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -251,7 +251,7 @@
                 <dependency>
                     <groupId>com.erui</groupId>
                     <artifactId>erui-sso-client-test</artifactId>
-                    <version>2.1</version>
+                    <version>1.0</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -264,19 +264,6 @@
                 <dependency>
                     <groupId>com.erui</groupId>
                     <artifactId>erui-sso-client-dev</artifactId>
-                    <version>2.1</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>bpm</id>
-            <properties>
-                <package.environment>bpm</package.environment>
-            </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>com.erui</groupId>
-                    <artifactId>erui-sso-client-bpm</artifactId>
                     <version>1.0</version>
                 </dependency>
             </dependencies>
@@ -290,7 +277,7 @@
                 <dependency>
                     <groupId>com.erui</groupId>
                     <artifactId>erui-sso-client</artifactId>
-                    <version>2.1</version>
+                    <version>1.0</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -303,7 +290,7 @@
                 <dependency>
                     <groupId>com.erui</groupId>
                     <artifactId>erui-sso-client</artifactId>
-                    <version>2.1</version>
+                    <version>1.0</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -316,7 +303,7 @@
                 <dependency>
                     <groupId>com.erui</groupId>
                     <artifactId>erui-beta-sso-client</artifactId>
-                    <version>2.1</version>
+                    <version>1.0</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -329,7 +316,7 @@
                 <dependency>
                     <groupId>com.erui</groupId>
                     <artifactId>erui-beta-sso-client</artifactId>
-                    <version>2.1</version>
+                    <version>1.0</version>
                 </dependency>
             </dependencies>
         </profile>

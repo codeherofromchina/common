@@ -39,7 +39,7 @@ public class ImportController {
      *
      * @param request
      * @param file    具体文件
-     * @param type    参考枚举类型com.erui.order.util.ExcelUploadTypeEnum中的值
+     * @param type    参考枚举类型com.erui.report.util.ExcelUploadTypeEnum中的值
      * @return
      */
     @RequestMapping(value = "/import", method = RequestMethod.POST)
@@ -110,7 +110,7 @@ public class ImportController {
      *
      * @param request
      * @param file    具体文件
-     * @param type    参考枚举类型com.erui.order.util.ExcelUploadTypeEnum中的值
+     * @param type    参考枚举类型com.erui.report.util.ExcelUploadTypeEnum中的值
      * @return
      *//*
     @RequestMapping(value = "/importOrder", method = RequestMethod.POST)
@@ -181,7 +181,7 @@ public class ImportController {
      *
      * @param request
      * @param file    具体文件
-     * @param type    参考枚举类型com.erui.order.util.ExcelUploadTypeEnum中的值
+     * @param type    参考枚举类型com.erui.report.util.ExcelUploadTypeEnum中的值
      * @return
      *//*
     @RequestMapping(value = "/importProjrct", method = RequestMethod.POST)

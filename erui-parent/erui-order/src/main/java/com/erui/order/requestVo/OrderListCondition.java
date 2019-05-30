@@ -75,13 +75,13 @@ public class OrderListCondition {
 
     private String auditingUserId;   //当前审核人ID，逗号分隔多个
 
-    private String auditingProcess; //审核状态
+    private Integer auditingProcess; //审核状态
 
-    public String getAuditingProcess() {
+    public Integer getAuditingProcess() {
         return auditingProcess;
     }
 
-    public void setAuditingProcess(String auditingProcess) {
+    public void setAuditingProcess(Integer auditingProcess) {
         this.auditingProcess = auditingProcess;
     }
 

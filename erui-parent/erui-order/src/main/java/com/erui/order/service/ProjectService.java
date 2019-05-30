@@ -37,7 +37,7 @@ public interface ProjectService {
      * @param project
      * @return
      */
-    boolean updateProject(Project project, Integer userId) throws Exception;
+    boolean updateProject(Project project) throws Exception;
 
     /**
      * 查看项目列表

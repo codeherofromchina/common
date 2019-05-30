@@ -12,8 +12,6 @@ import com.erui.order.requestVo.AddOrderVo;
 import com.erui.order.requestVo.OrderListCondition;
 import com.erui.order.service.OrderService;
 import com.erui.order.util.exception.MyException;
-import com.erui.order.v2.model.BpmStatusNode;
-import com.erui.order.v2.service.BpmStatusNodeService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +36,7 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
     @Autowired
-    private BpmStatusNodeService bpmStatusNodeService;
+    private ApplicationContext applicationContext;
 
     /**
      * 获取单列表
@@ -242,7 +240,6 @@ public class OrderController {
             } else if (addOrderVo.getAgentId() == null) {
                 result.setMsg("市场经办人不能为空");
                 result.setEnMsg("Market manager must be filled in");
-
             } else if (addOrderVo.getExecCoName() == null) {
                 result.setMsg("执行分公司不能为空");
                 result.setEnMsg("Executing company must be filled in");
@@ -298,7 +295,6 @@ public class OrderController {
         if (!continueFlag) {
             return result;
         }
-
         Integer id;
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
@@ -462,27 +458,6 @@ public class OrderController {
         } else {
             result.setData(i);
         }
-        return result;
-    }
-
-
-    /**
-     * 查询流程的所有审批节点
-     *
-     * @param params tenant      租户
-     *               category    业务流程类别
-     *               sub_category业务流程模块类别
-     * @return
-     */
-    @RequestMapping(value = "nodes", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> nodes(@RequestBody Map<String, String> params) {
-        Result result = new Result();
-        BpmStatusNode bpmStatusNode = new BpmStatusNode();
-        bpmStatusNode.setTenant(params.get("tenant"));
-        bpmStatusNode.setCategory(params.get("category"));
-        bpmStatusNode.setSubCategory(params.get("subCategory"));
-        List<BpmStatusNode> nodes = bpmStatusNodeService.findNodeByCategory(bpmStatusNode);
-        result.setData(nodes);
         return result;
     }
 

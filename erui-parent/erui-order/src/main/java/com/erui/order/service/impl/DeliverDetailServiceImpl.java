@@ -236,7 +236,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 if (deliverD.getWareHouseman() != null) {
                     list.add(cb.equal(root.get("wareHouseman").as(Integer.class), deliverD.getWareHouseman()));
                 }
-                //根据出库状态   status    1：未质检    2：质检中   3：质检完成   4：已出库 9： 已变更
+                //根据出库状态   status    1：未质检    2：质检中   3：质检完成   4：已出库
                 if (deliverD.getStatus() != null) {
                     if (deliverD.getStatus() == 1) {
                         list.add(cb.lessThan(root.get("status").as(Integer.class), 2)); //未质检
@@ -514,6 +514,7 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
 
         one.setStatus(status);//状态
 
+        if (status == 2) one.setOutCheck(1); // 默认是否外检为1
 
         Project project = null; //项目信息
 

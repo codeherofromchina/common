@@ -1,6 +1,5 @@
 package com.erui.report.dao;
 
-import com.erui.report.model.BpmTaskRuntime;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -57,25 +56,4 @@ public interface CommonMapper {
      * @return {areaBn:'地区编码',areaName:'地区名称'}
      */
     Map<String, Object> findAreaInfoByBn(@Param("areaBn") String areaBn);
-
-    /**
-     * 删除
-     * @param processInstanceId
-     * @param taskId
-     */
-    void delBpmTaskRuntimeByPiIdAndTaskId(@Param("processInstanceId") String processInstanceId,@Param("taskId") String taskId);
-
-    /**
-     * 添加
-     * @param bpmTaskRuntime
-     */
-    void addBpmTaskRuntime(BpmTaskRuntime bpmTaskRuntime);
-
-    /**
-     * 查询业务id列表
-     * @param actId
-     * @param bizType
-     * @return
-     */
-    List<Long> findBizObjIdList(@Param("actId") String actId, @Param("bizType") String bizType);
 }

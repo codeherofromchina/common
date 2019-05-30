@@ -132,6 +132,10 @@ public class ProjectController {
         // 获取当前登录用户ID并比较是否是当前用户审核
         Object userId = request.getSession().getAttribute("userid");
         Object realname = request.getSession().getAttribute("realname");
+        String auditingUserIds = project.getAuditingUserId();
+        if (auditingUserIds == null || !equalsAny(String.valueOf(userId), auditingUserIds)) {
+            return new Result<>(ResultStatusEnum.NOT_NOW_AUDITOR);
+        }
 
         // 判断是否是驳回并判断原因参数
         boolean rejectFlag = "-1".equals(type);
@@ -141,9 +145,6 @@ public class ProjectController {
         // 修改项目的商品风险等级
         if(!StringUtils.isBlank(pProject.getQualityInspectType())){
             projectService.updateProjectQualityInspectType(pProject);
-            if (StringUtils.isNotBlank(pProject.getTaskId())) {
-                return new Result<>();
-            }
         }
 //        project.setCheckLogId(checkLogId);
 
@@ -174,22 +175,22 @@ public class ProjectController {
             }
             String eruiToken = CookiesUtil.getEruiToken(request);
             ThreadLocalUtil.setObject(eruiToken);
-            Object sessionUserIdObj = request.getSession().getAttribute("userid");
-            Integer userId = null;
-            if (sessionUserIdObj != null && StringUtils.isNumeric(String.valueOf(sessionUserIdObj))) {
-                userId = Integer.parseInt(String.valueOf(sessionUserIdObj));
+
+//            // 判断是否需要审核
+//            String auditingUserId = proStatus.getAuditingUserId();
+//            if (auditingUserId != null) {
+//                return auditProject(request, project);
+//            }
+            // 如果不是审核，则继续走审核人流程
+
+            // 审核流出添加代码 2018-08-27
+            Order order = proStatus.getOrder();
+            if (order.getAuditingStatus() == null || order.getAuditingStatus() != Order.AuditingStatusEnum.THROUGH.getStatus()) {
+                /// 订单的审核状态未通过，则项目办理失败
+                return new Result<>(ResultStatusEnum.ORDER_AUDIT_NOT_DONE_ERROR);
             }
 
-
-            // 2019-05-19 订单流程和项目流程合并，取消状态检查
-//            // 审核流出添加代码 2018-08-27
-//            Order order = proStatus.getOrder();
-//            if (order.getAuditingStatus() == null || order.getAuditingStatus() != Order.AuditingStatusEnum.THROUGH.getStatus()) {
-//                /// 订单的审核状态未通过，则项目办理失败
-//                return new Result<>(ResultStatusEnum.ORDER_AUDIT_NOT_DONE_ERROR);
-//            }
-
-            if (projectService.updateProject(project, userId)) {
+            if (projectService.updateProject(project)) {
                 return new Result<>();
             } else {
                 errorMsg = "项目状态错误";

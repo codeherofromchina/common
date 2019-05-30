@@ -19,7 +19,6 @@ import java.util.List;
 @Entity
 @Table(name = "`order`")
 public class Order {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -344,11 +343,6 @@ public class Order {
     private Integer legalAuditerId;//法务审核人id
     @Column(name = "legal_auditer")
     private String legalAuditer;//法务审核人
-    // 流程实例ID
-    @Column(name="process_id")
-    private String processId;
-    @Column(name="task_id")
-    private String taskId;
 
 
     //如果项目审核完成返回前端 值为 1
@@ -895,22 +889,6 @@ public class Order {
     public void setSigningCo(String signingCo) {
         this.signingCo = signingCo;
 
-    }
-
-    public String getProcessId() {
-        return processId;
-    }
-
-    public String getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
-    }
-
-    public void setProcessId(String processId) {
-        this.processId = processId;
     }
 
     public Integer getAgentId() {

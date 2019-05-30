@@ -11,9 +11,7 @@
     <context:component-scan base-package="com.erui.report"/>
     <context:property-placeholder ignore-unresolvable="true" location="classpath:jdbc-report.properties"/>
 
-
-    <!--<import resource="app-report-quartz.xml"></import>-->
-
+    <!-- <import resource="app-report-quartz.xml"></import> -->
 
     <bean id="masterDataSource" class="org.apache.commons.dbcp.BasicDataSource"
           destroy-method="close">
