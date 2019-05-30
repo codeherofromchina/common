@@ -182,7 +182,7 @@ public class ProjectServiceImpl implements ProjectService {
                 List<Attachment> attachmentList = project.getAttachmentList();
                 Map<Integer, Attachment> dbAttahmentsMap = projectUpdate.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
                 attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, projectUpdate.getId(), Attachment.AttachmentCategory.PROJECT.getCode());
- 
+
                 if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum) && StringUtils.isNotBlank(projectUpdate.getProcessId())) {
                     // 现在这里是重点，现在的流程已经没有项目经理了，提交审核只能跑到这里来
                     if (StringUtils.isNotBlank(projectUpdate.getProcessId())) {
@@ -321,7 +321,7 @@ public class ProjectServiceImpl implements ProjectService {
                 jsonMap.put("totalPriceUsd", order.getTotalPriceUsd());
                 jsonMap.put("currencyBn", order.getCurrencyBn());
                 jsonMap.put("paymentModeBn", order.getPaymentModeBn());
-                jsonMap.put("goodDesc", order.getGoodsList());
+                jsonMap.put("goodDesc", eacpGoods(order));
                 Map<String, String> header = new HashMap<>();
                 header.put(CookiesUtil.TOKEN_NAME, eruiToken);
                 header.put("Content-Type", "application/json");
@@ -334,9 +334,30 @@ public class ProjectServiceImpl implements ProjectService {
             Integer managerUid = project1.getManagerUid();      //交付配送中心项目经理ID
             sendSms(project1, managerUid);
         }
-
-
         return true;
+    }
+
+    //给EACP返回商品有效信息
+    private List<Goods> eacpGoods(Order order) {
+        List<Goods> goods = new ArrayList<>();
+        for (Goods g : order.getGoodsList()) {
+            Goods goods1 = new Goods();
+            goods1.setId(g.getId());
+            goods1.setSku(g.getSku());
+            goods1.setNameEn(g.getNameEn());
+            goods1.setNameZh(g.getNameZh());
+            goods1.setPrice(g.getPrice());
+            goods1.setDepartment(g.getDepartment());
+            goods1.setContractGoodsNum(g.getContractGoodsNum());
+            goods1.setUnit(g.getUnit());
+            goods1.setBrand(g.getBrand());
+            goods1.setModel(g.getModel());
+            goods1.setClientDesc(g.getClientDesc());
+            goods1.setMeteType(g.getMeteType());
+            goods1.setMeteName(g.getMeteName());
+            goods.add(goods1);
+        }
+        return goods;
     }
 
     /**
@@ -369,7 +390,7 @@ public class ProjectServiceImpl implements ProjectService {
             String auditingProcess = projectUpdate.getAuditingProcess();
             String auditingUserId = projectUpdate.getAuditingUserId();
             String auditingUserName = projectUpdate.getAuditingUser();
-            if (StringUtils.equals(auditingProcess,"task_pc")) {
+            if (StringUtils.equals(auditingProcess, "task_pc")) {
                 auditingProcess = "task_gm";
                 auditingUserId = "";
                 auditingUserName = "";
@@ -383,7 +404,7 @@ public class ProjectServiceImpl implements ProjectService {
                     auditingUserIdArr = new String[auditingProcessList.size()];
                 }
                 if (StringUtils.isNotBlank(auditingUserName)) {
-                    auditingUserNameArr =  StringUtils.splitPreserveAllTokens(auditingUserName, ",");
+                    auditingUserNameArr = StringUtils.splitPreserveAllTokens(auditingUserName, ",");
                 } else {
                     auditingUserNameArr = new String[auditingProcessList.size()];
                 }
@@ -424,7 +445,6 @@ public class ProjectServiceImpl implements ProjectService {
 
         return true;
     }
-
 
 
     /**
