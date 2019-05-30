@@ -6,7 +6,6 @@ import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.order.entity.*;
 import com.erui.order.requestVo.PurchParam;
-import com.erui.order.service.CheckLogService;
 import com.erui.order.service.PurchContractService;
 import com.erui.order.service.PurchService;
 import org.slf4j.Logger;
