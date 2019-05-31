@@ -384,7 +384,6 @@ public class ProjectServiceImpl implements ProjectService {
             Map<String, Object> localVariables = new HashMap<>();
             localVariables.put("audit_status", "APPROVED");
             BpmUtils.completeTask(taskId, eruitoken, null, localVariables, "同意");
-
             // 设置审核进度和审核人字段格式
             String auditingProcess = projectUpdate.getAuditingProcess();
             String auditingUserId = projectUpdate.getAuditingUserId();
