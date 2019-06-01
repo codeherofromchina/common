@@ -1774,9 +1774,6 @@ public class PurchServiceImpl implements PurchService {
                     localVariables.put("task_la_check", StringUtils.equals("3", save.getContractVersion()) ? "Y" : "N"); // 标准版本
                     BpmUtils.completeTask(taskId, eruiToken, null, localVariables, "同意");
                 }
-                save.setAuditingProcess("task_pu,task_pm_wxd_test"); // 第一个节点通知失败，写固定前两个并行的节点
-                save.setAuditingUser(",");
-                save.setAuditingUserId(",");
                 save.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
             }
             if (save.getStatus() == 2) {
