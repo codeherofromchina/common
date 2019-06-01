@@ -66,6 +66,7 @@ public class AreaController {
         map1.put("abc", str);
 
         map1.put("abc2", "shuaiguo222222222");
+
         map1.put("servletPath", servletPath);
         map1.put("getContextPath", getContextPath);
         map1.put("requestURL", requestURL);
