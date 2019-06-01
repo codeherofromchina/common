@@ -64,7 +64,6 @@ public class AreaController {
 
         Map<String, Object> map1 = new HashMap();
         map1.put("abc", str);
-
         map1.put("abc2", "shuaiguo222222222");
 
         map1.put("servletPath", servletPath);
