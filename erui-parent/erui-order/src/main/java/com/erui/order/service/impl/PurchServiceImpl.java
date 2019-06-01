@@ -33,10 +33,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.LockModeType;
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
 import java.util.*;
@@ -46,6 +48,7 @@ import java.util.stream.Collectors;
  * Created by wangxiaodan on 2017/12/11.
  */
 @Service
+@Transactional
 public class PurchServiceImpl implements PurchService {
     private static Logger logger = LoggerFactory.getLogger(DeliverDetailServiceImpl.class);
     @Autowired
@@ -91,6 +94,27 @@ public class PurchServiceImpl implements PurchService {
     public Purch findBaseInfo(Integer id) {
         if (id != null && id > 0) {
             Purch puch = purchDao.findOne(id);
+            puch.getPurchPaymentList().size(); /// 获取合同结算类型信息
+            List<Attachment> attachments = attachmentDao.findByRelObjIdAndCategory(puch.getId(), Attachment.AttachmentCategory.PURCH.getCode());
+            if (attachments != null && attachments.size() > 0) {
+                puch.setAttachments(attachments);
+                puch.getAttachments().size(); // 获取采购的附件信息
+            }
+            List<PurchGoods> purchGoodsList = puch.getPurchGoodsList();
+            if (purchGoodsList.size() > 0) {
+                for (PurchGoods purchGoods : purchGoodsList) {
+                    purchGoods.getGoods().setPurchGoods(null);
+                }
+            }
+            return puch;
+        }
+        return null;
+    }
+
+
+    private Purch findBaseInfoLock(Integer id) {
+        if (id != null && id > 0) {
+            Purch puch = purchDao.findById(id);
             puch.getPurchPaymentList().size(); /// 获取合同结算类型信息
             List<Attachment> attachments = attachmentDao.findByRelObjIdAndCategory(puch.getId(), Attachment.AttachmentCategory.PURCH.getCode());
             if (attachments != null && attachments.size() > 0) {
@@ -1136,7 +1160,7 @@ public class PurchServiceImpl implements PurchService {
     @Transactional(rollbackFor = Exception.class,isolation = Isolation.REPEATABLE_READ)
     public boolean update(Purch purch) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        Purch dbPurch = findBaseInfo(purch.getId());
+        Purch dbPurch = findBaseInfoLock(purch.getId());
         // 之前的采购必须不能为空且未提交状态
         if (purch.getPurchContractId() == null) {
             // 之前的采购必须不能为空且未提交状态
