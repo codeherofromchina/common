@@ -200,16 +200,33 @@ public class BpmNotifyController {
 
         // 业务流中存在完善开头的就是业务的开头被驳回节点
         boolean rejected = StringUtils.startsWith(bpmTaskRuntime.getActName(), "完善");
+        User user = null;
+        if (StringUtils.isNotBlank(bpmTaskRuntime.getAssignee())) {
+            user = userService.findUserNoByUserNo(bpmTaskRuntime.getAssignee());
+        }
         if (StringUtils.equals("order", bpmTaskRuntime.getBizType())) {
             // 订单审核流程
             orderService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId(), rejected);
             projectService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId(), rejected);
+            if (user != null) {
+                // 添加当前审核人
+                orderService.updateAuditUser(bpmTaskRuntime.getBizObjId(), user.getId(), user.getName(), bpmTaskRuntime.getActId());
+                projectService.updateAuditUser(bpmTaskRuntime.getBizObjId(), user.getId(), user.getName(), bpmTaskRuntime.getActId());
+            }
         } else if (StringUtils.equals("deliver_consign", bpmTaskRuntime.getBizType())) {
             // 订舱审核流程
             deliverConsignService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId(), rejected);
+            if (user != null) {
+                // 添加当前审核人
+                deliverConsignService.updateAuditUser(bpmTaskRuntime.getBizObjId(), user.getId(), user.getName(), bpmTaskRuntime.getActId());
+            }
         } else if (StringUtils.equals("purch", bpmTaskRuntime.getBizType())) {
             // 采购审核流程
             purchService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId(), rejected);
+            if (user != null) {
+                // 添加当前审核人
+                purchService.updateAuditUser(bpmTaskRuntime.getBizObjId(), user.getId(), user.getName(), bpmTaskRuntime.getActId());
+            }
         }
         bpmTaskRuntimeService.addBpmTaskRuntime(bpmTaskRuntime);
         return new Result();
@@ -248,7 +265,6 @@ public class BpmNotifyController {
         }
         return new Result();
     }
-
 
 
     /**
