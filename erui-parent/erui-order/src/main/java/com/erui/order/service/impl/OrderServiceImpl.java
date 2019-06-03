@@ -1237,12 +1237,16 @@ public class OrderServiceImpl implements OrderService {
         if (addOrderVo.getOrderChange() != null && addOrderVo.getOrderChange() == 1) {
             if (addOrderVo.getContractNo() != null && addOrderVo.getContractNo().contains("-")) {
                 String oldNo = addOrderVo.getContractNo();
-                int i = oldNo.indexOf("-") + 1;
+                int i = oldNo.lastIndexOf("-") + 1;
                 String subNum = oldNo.substring(i);
-                Integer num = Integer.parseInt(subNum);
-                ++num;
-                String newContractNo = oldNo.substring(0, i) + num;
-                order.setContractNo(newContractNo);
+                if (StringUtils.isNumeric(subNum)) {
+                    Integer num = Integer.parseInt(subNum);
+                    ++num;
+                    String newContractNo = oldNo.substring(0, i) + num;
+                    order.setContractNo(newContractNo);
+                } else {
+                    order.setContractNo(addOrderVo.getContractNo() + "-1");
+                }
             } else {
                 order.setContractNo(addOrderVo.getContractNo() + "-1");
             }
