@@ -3202,8 +3202,8 @@ public class OrderServiceImpl implements OrderService {
                     }
                     map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
                 }
+                passed = map.values().stream().collect(Collectors.toList());
             }
-            passed = map.values().stream().collect(Collectors.toList());
             if (passed == null) {
                 passed = new ArrayList<>();
             } else if (passed.size() > 0) {
