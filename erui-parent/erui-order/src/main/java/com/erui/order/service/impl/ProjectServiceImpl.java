@@ -148,6 +148,7 @@ public class ProjectServiceImpl implements ProjectService {
         return null;
     }
 
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateProject(Project project, Integer userIdP) throws Exception {
