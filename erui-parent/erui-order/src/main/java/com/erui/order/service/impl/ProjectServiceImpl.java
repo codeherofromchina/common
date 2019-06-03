@@ -152,6 +152,15 @@ public class ProjectServiceImpl implements ProjectService {
             attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, projectUpdate.getId(), Attachment.AttachmentCategory.PROJECT.getCode());
 
             project.copyProjectDescTo(projectUpdate);
+
+            if (StringUtils.isBlank(projectUpdate.getProcessId())) {
+                // 老流程
+                //现货的情况直接完成 ，删除 “办理项目/驳回”  待办提示
+                BackLog backLog = new BackLog();
+                backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
+                backLog.setHostId(projectUpdate.getId());
+                backLogService.updateBackLogByDelYn(backLog);
+            }
         } else {
             // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
             if (nowProjectStatusEnum.getNum() >= Project.ProjectStatusEnum.EXECUTING.getNum()) {
@@ -177,6 +186,29 @@ public class ProjectServiceImpl implements ProjectService {
                 } else {
                     // 正常提交项目
                     project.copyProjectDescTo(projectUpdate);
+                    if (StringUtils.isBlank(projectUpdate.getProcessId())) {
+                        // 老审核流程
+                        Integer auditingLevel = project.getAuditingLevel();
+                        Integer orderCategory = order.getOrderCategory();
+                        if (orderCategory != null && orderCategory == 1) { // 预投
+                            auditingLevel = 4; // 四级审核
+                        } else if (orderCategory != null && orderCategory == 3) { // 试用
+                            auditingLevel = 2; // 二级审核
+                        } else if (auditingLevel == null || (auditingLevel < 0 || auditingLevel > 3)) {
+                            // 既不是预投。又不是试用，则需要检查参数
+                            throw new MyException(String.format("%s%s%s", "参数错误，审批等级参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, approval level parameter error."));
+                        }
+                        projectUpdate.setBuVpAuditer(project.getBuVpAuditer());
+                        projectUpdate.setBuVpAuditerId(project.getBuVpAuditerId());
+                        projectUpdate.setCeo(project.getCeo());
+                        projectUpdate.setCeoId(project.getCeoId());
+                        projectUpdate.setChairman(project.getChairman());
+                        projectUpdate.setChairmanId(project.getChairmanId());
+                        projectUpdate.setAuditingLevel(auditingLevel);
+                    }
+
+
+
                 }
                 // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
                 List<Attachment> attachmentList = project.getAttachmentList();
