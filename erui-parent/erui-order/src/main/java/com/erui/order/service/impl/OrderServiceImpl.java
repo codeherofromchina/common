@@ -1279,6 +1279,7 @@ public class OrderServiceImpl implements OrderService {
                 auditBackLogHandle(orderUpdate, false, orderUpdate.getAuditingUserId(), null, false);
             }
         }
+
         return order.getId();
     }
 
