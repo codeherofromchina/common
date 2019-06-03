@@ -337,7 +337,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignUpdate);
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
-            if (StringUtils.isNotBlank(deliverConsign1.getAudiRemark()) && StringUtils.isBlank(deliverConsign1.getProcessId())) {
+//            if (StringUtils.isNotBlank(deliverConsign1.getAudiRemark()) && StringUtils.isBlank(deliverConsign1.getProcessId())) {
+            if (false) {
                 // 老审核流程
                 deliverConsignUpdate.setAuditingProcess("31");
                 deliverConsignUpdate.setAuditingStatus(2);

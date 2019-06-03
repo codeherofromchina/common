@@ -1757,7 +1757,8 @@ public class PurchServiceImpl implements PurchService {
             attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbPurch.getId(), Attachment.AttachmentCategory.PURCH.getCode());
 
             if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-                if (StringUtils.isNotBlank(dbPurch.getAudiRemark()) && StringUtils.isBlank(dbPurch.getProcessId())) {
+//                if (StringUtils.isNotBlank(dbPurch.getAudiRemark()) && StringUtils.isBlank(dbPurch.getProcessId())) {
+                if(false){
                     // 老审核流程
                     dbPurch.setAuditingProcess("21,22");
                     dbPurch.setAuditingStatus(1);

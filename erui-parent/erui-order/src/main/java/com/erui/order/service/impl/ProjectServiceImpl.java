@@ -222,9 +222,6 @@ public class ProjectServiceImpl implements ProjectService {
                         projectUpdate.setChairmanId(project.getChairmanId());
                         projectUpdate.setAuditingLevel(auditingLevel);
                     }
-
-
-
                 }
                 // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
                 List<Attachment> attachmentList = project.getAttachmentList();
@@ -241,38 +238,6 @@ public class ProjectServiceImpl implements ProjectService {
                         BpmUtils.completeTask(project.getTaskId(), eruiToken, null, localVariables, "同意");
                         // 设置下一流程进度，主要是因为当前项目操作中，异步回调此项目设置失败，再这里直接设置了 , 现货订单有区别/预投订单也有区别 TODO
                         projectUpdate.setAuditingStatus(2); // 审核中
-//                        switch (order.getOrderCategory()) {
-//                            case 1:
-//                            case 4:
-//                                // 预投订单/现货订单
-//                                projectUpdate.setAuditingProcess("task_gm");
-//                                projectUpdate.setAuditingUser("");
-//                                projectUpdate.setAuditingUserId("");
-//                                break;
-//                            case 3:
-//                                projectUpdate.setAuditingProcess("task_pc,task_lg,task_pu");
-//                                projectUpdate.setAuditingUser(",,");
-//                                projectUpdate.setAuditingUserId(",,");
-//                            case 6:
-//                                // 国内订单
-//                                projectUpdate.setAuditingProcess("task_pu");
-//                                projectUpdate.setAuditingUser("");
-//                                projectUpdate.setAuditingUserId("");
-//                                break;
-//                            default:
-//                                Integer overseasSales = order.getOverseasSales();
-//                                if (overseasSales != null && overseasSales == 3) {
-//                                    // 海外销售类型 为3 海外销（当地采购 走现货审核流程
-//                                    projectUpdate.setAuditingProcess("task_gm");
-//                                    projectUpdate.setAuditingUser("");
-//                                    projectUpdate.setAuditingUserId("");
-//                                } else {
-//                                    projectUpdate.setAuditingProcess("task_pc,task_lg,task_pu");
-//                                    projectUpdate.setAuditingUser(",,");
-//                                    projectUpdate.setAuditingUserId(",,");
-//                                }
-//                        }
-
                         // 设置审核人信息
                         String audiRemark = projectUpdate.getAudiRemark();
                         if (StringUtils.isBlank(audiRemark)) {

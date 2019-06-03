@@ -1056,7 +1056,8 @@ public class OrderServiceImpl implements OrderService {
             order.setAuditingStatus(1);
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
-            if (StringUtils.isNotBlank(orderUpdate.getAudiRemark()) && StringUtils.isBlank(orderUpdate.getProcessId())) {
+//            if (StringUtils.isNotBlank(orderUpdate.getAudiRemark()) && StringUtils.isBlank(orderUpdate.getProcessId())) {
+            if(false){
                 // 老审核流程
                 //如果是国内订单 没有国家负责人 根据是否融资审核进行审核流程
                 if (addOrderVo.getOrderCategory() == 6) {
@@ -1266,7 +1267,8 @@ public class OrderServiceImpl implements OrderService {
                 String s = HttpRequest.sendPost(crmUrl + CRM_URL_METHOD, jsonParam, header);
                 logger.info("CRM返回信息：" + s);
             }
-            if (StringUtils.isNotBlank(orderUpdate.getAudiRemark()) && StringUtils.isBlank(orderUpdate.getProcessId())) {
+//            if (StringUtils.isNotBlank(orderUpdate.getAudiRemark()) && StringUtils.isBlank(orderUpdate.getProcessId())) {
+            if(false){
                 // 老流程
                 //项目提交的时候判断是否有驳回的信息  如果有删除  “驳回订单” 待办提示
                 BackLog backLog = new BackLog();
