@@ -1076,7 +1076,7 @@ public class OrderServiceImpl implements OrderService {
                 bpmInitVar.put("task_fn_check", task_fn_check);
                 if (StringUtils.isNotBlank(techicalUserNo)) {
                     // ID -> userNo
-                    bpmInitVar.put("assignee_pm",techicalUserNo);
+                    bpmInitVar.put("assignee_pm", techicalUserNo);
                 }
                 JSONObject processResp = null;
                 switch (addOrderVo.getOrderCategory()) {
@@ -1132,7 +1132,7 @@ public class OrderServiceImpl implements OrderService {
                 bpmVar.put("audit_status", "APPROVED");
                 if (StringUtils.isNotBlank(techicalUserNo)) {
                     // ID -> userNo
-                    bpmVar.put("assignee_pm",techicalUserNo);
+                    bpmVar.put("assignee_pm", techicalUserNo);
                 }
                 // 完善订单节点，完成任务
                 BpmUtils.completeTask(addOrderVo.getTaskId(), eruiToken, null, bpmVar, "同意");
@@ -1410,7 +1410,7 @@ public class OrderServiceImpl implements OrderService {
 
             if (StringUtils.isNotBlank(techicalUserNo)) {
                 // ID -> userNo
-                bpmInitVar.put("assignee_pm",techicalUserNo);
+                bpmInitVar.put("assignee_pm", techicalUserNo);
             }
             bpmInitVar.put("param_contract", order1.getContractNo());
             bpmInitVar.put("task_cm_country", order1.getCountry());
@@ -3187,13 +3187,15 @@ public class OrderServiceImpl implements OrderService {
         if (orderDec.getId() != null) {
             resultCheckLogs = checkLogService.findListByOrderId(orderDec.getId());
             Map<String, CheckLog> map = new LinkedMap<>();
-            for (CheckLog cLog : resultCheckLogs) {
-                if (map.containsKey(cLog.getAuditingProcess() + "_" + cLog.getType())) {
-                    map.remove(cLog.getAuditingProcess() + "_" + cLog.getType());
+            if (resultCheckLogs != null && resultCheckLogs.size() > 0) {
+                for (CheckLog cLog : resultCheckLogs) {
+                    if (map.containsKey(cLog.getAuditingProcess() + "_" + cLog.getType())) {
+                        map.remove(cLog.getAuditingProcess() + "_" + cLog.getType());
+                    }
+                    map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
                 }
-                map.put(cLog.getAuditingProcess() + "_" + cLog.getType(), cLog);
+                passed = map.values().stream().collect(Collectors.toList());
             }
-            passed = map.values().stream().collect(Collectors.toList());
             if (passed == null) {
                 passed = new ArrayList<>();
             } else if (passed.size() > 0) {
