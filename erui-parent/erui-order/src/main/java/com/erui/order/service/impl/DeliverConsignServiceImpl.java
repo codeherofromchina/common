@@ -279,6 +279,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             if (StringUtils.isBlank(taskId)) {
                 Map<String, Object> initVar = new HashMap<>();
                 initVar.put("param_contract", deliverConsign1.getDeliverConsignNo());
+                initVar.put("task_cm_country", deliverConsign1.getCountry());
+                initVar.put("task_rm_area", deliverConsign1.getRegion());
                 // 启动业务流流程实例
                 JSONObject processResp = BpmUtils.startProcessInstanceByKey("booking_order", null, eruitoken, "deliver_consign:" + deliverConsign1.getId(), initVar);
                 // 设置订单和业务流标示关联
