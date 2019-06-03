@@ -102,7 +102,6 @@ public class ProjectServiceImpl implements ProjectService {
         return project;
     }
 
-
     @Override
     @Transactional(readOnly = true)
     public List<Project> findByIds(List<Integer> ids) {
