@@ -1757,24 +1757,40 @@ public class PurchServiceImpl implements PurchService {
             attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbPurch.getId(), Attachment.AttachmentCategory.PURCH.getCode());
 
             if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-                String taskId = purch.getTaskId();
-                if (StringUtils.isBlank(taskId)) {
-                    // 启动采购合同订单流程实例（purchase_order）
-                    Map<String, Object> bpmInitVar = new HashMap<>();
-                    bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
-                    bpmInitVar.put("param_contract", purch.getPurchNo()); // 采购合同号
-                    bpmInitVar.put("task_la_check", StringUtils.equals("3", purch.getContractVersion()) ? "Y" : "N"); // 标准版本
-                    JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
-                    save.setProcessId(processResp.getString("instanceId"));
+                if (StringUtils.isNotBlank(dbPurch.getAudiRemark()) && StringUtils.isBlank(dbPurch.getProcessId())) {
+                    // 老审核流程
+                    dbPurch.setAuditingProcess("21,22");
+                    dbPurch.setAuditingStatus(1);
+                    dbPurch.setAuditingUserId(String.format("%d,%d", purch.getPurchAuditerId(), purch.getBusinessAuditerId()));
+                     //审批流日志
+                    CheckLog checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
+                    checkLogService.insert(checkLog_i);
+                    if (save.getAuditingUserId() != null) {
+                        for (String user : save.getAuditingUserId().split(",")) {
+                            sendNewDingtalk(save, user, false, true);
+                        }
+                    }
+                    auditBackLogHandle(save, false, save.getAuditingUserId(), "", false);
                 } else {
-                    // 完善订单任务调用
-                    Map<String, Object> localVariables = new HashMap<>();
-                    localVariables.put("audit_status", "APPROVED");
-                    localVariables.put("order_amount", save.getTotalPrice().doubleValue()); // 总采购订单金额
-                    localVariables.put("task_la_check", StringUtils.equals("3", save.getContractVersion()) ? "Y" : "N"); // 标准版本
-                    BpmUtils.completeTask(taskId, eruiToken, null, localVariables, "同意");
+                    String taskId = purch.getTaskId();
+                    if (StringUtils.isBlank(taskId)) {
+                        // 启动采购合同订单流程实例（purchase_order）
+                        Map<String, Object> bpmInitVar = new HashMap<>();
+                        bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
+                        bpmInitVar.put("param_contract", purch.getPurchNo()); // 采购合同号
+                        bpmInitVar.put("task_la_check", StringUtils.equals("3", purch.getContractVersion()) ? "Y" : "N"); // 标准版本
+                        JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
+                        save.setProcessId(processResp.getString("instanceId"));
+                    } else {
+                        // 完善订单任务调用
+                        Map<String, Object> localVariables = new HashMap<>();
+                        localVariables.put("audit_status", "APPROVED");
+                        localVariables.put("order_amount", save.getTotalPrice().doubleValue()); // 总采购订单金额
+                        localVariables.put("task_la_check", StringUtils.equals("3", save.getContractVersion()) ? "Y" : "N"); // 标准版本
+                        BpmUtils.completeTask(taskId, eruiToken, null, localVariables, "同意");
+                    }
+                    save.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
                 }
-                save.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
             }
             if (save.getStatus() == 2) {
                 List<Project> projects = save.getProjects();

@@ -337,28 +337,47 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignUpdate);
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
-            String taskId = deliverConsign.getTaskId();
-            if (StringUtils.isBlank(taskId)) {
-                Map<String, Object> initVar = new HashMap<>();
-                initVar.put("param_contract", deliverConsign1.getDeliverConsignNo());
-                initVar.put("task_cm_country", deliverConsign1.getCountry());
-                initVar.put("task_rm_area", deliverConsign1.getRegion());
-                // 启动业务流流程实例
-                JSONObject processResp = BpmUtils.startProcessInstanceByKey("booking_order", null, eruitoken, "deliver_consign:" + deliverConsign1.getId(), initVar);
-                // 设置订单和业务流标示关联
-                deliverConsign1.setProcessId(processResp.getString("instanceId"));
-
+            if (StringUtils.isNotBlank(deliverConsign1.getAudiRemark()) && StringUtils.isBlank(deliverConsign1.getProcessId())) {
+                // 老审核流程
+                deliverConsignUpdate.setAuditingProcess("31");
+                deliverConsignUpdate.setAuditingStatus(2);
+                if (deliverConsignUpdate.getCountryLeaderId() != null) {
+                    deliverConsignUpdate.setAuditingUserId(deliverConsignUpdate.getCountryLeaderId().toString());
+                } else {
+                    deliverConsignUpdate.setAuditingUserId(null);
+                }
+                CheckLog checkLog_i = null; //审批流日志
+                checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign1.getId(), 30, order.getAgentId(), order.getAgentName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getCountryLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 4);
+                checkLogService.insert(checkLog_i);
+                // 待办
+                if (deliverConsign.getCountryLeaderId() != null) {
+                    sendDingtalk(deliverConsign1, deliverConsignUpdate.getCountryLeaderId().toString(), false);
+                    auditBackLogHandle(deliverConsign1, false, deliverConsign1.getCountryLeaderId().toString(), "", false);
+                }
             } else {
-                // 完善订单任务调用
-                Map<String, Object> localVariables = new HashMap<>();
-                localVariables.put("audit_status", "APPROVED");
-                BpmUtils.completeTask(taskId, eruitoken, null, localVariables, "同意");
-            }
-            deliverConsign1.setAuditingProcess("task_cm"); // 第一个节点通知失败，写固定的第一个节点
-            deliverConsign1.setAuditingUser("");
-            deliverConsign1.setAuditingUserId("");
-            deliverConsign1.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
+                // 新审核流程
+                String taskId = deliverConsign.getTaskId();
+                if (StringUtils.isBlank(taskId)) {
+                    Map<String, Object> initVar = new HashMap<>();
+                    initVar.put("param_contract", deliverConsign1.getDeliverConsignNo());
+                    initVar.put("task_cm_country", deliverConsign1.getCountry());
+                    initVar.put("task_rm_area", deliverConsign1.getRegion());
+                    // 启动业务流流程实例
+                    JSONObject processResp = BpmUtils.startProcessInstanceByKey("booking_order", null, eruitoken, "deliver_consign:" + deliverConsign1.getId(), initVar);
+                    // 设置订单和业务流标示关联
+                    deliverConsign1.setProcessId(processResp.getString("instanceId"));
 
+                } else {
+                    // 完善订单任务调用
+                    Map<String, Object> localVariables = new HashMap<>();
+                    localVariables.put("audit_status", "APPROVED");
+                    BpmUtils.completeTask(taskId, eruitoken, null, localVariables, "同意");
+                }
+                deliverConsign1.setAuditingProcess("task_cm"); // 第一个节点通知失败，写固定的第一个节点
+                deliverConsign1.setAuditingUser("");
+                deliverConsign1.setAuditingUserId("");
+                deliverConsign1.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
+            }
         }
         List<Attachment> attachmentList = deliverConsign.getAttachmentSet();
         Map<Integer, Attachment> dbAttahmentsMap = deliverConsignUpdate.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
