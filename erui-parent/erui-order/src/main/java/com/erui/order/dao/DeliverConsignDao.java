@@ -21,6 +21,7 @@ public interface DeliverConsignDao extends JpaRepository<DeliverConsign, Seriali
     List<DeliverConsign> findByIdInAndStatus(Integer[] deliverNoticeNos, Integer s);
 
     List<DeliverConsign> findByIdIn(Integer[] arr);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     DeliverConsign findById(Integer id);
 
