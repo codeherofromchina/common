@@ -285,6 +285,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 JSONObject processResp = BpmUtils.startProcessInstanceByKey("booking_order", null, eruitoken, "deliver_consign:" + deliverConsign1.getId(), initVar);
                 // 设置订单和业务流标示关联
                 deliverConsign1.setProcessId(processResp.getString("instanceId"));
+
             } else {
                 // 完善订单任务调用
                 Map<String, Object> localVariables = new HashMap<>();
