@@ -1745,7 +1745,6 @@ public class PurchServiceImpl implements PurchService {
             dbPurch.setStatus(3);
         }*/
 
-
             Purch save = purchDao.save(dbPurch);
             // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
             //save.setAttachmentList(save.getAttachmentList());
@@ -1771,7 +1770,6 @@ public class PurchServiceImpl implements PurchService {
                             sendNewDingtalk(save, user, false, true);
                         }
                     }
-
                     auditBackLogHandle(save, false, save.getAuditingUserId(), "", false);
                 } else {
                     String taskId = purch.getTaskId();
