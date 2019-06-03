@@ -218,16 +218,50 @@ public class Goods {
 
     @Transient
     private String deliverDetailNo; //产品放行单号
+
     private String department;//所属事业部
+
     private BigDecimal price; //商品价格
+
     @Column(name = "mete_name")
     private String meteName;//物料分类名称
 
+    @Column(name = "tpl_no")
+    private String tplNo;//模板编号
+
+    @Column(name = "tpl_name")
+    private String tplName;//模板名称
+
+    private String attrs;//模板属性
 
     // 务必没有修改PurchGoods权限的能力
     @OneToMany(mappedBy = "goods", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<PurchGoods> purchGoods;
+
+    public String getTplNo() {
+        return tplNo;
+    }
+
+    public void setTplNo(String tplNo) {
+        this.tplNo = tplNo;
+    }
+
+    public String getTplName() {
+        return tplName;
+    }
+
+    public void setTplName(String tplName) {
+        this.tplName = tplName;
+    }
+
+    public String getAttrs() {
+        return attrs;
+    }
+
+    public void setAttrs(String attrs) {
+        this.attrs = attrs;
+    }
 
     public String getMeteName() {
         return meteName;

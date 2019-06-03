@@ -39,6 +39,33 @@ public class PGoods {
     private String department;//所属事业部
     private BigDecimal price; //商品价格
     private String meteName;//物料分类名称
+    private String tplNo;//模板编号
+    private String tplName;//模板名称
+    private String attrs;//模板属性
+
+    public String getTplNo() {
+        return tplNo;
+    }
+
+    public void setTplNo(String tplNo) {
+        this.tplNo = tplNo;
+    }
+
+    public String getTplName() {
+        return tplName;
+    }
+
+    public void setTplName(String tplName) {
+        this.tplName = tplName;
+    }
+
+    public String getAttrs() {
+        return attrs;
+    }
+
+    public void setAttrs(String attrs) {
+        this.attrs = attrs;
+    }
 
     public String getMeteName() {
         return meteName;
