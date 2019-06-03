@@ -329,7 +329,7 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
                         goods.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
                     }
 
-                    if (iogisticsData.getStatus() == 6 && iogisticsData.getLeaveFactory() != null) {
+                    if (iogisticsData.getLeaveFactory() != null) {
                         //已发运
                         applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 9, eruiToken));
                     }
@@ -356,7 +356,6 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
                         backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.LOGISTICSDATA.getNum());    //功能访问路径标识
                         backLog2.setHostId(iogisticsData.getId());
                         backLogService.updateBackLogByDelYn(backLog2);
-
                     }
                 }
 
