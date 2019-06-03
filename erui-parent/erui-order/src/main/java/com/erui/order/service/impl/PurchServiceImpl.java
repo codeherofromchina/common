@@ -1769,7 +1769,6 @@ public class PurchServiceImpl implements PurchService {
                             sendNewDingtalk(save, user, false, true);
                         }
                     }
-
                     auditBackLogHandle(save, false, save.getAuditingUserId(), "", false);
                 } else {
                     String taskId = purch.getTaskId();
