@@ -234,6 +234,7 @@ public class ProjectServiceImpl implements ProjectService {
                 if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
                     // 现在这里是重点，现在的流程已经没有项目经理了，提交审核只能跑到这里来
                     if (StringUtils.isNotBlank(projectUpdate.getProcessId())) {
+
                         // 完成项目的任务
                         Map<String, Object> localVariables = new HashMap<>();
                         localVariables.put("audit_status", "APPROVED");
