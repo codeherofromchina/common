@@ -981,7 +981,6 @@ public class OrderServiceImpl implements OrderService {
                     contractNo = StringUtil.genContractNo02(lastContractNo);
                 }
             }
-
         } else if (addOrderVo.getOrderCategory() == 6 && StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", addOrderVo.getSigningCo())
                 && StringUtils.isBlank(order.getContractNo())) {
             String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
