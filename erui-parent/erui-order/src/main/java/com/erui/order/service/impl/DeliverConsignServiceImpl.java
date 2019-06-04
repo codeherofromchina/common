@@ -367,6 +367,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     JSONObject processResp = BpmUtils.startProcessInstanceByKey("booking_order", null, eruitoken, "deliver_consign:" + deliverConsign1.getId(), initVar);
                     // 设置订单和业务流标示关联
                     deliverConsign1.setProcessId(processResp.getString("instanceId"));
+                    deliverConsign1.setAuditingUser("");
+                    deliverConsign1.setAuditingUserId("");
+                    deliverConsign1.setAuditingProcess("task_cm");
 
                     /// 删除老流程待办 ，驳回到初始节点时候会开启新流程 TODO 如果不存在老审核流程可删除
                     // 删除上一个待办
@@ -548,13 +551,16 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             // 设置订单和业务流标示关联
             deliverConsign1.setProcessId(processResp.getString("instanceId"));
             deliverConsign1.setAuditingProcess("task_cm"); // 第一个节点通知失败，写固定的第一个节点
+            deliverConsign1.setAuditingUser("");
+            deliverConsign1.setAuditingUserId("");
             deliverConsign1.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
         }
+
+
         //出口通知单附件添加
         if (deliverConsign.getAttachmentSet() != null && deliverConsign.getAttachmentSet().size() > 0) {
             attachmentService.addAttachments(deliverConsign.getAttachmentSet(), deliverConsign1.getId(), Attachment.AttachmentCategory.DELIVERCONSIGN.getCode());
         }
-
         //出口发货通知单订舱信息
         if (deliverConsign.getDeliverConsignBookingSpace() != null) {
             DeliverConsignBookingSpace deliverConsignBookingSpace = deliverConsign.getDeliverConsignBookingSpace();

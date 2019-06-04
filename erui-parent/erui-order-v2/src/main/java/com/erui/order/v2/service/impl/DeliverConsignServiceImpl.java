@@ -161,9 +161,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     }
 
     @Override
-    public void updateAuditProcessDoing(Long deliverConsignId, String auditingProcess, String taskId, boolean rejected) {
+    public void updateAuditProcessDoing(String processId, String auditingProcess, String taskId, boolean rejected) {
         // 查询出口通知单
-        DeliverConsign deliverConsign = deliverConsignMapper.selectByPrimaryKey(Math.toIntExact(deliverConsignId));
+//        DeliverConsign deliverConsign = deliverConsignMapper.selectByPrimaryKey(Math.toIntExact(deliverConsignId));
+        DeliverConsign deliverConsign = findDeliverConsignByProcessId(processId);
         if (deliverConsign == null) {
             return;
         }
