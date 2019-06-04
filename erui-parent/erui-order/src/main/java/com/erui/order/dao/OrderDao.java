@@ -53,4 +53,12 @@ public interface OrderDao extends JpaRepository<Order, Serializable>, JpaSpecifi
      * @return Long
      */
     Order findByContractNoOrId(@Param("contractNo") String contractNo, @Param(value = "id") Integer id);
+
+    /**
+     * 根据流程实例ID查找订单
+     *
+     * @param processInstanceId
+     * @return
+     */
+    Order findByProcessId(String processInstanceId);
 }

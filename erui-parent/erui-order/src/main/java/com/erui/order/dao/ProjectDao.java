@@ -2,12 +2,10 @@ package com.erui.order.dao;
 
 import com.erui.order.entity.Area;
 import com.erui.order.entity.Project;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
+import javax.persistence.LockModeType;
 import java.io.Serializable;
 import java.util.List;
 
@@ -61,4 +59,7 @@ public interface ProjectDao extends JpaRepository<Project, Serializable>, JpaSpe
     @Modifying
     @Query("update Project p set p.projectStatus = 'DONE' ,p.processProgress = 9 where p.id in :ids")
     void updateProjectStatus(@Param(value = "ids") List<Integer> ids);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    Project findById(Integer id);
 }

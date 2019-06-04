@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.order.v2.dao.InspectApplyMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.InspectApply" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="inspect_apply_no" property="inspectApplyNo" jdbcType="VARCHAR" />
+    <result column="purch_no" property="purchNo" jdbcType="VARCHAR" />
+    <result column="purch_id" property="purchId" jdbcType="INTEGER" />
+    <result column="master" property="master" jdbcType="BIT" />
+    <result column="p_id" property="pId" jdbcType="INTEGER" />
+    <result column="department" property="department" jdbcType="VARCHAR" />
+    <result column="purchase_name" property="purchaseName" jdbcType="VARCHAR" />
+    <result column="supplier_name" property="supplierName" jdbcType="VARCHAR" />
+    <result column="abroad_co_name" property="abroadCoName" jdbcType="VARCHAR" />
+    <result column="inspect_date" property="inspectDate" jdbcType="DATE" />
+    <result column="direct" property="direct" jdbcType="BIT" />
+    <result column="out_check" property="outCheck" jdbcType="BIT" />
+    <result column="history" property="history" jdbcType="BIT" />
+    <result column="num" property="num" jdbcType="INTEGER" />
+    <result column="msg" property="msg" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="tmp_msg" property="tmpMsg" jdbcType="VARCHAR" />
+    <result column="pub_status" property="pubStatus" jdbcType="INTEGER" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.erui.order.v2.model.InspectApply" extends="BaseResultMap" >
+    <result column="remark" property="remark" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, inspect_apply_no, purch_no, purch_id, master, p_id, department, purchase_name, 
+    supplier_name, abroad_co_name, inspect_date, direct, out_check, history, num, msg, 
+    status, create_time, tmp_msg, pub_status, tenant
+  </sql>
+  <sql id="Blob_Column_List" >
+    remark
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.erui.order.v2.model.InspectApplyExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from inspect_apply
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.InspectApplyExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from inspect_apply
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from inspect_apply
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from inspect_apply
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.order.v2.model.InspectApplyExample" >
+    delete from inspect_apply
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.order.v2.model.InspectApply" >
+    insert into inspect_apply (id, inspect_apply_no, purch_no, 
+      purch_id, master, p_id, department, 
+      purchase_name, supplier_name, abroad_co_name, 
+      inspect_date, direct, out_check, 
+      history, num, msg, status, 
+      create_time, tmp_msg, pub_status, 
+      tenant, remark)
+    values (#{id,jdbcType=INTEGER}, #{inspectApplyNo,jdbcType=VARCHAR}, #{purchNo,jdbcType=VARCHAR}, 
+      #{purchId,jdbcType=INTEGER}, #{master,jdbcType=BIT}, #{pId,jdbcType=INTEGER}, #{department,jdbcType=VARCHAR}, 
+      #{purchaseName,jdbcType=VARCHAR}, #{supplierName,jdbcType=VARCHAR}, #{abroadCoName,jdbcType=VARCHAR}, 
+      #{inspectDate,jdbcType=DATE}, #{direct,jdbcType=BIT}, #{outCheck,jdbcType=BIT}, 
+      #{history,jdbcType=BIT}, #{num,jdbcType=INTEGER}, #{msg,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{tmpMsg,jdbcType=VARCHAR}, #{pubStatus,jdbcType=INTEGER}, 
+      #{tenant,jdbcType=VARCHAR}, #{remark,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.order.v2.model.InspectApply" >
+    insert into inspect_apply
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="inspectApplyNo != null" >
+        inspect_apply_no,
+      </if>
+      <if test="purchNo != null" >
+        purch_no,
+      </if>
+      <if test="purchId != null" >
+        purch_id,
+      </if>
+      <if test="master != null" >
+        master,
+      </if>
+      <if test="pId != null" >
+        p_id,
+      </if>
+      <if test="department != null" >
+        department,
+      </if>
+      <if test="purchaseName != null" >
+        purchase_name,
+      </if>
+      <if test="supplierName != null" >
+        supplier_name,
+      </if>
+      <if test="abroadCoName != null" >
+        abroad_co_name,
+      </if>
+      <if test="inspectDate != null" >
+        inspect_date,
+      </if>
+      <if test="direct != null" >
+        direct,
+      </if>
+      <if test="outCheck != null" >
+        out_check,
+      </if>
+      <if test="history != null" >
+        history,
+      </if>
+      <if test="num != null" >
+        num,
+      </if>
+      <if test="msg != null" >
+        msg,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="tmpMsg != null" >
+        tmp_msg,
+      </if>
+      <if test="pubStatus != null" >
+        pub_status,
+      </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="inspectApplyNo != null" >
+        #{inspectApplyNo,jdbcType=VARCHAR},
+      </if>
+      <if test="purchNo != null" >
+        #{purchNo,jdbcType=VARCHAR},
+      </if>
+      <if test="purchId != null" >
+        #{purchId,jdbcType=INTEGER},
+      </if>
+      <if test="master != null" >
+        #{master,jdbcType=BIT},
+      </if>
+      <if test="pId != null" >
+        #{pId,jdbcType=INTEGER},
+      </if>
+      <if test="department != null" >
+        #{department,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseName != null" >
+        #{purchaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="supplierName != null" >
+        #{supplierName,jdbcType=VARCHAR},
+      </if>
+      <if test="abroadCoName != null" >
+        #{abroadCoName,jdbcType=VARCHAR},
+      </if>
+      <if test="inspectDate != null" >
+        #{inspectDate,jdbcType=DATE},
+      </if>
+      <if test="direct != null" >
+        #{direct,jdbcType=BIT},
+      </if>
+      <if test="outCheck != null" >
+        #{outCheck,jdbcType=BIT},
+      </if>
+      <if test="history != null" >
+        #{history,jdbcType=BIT},
+      </if>
+      <if test="num != null" >
+        #{num,jdbcType=INTEGER},
+      </if>
+      <if test="msg != null" >
+        #{msg,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tmpMsg != null" >
+        #{tmpMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="pubStatus != null" >
+        #{pubStatus,jdbcType=INTEGER},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.order.v2.model.InspectApplyExample" resultType="java.lang.Integer" >
+    select count(*) from inspect_apply
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update inspect_apply
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.inspectApplyNo != null" >
+        inspect_apply_no = #{record.inspectApplyNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.purchNo != null" >
+        purch_no = #{record.purchNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.purchId != null" >
+        purch_id = #{record.purchId,jdbcType=INTEGER},
+      </if>
+      <if test="record.master != null" >
+        master = #{record.master,jdbcType=BIT},
+      </if>
+      <if test="record.pId != null" >
+        p_id = #{record.pId,jdbcType=INTEGER},
+      </if>
+      <if test="record.department != null" >
+        department = #{record.department,jdbcType=VARCHAR},
+      </if>
+      <if test="record.purchaseName != null" >
+        purchase_name = #{record.purchaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.supplierName != null" >
+        supplier_name = #{record.supplierName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.abroadCoName != null" >
+        abroad_co_name = #{record.abroadCoName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.inspectDate != null" >
+        inspect_date = #{record.inspectDate,jdbcType=DATE},
+      </if>
+      <if test="record.direct != null" >
+        direct = #{record.direct,jdbcType=BIT},
+      </if>
+      <if test="record.outCheck != null" >
+        out_check = #{record.outCheck,jdbcType=BIT},
+      </if>
+      <if test="record.history != null" >
+        history = #{record.history,jdbcType=BIT},
+      </if>
+      <if test="record.num != null" >
+        num = #{record.num,jdbcType=INTEGER},
+      </if>
+      <if test="record.msg != null" >
+        msg = #{record.msg,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.tmpMsg != null" >
+        tmp_msg = #{record.tmpMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pubStatus != null" >
+        pub_status = #{record.pubStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null" >
+        remark = #{record.remark,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update inspect_apply
+    set id = #{record.id,jdbcType=INTEGER},
+      inspect_apply_no = #{record.inspectApplyNo,jdbcType=VARCHAR},
+      purch_no = #{record.purchNo,jdbcType=VARCHAR},
+      purch_id = #{record.purchId,jdbcType=INTEGER},
+      master = #{record.master,jdbcType=BIT},
+      p_id = #{record.pId,jdbcType=INTEGER},
+      department = #{record.department,jdbcType=VARCHAR},
+      purchase_name = #{record.purchaseName,jdbcType=VARCHAR},
+      supplier_name = #{record.supplierName,jdbcType=VARCHAR},
+      abroad_co_name = #{record.abroadCoName,jdbcType=VARCHAR},
+      inspect_date = #{record.inspectDate,jdbcType=DATE},
+      direct = #{record.direct,jdbcType=BIT},
+      out_check = #{record.outCheck,jdbcType=BIT},
+      history = #{record.history,jdbcType=BIT},
+      num = #{record.num,jdbcType=INTEGER},
+      msg = #{record.msg,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      tmp_msg = #{record.tmpMsg,jdbcType=VARCHAR},
+      pub_status = #{record.pubStatus,jdbcType=INTEGER},
+      tenant = #{record.tenant,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update inspect_apply
+    set id = #{record.id,jdbcType=INTEGER},
+      inspect_apply_no = #{record.inspectApplyNo,jdbcType=VARCHAR},
+      purch_no = #{record.purchNo,jdbcType=VARCHAR},
+      purch_id = #{record.purchId,jdbcType=INTEGER},
+      master = #{record.master,jdbcType=BIT},
+      p_id = #{record.pId,jdbcType=INTEGER},
+      department = #{record.department,jdbcType=VARCHAR},
+      purchase_name = #{record.purchaseName,jdbcType=VARCHAR},
+      supplier_name = #{record.supplierName,jdbcType=VARCHAR},
+      abroad_co_name = #{record.abroadCoName,jdbcType=VARCHAR},
+      inspect_date = #{record.inspectDate,jdbcType=DATE},
+      direct = #{record.direct,jdbcType=BIT},
+      out_check = #{record.outCheck,jdbcType=BIT},
+      history = #{record.history,jdbcType=BIT},
+      num = #{record.num,jdbcType=INTEGER},
+      msg = #{record.msg,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      tmp_msg = #{record.tmpMsg,jdbcType=VARCHAR},
+      pub_status = #{record.pubStatus,jdbcType=INTEGER},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.InspectApply" >
+    update inspect_apply
+    <set >
+      <if test="inspectApplyNo != null" >
+        inspect_apply_no = #{inspectApplyNo,jdbcType=VARCHAR},
+      </if>
+      <if test="purchNo != null" >
+        purch_no = #{purchNo,jdbcType=VARCHAR},
+      </if>
+      <if test="purchId != null" >
+        purch_id = #{purchId,jdbcType=INTEGER},
+      </if>
+      <if test="master != null" >
+        master = #{master,jdbcType=BIT},
+      </if>
+      <if test="pId != null" >
+        p_id = #{pId,jdbcType=INTEGER},
+      </if>
+      <if test="department != null" >
+        department = #{department,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseName != null" >
+        purchase_name = #{purchaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="supplierName != null" >
+        supplier_name = #{supplierName,jdbcType=VARCHAR},
+      </if>
+      <if test="abroadCoName != null" >
+        abroad_co_name = #{abroadCoName,jdbcType=VARCHAR},
+      </if>
+      <if test="inspectDate != null" >
+        inspect_date = #{inspectDate,jdbcType=DATE},
+      </if>
+      <if test="direct != null" >
+        direct = #{direct,jdbcType=BIT},
+      </if>
+      <if test="outCheck != null" >
+        out_check = #{outCheck,jdbcType=BIT},
+      </if>
+      <if test="history != null" >
+        history = #{history,jdbcType=BIT},
+      </if>
+      <if test="num != null" >
+        num = #{num,jdbcType=INTEGER},
+      </if>
+      <if test="msg != null" >
+        msg = #{msg,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tmpMsg != null" >
+        tmp_msg = #{tmpMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="pubStatus != null" >
+        pub_status = #{pubStatus,jdbcType=INTEGER},
+      </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.erui.order.v2.model.InspectApply" >
+    update inspect_apply
+    set inspect_apply_no = #{inspectApplyNo,jdbcType=VARCHAR},
+      purch_no = #{purchNo,jdbcType=VARCHAR},
+      purch_id = #{purchId,jdbcType=INTEGER},
+      master = #{master,jdbcType=BIT},
+      p_id = #{pId,jdbcType=INTEGER},
+      department = #{department,jdbcType=VARCHAR},
+      purchase_name = #{purchaseName,jdbcType=VARCHAR},
+      supplier_name = #{supplierName,jdbcType=VARCHAR},
+      abroad_co_name = #{abroadCoName,jdbcType=VARCHAR},
+      inspect_date = #{inspectDate,jdbcType=DATE},
+      direct = #{direct,jdbcType=BIT},
+      out_check = #{outCheck,jdbcType=BIT},
+      history = #{history,jdbcType=BIT},
+      num = #{num,jdbcType=INTEGER},
+      msg = #{msg,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      tmp_msg = #{tmpMsg,jdbcType=VARCHAR},
+      pub_status = #{pubStatus,jdbcType=INTEGER},
+      tenant = #{tenant,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.InspectApply" >
+    update inspect_apply
+    set inspect_apply_no = #{inspectApplyNo,jdbcType=VARCHAR},
+      purch_no = #{purchNo,jdbcType=VARCHAR},
+      purch_id = #{purchId,jdbcType=INTEGER},
+      master = #{master,jdbcType=BIT},
+      p_id = #{pId,jdbcType=INTEGER},
+      department = #{department,jdbcType=VARCHAR},
+      purchase_name = #{purchaseName,jdbcType=VARCHAR},
+      supplier_name = #{supplierName,jdbcType=VARCHAR},
+      abroad_co_name = #{abroadCoName,jdbcType=VARCHAR},
+      inspect_date = #{inspectDate,jdbcType=DATE},
+      direct = #{direct,jdbcType=BIT},
+      out_check = #{outCheck,jdbcType=BIT},
+      history = #{history,jdbcType=BIT},
+      num = #{num,jdbcType=INTEGER},
+      msg = #{msg,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      tmp_msg = #{tmpMsg,jdbcType=VARCHAR},
+      pub_status = #{pubStatus,jdbcType=INTEGER},
+      tenant = #{tenant,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

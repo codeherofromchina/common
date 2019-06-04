@@ -15,7 +15,7 @@ public class DeliverConsignListCondition {
     private String contractNo;
 
     //审核进度 1提交审核 2国家负责人审核 3结算专员审核 4物流负责人审核 5事业部项目负责人审核
-    private Integer auditingProcess;
+    private String auditingProcess;
 
     //审核状态 1未审核 2审核中 3已完成
     private Integer auditingStatus;
@@ -53,11 +53,11 @@ public class DeliverConsignListCondition {
         this.contractNo = contractNo;
     }
 
-    public Integer getAuditingProcess() {
+    public String getAuditingProcess() {
         return auditingProcess;
     }
 
-    public void setAuditingProcess(Integer auditingProcess) {
+    public void setAuditingProcess(String auditingProcess) {
         this.auditingProcess = auditingProcess;
     }
 

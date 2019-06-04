@@ -5,10 +5,7 @@ import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Date;
@@ -141,6 +138,7 @@ public class HttpRequest {
             URL realUrl = new URL(url);
             // 打开和URL之间的连接
             URLConnection conn = realUrl.openConnection();
+            conn.setConnectTimeout(5000); // 5秒超时
 
             if (header != null && header.size() > 0) {
                 for (Map.Entry<String, String> entry : header.entrySet()) {
@@ -150,8 +148,11 @@ public class HttpRequest {
             // 发送POST请求必须设置如下两行
             conn.setDoOutput(true);
             conn.setDoInput(true);
+
+            OutputStreamWriter osw = new OutputStreamWriter(conn.getOutputStream(),"utf-8");
+
             // 获取URLConnection对象对应的输出流
-            out = new PrintWriter(conn.getOutputStream());
+            out = new PrintWriter(osw);
 
             // 发送请求参数
             out.print(param);
@@ -159,7 +160,7 @@ public class HttpRequest {
             out.flush();
             // 定义BufferedReader输入流来读取URL的响应
             in = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream()));
+                    new InputStreamReader(conn.getInputStream(),"utf-8"));
             String line;
             while ((line = in.readLine()) != null) {
                 result += line;

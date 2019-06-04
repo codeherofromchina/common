@@ -1,0 +1,591 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.order.v2.dao.PurchContractStandardMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.PurchContractStandard" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="purch_contract_id" property="purchContractId" jdbcType="INTEGER" />
+    <result column="used_for_buyer" property="usedForBuyer" jdbcType="VARCHAR" />
+    <result column="standard_and_require" property="standardAndRequire" jdbcType="VARCHAR" />
+    <result column="meet_require" property="meetRequire" jdbcType="VARCHAR" />
+    <result column="warranty_period" property="warrantyPeriod" jdbcType="VARCHAR" />
+    <result column="delivery_date" property="deliveryDate" jdbcType="TIMESTAMP" />
+    <result column="delivery_place" property="deliveryPlace" jdbcType="VARCHAR" />
+    <result column="inspection_period" property="inspectionPeriod" jdbcType="VARCHAR" />
+    <result column="data_version" property="dataVersion" jdbcType="VARCHAR" />
+    <result column="method_and_time" property="methodAndTime" jdbcType="VARCHAR" />
+    <result column="inside_address_s" property="insideAddressS" jdbcType="VARCHAR" />
+    <result column="addressee_s" property="addresseeS" jdbcType="VARCHAR" />
+    <result column="telephone_s" property="telephoneS" jdbcType="VARCHAR" />
+    <result column="inbox_address_s" property="inboxAddressS" jdbcType="VARCHAR" />
+    <result column="inside_address_b" property="insideAddressB" jdbcType="VARCHAR" />
+    <result column="addressee_b" property="addresseeB" jdbcType="VARCHAR" />
+    <result column="telephone_b" property="telephoneB" jdbcType="VARCHAR" />
+    <result column="inbox_address_b" property="inboxAddressB" jdbcType="VARCHAR" />
+    <result column="solution" property="solution" jdbcType="VARCHAR" />
+    <result column="board_arbitration" property="boardArbitration" jdbcType="VARCHAR" />
+    <result column="few_copies" property="fewCopies" jdbcType="VARCHAR" />
+    <result column="seller_few_copies" property="sellerFewCopies" jdbcType="VARCHAR" />
+    <result column="buyer_few_copies" property="buyerFewCopies" jdbcType="VARCHAR" />
+    <result column="appendices_name1" property="appendicesName1" jdbcType="VARCHAR" />
+    <result column="appendices_name2" property="appendicesName2" jdbcType="VARCHAR" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, purch_contract_id, used_for_buyer, standard_and_require, meet_require, warranty_period, 
+    delivery_date, delivery_place, inspection_period, data_version, method_and_time, 
+    inside_address_s, addressee_s, telephone_s, inbox_address_s, inside_address_b, addressee_b, 
+    telephone_b, inbox_address_b, solution, board_arbitration, few_copies, seller_few_copies, 
+    buyer_few_copies, appendices_name1, appendices_name2, update_time, create_time, tenant
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.PurchContractStandardExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from purch_contract_standard
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from purch_contract_standard
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from purch_contract_standard
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.order.v2.model.PurchContractStandardExample" >
+    delete from purch_contract_standard
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.order.v2.model.PurchContractStandard" >
+    insert into purch_contract_standard (id, purch_contract_id, used_for_buyer, 
+      standard_and_require, meet_require, warranty_period, 
+      delivery_date, delivery_place, inspection_period, 
+      data_version, method_and_time, inside_address_s, 
+      addressee_s, telephone_s, inbox_address_s, 
+      inside_address_b, addressee_b, telephone_b, 
+      inbox_address_b, solution, board_arbitration, 
+      few_copies, seller_few_copies, buyer_few_copies, 
+      appendices_name1, appendices_name2, update_time, 
+      create_time, tenant)
+    values (#{id,jdbcType=INTEGER}, #{purchContractId,jdbcType=INTEGER}, #{usedForBuyer,jdbcType=VARCHAR}, 
+      #{standardAndRequire,jdbcType=VARCHAR}, #{meetRequire,jdbcType=VARCHAR}, #{warrantyPeriod,jdbcType=VARCHAR}, 
+      #{deliveryDate,jdbcType=TIMESTAMP}, #{deliveryPlace,jdbcType=VARCHAR}, #{inspectionPeriod,jdbcType=VARCHAR}, 
+      #{dataVersion,jdbcType=VARCHAR}, #{methodAndTime,jdbcType=VARCHAR}, #{insideAddressS,jdbcType=VARCHAR}, 
+      #{addresseeS,jdbcType=VARCHAR}, #{telephoneS,jdbcType=VARCHAR}, #{inboxAddressS,jdbcType=VARCHAR}, 
+      #{insideAddressB,jdbcType=VARCHAR}, #{addresseeB,jdbcType=VARCHAR}, #{telephoneB,jdbcType=VARCHAR}, 
+      #{inboxAddressB,jdbcType=VARCHAR}, #{solution,jdbcType=VARCHAR}, #{boardArbitration,jdbcType=VARCHAR}, 
+      #{fewCopies,jdbcType=VARCHAR}, #{sellerFewCopies,jdbcType=VARCHAR}, #{buyerFewCopies,jdbcType=VARCHAR}, 
+      #{appendicesName1,jdbcType=VARCHAR}, #{appendicesName2,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{tenant,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.order.v2.model.PurchContractStandard" >
+    insert into purch_contract_standard
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="purchContractId != null" >
+        purch_contract_id,
+      </if>
+      <if test="usedForBuyer != null" >
+        used_for_buyer,
+      </if>
+      <if test="standardAndRequire != null" >
+        standard_and_require,
+      </if>
+      <if test="meetRequire != null" >
+        meet_require,
+      </if>
+      <if test="warrantyPeriod != null" >
+        warranty_period,
+      </if>
+      <if test="deliveryDate != null" >
+        delivery_date,
+      </if>
+      <if test="deliveryPlace != null" >
+        delivery_place,
+      </if>
+      <if test="inspectionPeriod != null" >
+        inspection_period,
+      </if>
+      <if test="dataVersion != null" >
+        data_version,
+      </if>
+      <if test="methodAndTime != null" >
+        method_and_time,
+      </if>
+      <if test="insideAddressS != null" >
+        inside_address_s,
+      </if>
+      <if test="addresseeS != null" >
+        addressee_s,
+      </if>
+      <if test="telephoneS != null" >
+        telephone_s,
+      </if>
+      <if test="inboxAddressS != null" >
+        inbox_address_s,
+      </if>
+      <if test="insideAddressB != null" >
+        inside_address_b,
+      </if>
+      <if test="addresseeB != null" >
+        addressee_b,
+      </if>
+      <if test="telephoneB != null" >
+        telephone_b,
+      </if>
+      <if test="inboxAddressB != null" >
+        inbox_address_b,
+      </if>
+      <if test="solution != null" >
+        solution,
+      </if>
+      <if test="boardArbitration != null" >
+        board_arbitration,
+      </if>
+      <if test="fewCopies != null" >
+        few_copies,
+      </if>
+      <if test="sellerFewCopies != null" >
+        seller_few_copies,
+      </if>
+      <if test="buyerFewCopies != null" >
+        buyer_few_copies,
+      </if>
+      <if test="appendicesName1 != null" >
+        appendices_name1,
+      </if>
+      <if test="appendicesName2 != null" >
+        appendices_name2,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="purchContractId != null" >
+        #{purchContractId,jdbcType=INTEGER},
+      </if>
+      <if test="usedForBuyer != null" >
+        #{usedForBuyer,jdbcType=VARCHAR},
+      </if>
+      <if test="standardAndRequire != null" >
+        #{standardAndRequire,jdbcType=VARCHAR},
+      </if>
+      <if test="meetRequire != null" >
+        #{meetRequire,jdbcType=VARCHAR},
+      </if>
+      <if test="warrantyPeriod != null" >
+        #{warrantyPeriod,jdbcType=VARCHAR},
+      </if>
+      <if test="deliveryDate != null" >
+        #{deliveryDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deliveryPlace != null" >
+        #{deliveryPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="inspectionPeriod != null" >
+        #{inspectionPeriod,jdbcType=VARCHAR},
+      </if>
+      <if test="dataVersion != null" >
+        #{dataVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="methodAndTime != null" >
+        #{methodAndTime,jdbcType=VARCHAR},
+      </if>
+      <if test="insideAddressS != null" >
+        #{insideAddressS,jdbcType=VARCHAR},
+      </if>
+      <if test="addresseeS != null" >
+        #{addresseeS,jdbcType=VARCHAR},
+      </if>
+      <if test="telephoneS != null" >
+        #{telephoneS,jdbcType=VARCHAR},
+      </if>
+      <if test="inboxAddressS != null" >
+        #{inboxAddressS,jdbcType=VARCHAR},
+      </if>
+      <if test="insideAddressB != null" >
+        #{insideAddressB,jdbcType=VARCHAR},
+      </if>
+      <if test="addresseeB != null" >
+        #{addresseeB,jdbcType=VARCHAR},
+      </if>
+      <if test="telephoneB != null" >
+        #{telephoneB,jdbcType=VARCHAR},
+      </if>
+      <if test="inboxAddressB != null" >
+        #{inboxAddressB,jdbcType=VARCHAR},
+      </if>
+      <if test="solution != null" >
+        #{solution,jdbcType=VARCHAR},
+      </if>
+      <if test="boardArbitration != null" >
+        #{boardArbitration,jdbcType=VARCHAR},
+      </if>
+      <if test="fewCopies != null" >
+        #{fewCopies,jdbcType=VARCHAR},
+      </if>
+      <if test="sellerFewCopies != null" >
+        #{sellerFewCopies,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerFewCopies != null" >
+        #{buyerFewCopies,jdbcType=VARCHAR},
+      </if>
+      <if test="appendicesName1 != null" >
+        #{appendicesName1,jdbcType=VARCHAR},
+      </if>
+      <if test="appendicesName2 != null" >
+        #{appendicesName2,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.order.v2.model.PurchContractStandardExample" resultType="java.lang.Integer" >
+    select count(*) from purch_contract_standard
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update purch_contract_standard
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.purchContractId != null" >
+        purch_contract_id = #{record.purchContractId,jdbcType=INTEGER},
+      </if>
+      <if test="record.usedForBuyer != null" >
+        used_for_buyer = #{record.usedForBuyer,jdbcType=VARCHAR},
+      </if>
+      <if test="record.standardAndRequire != null" >
+        standard_and_require = #{record.standardAndRequire,jdbcType=VARCHAR},
+      </if>
+      <if test="record.meetRequire != null" >
+        meet_require = #{record.meetRequire,jdbcType=VARCHAR},
+      </if>
+      <if test="record.warrantyPeriod != null" >
+        warranty_period = #{record.warrantyPeriod,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deliveryDate != null" >
+        delivery_date = #{record.deliveryDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.deliveryPlace != null" >
+        delivery_place = #{record.deliveryPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="record.inspectionPeriod != null" >
+        inspection_period = #{record.inspectionPeriod,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dataVersion != null" >
+        data_version = #{record.dataVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="record.methodAndTime != null" >
+        method_and_time = #{record.methodAndTime,jdbcType=VARCHAR},
+      </if>
+      <if test="record.insideAddressS != null" >
+        inside_address_s = #{record.insideAddressS,jdbcType=VARCHAR},
+      </if>
+      <if test="record.addresseeS != null" >
+        addressee_s = #{record.addresseeS,jdbcType=VARCHAR},
+      </if>
+      <if test="record.telephoneS != null" >
+        telephone_s = #{record.telephoneS,jdbcType=VARCHAR},
+      </if>
+      <if test="record.inboxAddressS != null" >
+        inbox_address_s = #{record.inboxAddressS,jdbcType=VARCHAR},
+      </if>
+      <if test="record.insideAddressB != null" >
+        inside_address_b = #{record.insideAddressB,jdbcType=VARCHAR},
+      </if>
+      <if test="record.addresseeB != null" >
+        addressee_b = #{record.addresseeB,jdbcType=VARCHAR},
+      </if>
+      <if test="record.telephoneB != null" >
+        telephone_b = #{record.telephoneB,jdbcType=VARCHAR},
+      </if>
+      <if test="record.inboxAddressB != null" >
+        inbox_address_b = #{record.inboxAddressB,jdbcType=VARCHAR},
+      </if>
+      <if test="record.solution != null" >
+        solution = #{record.solution,jdbcType=VARCHAR},
+      </if>
+      <if test="record.boardArbitration != null" >
+        board_arbitration = #{record.boardArbitration,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fewCopies != null" >
+        few_copies = #{record.fewCopies,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sellerFewCopies != null" >
+        seller_few_copies = #{record.sellerFewCopies,jdbcType=VARCHAR},
+      </if>
+      <if test="record.buyerFewCopies != null" >
+        buyer_few_copies = #{record.buyerFewCopies,jdbcType=VARCHAR},
+      </if>
+      <if test="record.appendicesName1 != null" >
+        appendices_name1 = #{record.appendicesName1,jdbcType=VARCHAR},
+      </if>
+      <if test="record.appendicesName2 != null" >
+        appendices_name2 = #{record.appendicesName2,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateTime != null" >
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update purch_contract_standard
+    set id = #{record.id,jdbcType=INTEGER},
+      purch_contract_id = #{record.purchContractId,jdbcType=INTEGER},
+      used_for_buyer = #{record.usedForBuyer,jdbcType=VARCHAR},
+      standard_and_require = #{record.standardAndRequire,jdbcType=VARCHAR},
+      meet_require = #{record.meetRequire,jdbcType=VARCHAR},
+      warranty_period = #{record.warrantyPeriod,jdbcType=VARCHAR},
+      delivery_date = #{record.deliveryDate,jdbcType=TIMESTAMP},
+      delivery_place = #{record.deliveryPlace,jdbcType=VARCHAR},
+      inspection_period = #{record.inspectionPeriod,jdbcType=VARCHAR},
+      data_version = #{record.dataVersion,jdbcType=VARCHAR},
+      method_and_time = #{record.methodAndTime,jdbcType=VARCHAR},
+      inside_address_s = #{record.insideAddressS,jdbcType=VARCHAR},
+      addressee_s = #{record.addresseeS,jdbcType=VARCHAR},
+      telephone_s = #{record.telephoneS,jdbcType=VARCHAR},
+      inbox_address_s = #{record.inboxAddressS,jdbcType=VARCHAR},
+      inside_address_b = #{record.insideAddressB,jdbcType=VARCHAR},
+      addressee_b = #{record.addresseeB,jdbcType=VARCHAR},
+      telephone_b = #{record.telephoneB,jdbcType=VARCHAR},
+      inbox_address_b = #{record.inboxAddressB,jdbcType=VARCHAR},
+      solution = #{record.solution,jdbcType=VARCHAR},
+      board_arbitration = #{record.boardArbitration,jdbcType=VARCHAR},
+      few_copies = #{record.fewCopies,jdbcType=VARCHAR},
+      seller_few_copies = #{record.sellerFewCopies,jdbcType=VARCHAR},
+      buyer_few_copies = #{record.buyerFewCopies,jdbcType=VARCHAR},
+      appendices_name1 = #{record.appendicesName1,jdbcType=VARCHAR},
+      appendices_name2 = #{record.appendicesName2,jdbcType=VARCHAR},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.PurchContractStandard" >
+    update purch_contract_standard
+    <set >
+      <if test="purchContractId != null" >
+        purch_contract_id = #{purchContractId,jdbcType=INTEGER},
+      </if>
+      <if test="usedForBuyer != null" >
+        used_for_buyer = #{usedForBuyer,jdbcType=VARCHAR},
+      </if>
+      <if test="standardAndRequire != null" >
+        standard_and_require = #{standardAndRequire,jdbcType=VARCHAR},
+      </if>
+      <if test="meetRequire != null" >
+        meet_require = #{meetRequire,jdbcType=VARCHAR},
+      </if>
+      <if test="warrantyPeriod != null" >
+        warranty_period = #{warrantyPeriod,jdbcType=VARCHAR},
+      </if>
+      <if test="deliveryDate != null" >
+        delivery_date = #{deliveryDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deliveryPlace != null" >
+        delivery_place = #{deliveryPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="inspectionPeriod != null" >
+        inspection_period = #{inspectionPeriod,jdbcType=VARCHAR},
+      </if>
+      <if test="dataVersion != null" >
+        data_version = #{dataVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="methodAndTime != null" >
+        method_and_time = #{methodAndTime,jdbcType=VARCHAR},
+      </if>
+      <if test="insideAddressS != null" >
+        inside_address_s = #{insideAddressS,jdbcType=VARCHAR},
+      </if>
+      <if test="addresseeS != null" >
+        addressee_s = #{addresseeS,jdbcType=VARCHAR},
+      </if>
+      <if test="telephoneS != null" >
+        telephone_s = #{telephoneS,jdbcType=VARCHAR},
+      </if>
+      <if test="inboxAddressS != null" >
+        inbox_address_s = #{inboxAddressS,jdbcType=VARCHAR},
+      </if>
+      <if test="insideAddressB != null" >
+        inside_address_b = #{insideAddressB,jdbcType=VARCHAR},
+      </if>
+      <if test="addresseeB != null" >
+        addressee_b = #{addresseeB,jdbcType=VARCHAR},
+      </if>
+      <if test="telephoneB != null" >
+        telephone_b = #{telephoneB,jdbcType=VARCHAR},
+      </if>
+      <if test="inboxAddressB != null" >
+        inbox_address_b = #{inboxAddressB,jdbcType=VARCHAR},
+      </if>
+      <if test="solution != null" >
+        solution = #{solution,jdbcType=VARCHAR},
+      </if>
+      <if test="boardArbitration != null" >
+        board_arbitration = #{boardArbitration,jdbcType=VARCHAR},
+      </if>
+      <if test="fewCopies != null" >
+        few_copies = #{fewCopies,jdbcType=VARCHAR},
+      </if>
+      <if test="sellerFewCopies != null" >
+        seller_few_copies = #{sellerFewCopies,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerFewCopies != null" >
+        buyer_few_copies = #{buyerFewCopies,jdbcType=VARCHAR},
+      </if>
+      <if test="appendicesName1 != null" >
+        appendices_name1 = #{appendicesName1,jdbcType=VARCHAR},
+      </if>
+      <if test="appendicesName2 != null" >
+        appendices_name2 = #{appendicesName2,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.PurchContractStandard" >
+    update purch_contract_standard
+    set purch_contract_id = #{purchContractId,jdbcType=INTEGER},
+      used_for_buyer = #{usedForBuyer,jdbcType=VARCHAR},
+      standard_and_require = #{standardAndRequire,jdbcType=VARCHAR},
+      meet_require = #{meetRequire,jdbcType=VARCHAR},
+      warranty_period = #{warrantyPeriod,jdbcType=VARCHAR},
+      delivery_date = #{deliveryDate,jdbcType=TIMESTAMP},
+      delivery_place = #{deliveryPlace,jdbcType=VARCHAR},
+      inspection_period = #{inspectionPeriod,jdbcType=VARCHAR},
+      data_version = #{dataVersion,jdbcType=VARCHAR},
+      method_and_time = #{methodAndTime,jdbcType=VARCHAR},
+      inside_address_s = #{insideAddressS,jdbcType=VARCHAR},
+      addressee_s = #{addresseeS,jdbcType=VARCHAR},
+      telephone_s = #{telephoneS,jdbcType=VARCHAR},
+      inbox_address_s = #{inboxAddressS,jdbcType=VARCHAR},
+      inside_address_b = #{insideAddressB,jdbcType=VARCHAR},
+      addressee_b = #{addresseeB,jdbcType=VARCHAR},
+      telephone_b = #{telephoneB,jdbcType=VARCHAR},
+      inbox_address_b = #{inboxAddressB,jdbcType=VARCHAR},
+      solution = #{solution,jdbcType=VARCHAR},
+      board_arbitration = #{boardArbitration,jdbcType=VARCHAR},
+      few_copies = #{fewCopies,jdbcType=VARCHAR},
+      seller_few_copies = #{sellerFewCopies,jdbcType=VARCHAR},
+      buyer_few_copies = #{buyerFewCopies,jdbcType=VARCHAR},
+      appendices_name1 = #{appendicesName1,jdbcType=VARCHAR},
+      appendices_name2 = #{appendicesName2,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      tenant = #{tenant,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

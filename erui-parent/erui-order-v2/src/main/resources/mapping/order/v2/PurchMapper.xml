@@ -1,0 +1,1343 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.order.v2.dao.PurchMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.Purch" >
+
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="purch_no" property="purchNo" jdbcType="VARCHAR" />
+    <result column="purch_contract_id" property="purchContractId" jdbcType="INTEGER" />
+    <result column="agent_id" property="agentId" jdbcType="INTEGER" />
+    <result column="agent_name" property="agentName" jdbcType="VARCHAR" />
+    <result column="department" property="department" jdbcType="VARCHAR" />
+    <result column="signing_date" property="signingDate" jdbcType="DATE" />
+    <result column="arrival_date" property="arrivalDate" jdbcType="DATE" />
+    <result column="pur_chg_date" property="purChgDate" jdbcType="DATE" />
+    <result column="supplier_id" property="supplierId" jdbcType="INTEGER" />
+    <result column="supplier_name" property="supplierName" jdbcType="VARCHAR" />
+    <result column="total_price" property="totalPrice" jdbcType="DECIMAL" />
+    <result column="currency_bn" property="currencyBn" jdbcType="VARCHAR" />
+    <result column="pay_type" property="payType" jdbcType="INTEGER" />
+    <result column="other_pay_type_msg" property="otherPayTypeMsg" jdbcType="VARCHAR" />
+    <result column="producted_date" property="productedDate" jdbcType="DATE" />
+    <result column="pay_factory_date" property="payFactoryDate" jdbcType="DATE" />
+    <result column="pay_deposit_date" property="payDepositDate" jdbcType="DATE" />
+    <result column="pay_deposit_expired" property="payDepositExpired" jdbcType="DATE" />
+    <result column="invoice_no" property="invoiceNo" jdbcType="VARCHAR" />
+    <result column="account_date" property="accountDate" jdbcType="DATE" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="create_user_id" property="createUserId" jdbcType="INTEGER" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="delete_flag" property="deleteFlag" jdbcType="BIT" />
+    <result column="delete_time" property="deleteTime" jdbcType="TIMESTAMP" />
+    <result column="inspected" property="inspected" jdbcType="BIT" />
+    <result column="auditing_status" property="auditingStatus" jdbcType="INTEGER" />
+    <result column="auditing_process" property="auditingProcess" jdbcType="VARCHAR" />
+    <result column="auditing_user_id" property="auditingUserId" jdbcType="VARCHAR" />
+    <result column="auditing_user" property="auditingUser" jdbcType="VARCHAR" />
+    <result column="purch_auditer_id" property="purchAuditerId" jdbcType="INTEGER" />
+    <result column="purch_auditer" property="purchAuditer" jdbcType="VARCHAR" />
+    <result column="business_auditer_id" property="businessAuditerId" jdbcType="INTEGER" />
+    <result column="business_auditer" property="businessAuditer" jdbcType="VARCHAR" />
+    <result column="legal_auditer_id" property="legalAuditerId" jdbcType="INTEGER" />
+    <result column="legal_auditer" property="legalAuditer" jdbcType="VARCHAR" />
+    <result column="finance_auditer_id" property="financeAuditerId" jdbcType="INTEGER" />
+    <result column="finance_auditer" property="financeAuditer" jdbcType="VARCHAR" />
+    <result column="bu_vp_auditer_id" property="buVpAuditerId" jdbcType="INTEGER" />
+    <result column="bu_vp_auditer" property="buVpAuditer" jdbcType="VARCHAR" />
+    <result column="chairman_id" property="chairmanId" jdbcType="INTEGER" />
+    <result column="chairman" property="chairman" jdbcType="VARCHAR" />
+    <result column="audi_remark" property="audiRemark" jdbcType="VARCHAR" />
+    <result column="supply_area" property="supplyArea" jdbcType="VARCHAR" />
+    <result column="contract_version" property="contractVersion" jdbcType="VARCHAR" />
+    <result column="goal_cost" property="goalCost" jdbcType="DECIMAL" />
+    <result column="save_amount" property="saveAmount" jdbcType="DECIMAL" />
+    <result column="save_mode" property="saveMode" jdbcType="VARCHAR" />
+    <result column="price_mode" property="priceMode" jdbcType="VARCHAR" />
+    <result column="profit_percent" property="profitPercent" jdbcType="DECIMAL" />
+    <result column="contract_tag" property="contractTag" jdbcType="VARCHAR" />
+    <result column="tax_bearing" property="taxBearing" jdbcType="INTEGER" />
+    <result column="exchange_rate" property="exchangeRate" jdbcType="DECIMAL" />
+    <result column="chairman_board_id" property="chairmanBoardId" jdbcType="INTEGER" />
+    <result column="chairman_board" property="chairmanBoard" jdbcType="VARCHAR" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
+    <result column="quality_inspect_status" property="qualityInspectStatus" jdbcType="INTEGER" />
+    <result column="quality_leader_id" property="qualityLeaderId" jdbcType="INTEGER" />
+    <result column="quality_leader_name" property="qualityLeaderName" jdbcType="VARCHAR" />
+    <result column="quality_time" property="qualityTime" jdbcType="TIMESTAMP" />
+    <result column="process_id" property="processId" jdbcType="VARCHAR" />
+    <result column="task_id" property="taskId" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.erui.order.v2.model.Purch" extends="BaseResultMap" >
+    <result column="remarks" property="remarks" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, purch_no, purch_contract_id, agent_id, agent_name, department, signing_date, 
+    arrival_date, pur_chg_date, supplier_id, supplier_name, total_price, currency_bn, 
+    pay_type, other_pay_type_msg, producted_date, pay_factory_date, pay_deposit_date, 
+    pay_deposit_expired, invoice_no, account_date, status, create_time, create_user_id, 
+    create_user_name, update_time, delete_flag, delete_time, inspected, auditing_status, 
+    auditing_process, auditing_user_id, auditing_user, purch_auditer_id, purch_auditer, 
+    business_auditer_id, business_auditer, legal_auditer_id, legal_auditer, finance_auditer_id, 
+    finance_auditer, bu_vp_auditer_id, bu_vp_auditer, chairman_id, chairman, audi_remark, 
+    supply_area, contract_version, goal_cost, save_amount, save_mode, price_mode, profit_percent, 
+    contract_tag, tax_bearing, exchange_rate, chairman_board_id, chairman_board,
+    tenant, quality_inspect_status, quality_leader_id, quality_leader_name, quality_time, 
+    process_id, task_id
+  </sql>
+  <sql id="Blob_Column_List" >
+    remarks
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.erui.order.v2.model.PurchExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from purch
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.PurchExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from purch
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from purch
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from purch
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.order.v2.model.PurchExample" >
+    delete from purch
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.order.v2.model.Purch" >
+    insert into purch (id, purch_no, purch_contract_id, 
+      agent_id, agent_name, department, 
+      signing_date, arrival_date, pur_chg_date, 
+      supplier_id, supplier_name, total_price, 
+      currency_bn, pay_type, other_pay_type_msg, 
+      producted_date, pay_factory_date, pay_deposit_date, 
+      pay_deposit_expired, invoice_no, account_date, 
+      status, create_time, create_user_id, 
+      create_user_name, update_time, delete_flag, 
+      delete_time, inspected, auditing_status, 
+      auditing_process, auditing_user_id, auditing_user, 
+      purch_auditer_id, purch_auditer, business_auditer_id, 
+      business_auditer, legal_auditer_id, legal_auditer, 
+      finance_auditer_id, finance_auditer, bu_vp_auditer_id, 
+      bu_vp_auditer, chairman_id, chairman, 
+      audi_remark, supply_area, contract_version, 
+      goal_cost, save_amount, save_mode, 
+      price_mode, profit_percent, contract_tag, 
+      tax_bearing, exchange_rate, chairman_board_id, 
+      chairman_board, tenant,
+      quality_inspect_status, quality_leader_id, 
+      quality_leader_name, quality_time, process_id, 
+      task_id, remarks)
+    values (#{id,jdbcType=INTEGER}, #{purchNo,jdbcType=VARCHAR}, #{purchContractId,jdbcType=INTEGER}, 
+      #{agentId,jdbcType=INTEGER}, #{agentName,jdbcType=VARCHAR}, #{department,jdbcType=VARCHAR}, 
+      #{signingDate,jdbcType=DATE}, #{arrivalDate,jdbcType=DATE}, #{purChgDate,jdbcType=DATE}, 
+      #{supplierId,jdbcType=INTEGER}, #{supplierName,jdbcType=VARCHAR}, #{totalPrice,jdbcType=DECIMAL}, 
+      #{currencyBn,jdbcType=VARCHAR}, #{payType,jdbcType=INTEGER}, #{otherPayTypeMsg,jdbcType=VARCHAR}, 
+      #{productedDate,jdbcType=DATE}, #{payFactoryDate,jdbcType=DATE}, #{payDepositDate,jdbcType=DATE}, 
+      #{payDepositExpired,jdbcType=DATE}, #{invoiceNo,jdbcType=VARCHAR}, #{accountDate,jdbcType=DATE}, 
+      #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{createUserId,jdbcType=INTEGER}, 
+      #{createUserName,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP}, #{deleteFlag,jdbcType=BIT}, 
+      #{deleteTime,jdbcType=TIMESTAMP}, #{inspected,jdbcType=BIT}, #{auditingStatus,jdbcType=INTEGER}, 
+      #{auditingProcess,jdbcType=VARCHAR}, #{auditingUserId,jdbcType=VARCHAR}, #{auditingUser,jdbcType=VARCHAR}, 
+      #{purchAuditerId,jdbcType=INTEGER}, #{purchAuditer,jdbcType=VARCHAR}, #{businessAuditerId,jdbcType=INTEGER}, 
+      #{businessAuditer,jdbcType=VARCHAR}, #{legalAuditerId,jdbcType=INTEGER}, #{legalAuditer,jdbcType=VARCHAR}, 
+      #{financeAuditerId,jdbcType=INTEGER}, #{financeAuditer,jdbcType=VARCHAR}, #{buVpAuditerId,jdbcType=INTEGER}, 
+      #{buVpAuditer,jdbcType=VARCHAR}, #{chairmanId,jdbcType=INTEGER}, #{chairman,jdbcType=VARCHAR}, 
+      #{audiRemark,jdbcType=VARCHAR}, #{supplyArea,jdbcType=VARCHAR}, #{contractVersion,jdbcType=VARCHAR}, 
+      #{goalCost,jdbcType=DECIMAL}, #{saveAmount,jdbcType=DECIMAL}, #{saveMode,jdbcType=VARCHAR}, 
+      #{priceMode,jdbcType=VARCHAR}, #{profitPercent,jdbcType=DECIMAL}, #{contractTag,jdbcType=VARCHAR}, 
+      #{taxBearing,jdbcType=INTEGER}, #{exchangeRate,jdbcType=DECIMAL}, #{chairmanBoardId,jdbcType=INTEGER}, 
+      #{chairmanBoard,jdbcType=VARCHAR}, #{tenant,jdbcType=VARCHAR},
+      #{qualityInspectStatus,jdbcType=INTEGER}, #{qualityLeaderId,jdbcType=INTEGER}, 
+      #{qualityLeaderName,jdbcType=VARCHAR}, #{qualityTime,jdbcType=TIMESTAMP}, #{processId,jdbcType=VARCHAR}, 
+      #{taskId,jdbcType=VARCHAR}, #{remarks,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.order.v2.model.Purch" >
+    insert into purch
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="purchNo != null" >
+        purch_no,
+      </if>
+      <if test="purchContractId != null" >
+        purch_contract_id,
+      </if>
+      <if test="agentId != null" >
+        agent_id,
+      </if>
+      <if test="agentName != null" >
+        agent_name,
+      </if>
+      <if test="department != null" >
+        department,
+      </if>
+      <if test="signingDate != null" >
+        signing_date,
+      </if>
+      <if test="arrivalDate != null" >
+        arrival_date,
+      </if>
+      <if test="purChgDate != null" >
+        pur_chg_date,
+      </if>
+      <if test="supplierId != null" >
+        supplier_id,
+      </if>
+      <if test="supplierName != null" >
+        supplier_name,
+      </if>
+      <if test="totalPrice != null" >
+        total_price,
+      </if>
+      <if test="currencyBn != null" >
+        currency_bn,
+      </if>
+      <if test="payType != null" >
+        pay_type,
+      </if>
+      <if test="otherPayTypeMsg != null" >
+        other_pay_type_msg,
+      </if>
+      <if test="productedDate != null" >
+        producted_date,
+      </if>
+      <if test="payFactoryDate != null" >
+        pay_factory_date,
+      </if>
+      <if test="payDepositDate != null" >
+        pay_deposit_date,
+      </if>
+      <if test="payDepositExpired != null" >
+        pay_deposit_expired,
+      </if>
+      <if test="invoiceNo != null" >
+        invoice_no,
+      </if>
+      <if test="accountDate != null" >
+        account_date,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="createUserName != null" >
+        create_user_name,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="deleteFlag != null" >
+        delete_flag,
+      </if>
+      <if test="deleteTime != null" >
+        delete_time,
+      </if>
+      <if test="inspected != null" >
+        inspected,
+      </if>
+      <if test="auditingStatus != null" >
+        auditing_status,
+      </if>
+      <if test="auditingProcess != null" >
+        auditing_process,
+      </if>
+      <if test="auditingUserId != null" >
+        auditing_user_id,
+      </if>
+      <if test="auditingUser != null" >
+        auditing_user,
+      </if>
+      <if test="purchAuditerId != null" >
+        purch_auditer_id,
+      </if>
+      <if test="purchAuditer != null" >
+        purch_auditer,
+      </if>
+      <if test="businessAuditerId != null" >
+        business_auditer_id,
+      </if>
+      <if test="businessAuditer != null" >
+        business_auditer,
+      </if>
+      <if test="legalAuditerId != null" >
+        legal_auditer_id,
+      </if>
+      <if test="legalAuditer != null" >
+        legal_auditer,
+      </if>
+      <if test="financeAuditerId != null" >
+        finance_auditer_id,
+      </if>
+      <if test="financeAuditer != null" >
+        finance_auditer,
+      </if>
+      <if test="buVpAuditerId != null" >
+        bu_vp_auditer_id,
+      </if>
+      <if test="buVpAuditer != null" >
+        bu_vp_auditer,
+      </if>
+      <if test="chairmanId != null" >
+        chairman_id,
+      </if>
+      <if test="chairman != null" >
+        chairman,
+      </if>
+      <if test="audiRemark != null" >
+        audi_remark,
+      </if>
+      <if test="supplyArea != null" >
+        supply_area,
+      </if>
+      <if test="contractVersion != null" >
+        contract_version,
+      </if>
+      <if test="goalCost != null" >
+        goal_cost,
+      </if>
+      <if test="saveAmount != null" >
+        save_amount,
+      </if>
+      <if test="saveMode != null" >
+        save_mode,
+      </if>
+      <if test="priceMode != null" >
+        price_mode,
+      </if>
+      <if test="profitPercent != null" >
+        profit_percent,
+      </if>
+      <if test="contractTag != null" >
+        contract_tag,
+      </if>
+      <if test="taxBearing != null" >
+        tax_bearing,
+      </if>
+      <if test="exchangeRate != null" >
+        exchange_rate,
+      </if>
+      <if test="chairmanBoardId != null" >
+        chairman_board_id,
+      </if>
+      <if test="chairmanBoard != null" >
+        chairman_board,
+      </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
+      <if test="qualityInspectStatus != null" >
+        quality_inspect_status,
+      </if>
+      <if test="qualityLeaderId != null" >
+        quality_leader_id,
+      </if>
+      <if test="qualityLeaderName != null" >
+        quality_leader_name,
+      </if>
+      <if test="qualityTime != null" >
+        quality_time,
+      </if>
+      <if test="processId != null" >
+        process_id,
+      </if>
+      <if test="taskId != null" >
+        task_id,
+      </if>
+      <if test="remarks != null" >
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="purchNo != null" >
+        #{purchNo,jdbcType=VARCHAR},
+      </if>
+      <if test="purchContractId != null" >
+        #{purchContractId,jdbcType=INTEGER},
+      </if>
+      <if test="agentId != null" >
+        #{agentId,jdbcType=INTEGER},
+      </if>
+      <if test="agentName != null" >
+        #{agentName,jdbcType=VARCHAR},
+      </if>
+      <if test="department != null" >
+        #{department,jdbcType=VARCHAR},
+      </if>
+      <if test="signingDate != null" >
+        #{signingDate,jdbcType=DATE},
+      </if>
+      <if test="arrivalDate != null" >
+        #{arrivalDate,jdbcType=DATE},
+      </if>
+      <if test="purChgDate != null" >
+        #{purChgDate,jdbcType=DATE},
+      </if>
+      <if test="supplierId != null" >
+        #{supplierId,jdbcType=INTEGER},
+      </if>
+      <if test="supplierName != null" >
+        #{supplierName,jdbcType=VARCHAR},
+      </if>
+      <if test="totalPrice != null" >
+        #{totalPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="currencyBn != null" >
+        #{currencyBn,jdbcType=VARCHAR},
+      </if>
+      <if test="payType != null" >
+        #{payType,jdbcType=INTEGER},
+      </if>
+      <if test="otherPayTypeMsg != null" >
+        #{otherPayTypeMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="productedDate != null" >
+        #{productedDate,jdbcType=DATE},
+      </if>
+      <if test="payFactoryDate != null" >
+        #{payFactoryDate,jdbcType=DATE},
+      </if>
+      <if test="payDepositDate != null" >
+        #{payDepositDate,jdbcType=DATE},
+      </if>
+      <if test="payDepositExpired != null" >
+        #{payDepositExpired,jdbcType=DATE},
+      </if>
+      <if test="invoiceNo != null" >
+        #{invoiceNo,jdbcType=VARCHAR},
+      </if>
+      <if test="accountDate != null" >
+        #{accountDate,jdbcType=DATE},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="createUserName != null" >
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deleteFlag != null" >
+        #{deleteFlag,jdbcType=BIT},
+      </if>
+      <if test="deleteTime != null" >
+        #{deleteTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="inspected != null" >
+        #{inspected,jdbcType=BIT},
+      </if>
+      <if test="auditingStatus != null" >
+        #{auditingStatus,jdbcType=INTEGER},
+      </if>
+      <if test="auditingProcess != null" >
+        #{auditingProcess,jdbcType=VARCHAR},
+      </if>
+      <if test="auditingUserId != null" >
+        #{auditingUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="auditingUser != null" >
+        #{auditingUser,jdbcType=VARCHAR},
+      </if>
+      <if test="purchAuditerId != null" >
+        #{purchAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="purchAuditer != null" >
+        #{purchAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="businessAuditerId != null" >
+        #{businessAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="businessAuditer != null" >
+        #{businessAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="legalAuditerId != null" >
+        #{legalAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="legalAuditer != null" >
+        #{legalAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="financeAuditerId != null" >
+        #{financeAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="financeAuditer != null" >
+        #{financeAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="buVpAuditerId != null" >
+        #{buVpAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="buVpAuditer != null" >
+        #{buVpAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="chairmanId != null" >
+        #{chairmanId,jdbcType=INTEGER},
+      </if>
+      <if test="chairman != null" >
+        #{chairman,jdbcType=VARCHAR},
+      </if>
+      <if test="audiRemark != null" >
+        #{audiRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="supplyArea != null" >
+        #{supplyArea,jdbcType=VARCHAR},
+      </if>
+      <if test="contractVersion != null" >
+        #{contractVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="goalCost != null" >
+        #{goalCost,jdbcType=DECIMAL},
+      </if>
+      <if test="saveAmount != null" >
+        #{saveAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="saveMode != null" >
+        #{saveMode,jdbcType=VARCHAR},
+      </if>
+      <if test="priceMode != null" >
+        #{priceMode,jdbcType=VARCHAR},
+      </if>
+      <if test="profitPercent != null" >
+        #{profitPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="contractTag != null" >
+        #{contractTag,jdbcType=VARCHAR},
+      </if>
+      <if test="taxBearing != null" >
+        #{taxBearing,jdbcType=INTEGER},
+      </if>
+      <if test="exchangeRate != null" >
+        #{exchangeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="chairmanBoardId != null" >
+        #{chairmanBoardId,jdbcType=INTEGER},
+      </if>
+      <if test="chairmanBoard != null" >
+        #{chairmanBoard,jdbcType=VARCHAR},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="qualityInspectStatus != null" >
+        #{qualityInspectStatus,jdbcType=INTEGER},
+      </if>
+      <if test="qualityLeaderId != null" >
+        #{qualityLeaderId,jdbcType=INTEGER},
+      </if>
+      <if test="qualityLeaderName != null" >
+        #{qualityLeaderName,jdbcType=VARCHAR},
+      </if>
+      <if test="qualityTime != null" >
+        #{qualityTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="processId != null" >
+        #{processId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null" >
+        #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks != null" >
+        #{remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.order.v2.model.PurchExample" resultType="java.lang.Integer" >
+    select count(*) from purch
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update purch
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.purchNo != null" >
+        purch_no = #{record.purchNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.purchContractId != null" >
+        purch_contract_id = #{record.purchContractId,jdbcType=INTEGER},
+      </if>
+      <if test="record.agentId != null" >
+        agent_id = #{record.agentId,jdbcType=INTEGER},
+      </if>
+      <if test="record.agentName != null" >
+        agent_name = #{record.agentName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.department != null" >
+        department = #{record.department,jdbcType=VARCHAR},
+      </if>
+      <if test="record.signingDate != null" >
+        signing_date = #{record.signingDate,jdbcType=DATE},
+      </if>
+      <if test="record.arrivalDate != null" >
+        arrival_date = #{record.arrivalDate,jdbcType=DATE},
+      </if>
+      <if test="record.purChgDate != null" >
+        pur_chg_date = #{record.purChgDate,jdbcType=DATE},
+      </if>
+      <if test="record.supplierId != null" >
+        supplier_id = #{record.supplierId,jdbcType=INTEGER},
+      </if>
+      <if test="record.supplierName != null" >
+        supplier_name = #{record.supplierName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.totalPrice != null" >
+        total_price = #{record.totalPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.currencyBn != null" >
+        currency_bn = #{record.currencyBn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.payType != null" >
+        pay_type = #{record.payType,jdbcType=INTEGER},
+      </if>
+      <if test="record.otherPayTypeMsg != null" >
+        other_pay_type_msg = #{record.otherPayTypeMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="record.productedDate != null" >
+        producted_date = #{record.productedDate,jdbcType=DATE},
+      </if>
+      <if test="record.payFactoryDate != null" >
+        pay_factory_date = #{record.payFactoryDate,jdbcType=DATE},
+      </if>
+      <if test="record.payDepositDate != null" >
+        pay_deposit_date = #{record.payDepositDate,jdbcType=DATE},
+      </if>
+      <if test="record.payDepositExpired != null" >
+        pay_deposit_expired = #{record.payDepositExpired,jdbcType=DATE},
+      </if>
+      <if test="record.invoiceNo != null" >
+        invoice_no = #{record.invoiceNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.accountDate != null" >
+        account_date = #{record.accountDate,jdbcType=DATE},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createUserId != null" >
+        create_user_id = #{record.createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="record.createUserName != null" >
+        create_user_name = #{record.createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateTime != null" >
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.deleteFlag != null" >
+        delete_flag = #{record.deleteFlag,jdbcType=BIT},
+      </if>
+      <if test="record.deleteTime != null" >
+        delete_time = #{record.deleteTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.inspected != null" >
+        inspected = #{record.inspected,jdbcType=BIT},
+      </if>
+      <if test="record.auditingStatus != null" >
+        auditing_status = #{record.auditingStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.auditingProcess != null" >
+        auditing_process = #{record.auditingProcess,jdbcType=VARCHAR},
+      </if>
+      <if test="record.auditingUserId != null" >
+        auditing_user_id = #{record.auditingUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.auditingUser != null" >
+        auditing_user = #{record.auditingUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.purchAuditerId != null" >
+        purch_auditer_id = #{record.purchAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="record.purchAuditer != null" >
+        purch_auditer = #{record.purchAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="record.businessAuditerId != null" >
+        business_auditer_id = #{record.businessAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="record.businessAuditer != null" >
+        business_auditer = #{record.businessAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="record.legalAuditerId != null" >
+        legal_auditer_id = #{record.legalAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="record.legalAuditer != null" >
+        legal_auditer = #{record.legalAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="record.financeAuditerId != null" >
+        finance_auditer_id = #{record.financeAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="record.financeAuditer != null" >
+        finance_auditer = #{record.financeAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="record.buVpAuditerId != null" >
+        bu_vp_auditer_id = #{record.buVpAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="record.buVpAuditer != null" >
+        bu_vp_auditer = #{record.buVpAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="record.chairmanId != null" >
+        chairman_id = #{record.chairmanId,jdbcType=INTEGER},
+      </if>
+      <if test="record.chairman != null" >
+        chairman = #{record.chairman,jdbcType=VARCHAR},
+      </if>
+      <if test="record.audiRemark != null" >
+        audi_remark = #{record.audiRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.supplyArea != null" >
+        supply_area = #{record.supplyArea,jdbcType=VARCHAR},
+      </if>
+      <if test="record.contractVersion != null" >
+        contract_version = #{record.contractVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="record.goalCost != null" >
+        goal_cost = #{record.goalCost,jdbcType=DECIMAL},
+      </if>
+      <if test="record.saveAmount != null" >
+        save_amount = #{record.saveAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="record.saveMode != null" >
+        save_mode = #{record.saveMode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.priceMode != null" >
+        price_mode = #{record.priceMode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.profitPercent != null" >
+        profit_percent = #{record.profitPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="record.contractTag != null" >
+        contract_tag = #{record.contractTag,jdbcType=VARCHAR},
+      </if>
+      <if test="record.taxBearing != null" >
+        tax_bearing = #{record.taxBearing,jdbcType=INTEGER},
+      </if>
+      <if test="record.exchangeRate != null" >
+        exchange_rate = #{record.exchangeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="record.chairmanBoardId != null" >
+        chairman_board_id = #{record.chairmanBoardId,jdbcType=INTEGER},
+      </if>
+      <if test="record.chairmanBoard != null" >
+        chairman_board = #{record.chairmanBoard,jdbcType=VARCHAR},
+      </if>
+
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="record.qualityInspectStatus != null" >
+        quality_inspect_status = #{record.qualityInspectStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.qualityLeaderId != null" >
+        quality_leader_id = #{record.qualityLeaderId,jdbcType=INTEGER},
+      </if>
+      <if test="record.qualityLeaderName != null" >
+        quality_leader_name = #{record.qualityLeaderName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.qualityTime != null" >
+        quality_time = #{record.qualityTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.processId != null" >
+        process_id = #{record.processId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.taskId != null" >
+        task_id = #{record.taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remarks != null" >
+        remarks = #{record.remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update purch
+    set id = #{record.id,jdbcType=INTEGER},
+      purch_no = #{record.purchNo,jdbcType=VARCHAR},
+      purch_contract_id = #{record.purchContractId,jdbcType=INTEGER},
+      agent_id = #{record.agentId,jdbcType=INTEGER},
+      agent_name = #{record.agentName,jdbcType=VARCHAR},
+      department = #{record.department,jdbcType=VARCHAR},
+      signing_date = #{record.signingDate,jdbcType=DATE},
+      arrival_date = #{record.arrivalDate,jdbcType=DATE},
+      pur_chg_date = #{record.purChgDate,jdbcType=DATE},
+      supplier_id = #{record.supplierId,jdbcType=INTEGER},
+      supplier_name = #{record.supplierName,jdbcType=VARCHAR},
+      total_price = #{record.totalPrice,jdbcType=DECIMAL},
+      currency_bn = #{record.currencyBn,jdbcType=VARCHAR},
+      pay_type = #{record.payType,jdbcType=INTEGER},
+      other_pay_type_msg = #{record.otherPayTypeMsg,jdbcType=VARCHAR},
+      producted_date = #{record.productedDate,jdbcType=DATE},
+      pay_factory_date = #{record.payFactoryDate,jdbcType=DATE},
+      pay_deposit_date = #{record.payDepositDate,jdbcType=DATE},
+      pay_deposit_expired = #{record.payDepositExpired,jdbcType=DATE},
+      invoice_no = #{record.invoiceNo,jdbcType=VARCHAR},
+      account_date = #{record.accountDate,jdbcType=DATE},
+      status = #{record.status,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      create_user_id = #{record.createUserId,jdbcType=INTEGER},
+      create_user_name = #{record.createUserName,jdbcType=VARCHAR},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      delete_flag = #{record.deleteFlag,jdbcType=BIT},
+      delete_time = #{record.deleteTime,jdbcType=TIMESTAMP},
+      inspected = #{record.inspected,jdbcType=BIT},
+      auditing_status = #{record.auditingStatus,jdbcType=INTEGER},
+      auditing_process = #{record.auditingProcess,jdbcType=VARCHAR},
+      auditing_user_id = #{record.auditingUserId,jdbcType=VARCHAR},
+      auditing_user = #{record.auditingUser,jdbcType=VARCHAR},
+      purch_auditer_id = #{record.purchAuditerId,jdbcType=INTEGER},
+      purch_auditer = #{record.purchAuditer,jdbcType=VARCHAR},
+      business_auditer_id = #{record.businessAuditerId,jdbcType=INTEGER},
+      business_auditer = #{record.businessAuditer,jdbcType=VARCHAR},
+      legal_auditer_id = #{record.legalAuditerId,jdbcType=INTEGER},
+      legal_auditer = #{record.legalAuditer,jdbcType=VARCHAR},
+      finance_auditer_id = #{record.financeAuditerId,jdbcType=INTEGER},
+      finance_auditer = #{record.financeAuditer,jdbcType=VARCHAR},
+      bu_vp_auditer_id = #{record.buVpAuditerId,jdbcType=INTEGER},
+      bu_vp_auditer = #{record.buVpAuditer,jdbcType=VARCHAR},
+      chairman_id = #{record.chairmanId,jdbcType=INTEGER},
+      chairman = #{record.chairman,jdbcType=VARCHAR},
+      audi_remark = #{record.audiRemark,jdbcType=VARCHAR},
+      supply_area = #{record.supplyArea,jdbcType=VARCHAR},
+      contract_version = #{record.contractVersion,jdbcType=VARCHAR},
+      goal_cost = #{record.goalCost,jdbcType=DECIMAL},
+      save_amount = #{record.saveAmount,jdbcType=DECIMAL},
+      save_mode = #{record.saveMode,jdbcType=VARCHAR},
+      price_mode = #{record.priceMode,jdbcType=VARCHAR},
+      profit_percent = #{record.profitPercent,jdbcType=DECIMAL},
+      contract_tag = #{record.contractTag,jdbcType=VARCHAR},
+      tax_bearing = #{record.taxBearing,jdbcType=INTEGER},
+      exchange_rate = #{record.exchangeRate,jdbcType=DECIMAL},
+      chairman_board_id = #{record.chairmanBoardId,jdbcType=INTEGER},
+      chairman_board = #{record.chairmanBoard,jdbcType=VARCHAR},
+      tenant = #{record.tenant,jdbcType=VARCHAR},
+      quality_inspect_status = #{record.qualityInspectStatus,jdbcType=INTEGER},
+      quality_leader_id = #{record.qualityLeaderId,jdbcType=INTEGER},
+      quality_leader_name = #{record.qualityLeaderName,jdbcType=VARCHAR},
+      quality_time = #{record.qualityTime,jdbcType=TIMESTAMP},
+      process_id = #{record.processId,jdbcType=VARCHAR},
+      task_id = #{record.taskId,jdbcType=VARCHAR},
+      remarks = #{record.remarks,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update purch
+    set id = #{record.id,jdbcType=INTEGER},
+      purch_no = #{record.purchNo,jdbcType=VARCHAR},
+      purch_contract_id = #{record.purchContractId,jdbcType=INTEGER},
+      agent_id = #{record.agentId,jdbcType=INTEGER},
+      agent_name = #{record.agentName,jdbcType=VARCHAR},
+      department = #{record.department,jdbcType=VARCHAR},
+      signing_date = #{record.signingDate,jdbcType=DATE},
+      arrival_date = #{record.arrivalDate,jdbcType=DATE},
+      pur_chg_date = #{record.purChgDate,jdbcType=DATE},
+      supplier_id = #{record.supplierId,jdbcType=INTEGER},
+      supplier_name = #{record.supplierName,jdbcType=VARCHAR},
+      total_price = #{record.totalPrice,jdbcType=DECIMAL},
+      currency_bn = #{record.currencyBn,jdbcType=VARCHAR},
+      pay_type = #{record.payType,jdbcType=INTEGER},
+      other_pay_type_msg = #{record.otherPayTypeMsg,jdbcType=VARCHAR},
+      producted_date = #{record.productedDate,jdbcType=DATE},
+      pay_factory_date = #{record.payFactoryDate,jdbcType=DATE},
+      pay_deposit_date = #{record.payDepositDate,jdbcType=DATE},
+      pay_deposit_expired = #{record.payDepositExpired,jdbcType=DATE},
+      invoice_no = #{record.invoiceNo,jdbcType=VARCHAR},
+      account_date = #{record.accountDate,jdbcType=DATE},
+      status = #{record.status,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      create_user_id = #{record.createUserId,jdbcType=INTEGER},
+      create_user_name = #{record.createUserName,jdbcType=VARCHAR},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      delete_flag = #{record.deleteFlag,jdbcType=BIT},
+      delete_time = #{record.deleteTime,jdbcType=TIMESTAMP},
+      inspected = #{record.inspected,jdbcType=BIT},
+      auditing_status = #{record.auditingStatus,jdbcType=INTEGER},
+      auditing_process = #{record.auditingProcess,jdbcType=VARCHAR},
+      auditing_user_id = #{record.auditingUserId,jdbcType=VARCHAR},
+      auditing_user = #{record.auditingUser,jdbcType=VARCHAR},
+      purch_auditer_id = #{record.purchAuditerId,jdbcType=INTEGER},
+      purch_auditer = #{record.purchAuditer,jdbcType=VARCHAR},
+      business_auditer_id = #{record.businessAuditerId,jdbcType=INTEGER},
+      business_auditer = #{record.businessAuditer,jdbcType=VARCHAR},
+      legal_auditer_id = #{record.legalAuditerId,jdbcType=INTEGER},
+      legal_auditer = #{record.legalAuditer,jdbcType=VARCHAR},
+      finance_auditer_id = #{record.financeAuditerId,jdbcType=INTEGER},
+      finance_auditer = #{record.financeAuditer,jdbcType=VARCHAR},
+      bu_vp_auditer_id = #{record.buVpAuditerId,jdbcType=INTEGER},
+      bu_vp_auditer = #{record.buVpAuditer,jdbcType=VARCHAR},
+      chairman_id = #{record.chairmanId,jdbcType=INTEGER},
+      chairman = #{record.chairman,jdbcType=VARCHAR},
+      audi_remark = #{record.audiRemark,jdbcType=VARCHAR},
+      supply_area = #{record.supplyArea,jdbcType=VARCHAR},
+      contract_version = #{record.contractVersion,jdbcType=VARCHAR},
+      goal_cost = #{record.goalCost,jdbcType=DECIMAL},
+      save_amount = #{record.saveAmount,jdbcType=DECIMAL},
+      save_mode = #{record.saveMode,jdbcType=VARCHAR},
+      price_mode = #{record.priceMode,jdbcType=VARCHAR},
+      profit_percent = #{record.profitPercent,jdbcType=DECIMAL},
+      contract_tag = #{record.contractTag,jdbcType=VARCHAR},
+      tax_bearing = #{record.taxBearing,jdbcType=INTEGER},
+      exchange_rate = #{record.exchangeRate,jdbcType=DECIMAL},
+      chairman_board_id = #{record.chairmanBoardId,jdbcType=INTEGER},
+      chairman_board = #{record.chairmanBoard,jdbcType=VARCHAR},
+      tenant = #{record.tenant,jdbcType=VARCHAR},
+      quality_inspect_status = #{record.qualityInspectStatus,jdbcType=INTEGER},
+      quality_leader_id = #{record.qualityLeaderId,jdbcType=INTEGER},
+      quality_leader_name = #{record.qualityLeaderName,jdbcType=VARCHAR},
+      quality_time = #{record.qualityTime,jdbcType=TIMESTAMP},
+      process_id = #{record.processId,jdbcType=VARCHAR},
+      task_id = #{record.taskId,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.Purch" >
+    update purch
+    <set >
+      <if test="purchNo != null" >
+        purch_no = #{purchNo,jdbcType=VARCHAR},
+      </if>
+      <if test="purchContractId != null" >
+        purch_contract_id = #{purchContractId,jdbcType=INTEGER},
+      </if>
+      <if test="agentId != null" >
+        agent_id = #{agentId,jdbcType=INTEGER},
+      </if>
+      <if test="agentName != null" >
+        agent_name = #{agentName,jdbcType=VARCHAR},
+      </if>
+      <if test="department != null" >
+        department = #{department,jdbcType=VARCHAR},
+      </if>
+      <if test="signingDate != null" >
+        signing_date = #{signingDate,jdbcType=DATE},
+      </if>
+      <if test="arrivalDate != null" >
+        arrival_date = #{arrivalDate,jdbcType=DATE},
+      </if>
+      <if test="purChgDate != null" >
+        pur_chg_date = #{purChgDate,jdbcType=DATE},
+      </if>
+      <if test="supplierId != null" >
+        supplier_id = #{supplierId,jdbcType=INTEGER},
+      </if>
+      <if test="supplierName != null" >
+        supplier_name = #{supplierName,jdbcType=VARCHAR},
+      </if>
+      <if test="totalPrice != null" >
+        total_price = #{totalPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="currencyBn != null" >
+        currency_bn = #{currencyBn,jdbcType=VARCHAR},
+      </if>
+      <if test="payType != null" >
+        pay_type = #{payType,jdbcType=INTEGER},
+      </if>
+      <if test="otherPayTypeMsg != null" >
+        other_pay_type_msg = #{otherPayTypeMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="productedDate != null" >
+        producted_date = #{productedDate,jdbcType=DATE},
+      </if>
+      <if test="payFactoryDate != null" >
+        pay_factory_date = #{payFactoryDate,jdbcType=DATE},
+      </if>
+      <if test="payDepositDate != null" >
+        pay_deposit_date = #{payDepositDate,jdbcType=DATE},
+      </if>
+      <if test="payDepositExpired != null" >
+        pay_deposit_expired = #{payDepositExpired,jdbcType=DATE},
+      </if>
+      <if test="invoiceNo != null" >
+        invoice_no = #{invoiceNo,jdbcType=VARCHAR},
+      </if>
+      <if test="accountDate != null" >
+        account_date = #{accountDate,jdbcType=DATE},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null" >
+        create_user_id = #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="createUserName != null" >
+        create_user_name = #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deleteFlag != null" >
+        delete_flag = #{deleteFlag,jdbcType=BIT},
+      </if>
+      <if test="deleteTime != null" >
+        delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="inspected != null" >
+        inspected = #{inspected,jdbcType=BIT},
+      </if>
+      <if test="auditingStatus != null" >
+        auditing_status = #{auditingStatus,jdbcType=INTEGER},
+      </if>
+      <if test="auditingProcess != null" >
+        auditing_process = #{auditingProcess,jdbcType=VARCHAR},
+      </if>
+      <if test="auditingUserId != null" >
+        auditing_user_id = #{auditingUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="auditingUser != null" >
+        auditing_user = #{auditingUser,jdbcType=VARCHAR},
+      </if>
+      <if test="purchAuditerId != null" >
+        purch_auditer_id = #{purchAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="purchAuditer != null" >
+        purch_auditer = #{purchAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="businessAuditerId != null" >
+        business_auditer_id = #{businessAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="businessAuditer != null" >
+        business_auditer = #{businessAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="legalAuditerId != null" >
+        legal_auditer_id = #{legalAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="legalAuditer != null" >
+        legal_auditer = #{legalAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="financeAuditerId != null" >
+        finance_auditer_id = #{financeAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="financeAuditer != null" >
+        finance_auditer = #{financeAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="buVpAuditerId != null" >
+        bu_vp_auditer_id = #{buVpAuditerId,jdbcType=INTEGER},
+      </if>
+      <if test="buVpAuditer != null" >
+        bu_vp_auditer = #{buVpAuditer,jdbcType=VARCHAR},
+      </if>
+      <if test="chairmanId != null" >
+        chairman_id = #{chairmanId,jdbcType=INTEGER},
+      </if>
+      <if test="chairman != null" >
+        chairman = #{chairman,jdbcType=VARCHAR},
+      </if>
+      <if test="audiRemark != null" >
+        audi_remark = #{audiRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="supplyArea != null" >
+        supply_area = #{supplyArea,jdbcType=VARCHAR},
+      </if>
+      <if test="contractVersion != null" >
+        contract_version = #{contractVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="goalCost != null" >
+        goal_cost = #{goalCost,jdbcType=DECIMAL},
+      </if>
+      <if test="saveAmount != null" >
+        save_amount = #{saveAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="saveMode != null" >
+        save_mode = #{saveMode,jdbcType=VARCHAR},
+      </if>
+      <if test="priceMode != null" >
+        price_mode = #{priceMode,jdbcType=VARCHAR},
+      </if>
+      <if test="profitPercent != null" >
+        profit_percent = #{profitPercent,jdbcType=DECIMAL},
+      </if>
+      <if test="contractTag != null" >
+        contract_tag = #{contractTag,jdbcType=VARCHAR},
+      </if>
+      <if test="taxBearing != null" >
+        tax_bearing = #{taxBearing,jdbcType=INTEGER},
+      </if>
+      <if test="exchangeRate != null" >
+        exchange_rate = #{exchangeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="chairmanBoardId != null" >
+        chairman_board_id = #{chairmanBoardId,jdbcType=INTEGER},
+      </if>
+      <if test="chairmanBoard != null" >
+        chairman_board = #{chairmanBoard,jdbcType=VARCHAR},
+      </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="qualityInspectStatus != null" >
+        quality_inspect_status = #{qualityInspectStatus,jdbcType=INTEGER},
+      </if>
+      <if test="qualityLeaderId != null" >
+        quality_leader_id = #{qualityLeaderId,jdbcType=INTEGER},
+      </if>
+      <if test="qualityLeaderName != null" >
+        quality_leader_name = #{qualityLeaderName,jdbcType=VARCHAR},
+      </if>
+      <if test="qualityTime != null" >
+        quality_time = #{qualityTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="processId != null" >
+        process_id = #{processId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null" >
+        task_id = #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks != null" >
+        remarks = #{remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.erui.order.v2.model.Purch" >
+    update purch
+    set purch_no = #{purchNo,jdbcType=VARCHAR},
+      purch_contract_id = #{purchContractId,jdbcType=INTEGER},
+      agent_id = #{agentId,jdbcType=INTEGER},
+      agent_name = #{agentName,jdbcType=VARCHAR},
+      department = #{department,jdbcType=VARCHAR},
+      signing_date = #{signingDate,jdbcType=DATE},
+      arrival_date = #{arrivalDate,jdbcType=DATE},
+      pur_chg_date = #{purChgDate,jdbcType=DATE},
+      supplier_id = #{supplierId,jdbcType=INTEGER},
+      supplier_name = #{supplierName,jdbcType=VARCHAR},
+      total_price = #{totalPrice,jdbcType=DECIMAL},
+      currency_bn = #{currencyBn,jdbcType=VARCHAR},
+      pay_type = #{payType,jdbcType=INTEGER},
+      other_pay_type_msg = #{otherPayTypeMsg,jdbcType=VARCHAR},
+      producted_date = #{productedDate,jdbcType=DATE},
+      pay_factory_date = #{payFactoryDate,jdbcType=DATE},
+      pay_deposit_date = #{payDepositDate,jdbcType=DATE},
+      pay_deposit_expired = #{payDepositExpired,jdbcType=DATE},
+      invoice_no = #{invoiceNo,jdbcType=VARCHAR},
+      account_date = #{accountDate,jdbcType=DATE},
+      status = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      create_user_id = #{createUserId,jdbcType=INTEGER},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      delete_flag = #{deleteFlag,jdbcType=BIT},
+      delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+      inspected = #{inspected,jdbcType=BIT},
+      auditing_status = #{auditingStatus,jdbcType=INTEGER},
+      auditing_process = #{auditingProcess,jdbcType=VARCHAR},
+      auditing_user_id = #{auditingUserId,jdbcType=VARCHAR},
+      auditing_user = #{auditingUser,jdbcType=VARCHAR},
+      purch_auditer_id = #{purchAuditerId,jdbcType=INTEGER},
+      purch_auditer = #{purchAuditer,jdbcType=VARCHAR},
+      business_auditer_id = #{businessAuditerId,jdbcType=INTEGER},
+      business_auditer = #{businessAuditer,jdbcType=VARCHAR},
+      legal_auditer_id = #{legalAuditerId,jdbcType=INTEGER},
+      legal_auditer = #{legalAuditer,jdbcType=VARCHAR},
+      finance_auditer_id = #{financeAuditerId,jdbcType=INTEGER},
+      finance_auditer = #{financeAuditer,jdbcType=VARCHAR},
+      bu_vp_auditer_id = #{buVpAuditerId,jdbcType=INTEGER},
+      bu_vp_auditer = #{buVpAuditer,jdbcType=VARCHAR},
+      chairman_id = #{chairmanId,jdbcType=INTEGER},
+      chairman = #{chairman,jdbcType=VARCHAR},
+      audi_remark = #{audiRemark,jdbcType=VARCHAR},
+      supply_area = #{supplyArea,jdbcType=VARCHAR},
+      contract_version = #{contractVersion,jdbcType=VARCHAR},
+      goal_cost = #{goalCost,jdbcType=DECIMAL},
+      save_amount = #{saveAmount,jdbcType=DECIMAL},
+      save_mode = #{saveMode,jdbcType=VARCHAR},
+      price_mode = #{priceMode,jdbcType=VARCHAR},
+      profit_percent = #{profitPercent,jdbcType=DECIMAL},
+      contract_tag = #{contractTag,jdbcType=VARCHAR},
+      tax_bearing = #{taxBearing,jdbcType=INTEGER},
+      exchange_rate = #{exchangeRate,jdbcType=DECIMAL},
+      chairman_board_id = #{chairmanBoardId,jdbcType=INTEGER},
+      chairman_board = #{chairmanBoard,jdbcType=VARCHAR},
+      tenant = #{tenant,jdbcType=VARCHAR},
+      quality_inspect_status = #{qualityInspectStatus,jdbcType=INTEGER},
+      quality_leader_id = #{qualityLeaderId,jdbcType=INTEGER},
+      quality_leader_name = #{qualityLeaderName,jdbcType=VARCHAR},
+      quality_time = #{qualityTime,jdbcType=TIMESTAMP},
+      process_id = #{processId,jdbcType=VARCHAR},
+      task_id = #{taskId,jdbcType=VARCHAR},
+      remarks = #{remarks,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.Purch" >
+    update purch
+    set purch_no = #{purchNo,jdbcType=VARCHAR},
+      purch_contract_id = #{purchContractId,jdbcType=INTEGER},
+      agent_id = #{agentId,jdbcType=INTEGER},
+      agent_name = #{agentName,jdbcType=VARCHAR},
+      department = #{department,jdbcType=VARCHAR},
+      signing_date = #{signingDate,jdbcType=DATE},
+      arrival_date = #{arrivalDate,jdbcType=DATE},
+      pur_chg_date = #{purChgDate,jdbcType=DATE},
+      supplier_id = #{supplierId,jdbcType=INTEGER},
+      supplier_name = #{supplierName,jdbcType=VARCHAR},
+      total_price = #{totalPrice,jdbcType=DECIMAL},
+      currency_bn = #{currencyBn,jdbcType=VARCHAR},
+      pay_type = #{payType,jdbcType=INTEGER},
+      other_pay_type_msg = #{otherPayTypeMsg,jdbcType=VARCHAR},
+      producted_date = #{productedDate,jdbcType=DATE},
+      pay_factory_date = #{payFactoryDate,jdbcType=DATE},
+      pay_deposit_date = #{payDepositDate,jdbcType=DATE},
+      pay_deposit_expired = #{payDepositExpired,jdbcType=DATE},
+      invoice_no = #{invoiceNo,jdbcType=VARCHAR},
+      account_date = #{accountDate,jdbcType=DATE},
+      status = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      create_user_id = #{createUserId,jdbcType=INTEGER},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      delete_flag = #{deleteFlag,jdbcType=BIT},
+      delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+      inspected = #{inspected,jdbcType=BIT},
+      auditing_status = #{auditingStatus,jdbcType=INTEGER},
+      auditing_process = #{auditingProcess,jdbcType=VARCHAR},
+      auditing_user_id = #{auditingUserId,jdbcType=VARCHAR},
+      auditing_user = #{auditingUser,jdbcType=VARCHAR},
+      purch_auditer_id = #{purchAuditerId,jdbcType=INTEGER},
+      purch_auditer = #{purchAuditer,jdbcType=VARCHAR},
+      business_auditer_id = #{businessAuditerId,jdbcType=INTEGER},
+      business_auditer = #{businessAuditer,jdbcType=VARCHAR},
+      legal_auditer_id = #{legalAuditerId,jdbcType=INTEGER},
+      legal_auditer = #{legalAuditer,jdbcType=VARCHAR},
+      finance_auditer_id = #{financeAuditerId,jdbcType=INTEGER},
+      finance_auditer = #{financeAuditer,jdbcType=VARCHAR},
+      bu_vp_auditer_id = #{buVpAuditerId,jdbcType=INTEGER},
+      bu_vp_auditer = #{buVpAuditer,jdbcType=VARCHAR},
+      chairman_id = #{chairmanId,jdbcType=INTEGER},
+      chairman = #{chairman,jdbcType=VARCHAR},
+      audi_remark = #{audiRemark,jdbcType=VARCHAR},
+      supply_area = #{supplyArea,jdbcType=VARCHAR},
+      contract_version = #{contractVersion,jdbcType=VARCHAR},
+      goal_cost = #{goalCost,jdbcType=DECIMAL},
+      save_amount = #{saveAmount,jdbcType=DECIMAL},
+      save_mode = #{saveMode,jdbcType=VARCHAR},
+      price_mode = #{priceMode,jdbcType=VARCHAR},
+      profit_percent = #{profitPercent,jdbcType=DECIMAL},
+      contract_tag = #{contractTag,jdbcType=VARCHAR},
+      tax_bearing = #{taxBearing,jdbcType=INTEGER},
+      exchange_rate = #{exchangeRate,jdbcType=DECIMAL},
+      chairman_board_id = #{chairmanBoardId,jdbcType=INTEGER},
+      chairman_board = #{chairmanBoard,jdbcType=VARCHAR},
+      tenant = #{tenant,jdbcType=VARCHAR},
+      quality_inspect_status = #{qualityInspectStatus,jdbcType=INTEGER},
+      quality_leader_id = #{qualityLeaderId,jdbcType=INTEGER},
+      quality_leader_name = #{qualityLeaderName,jdbcType=VARCHAR},
+      quality_time = #{qualityTime,jdbcType=TIMESTAMP},
+      process_id = #{processId,jdbcType=VARCHAR},
+      task_id = #{taskId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

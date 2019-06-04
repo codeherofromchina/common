@@ -1186,10 +1186,14 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
 
         // 处理数据
         List<String> orgList = new ArrayList<>(); //存放事业部列表
-        List<Integer> currentWeekSpuCounts = new ArrayList<>();
-        List<Integer> currentWeekSkuCounts = new ArrayList<>();
-        List<Integer> historySpuCounts = new ArrayList<>();
-        List<Integer> historySkuCounts = new ArrayList<>();
+        List<Number> currentWeekSpuCounts = new ArrayList<>();
+        List<Number> currentWeekSkuCounts = new ArrayList<>();
+        List<Number> historySpuCounts = new ArrayList<>();
+        List<Number> historySkuCounts = new ArrayList<>();
+        long curSpuNumTotal = 0;
+        long curSkuNumTotal = 0;
+        long historySpuNumTotal = 0;
+        long historySkuNumTotal = 0;
         for (String org : ORGS) {
             orgList.add(org);
             // 本周spu数据
@@ -1197,6 +1201,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             if (curSpuMap != null) {
                 int totalSpu = Integer.parseInt(curSpuMap.get("doc_count").toString());
                 currentWeekSpuCounts.add(totalSpu);
+                curSpuNumTotal += totalSpu;
             } else {
                 currentWeekSpuCounts.add(0);
             }
@@ -1205,6 +1210,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             if (curSkuMap != null) {
                 int totalSku = Integer.parseInt(curSkuMap.get("doc_count").toString());
                 currentWeekSkuCounts.add(totalSku);
+                curSkuNumTotal += totalSku;
             } else {
                 currentWeekSkuCounts.add(0);
             }
@@ -1213,6 +1219,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             if (historySpuMap != null) {
                 int totalSpu = Integer.parseInt(historySpuMap.get("doc_count").toString());
                 historySpuCounts.add(totalSpu);
+                historySpuNumTotal += totalSpu;
             } else {
                 historySpuCounts.add(0);
             }
@@ -1221,6 +1228,7 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
             if (historySkuMap != null) {
                 int totalSku = Integer.parseInt(historySkuMap.get("doc_count").toString());
                 historySkuCounts.add(totalSku);
+                historySkuNumTotal += totalSku;
             } else {
                 historySkuCounts.add(0);
             }
@@ -1239,6 +1247,16 @@ public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> imp
         currentWeekSkuCounts.add(curWeekOtherOrgSkuNum);
         historySpuCounts.add(historyOtherOrgSpuNum);
         historySkuCounts.add(historyOtherOrgSkuNum);
+        // 总计
+        curSpuNumTotal += curWeekOtherOrgSpuNum;
+        curSkuNumTotal += curWeekOtherOrgSkuNum;
+        historySpuNumTotal += historyOtherOrgSpuNum;
+        historySkuNumTotal += historyOtherOrgSkuNum;
+        orgList.add("总计");
+        currentWeekSpuCounts.add(curSpuNumTotal);
+        currentWeekSkuCounts.add(curSkuNumTotal);
+        historySpuCounts.add(historySpuNumTotal);
+        historySkuCounts.add(historySkuNumTotal);
 
         Map<String, Object> result = new HashMap<>();
         result.put("orgList", orgList);

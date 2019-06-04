@@ -6,7 +6,7 @@ import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.order.entity.*;
 import com.erui.order.requestVo.PurchParam;
-import com.erui.order.service.CheckLogService;
+import com.erui.order.service.PurchContractService;
 import com.erui.order.service.PurchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.apache.commons.lang3.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +37,8 @@ public class PurchController {
 
     @Autowired
     private PurchService purchService;
+    @Autowired
+    private PurchContractService purchContractService;
 
 
     /**
@@ -132,6 +135,7 @@ public class PurchController {
             continueFlag = false;
             errorMsg = "采购合同号不能为空";
         }
+
         if (continueFlag) {
             try {
                 boolean flag = false;
@@ -204,6 +208,7 @@ public class PurchController {
             return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
         }
         Purch data = purchService.findDetailInfo(purch.getId());
+
         if (data != null) {
             return new Result<>(data);
         }

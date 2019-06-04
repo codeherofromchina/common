@@ -124,7 +124,9 @@ public class InspectReportController {
             map.put("inspectNum", vo.getInspectNum());
             map.put("samples", vo.getSamples());
             map.put("unqualified", vo.getUnqualified());
-            map.put("unqualifiedDesc", vo.getUnqualifiedDesc());
+            map.put("unqualifiedDesc", vo.getUnqualifiedDesc()); // 不合格描述
+            map.put("unqualifiedType", vo.getUnqualifiedType()); // 不合格类型
+            map.put("qualityInspectType", vo.getQualityInspectType()); // 质量检验类型
             map.put("checkResult", vo.getUnqualified() == 0);
             map.put("qualityInspectType", vo.getQualityInspectType()); // 质检类型
             return map;

@@ -14,6 +14,7 @@ import com.erui.order.entity.Order;
 import com.erui.order.event.TasksAddEvent;
 import com.erui.order.requestVo.DeliverConsignListCondition;
 import com.erui.order.service.*;
+import com.erui.order.util.BpmUtils;
 import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -166,11 +167,76 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         return deliverConsign;
     }
 
+
+
+    private DeliverConsign findByIdForUpdate(Integer id) throws Exception {
+        DeliverConsign deliverConsign = deliverConsignDao.findById(id);
+        if (deliverConsign != null) {
+            List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
+            List<Attachment> attachments = attachmentDao.findByRelObjIdAndCategory(deliverConsign.getId(), Attachment.AttachmentCategory.DELIVERCONSIGN.getCode());
+            deliverConsign.setAttachmentSet(attachments);
+            deliverConsign.getAttachmentSet().size();
+        }
+        Order order = deliverConsign.getOrder();
+        BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(1) : order.getExchangeRate();
+        deliverConsign.setExchangeRate(exchangeRate);   //汇率
+
+        Integer status = deliverConsign.getStatus();    //获取出口发货通知单状态
+
+        //非提交状态
+        if (status != 3) {
+
+            //获取授信信息
+            DeliverConsign deliverConsign1 = null;
+            try {
+                if (order.getCrmCode() != null && order.getCrmCode() != "") {
+                    deliverConsign1 = queryCreditData(order);
+                }
+            } catch (Exception e) {
+                throw new Exception(e.getMessage());
+            }
+
+            if (deliverConsign1 != null) {
+                //如果是保存状态，可用授信额度需要实时更新
+                deliverConsign.setCreditAvailable(deliverConsign1.getCreditAvailable()); //可用授信额度
+
+                //获取预收
+                BigDecimal currencyBnShipmentsMoney = order.getShipmentsMoney() == null ? BigDecimal.valueOf(0.00) : order.getShipmentsMoney();  //已发货总金额 （财务管理
+                BigDecimal currencyBnAlreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0.00) : order.getAlreadyGatheringMoney();//已收款总金额
+
+                //收款总金额  -  发货总金额
+                BigDecimal subtract = currencyBnAlreadyGatheringMoney.subtract(currencyBnShipmentsMoney);
+                if (subtract.compareTo(BigDecimal.valueOf(0)) != -1) {    //-1 小于     0 等于      1 大于
+                    deliverConsign.setAdvanceMoney(subtract);     //预收金额
+                } else {
+                    deliverConsign.setAdvanceMoney(BigDecimal.valueOf(0.00));     //预收金额
+                }
+
+            } else {
+                deliverConsign.setCreditAvailable(BigDecimal.valueOf(0.00));    //可用授信额度
+                deliverConsign.setAdvanceMoney(BigDecimal.valueOf(0.00));     //预收金额
+            }
+
+
+        }
+
+        deliverConsign.setoId(deliverConsign.getOrder().getId());//order表id
+        deliverConsign.setContractNo(deliverConsign.getOrder().getContractNo());//销售合同号
+        deliverConsign.setTotalPriceUsd(deliverConsign.getOrder().getTotalPriceUsd());//合同总价
+        deliverConsign.setReceivablePriceUsd(deliverConsign.getOrder().getTotalPriceUsd());//应收账款金额
+        deliverConsign.setPerLiableRepay(deliverConsign.getOrder().getPerLiableRepay());//回款责任人
+
+        return deliverConsign;
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Integer updateDeliverConsign(DeliverConsign deliverConsign) throws Exception {
+
+        String eruitoken = (String) ThreadLocalUtil.getObject();
+
         Order order = orderDao.findOne(deliverConsign.getoId());
-        DeliverConsign deliverConsignUpdate = findById(deliverConsign.getId());
+        DeliverConsign deliverConsignUpdate = findByIdForUpdate(deliverConsign.getId());
         deliverConsignUpdate.setOrder(order);
         deliverConsignUpdate.setCoId(order.getSigningCo());
         deliverConsignUpdate.setDeptId(order.getExecCoId());
@@ -267,22 +333,67 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if (deliverConsignUpdate.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
             deliverConsignUpdate.setAuditingStatus(1);
         } else if (deliverConsignUpdate.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
-            deliverConsignUpdate.setAuditingProcess("31");
             deliverConsignUpdate.setAuditingStatus(2);
-            if (deliverConsignUpdate.getCountryLeaderId() != null)
-                deliverConsignUpdate.setAuditingUserId(deliverConsignUpdate.getCountryLeaderId().toString());
-            else
-                deliverConsignUpdate.setAuditingUserId(null);
         }
-        CheckLog checkLog_i = null; //审批流日志
         DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignUpdate);
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
-            checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign1.getId(), 30, order.getAgentId(), order.getAgentName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getCountryLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 4);
-            checkLogService.insert(checkLog_i);
-            // 待办
-            if (deliverConsign.getCountryLeaderId() != null) {
-                sendDingtalk(deliverConsign1, deliverConsignUpdate.getCountryLeaderId().toString(), false);
-                auditBackLogHandle(deliverConsign1, false, deliverConsign1.getCountryLeaderId().toString(), "", false);
+//            if (StringUtils.isNotBlank(deliverConsign1.getAudiRemark()) && StringUtils.isBlank(deliverConsign1.getProcessId())) {
+            if (false) {
+                // 老审核流程
+                deliverConsignUpdate.setAuditingProcess("31");
+                deliverConsignUpdate.setAuditingStatus(2);
+                if (deliverConsignUpdate.getCountryLeaderId() != null) {
+                    deliverConsignUpdate.setAuditingUserId(deliverConsignUpdate.getCountryLeaderId().toString());
+                } else {
+                    deliverConsignUpdate.setAuditingUserId(null);
+                }
+                CheckLog checkLog_i = null; //审批流日志
+                checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign1.getId(), 30, order.getAgentId(), order.getAgentName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getCountryLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 4);
+                checkLogService.insert(checkLog_i);
+                // 待办
+                if (deliverConsign.getCountryLeaderId() != null) {
+                    sendDingtalk(deliverConsign1, deliverConsignUpdate.getCountryLeaderId().toString(), false);
+                    auditBackLogHandle(deliverConsign1, false, deliverConsign1.getCountryLeaderId().toString(), "", false);
+                }
+            } else {
+                // 新审核流程
+                String taskId = deliverConsign.getTaskId();
+                if (StringUtils.isBlank(taskId)) {
+                    Map<String, Object> initVar = new HashMap<>();
+                    initVar.put("param_contract", deliverConsign1.getDeliverConsignNo());
+                    initVar.put("task_cm_country", deliverConsign1.getCountry());
+                    initVar.put("task_rm_area", deliverConsign1.getRegion());
+                    // 启动业务流流程实例
+                    JSONObject processResp = BpmUtils.startProcessInstanceByKey("booking_order", null, eruitoken, "deliver_consign:" + deliverConsign1.getId(), initVar);
+                    // 设置订单和业务流标示关联
+                    deliverConsign1.setProcessId(processResp.getString("instanceId"));
+                    deliverConsign1.setAuditingUser("");
+                    deliverConsign1.setAuditingUserId("");
+                    deliverConsign1.setAuditingProcess("task_cm");
+
+                    /// 删除老流程待办 ，驳回到初始节点时候会开启新流程 TODO 如果不存在老审核流程可删除
+                    // 删除上一个待办
+                    try {
+                        BackLog backLog2 = new BackLog();
+                        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERCONSIGN_REJECT.getNum());    //功能访问路径标识
+                        backLog2.setHostId(deliverConsign.getOrder().getId());
+                        backLog2.setFollowId(deliverConsign.getId());
+                        backLogService.updateBackLogByDelYn(backLog2);
+                        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERCONSIGN_AUDIT.getNum());    //功能访问路径标识
+                        backLogService.updateBackLogByDelYn(backLog2);
+                    }catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                } else {
+                    // 完善订单任务调用
+                    Map<String, Object> localVariables = new HashMap<>();
+                    localVariables.put("audit_status", "APPROVED");
+                    BpmUtils.completeTask(taskId, eruitoken, null, localVariables, "同意");
+                }
+                deliverConsign1.setAuditingProcess("task_cm"); // 第一个节点通知失败，写固定的第一个节点
+                deliverConsign1.setAuditingUser("");
+                deliverConsign1.setAuditingUserId("");
+                deliverConsign1.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
             }
         }
         List<Attachment> attachmentList = deliverConsign.getAttachmentSet();
@@ -294,7 +405,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if (deliverConsign.getDeliverConsignBookingSpace() != null) {
             DeliverConsignBookingSpace deliverConsignBookingSpace = deliverConsign.getDeliverConsignBookingSpace();
             deliverConsignBookingSpace.setDeliverConsign(deliverConsign1);
-            deliverConsignBookingSpace.setId(deliverConsign1.getDeliverConsignBookingSpace().getId());
+            if (deliverConsign1.getDeliverConsignBookingSpace() != null && deliverConsign1.getDeliverConsignBookingSpace().getId() != null) {
+                deliverConsignBookingSpace.setId(deliverConsign1.getDeliverConsignBookingSpace().getId());
+            }
             deliverConsignBookingSpaceDao.saveAndFlush(deliverConsignBookingSpace);
         }
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
@@ -338,6 +451,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Integer addDeliverConsign(DeliverConsign deliverConsign) throws Exception {
+        String eruitoken = (String) ThreadLocalUtil.getObject();
+
         Order order = orderDao.findOne(deliverConsign.getoId());
         DeliverConsign deliverConsignAdd = new DeliverConsign();
         // 根据数据库中最后的发货通知单单号重新自动生成
@@ -377,7 +492,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignAdd.setDeliverConsignPayments(deliverConsign.getDeliverConsignPayments());
         // 处理商品信息
         Map<Integer, Goods> goodsList = order.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
-        //Set<Integer> orderIds = new HashSet<>();
         for (DeliverConsignGoods dcGoods : deliverConsign.getDeliverConsignGoodsSet()) {
             Integer gid = dcGoods.getgId();
             Goods goods = goodsList.get(gid);
@@ -386,7 +500,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 dcGoods.setCreateTime(new Date());
                 if (deliverConsign.getStatus() == 3) {
                     goods.setOutstockNum(goods.getOutstockNum() + dcGoods.getSendNum());
-                    //orderIds.add(goods.getOrder().getId());
                 }
                 goods.setOutstockApplyNum(goods.getOutstockApplyNum() + dcGoods.getSendNum());
                 goodsDao.save(goods);
@@ -427,29 +540,27 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if (deliverConsignAdd.getStatus() == DeliverConsign.StatusEnum.BEING.getCode()) {
             deliverConsignAdd.setAuditingStatus(1);
         } else if (deliverConsignAdd.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
-            deliverConsignAdd.setAuditingProcess("31");
             deliverConsignAdd.setAuditingStatus(2);
-            if (deliverConsignAdd.getCountryLeaderId() != null)
-                deliverConsignAdd.setAuditingUserId(deliverConsignAdd.getCountryLeaderId().toString());
-            else
-                deliverConsignAdd.setAuditingUserId(null);
         }
-        CheckLog checkLog_i = null; //审批流日志
         DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignAdd);
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
-            if (deliverConsign.getCountryLeaderId() != null) {
-                sendDingtalk(deliverConsign1, deliverConsign.getCountryLeaderId().toString(), false);
-                // 待办
-                auditBackLogHandle(deliverConsign1, false, deliverConsignAdd.getCountryLeaderId().toString(), "", false);
-            }
-            checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.DELIVERCONSIGN.getCode(), deliverConsign1.getId(), 30, order.getAgentId(), order.getAgentName(), deliverConsign1.getAuditingProcess().toString(), deliverConsign1.getCountryLeaderId().toString(), deliverConsign1.getAuditingReason(), "1", 4);
-            checkLogService.insert(checkLog_i);
+            Map<String, Object> initVar = new HashMap<>();
+            initVar.put("param_contract", deliverConsign1.getDeliverConsignNo());
+            // 启动业务流流程实例
+            JSONObject processResp = BpmUtils.startProcessInstanceByKey("booking_order", null, eruitoken, "deliver_consign:" + deliverConsign1.getId(), initVar);
+            // 设置订单和业务流标示关联
+            deliverConsign1.setProcessId(processResp.getString("instanceId"));
+            deliverConsign1.setAuditingProcess("task_cm"); // 第一个节点通知失败，写固定的第一个节点
+            deliverConsign1.setAuditingUser("");
+            deliverConsign1.setAuditingUserId("");
+            deliverConsign1.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
         }
+
+
         //出口通知单附件添加
         if (deliverConsign.getAttachmentSet() != null && deliverConsign.getAttachmentSet().size() > 0) {
             attachmentService.addAttachments(deliverConsign.getAttachmentSet(), deliverConsign1.getId(), Attachment.AttachmentCategory.DELIVERCONSIGN.getCode());
         }
-
         //出口发货通知单订舱信息
         if (deliverConsign.getDeliverConsignBookingSpace() != null) {
             DeliverConsignBookingSpace deliverConsignBookingSpace = deliverConsign.getDeliverConsignBookingSpace();
@@ -529,8 +640,13 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     searchList.add(cb.equal(root.get("auditingStatus").as(Integer.class), condition.getAuditingStatus()));
                 }
                 // 根据审核进度
-                if (condition.getAuditingProcess() != null && condition.getAuditingProcess() != 0) {
-                    searchList.add(cb.like(root.get("auditingProcess").as(String.class), "%" + condition.getAuditingProcess() + "%"));
+                if (StringUtils.isNotBlank(condition.getAuditingProcess())) {
+                    if ("999".equals(condition.getAuditingProcess())) {
+                        // 999 定位审核完成的查询
+                        searchList.add(cb.equal(root.get("auditingStatus").as(Integer.class), 4));
+                    } else {
+                        searchList.add(cb.like(root.get("auditingProcess").as(String.class), "%" + condition.getAuditingProcess() + "%"));
+                    }
                 }
 
                 // 可以看到列表的人
@@ -795,7 +911,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     public String createDeliverDetailNo() {
         SimpleDateFormat simpleDateFormats = new SimpleDateFormat("yyyy");
-
         //查询最近插入的产品放行单
         String deliverDetailNo = deliverDetailDao.findDeliverDetailNo();
         if (deliverDetailNo == null) {
@@ -811,7 +926,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 return formats + String.format("%04d", 1);     //第一个
             }
         }
-
     }
 
     //  出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
@@ -1399,6 +1513,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         BigDecimal thisShipmentsMoney = deliverConsign.getThisShipmentsMoney() == null ? BigDecimal.valueOf(0.00) : deliverConsign.getThisShipmentsMoney();//本批次发货金额
         BigDecimal exchangeRate = deliverConsign.getOrder().getExchangeRate() == null ? BigDecimal.valueOf(1) : deliverConsign.getOrder().getExchangeRate();//订单中利率
 
+
         //获取授信额度信息
         DeliverConsign deliverConsignByCreditData = null;
         try {
@@ -1413,7 +1528,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if (deliverConsignByCreditData != null) {
             BigDecimal lineOfCredit = deliverConsignByCreditData.getLineOfCredit() == null ? BigDecimal.valueOf(0) : deliverConsignByCreditData.getLineOfCredit(); //授信额度
             if (lineOfCredit.compareTo(BigDecimal.valueOf(0)) == 1) {   // 判断是否有授信额度
+
                 BigDecimal subtract1 = advanceMoney.subtract(thisShipmentsMoney); //预收  减去  本次发货金额
+
                 if (subtract1.compareTo(BigDecimal.valueOf(0)) == -1) {   //先判断是否有预收，预收够不够本次发货的
                     //判断授信额度够不够
                     BigDecimal subtract = thisShipmentsMoney.subtract(advanceMoney);    // 本次发货金额  -  预收金额  = 需要使用授信的额度
@@ -1423,7 +1540,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         BigDecimal lineOfCredit1 = deliverConsignByCreditData.getLineOfCredit().divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);    //授信额度
                         BigDecimal subtract2 = lineOfCredit1.subtract(creditAvailable1);   //所欠授信额度
                         BigDecimal subtract3 = multiply; //可以返还的授信额度
-                        if(subtract2.subtract(multiply).compareTo(BigDecimal.valueOf(0)) == -1){ // 所欠授信额度小于可以返还的授信额度
+                        if (subtract2.subtract(multiply).compareTo(BigDecimal.valueOf(0)) == -1) { // 所欠授信额度小于可以返还的授信额度
                             subtract3 = subtract2; // 返还所欠授信额度
                         }
                         try {
@@ -1431,16 +1548,19 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                             JSONObject data = jsonObject.getJSONObject("data");//获取查询数据
                             if (data == null) {  //查询数据正确返回 1
                                 throw new Exception("同步授信额度失败");
-                            }else{
+                            } else {
                                 return data;
                             }
+
                         } catch (Exception e) {
                             logger.info("查询授信返回信息：" + e);
                             throw new Exception(e);
                         }
+
                     } else {
                         throw new Exception("预收金额和可用授信额度不足");
                     }
+
                 }
             }
         }

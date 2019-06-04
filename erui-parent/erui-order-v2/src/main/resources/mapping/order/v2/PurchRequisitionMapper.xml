@@ -1,0 +1,572 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.order.v2.dao.PurchRequisitionMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.PurchRequisition" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="order_id" property="orderId" jdbcType="INTEGER" />
+    <result column="project_id" property="projectId" jdbcType="INTEGER" />
+    <result column="project_no" property="projectNo" jdbcType="VARCHAR" />
+    <result column="contract_no" property="contractNo" jdbcType="VARCHAR" />
+    <result column="pm_uid" property="pmUid" jdbcType="INTEGER" />
+    <result column="department" property="department" jdbcType="INTEGER" />
+    <result column="submit_date" property="submitDate" jdbcType="TIMESTAMP" />
+    <result column="trade_method" property="tradeMethod" jdbcType="VARCHAR" />
+    <result column="trans_mode_bn" property="transModeBn" jdbcType="VARCHAR" />
+    <result column="factory_send" property="factorySend" jdbcType="BIT" />
+    <result column="delivery_place" property="deliveryPlace" jdbcType="VARCHAR" />
+    <result column="requirements" property="requirements" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="purch_status" property="purchStatus" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="purchase_name" property="purchaseName" jdbcType="VARCHAR" />
+    <result column="purchase_uid" property="purchaseUid" jdbcType="INTEGER" />
+    <result column="single_person_id" property="singlePersonId" jdbcType="INTEGER" />
+    <result column="single_person" property="singlePerson" jdbcType="VARCHAR" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.erui.order.v2.model.PurchRequisition" extends="BaseResultMap" >
+    <result column="remarks" property="remarks" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, order_id, project_id, project_no, contract_no, pm_uid, department, submit_date, 
+    trade_method, trans_mode_bn, factory_send, delivery_place, requirements, status, 
+    purch_status, create_time, purchase_name, purchase_uid, single_person_id, single_person, 
+    update_time, tenant
+  </sql>
+  <sql id="Blob_Column_List" >
+    remarks
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.erui.order.v2.model.PurchRequisitionExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from purch_requisition
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.PurchRequisitionExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from purch_requisition
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from purch_requisition
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from purch_requisition
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.order.v2.model.PurchRequisitionExample" >
+    delete from purch_requisition
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.order.v2.model.PurchRequisition" >
+    insert into purch_requisition (id, order_id, project_id, 
+      project_no, contract_no, pm_uid, 
+      department, submit_date, trade_method, 
+      trans_mode_bn, factory_send, delivery_place, 
+      requirements, status, purch_status, 
+      create_time, purchase_name, purchase_uid, 
+      single_person_id, single_person, update_time, 
+      tenant, remarks)
+    values (#{id,jdbcType=INTEGER}, #{orderId,jdbcType=INTEGER}, #{projectId,jdbcType=INTEGER}, 
+      #{projectNo,jdbcType=VARCHAR}, #{contractNo,jdbcType=VARCHAR}, #{pmUid,jdbcType=INTEGER}, 
+      #{department,jdbcType=INTEGER}, #{submitDate,jdbcType=TIMESTAMP}, #{tradeMethod,jdbcType=VARCHAR}, 
+      #{transModeBn,jdbcType=VARCHAR}, #{factorySend,jdbcType=BIT}, #{deliveryPlace,jdbcType=VARCHAR}, 
+      #{requirements,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{purchStatus,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{purchaseName,jdbcType=VARCHAR}, #{purchaseUid,jdbcType=INTEGER}, 
+      #{singlePersonId,jdbcType=INTEGER}, #{singlePerson,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{tenant,jdbcType=VARCHAR}, #{remarks,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.order.v2.model.PurchRequisition" >
+    insert into purch_requisition
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="orderId != null" >
+        order_id,
+      </if>
+      <if test="projectId != null" >
+        project_id,
+      </if>
+      <if test="projectNo != null" >
+        project_no,
+      </if>
+      <if test="contractNo != null" >
+        contract_no,
+      </if>
+      <if test="pmUid != null" >
+        pm_uid,
+      </if>
+      <if test="department != null" >
+        department,
+      </if>
+      <if test="submitDate != null" >
+        submit_date,
+      </if>
+      <if test="tradeMethod != null" >
+        trade_method,
+      </if>
+      <if test="transModeBn != null" >
+        trans_mode_bn,
+      </if>
+      <if test="factorySend != null" >
+        factory_send,
+      </if>
+      <if test="deliveryPlace != null" >
+        delivery_place,
+      </if>
+      <if test="requirements != null" >
+        requirements,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="purchStatus != null" >
+        purch_status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="purchaseName != null" >
+        purchase_name,
+      </if>
+      <if test="purchaseUid != null" >
+        purchase_uid,
+      </if>
+      <if test="singlePersonId != null" >
+        single_person_id,
+      </if>
+      <if test="singlePerson != null" >
+        single_person,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
+      <if test="remarks != null" >
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="orderId != null" >
+        #{orderId,jdbcType=INTEGER},
+      </if>
+      <if test="projectId != null" >
+        #{projectId,jdbcType=INTEGER},
+      </if>
+      <if test="projectNo != null" >
+        #{projectNo,jdbcType=VARCHAR},
+      </if>
+      <if test="contractNo != null" >
+        #{contractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="pmUid != null" >
+        #{pmUid,jdbcType=INTEGER},
+      </if>
+      <if test="department != null" >
+        #{department,jdbcType=INTEGER},
+      </if>
+      <if test="submitDate != null" >
+        #{submitDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tradeMethod != null" >
+        #{tradeMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="transModeBn != null" >
+        #{transModeBn,jdbcType=VARCHAR},
+      </if>
+      <if test="factorySend != null" >
+        #{factorySend,jdbcType=BIT},
+      </if>
+      <if test="deliveryPlace != null" >
+        #{deliveryPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="requirements != null" >
+        #{requirements,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="purchStatus != null" >
+        #{purchStatus,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="purchaseName != null" >
+        #{purchaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseUid != null" >
+        #{purchaseUid,jdbcType=INTEGER},
+      </if>
+      <if test="singlePersonId != null" >
+        #{singlePersonId,jdbcType=INTEGER},
+      </if>
+      <if test="singlePerson != null" >
+        #{singlePerson,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks != null" >
+        #{remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.order.v2.model.PurchRequisitionExample" resultType="java.lang.Integer" >
+    select count(*) from purch_requisition
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update purch_requisition
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.orderId != null" >
+        order_id = #{record.orderId,jdbcType=INTEGER},
+      </if>
+      <if test="record.projectId != null" >
+        project_id = #{record.projectId,jdbcType=INTEGER},
+      </if>
+      <if test="record.projectNo != null" >
+        project_no = #{record.projectNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.contractNo != null" >
+        contract_no = #{record.contractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pmUid != null" >
+        pm_uid = #{record.pmUid,jdbcType=INTEGER},
+      </if>
+      <if test="record.department != null" >
+        department = #{record.department,jdbcType=INTEGER},
+      </if>
+      <if test="record.submitDate != null" >
+        submit_date = #{record.submitDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.tradeMethod != null" >
+        trade_method = #{record.tradeMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="record.transModeBn != null" >
+        trans_mode_bn = #{record.transModeBn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.factorySend != null" >
+        factory_send = #{record.factorySend,jdbcType=BIT},
+      </if>
+      <if test="record.deliveryPlace != null" >
+        delivery_place = #{record.deliveryPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="record.requirements != null" >
+        requirements = #{record.requirements,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.purchStatus != null" >
+        purch_status = #{record.purchStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.purchaseName != null" >
+        purchase_name = #{record.purchaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.purchaseUid != null" >
+        purchase_uid = #{record.purchaseUid,jdbcType=INTEGER},
+      </if>
+      <if test="record.singlePersonId != null" >
+        single_person_id = #{record.singlePersonId,jdbcType=INTEGER},
+      </if>
+      <if test="record.singlePerson != null" >
+        single_person = #{record.singlePerson,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateTime != null" >
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remarks != null" >
+        remarks = #{record.remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update purch_requisition
+    set id = #{record.id,jdbcType=INTEGER},
+      order_id = #{record.orderId,jdbcType=INTEGER},
+      project_id = #{record.projectId,jdbcType=INTEGER},
+      project_no = #{record.projectNo,jdbcType=VARCHAR},
+      contract_no = #{record.contractNo,jdbcType=VARCHAR},
+      pm_uid = #{record.pmUid,jdbcType=INTEGER},
+      department = #{record.department,jdbcType=INTEGER},
+      submit_date = #{record.submitDate,jdbcType=TIMESTAMP},
+      trade_method = #{record.tradeMethod,jdbcType=VARCHAR},
+      trans_mode_bn = #{record.transModeBn,jdbcType=VARCHAR},
+      factory_send = #{record.factorySend,jdbcType=BIT},
+      delivery_place = #{record.deliveryPlace,jdbcType=VARCHAR},
+      requirements = #{record.requirements,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      purch_status = #{record.purchStatus,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      purchase_name = #{record.purchaseName,jdbcType=VARCHAR},
+      purchase_uid = #{record.purchaseUid,jdbcType=INTEGER},
+      single_person_id = #{record.singlePersonId,jdbcType=INTEGER},
+      single_person = #{record.singlePerson,jdbcType=VARCHAR},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      tenant = #{record.tenant,jdbcType=VARCHAR},
+      remarks = #{record.remarks,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update purch_requisition
+    set id = #{record.id,jdbcType=INTEGER},
+      order_id = #{record.orderId,jdbcType=INTEGER},
+      project_id = #{record.projectId,jdbcType=INTEGER},
+      project_no = #{record.projectNo,jdbcType=VARCHAR},
+      contract_no = #{record.contractNo,jdbcType=VARCHAR},
+      pm_uid = #{record.pmUid,jdbcType=INTEGER},
+      department = #{record.department,jdbcType=INTEGER},
+      submit_date = #{record.submitDate,jdbcType=TIMESTAMP},
+      trade_method = #{record.tradeMethod,jdbcType=VARCHAR},
+      trans_mode_bn = #{record.transModeBn,jdbcType=VARCHAR},
+      factory_send = #{record.factorySend,jdbcType=BIT},
+      delivery_place = #{record.deliveryPlace,jdbcType=VARCHAR},
+      requirements = #{record.requirements,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      purch_status = #{record.purchStatus,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      purchase_name = #{record.purchaseName,jdbcType=VARCHAR},
+      purchase_uid = #{record.purchaseUid,jdbcType=INTEGER},
+      single_person_id = #{record.singlePersonId,jdbcType=INTEGER},
+      single_person = #{record.singlePerson,jdbcType=VARCHAR},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.PurchRequisition" >
+    update purch_requisition
+    <set >
+      <if test="orderId != null" >
+        order_id = #{orderId,jdbcType=INTEGER},
+      </if>
+      <if test="projectId != null" >
+        project_id = #{projectId,jdbcType=INTEGER},
+      </if>
+      <if test="projectNo != null" >
+        project_no = #{projectNo,jdbcType=VARCHAR},
+      </if>
+      <if test="contractNo != null" >
+        contract_no = #{contractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="pmUid != null" >
+        pm_uid = #{pmUid,jdbcType=INTEGER},
+      </if>
+      <if test="department != null" >
+        department = #{department,jdbcType=INTEGER},
+      </if>
+      <if test="submitDate != null" >
+        submit_date = #{submitDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tradeMethod != null" >
+        trade_method = #{tradeMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="transModeBn != null" >
+        trans_mode_bn = #{transModeBn,jdbcType=VARCHAR},
+      </if>
+      <if test="factorySend != null" >
+        factory_send = #{factorySend,jdbcType=BIT},
+      </if>
+      <if test="deliveryPlace != null" >
+        delivery_place = #{deliveryPlace,jdbcType=VARCHAR},
+      </if>
+      <if test="requirements != null" >
+        requirements = #{requirements,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="purchStatus != null" >
+        purch_status = #{purchStatus,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="purchaseName != null" >
+        purchase_name = #{purchaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseUid != null" >
+        purchase_uid = #{purchaseUid,jdbcType=INTEGER},
+      </if>
+      <if test="singlePersonId != null" >
+        single_person_id = #{singlePersonId,jdbcType=INTEGER},
+      </if>
+      <if test="singlePerson != null" >
+        single_person = #{singlePerson,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks != null" >
+        remarks = #{remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.erui.order.v2.model.PurchRequisition" >
+    update purch_requisition
+    set order_id = #{orderId,jdbcType=INTEGER},
+      project_id = #{projectId,jdbcType=INTEGER},
+      project_no = #{projectNo,jdbcType=VARCHAR},
+      contract_no = #{contractNo,jdbcType=VARCHAR},
+      pm_uid = #{pmUid,jdbcType=INTEGER},
+      department = #{department,jdbcType=INTEGER},
+      submit_date = #{submitDate,jdbcType=TIMESTAMP},
+      trade_method = #{tradeMethod,jdbcType=VARCHAR},
+      trans_mode_bn = #{transModeBn,jdbcType=VARCHAR},
+      factory_send = #{factorySend,jdbcType=BIT},
+      delivery_place = #{deliveryPlace,jdbcType=VARCHAR},
+      requirements = #{requirements,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      purch_status = #{purchStatus,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      purchase_name = #{purchaseName,jdbcType=VARCHAR},
+      purchase_uid = #{purchaseUid,jdbcType=INTEGER},
+      single_person_id = #{singlePersonId,jdbcType=INTEGER},
+      single_person = #{singlePerson,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      tenant = #{tenant,jdbcType=VARCHAR},
+      remarks = #{remarks,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.PurchRequisition" >
+    update purch_requisition
+    set order_id = #{orderId,jdbcType=INTEGER},
+      project_id = #{projectId,jdbcType=INTEGER},
+      project_no = #{projectNo,jdbcType=VARCHAR},
+      contract_no = #{contractNo,jdbcType=VARCHAR},
+      pm_uid = #{pmUid,jdbcType=INTEGER},
+      department = #{department,jdbcType=INTEGER},
+      submit_date = #{submitDate,jdbcType=TIMESTAMP},
+      trade_method = #{tradeMethod,jdbcType=VARCHAR},
+      trans_mode_bn = #{transModeBn,jdbcType=VARCHAR},
+      factory_send = #{factorySend,jdbcType=BIT},
+      delivery_place = #{deliveryPlace,jdbcType=VARCHAR},
+      requirements = #{requirements,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      purch_status = #{purchStatus,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      purchase_name = #{purchaseName,jdbcType=VARCHAR},
+      purchase_uid = #{purchaseUid,jdbcType=INTEGER},
+      single_person_id = #{singlePersonId,jdbcType=INTEGER},
+      single_person = #{singlePerson,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      tenant = #{tenant,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

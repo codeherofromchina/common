@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.order.v2.dao.OrderLogMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.OrderLog" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="order_id" property="orderId" jdbcType="INTEGER" />
+    <result column="log_type" property="logType" jdbcType="INTEGER" />
+    <result column="operation" property="operation" jdbcType="VARCHAR" />
+    <result column="create_id" property="createId" jdbcType="INTEGER" />
+    <result column="orders_goods_id" property="ordersGoodsId" jdbcType="INTEGER" />
+    <result column="create_name" property="createName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="order_account_id" property="orderAccountId" jdbcType="INTEGER" />
+    <result column="business_date" property="businessDate" jdbcType="TIMESTAMP" />
+    <result column="deliver_detail_id" property="deliverDetailId" jdbcType="INTEGER" />
+    <result column="logistics_data_id" property="logisticsDataId" jdbcType="INTEGER" />
+    <result column="en_operation" property="enOperation" jdbcType="VARCHAR" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, order_id, log_type, operation, create_id, orders_goods_id, create_name, create_time, 
+    order_account_id, business_date, deliver_detail_id, logistics_data_id, en_operation, 
+    tenant
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.OrderLogExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from order_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from order_log
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from order_log
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.order.v2.model.OrderLogExample" >
+    delete from order_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.order.v2.model.OrderLog" >
+    insert into order_log (id, order_id, log_type, 
+      operation, create_id, orders_goods_id, 
+      create_name, create_time, order_account_id, 
+      business_date, deliver_detail_id, logistics_data_id, 
+      en_operation, tenant)
+    values (#{id,jdbcType=INTEGER}, #{orderId,jdbcType=INTEGER}, #{logType,jdbcType=INTEGER}, 
+      #{operation,jdbcType=VARCHAR}, #{createId,jdbcType=INTEGER}, #{ordersGoodsId,jdbcType=INTEGER}, 
+      #{createName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{orderAccountId,jdbcType=INTEGER}, 
+      #{businessDate,jdbcType=TIMESTAMP}, #{deliverDetailId,jdbcType=INTEGER}, #{logisticsDataId,jdbcType=INTEGER}, 
+      #{enOperation,jdbcType=VARCHAR}, #{tenant,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.order.v2.model.OrderLog" >
+    insert into order_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="orderId != null" >
+        order_id,
+      </if>
+      <if test="logType != null" >
+        log_type,
+      </if>
+      <if test="operation != null" >
+        operation,
+      </if>
+      <if test="createId != null" >
+        create_id,
+      </if>
+      <if test="ordersGoodsId != null" >
+        orders_goods_id,
+      </if>
+      <if test="createName != null" >
+        create_name,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="orderAccountId != null" >
+        order_account_id,
+      </if>
+      <if test="businessDate != null" >
+        business_date,
+      </if>
+      <if test="deliverDetailId != null" >
+        deliver_detail_id,
+      </if>
+      <if test="logisticsDataId != null" >
+        logistics_data_id,
+      </if>
+      <if test="enOperation != null" >
+        en_operation,
+      </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="orderId != null" >
+        #{orderId,jdbcType=INTEGER},
+      </if>
+      <if test="logType != null" >
+        #{logType,jdbcType=INTEGER},
+      </if>
+      <if test="operation != null" >
+        #{operation,jdbcType=VARCHAR},
+      </if>
+      <if test="createId != null" >
+        #{createId,jdbcType=INTEGER},
+      </if>
+      <if test="ordersGoodsId != null" >
+        #{ordersGoodsId,jdbcType=INTEGER},
+      </if>
+      <if test="createName != null" >
+        #{createName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderAccountId != null" >
+        #{orderAccountId,jdbcType=INTEGER},
+      </if>
+      <if test="businessDate != null" >
+        #{businessDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deliverDetailId != null" >
+        #{deliverDetailId,jdbcType=INTEGER},
+      </if>
+      <if test="logisticsDataId != null" >
+        #{logisticsDataId,jdbcType=INTEGER},
+      </if>
+      <if test="enOperation != null" >
+        #{enOperation,jdbcType=VARCHAR},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.order.v2.model.OrderLogExample" resultType="java.lang.Integer" >
+    select count(*) from order_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update order_log
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.orderId != null" >
+        order_id = #{record.orderId,jdbcType=INTEGER},
+      </if>
+      <if test="record.logType != null" >
+        log_type = #{record.logType,jdbcType=INTEGER},
+      </if>
+      <if test="record.operation != null" >
+        operation = #{record.operation,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createId != null" >
+        create_id = #{record.createId,jdbcType=INTEGER},
+      </if>
+      <if test="record.ordersGoodsId != null" >
+        orders_goods_id = #{record.ordersGoodsId,jdbcType=INTEGER},
+      </if>
+      <if test="record.createName != null" >
+        create_name = #{record.createName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.orderAccountId != null" >
+        order_account_id = #{record.orderAccountId,jdbcType=INTEGER},
+      </if>
+      <if test="record.businessDate != null" >
+        business_date = #{record.businessDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.deliverDetailId != null" >
+        deliver_detail_id = #{record.deliverDetailId,jdbcType=INTEGER},
+      </if>
+      <if test="record.logisticsDataId != null" >
+        logistics_data_id = #{record.logisticsDataId,jdbcType=INTEGER},
+      </if>
+      <if test="record.enOperation != null" >
+        en_operation = #{record.enOperation,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update order_log
+    set id = #{record.id,jdbcType=INTEGER},
+      order_id = #{record.orderId,jdbcType=INTEGER},
+      log_type = #{record.logType,jdbcType=INTEGER},
+      operation = #{record.operation,jdbcType=VARCHAR},
+      create_id = #{record.createId,jdbcType=INTEGER},
+      orders_goods_id = #{record.ordersGoodsId,jdbcType=INTEGER},
+      create_name = #{record.createName,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      order_account_id = #{record.orderAccountId,jdbcType=INTEGER},
+      business_date = #{record.businessDate,jdbcType=TIMESTAMP},
+      deliver_detail_id = #{record.deliverDetailId,jdbcType=INTEGER},
+      logistics_data_id = #{record.logisticsDataId,jdbcType=INTEGER},
+      en_operation = #{record.enOperation,jdbcType=VARCHAR},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.OrderLog" >
+    update order_log
+    <set >
+      <if test="orderId != null" >
+        order_id = #{orderId,jdbcType=INTEGER},
+      </if>
+      <if test="logType != null" >
+        log_type = #{logType,jdbcType=INTEGER},
+      </if>
+      <if test="operation != null" >
+        operation = #{operation,jdbcType=VARCHAR},
+      </if>
+      <if test="createId != null" >
+        create_id = #{createId,jdbcType=INTEGER},
+      </if>
+      <if test="ordersGoodsId != null" >
+        orders_goods_id = #{ordersGoodsId,jdbcType=INTEGER},
+      </if>
+      <if test="createName != null" >
+        create_name = #{createName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderAccountId != null" >
+        order_account_id = #{orderAccountId,jdbcType=INTEGER},
+      </if>
+      <if test="businessDate != null" >
+        business_date = #{businessDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deliverDetailId != null" >
+        deliver_detail_id = #{deliverDetailId,jdbcType=INTEGER},
+      </if>
+      <if test="logisticsDataId != null" >
+        logistics_data_id = #{logisticsDataId,jdbcType=INTEGER},
+      </if>
+      <if test="enOperation != null" >
+        en_operation = #{enOperation,jdbcType=VARCHAR},
+      </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.OrderLog" >
+    update order_log
+    set order_id = #{orderId,jdbcType=INTEGER},
+      log_type = #{logType,jdbcType=INTEGER},
+      operation = #{operation,jdbcType=VARCHAR},
+      create_id = #{createId,jdbcType=INTEGER},
+      orders_goods_id = #{ordersGoodsId,jdbcType=INTEGER},
+      create_name = #{createName,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      order_account_id = #{orderAccountId,jdbcType=INTEGER},
+      business_date = #{businessDate,jdbcType=TIMESTAMP},
+      deliver_detail_id = #{deliverDetailId,jdbcType=INTEGER},
+      logistics_data_id = #{logisticsDataId,jdbcType=INTEGER},
+      en_operation = #{enOperation,jdbcType=VARCHAR},
+      tenant = #{tenant,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

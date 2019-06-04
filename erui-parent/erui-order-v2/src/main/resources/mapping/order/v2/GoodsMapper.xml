@@ -1,0 +1,1284 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.order.v2.dao.GoodsMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.Goods" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="parent_id" property="parentId" jdbcType="INTEGER" />
+    <result column="order_id" property="orderId" jdbcType="INTEGER" />
+    <result column="project_id" property="projectId" jdbcType="INTEGER" />
+    <result column="seq" property="seq" jdbcType="INTEGER" />
+    <result column="contract_no" property="contractNo" jdbcType="VARCHAR" />
+    <result column="project_no" property="projectNo" jdbcType="VARCHAR" />
+    <result column="sku" property="sku" jdbcType="VARCHAR" />
+    <result column="mete_type" property="meteType" jdbcType="VARCHAR" />
+    <result column="pro_type" property="proType" jdbcType="VARCHAR" />
+    <result column="name_en" property="nameEn" jdbcType="VARCHAR" />
+    <result column="name_zh" property="nameZh" jdbcType="VARCHAR" />
+    <result column="unit" property="unit" jdbcType="VARCHAR" />
+    <result column="brand" property="brand" jdbcType="VARCHAR" />
+    <result column="contract_goods_num" property="contractGoodsNum" jdbcType="INTEGER" />
+    <result column="require_purchase_date" property="requirePurchaseDate" jdbcType="DATE" />
+    <result column="tech_require" property="techRequire" jdbcType="VARCHAR" />
+    <result column="check_type" property="checkType" jdbcType="VARCHAR" />
+    <result column="check_method" property="checkMethod" jdbcType="VARCHAR" />
+    <result column="send_num" property="sendNum" jdbcType="INTEGER" />
+    <result column="certificate" property="certificate" jdbcType="VARCHAR" />
+    <result column="tech_audit" property="techAudit" jdbcType="VARCHAR" />
+    <result column="purchased_num" property="purchasedNum" jdbcType="INTEGER" />
+    <result column="inspect_num" property="inspectNum" jdbcType="INTEGER" />
+    <result column="instock_num" property="instockNum" jdbcType="INTEGER" />
+    <result column="outstock_apply_num" property="outstockApplyNum" jdbcType="INTEGER" />
+    <result column="outstock_num" property="outstockNum" jdbcType="INTEGER" />
+    <result column="exchanged" property="exchanged" jdbcType="BIT" />
+    <result column="pre_purchased_num" property="prePurchasedNum" jdbcType="INTEGER" />
+    <result column="pre_purch_contract_num" property="prePurchContractNum" jdbcType="INTEGER" />
+    <result column="start_date" property="startDate" jdbcType="TIMESTAMP" />
+    <result column="delivery_date" property="deliveryDate" jdbcType="VARCHAR" />
+    <result column="pur_chg_date" property="purChgDate" jdbcType="TIMESTAMP" />
+    <result column="signing_date" property="signingDate" jdbcType="TIMESTAMP" />
+    <result column="agent_id" property="agentId" jdbcType="INTEGER" />
+    <result column="arrival_date" property="arrivalDate" jdbcType="TIMESTAMP" />
+    <result column="inspect_date" property="inspectDate" jdbcType="TIMESTAMP" />
+    <result column="check_user_id" property="checkUserId" jdbcType="INTEGER" />
+    <result column="check_date" property="checkDate" jdbcType="TIMESTAMP" />
+    <result column="check_done_date" property="checkDoneDate" jdbcType="TIMESTAMP" />
+    <result column="uid" property="uid" jdbcType="INTEGER" />
+    <result column="instock_date" property="instockDate" jdbcType="TIMESTAMP" />
+    <result column="release_date" property="releaseDate" jdbcType="TIMESTAMP" />
+    <result column="send_date" property="sendDate" jdbcType="TIMESTAMP" />
+    <result column="sender_id" property="senderId" jdbcType="INTEGER" />
+    <result column="booking_time" property="bookingTime" jdbcType="TIMESTAMP" />
+    <result column="sailing_date" property="sailingDate" jdbcType="TIMESTAMP" />
+    <result column="customs_clearance" property="customsClearance" jdbcType="TIMESTAMP" />
+    <result column="leave_port_time" property="leavePortTime" jdbcType="TIMESTAMP" />
+    <result column="arrival_port_time" property="arrivalPortTime" jdbcType="TIMESTAMP" />
+    <result column="accomplish_date" property="accomplishDate" jdbcType="TIMESTAMP" />
+    <result column="exe_chg_date" property="exeChgDate" jdbcType="DATE" />
+    <result column="project_require_purchase_date" property="projectRequirePurchaseDate" jdbcType="DATE" />
+    <result column="inspect_instock_num" property="inspectInstockNum" jdbcType="INTEGER" />
+    <result column="null_instock_num" property="nullInstockNum" jdbcType="INTEGER" />
+    <result column="ware_houseman" property="wareHouseman" jdbcType="INTEGER" />
+    <result column="leave_date" property="leaveDate" jdbcType="DATE" />
+    <result column="department" property="department" jdbcType="VARCHAR" />
+    <result column="price" property="price" jdbcType="DECIMAL" />
+    <result column="mete_name" property="meteName" jdbcType="VARCHAR" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.erui.order.v2.model.GoodsWithBLOBs" extends="BaseResultMap" >
+    <result column="model" property="model" jdbcType="LONGVARCHAR" />
+    <result column="client_desc" property="clientDesc" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, parent_id, order_id, project_id, seq, contract_no, project_no, sku, mete_type, 
+    pro_type, name_en, name_zh, unit, brand, contract_goods_num, require_purchase_date, 
+    tech_require, check_type, check_method, send_num, certificate, tech_audit, purchased_num, 
+    inspect_num, instock_num, outstock_apply_num, outstock_num, exchanged, pre_purchased_num, 
+    pre_purch_contract_num, start_date, delivery_date, pur_chg_date, signing_date, agent_id, 
+    arrival_date, inspect_date, check_user_id, check_date, check_done_date, uid, instock_date, 
+    release_date, send_date, sender_id, booking_time, sailing_date, customs_clearance, 
+    leave_port_time, arrival_port_time, accomplish_date, exe_chg_date, project_require_purchase_date, 
+    inspect_instock_num, null_instock_num, ware_houseman, leave_date, department, price, 
+    mete_name, tenant
+  </sql>
+  <sql id="Blob_Column_List" >
+    model, client_desc
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.erui.order.v2.model.GoodsExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from goods
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.GoodsExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from goods
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from goods
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from goods
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.order.v2.model.GoodsExample" >
+    delete from goods
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.order.v2.model.GoodsWithBLOBs" >
+    insert into goods (id, parent_id, order_id, 
+      project_id, seq, contract_no, 
+      project_no, sku, mete_type, 
+      pro_type, name_en, name_zh, 
+      unit, brand, contract_goods_num, 
+      require_purchase_date, tech_require, check_type, 
+      check_method, send_num, certificate, 
+      tech_audit, purchased_num, inspect_num, 
+      instock_num, outstock_apply_num, outstock_num, 
+      exchanged, pre_purchased_num, pre_purch_contract_num, 
+      start_date, delivery_date, pur_chg_date, 
+      signing_date, agent_id, arrival_date, 
+      inspect_date, check_user_id, check_date, 
+      check_done_date, uid, instock_date, 
+      release_date, send_date, sender_id, 
+      booking_time, sailing_date, customs_clearance, 
+      leave_port_time, arrival_port_time, accomplish_date, 
+      exe_chg_date, project_require_purchase_date, inspect_instock_num, 
+      null_instock_num, ware_houseman, leave_date, 
+      department, price, mete_name, 
+      tenant, model, client_desc
+      )
+    values (#{id,jdbcType=INTEGER}, #{parentId,jdbcType=INTEGER}, #{orderId,jdbcType=INTEGER}, 
+      #{projectId,jdbcType=INTEGER}, #{seq,jdbcType=INTEGER}, #{contractNo,jdbcType=VARCHAR}, 
+      #{projectNo,jdbcType=VARCHAR}, #{sku,jdbcType=VARCHAR}, #{meteType,jdbcType=VARCHAR}, 
+      #{proType,jdbcType=VARCHAR}, #{nameEn,jdbcType=VARCHAR}, #{nameZh,jdbcType=VARCHAR}, 
+      #{unit,jdbcType=VARCHAR}, #{brand,jdbcType=VARCHAR}, #{contractGoodsNum,jdbcType=INTEGER}, 
+      #{requirePurchaseDate,jdbcType=DATE}, #{techRequire,jdbcType=VARCHAR}, #{checkType,jdbcType=VARCHAR}, 
+      #{checkMethod,jdbcType=VARCHAR}, #{sendNum,jdbcType=INTEGER}, #{certificate,jdbcType=VARCHAR}, 
+      #{techAudit,jdbcType=VARCHAR}, #{purchasedNum,jdbcType=INTEGER}, #{inspectNum,jdbcType=INTEGER}, 
+      #{instockNum,jdbcType=INTEGER}, #{outstockApplyNum,jdbcType=INTEGER}, #{outstockNum,jdbcType=INTEGER}, 
+      #{exchanged,jdbcType=BIT}, #{prePurchasedNum,jdbcType=INTEGER}, #{prePurchContractNum,jdbcType=INTEGER}, 
+      #{startDate,jdbcType=TIMESTAMP}, #{deliveryDate,jdbcType=VARCHAR}, #{purChgDate,jdbcType=TIMESTAMP}, 
+      #{signingDate,jdbcType=TIMESTAMP}, #{agentId,jdbcType=INTEGER}, #{arrivalDate,jdbcType=TIMESTAMP}, 
+      #{inspectDate,jdbcType=TIMESTAMP}, #{checkUserId,jdbcType=INTEGER}, #{checkDate,jdbcType=TIMESTAMP}, 
+      #{checkDoneDate,jdbcType=TIMESTAMP}, #{uid,jdbcType=INTEGER}, #{instockDate,jdbcType=TIMESTAMP}, 
+      #{releaseDate,jdbcType=TIMESTAMP}, #{sendDate,jdbcType=TIMESTAMP}, #{senderId,jdbcType=INTEGER}, 
+      #{bookingTime,jdbcType=TIMESTAMP}, #{sailingDate,jdbcType=TIMESTAMP}, #{customsClearance,jdbcType=TIMESTAMP}, 
+      #{leavePortTime,jdbcType=TIMESTAMP}, #{arrivalPortTime,jdbcType=TIMESTAMP}, #{accomplishDate,jdbcType=TIMESTAMP}, 
+      #{exeChgDate,jdbcType=DATE}, #{projectRequirePurchaseDate,jdbcType=DATE}, #{inspectInstockNum,jdbcType=INTEGER}, 
+      #{nullInstockNum,jdbcType=INTEGER}, #{wareHouseman,jdbcType=INTEGER}, #{leaveDate,jdbcType=DATE}, 
+      #{department,jdbcType=VARCHAR}, #{price,jdbcType=DECIMAL}, #{meteName,jdbcType=VARCHAR}, 
+      #{tenant,jdbcType=VARCHAR}, #{model,jdbcType=LONGVARCHAR}, #{clientDesc,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.order.v2.model.GoodsWithBLOBs" >
+    insert into goods
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="parentId != null" >
+        parent_id,
+      </if>
+      <if test="orderId != null" >
+        order_id,
+      </if>
+      <if test="projectId != null" >
+        project_id,
+      </if>
+      <if test="seq != null" >
+        seq,
+      </if>
+      <if test="contractNo != null" >
+        contract_no,
+      </if>
+      <if test="projectNo != null" >
+        project_no,
+      </if>
+      <if test="sku != null" >
+        sku,
+      </if>
+      <if test="meteType != null" >
+        mete_type,
+      </if>
+      <if test="proType != null" >
+        pro_type,
+      </if>
+      <if test="nameEn != null" >
+        name_en,
+      </if>
+      <if test="nameZh != null" >
+        name_zh,
+      </if>
+      <if test="unit != null" >
+        unit,
+      </if>
+      <if test="brand != null" >
+        brand,
+      </if>
+      <if test="contractGoodsNum != null" >
+        contract_goods_num,
+      </if>
+      <if test="requirePurchaseDate != null" >
+        require_purchase_date,
+      </if>
+      <if test="techRequire != null" >
+        tech_require,
+      </if>
+      <if test="checkType != null" >
+        check_type,
+      </if>
+      <if test="checkMethod != null" >
+        check_method,
+      </if>
+      <if test="sendNum != null" >
+        send_num,
+      </if>
+      <if test="certificate != null" >
+        certificate,
+      </if>
+      <if test="techAudit != null" >
+        tech_audit,
+      </if>
+      <if test="purchasedNum != null" >
+        purchased_num,
+      </if>
+      <if test="inspectNum != null" >
+        inspect_num,
+      </if>
+      <if test="instockNum != null" >
+        instock_num,
+      </if>
+      <if test="outstockApplyNum != null" >
+        outstock_apply_num,
+      </if>
+      <if test="outstockNum != null" >
+        outstock_num,
+      </if>
+      <if test="exchanged != null" >
+        exchanged,
+      </if>
+      <if test="prePurchasedNum != null" >
+        pre_purchased_num,
+      </if>
+      <if test="prePurchContractNum != null" >
+        pre_purch_contract_num,
+      </if>
+      <if test="startDate != null" >
+        start_date,
+      </if>
+      <if test="deliveryDate != null" >
+        delivery_date,
+      </if>
+      <if test="purChgDate != null" >
+        pur_chg_date,
+      </if>
+      <if test="signingDate != null" >
+        signing_date,
+      </if>
+      <if test="agentId != null" >
+        agent_id,
+      </if>
+      <if test="arrivalDate != null" >
+        arrival_date,
+      </if>
+      <if test="inspectDate != null" >
+        inspect_date,
+      </if>
+      <if test="checkUserId != null" >
+        check_user_id,
+      </if>
+      <if test="checkDate != null" >
+        check_date,
+      </if>
+      <if test="checkDoneDate != null" >
+        check_done_date,
+      </if>
+      <if test="uid != null" >
+        uid,
+      </if>
+      <if test="instockDate != null" >
+        instock_date,
+      </if>
+      <if test="releaseDate != null" >
+        release_date,
+      </if>
+      <if test="sendDate != null" >
+        send_date,
+      </if>
+      <if test="senderId != null" >
+        sender_id,
+      </if>
+      <if test="bookingTime != null" >
+        booking_time,
+      </if>
+      <if test="sailingDate != null" >
+        sailing_date,
+      </if>
+      <if test="customsClearance != null" >
+        customs_clearance,
+      </if>
+      <if test="leavePortTime != null" >
+        leave_port_time,
+      </if>
+      <if test="arrivalPortTime != null" >
+        arrival_port_time,
+      </if>
+      <if test="accomplishDate != null" >
+        accomplish_date,
+      </if>
+      <if test="exeChgDate != null" >
+        exe_chg_date,
+      </if>
+      <if test="projectRequirePurchaseDate != null" >
+        project_require_purchase_date,
+      </if>
+      <if test="inspectInstockNum != null" >
+        inspect_instock_num,
+      </if>
+      <if test="nullInstockNum != null" >
+        null_instock_num,
+      </if>
+      <if test="wareHouseman != null" >
+        ware_houseman,
+      </if>
+      <if test="leaveDate != null" >
+        leave_date,
+      </if>
+      <if test="department != null" >
+        department,
+      </if>
+      <if test="price != null" >
+        price,
+      </if>
+      <if test="meteName != null" >
+        mete_name,
+      </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
+      <if test="model != null" >
+        model,
+      </if>
+      <if test="clientDesc != null" >
+        client_desc,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="parentId != null" >
+        #{parentId,jdbcType=INTEGER},
+      </if>
+      <if test="orderId != null" >
+        #{orderId,jdbcType=INTEGER},
+      </if>
+      <if test="projectId != null" >
+        #{projectId,jdbcType=INTEGER},
+      </if>
+      <if test="seq != null" >
+        #{seq,jdbcType=INTEGER},
+      </if>
+      <if test="contractNo != null" >
+        #{contractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="projectNo != null" >
+        #{projectNo,jdbcType=VARCHAR},
+      </if>
+      <if test="sku != null" >
+        #{sku,jdbcType=VARCHAR},
+      </if>
+      <if test="meteType != null" >
+        #{meteType,jdbcType=VARCHAR},
+      </if>
+      <if test="proType != null" >
+        #{proType,jdbcType=VARCHAR},
+      </if>
+      <if test="nameEn != null" >
+        #{nameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="nameZh != null" >
+        #{nameZh,jdbcType=VARCHAR},
+      </if>
+      <if test="unit != null" >
+        #{unit,jdbcType=VARCHAR},
+      </if>
+      <if test="brand != null" >
+        #{brand,jdbcType=VARCHAR},
+      </if>
+      <if test="contractGoodsNum != null" >
+        #{contractGoodsNum,jdbcType=INTEGER},
+      </if>
+      <if test="requirePurchaseDate != null" >
+        #{requirePurchaseDate,jdbcType=DATE},
+      </if>
+      <if test="techRequire != null" >
+        #{techRequire,jdbcType=VARCHAR},
+      </if>
+      <if test="checkType != null" >
+        #{checkType,jdbcType=VARCHAR},
+      </if>
+      <if test="checkMethod != null" >
+        #{checkMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="sendNum != null" >
+        #{sendNum,jdbcType=INTEGER},
+      </if>
+      <if test="certificate != null" >
+        #{certificate,jdbcType=VARCHAR},
+      </if>
+      <if test="techAudit != null" >
+        #{techAudit,jdbcType=VARCHAR},
+      </if>
+      <if test="purchasedNum != null" >
+        #{purchasedNum,jdbcType=INTEGER},
+      </if>
+      <if test="inspectNum != null" >
+        #{inspectNum,jdbcType=INTEGER},
+      </if>
+      <if test="instockNum != null" >
+        #{instockNum,jdbcType=INTEGER},
+      </if>
+      <if test="outstockApplyNum != null" >
+        #{outstockApplyNum,jdbcType=INTEGER},
+      </if>
+      <if test="outstockNum != null" >
+        #{outstockNum,jdbcType=INTEGER},
+      </if>
+      <if test="exchanged != null" >
+        #{exchanged,jdbcType=BIT},
+      </if>
+      <if test="prePurchasedNum != null" >
+        #{prePurchasedNum,jdbcType=INTEGER},
+      </if>
+      <if test="prePurchContractNum != null" >
+        #{prePurchContractNum,jdbcType=INTEGER},
+      </if>
+      <if test="startDate != null" >
+        #{startDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deliveryDate != null" >
+        #{deliveryDate,jdbcType=VARCHAR},
+      </if>
+      <if test="purChgDate != null" >
+        #{purChgDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="signingDate != null" >
+        #{signingDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="agentId != null" >
+        #{agentId,jdbcType=INTEGER},
+      </if>
+      <if test="arrivalDate != null" >
+        #{arrivalDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="inspectDate != null" >
+        #{inspectDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkUserId != null" >
+        #{checkUserId,jdbcType=INTEGER},
+      </if>
+      <if test="checkDate != null" >
+        #{checkDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkDoneDate != null" >
+        #{checkDoneDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="uid != null" >
+        #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="instockDate != null" >
+        #{instockDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="releaseDate != null" >
+        #{releaseDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sendDate != null" >
+        #{sendDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="senderId != null" >
+        #{senderId,jdbcType=INTEGER},
+      </if>
+      <if test="bookingTime != null" >
+        #{bookingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sailingDate != null" >
+        #{sailingDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="customsClearance != null" >
+        #{customsClearance,jdbcType=TIMESTAMP},
+      </if>
+      <if test="leavePortTime != null" >
+        #{leavePortTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="arrivalPortTime != null" >
+        #{arrivalPortTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="accomplishDate != null" >
+        #{accomplishDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="exeChgDate != null" >
+        #{exeChgDate,jdbcType=DATE},
+      </if>
+      <if test="projectRequirePurchaseDate != null" >
+        #{projectRequirePurchaseDate,jdbcType=DATE},
+      </if>
+      <if test="inspectInstockNum != null" >
+        #{inspectInstockNum,jdbcType=INTEGER},
+      </if>
+      <if test="nullInstockNum != null" >
+        #{nullInstockNum,jdbcType=INTEGER},
+      </if>
+      <if test="wareHouseman != null" >
+        #{wareHouseman,jdbcType=INTEGER},
+      </if>
+      <if test="leaveDate != null" >
+        #{leaveDate,jdbcType=DATE},
+      </if>
+      <if test="department != null" >
+        #{department,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null" >
+        #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="meteName != null" >
+        #{meteName,jdbcType=VARCHAR},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="model != null" >
+        #{model,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="clientDesc != null" >
+        #{clientDesc,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.order.v2.model.GoodsExample" resultType="java.lang.Integer" >
+    select count(*) from goods
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update goods
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.parentId != null" >
+        parent_id = #{record.parentId,jdbcType=INTEGER},
+      </if>
+      <if test="record.orderId != null" >
+        order_id = #{record.orderId,jdbcType=INTEGER},
+      </if>
+      <if test="record.projectId != null" >
+        project_id = #{record.projectId,jdbcType=INTEGER},
+      </if>
+      <if test="record.seq != null" >
+        seq = #{record.seq,jdbcType=INTEGER},
+      </if>
+      <if test="record.contractNo != null" >
+        contract_no = #{record.contractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectNo != null" >
+        project_no = #{record.projectNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sku != null" >
+        sku = #{record.sku,jdbcType=VARCHAR},
+      </if>
+      <if test="record.meteType != null" >
+        mete_type = #{record.meteType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.proType != null" >
+        pro_type = #{record.proType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nameEn != null" >
+        name_en = #{record.nameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nameZh != null" >
+        name_zh = #{record.nameZh,jdbcType=VARCHAR},
+      </if>
+      <if test="record.unit != null" >
+        unit = #{record.unit,jdbcType=VARCHAR},
+      </if>
+      <if test="record.brand != null" >
+        brand = #{record.brand,jdbcType=VARCHAR},
+      </if>
+      <if test="record.contractGoodsNum != null" >
+        contract_goods_num = #{record.contractGoodsNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.requirePurchaseDate != null" >
+        require_purchase_date = #{record.requirePurchaseDate,jdbcType=DATE},
+      </if>
+      <if test="record.techRequire != null" >
+        tech_require = #{record.techRequire,jdbcType=VARCHAR},
+      </if>
+      <if test="record.checkType != null" >
+        check_type = #{record.checkType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.checkMethod != null" >
+        check_method = #{record.checkMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sendNum != null" >
+        send_num = #{record.sendNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.certificate != null" >
+        certificate = #{record.certificate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.techAudit != null" >
+        tech_audit = #{record.techAudit,jdbcType=VARCHAR},
+      </if>
+      <if test="record.purchasedNum != null" >
+        purchased_num = #{record.purchasedNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.inspectNum != null" >
+        inspect_num = #{record.inspectNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.instockNum != null" >
+        instock_num = #{record.instockNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.outstockApplyNum != null" >
+        outstock_apply_num = #{record.outstockApplyNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.outstockNum != null" >
+        outstock_num = #{record.outstockNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.exchanged != null" >
+        exchanged = #{record.exchanged,jdbcType=BIT},
+      </if>
+      <if test="record.prePurchasedNum != null" >
+        pre_purchased_num = #{record.prePurchasedNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.prePurchContractNum != null" >
+        pre_purch_contract_num = #{record.prePurchContractNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.startDate != null" >
+        start_date = #{record.startDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.deliveryDate != null" >
+        delivery_date = #{record.deliveryDate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.purChgDate != null" >
+        pur_chg_date = #{record.purChgDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.signingDate != null" >
+        signing_date = #{record.signingDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.agentId != null" >
+        agent_id = #{record.agentId,jdbcType=INTEGER},
+      </if>
+      <if test="record.arrivalDate != null" >
+        arrival_date = #{record.arrivalDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.inspectDate != null" >
+        inspect_date = #{record.inspectDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.checkUserId != null" >
+        check_user_id = #{record.checkUserId,jdbcType=INTEGER},
+      </if>
+      <if test="record.checkDate != null" >
+        check_date = #{record.checkDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.checkDoneDate != null" >
+        check_done_date = #{record.checkDoneDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.uid != null" >
+        uid = #{record.uid,jdbcType=INTEGER},
+      </if>
+      <if test="record.instockDate != null" >
+        instock_date = #{record.instockDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.releaseDate != null" >
+        release_date = #{record.releaseDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.sendDate != null" >
+        send_date = #{record.sendDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.senderId != null" >
+        sender_id = #{record.senderId,jdbcType=INTEGER},
+      </if>
+      <if test="record.bookingTime != null" >
+        booking_time = #{record.bookingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.sailingDate != null" >
+        sailing_date = #{record.sailingDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.customsClearance != null" >
+        customs_clearance = #{record.customsClearance,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.leavePortTime != null" >
+        leave_port_time = #{record.leavePortTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.arrivalPortTime != null" >
+        arrival_port_time = #{record.arrivalPortTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.accomplishDate != null" >
+        accomplish_date = #{record.accomplishDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.exeChgDate != null" >
+        exe_chg_date = #{record.exeChgDate,jdbcType=DATE},
+      </if>
+      <if test="record.projectRequirePurchaseDate != null" >
+        project_require_purchase_date = #{record.projectRequirePurchaseDate,jdbcType=DATE},
+      </if>
+      <if test="record.inspectInstockNum != null" >
+        inspect_instock_num = #{record.inspectInstockNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.nullInstockNum != null" >
+        null_instock_num = #{record.nullInstockNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.wareHouseman != null" >
+        ware_houseman = #{record.wareHouseman,jdbcType=INTEGER},
+      </if>
+      <if test="record.leaveDate != null" >
+        leave_date = #{record.leaveDate,jdbcType=DATE},
+      </if>
+      <if test="record.department != null" >
+        department = #{record.department,jdbcType=VARCHAR},
+      </if>
+      <if test="record.price != null" >
+        price = #{record.price,jdbcType=DECIMAL},
+      </if>
+      <if test="record.meteName != null" >
+        mete_name = #{record.meteName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="record.model != null" >
+        model = #{record.model,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.clientDesc != null" >
+        client_desc = #{record.clientDesc,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update goods
+    set id = #{record.id,jdbcType=INTEGER},
+      parent_id = #{record.parentId,jdbcType=INTEGER},
+      order_id = #{record.orderId,jdbcType=INTEGER},
+      project_id = #{record.projectId,jdbcType=INTEGER},
+      seq = #{record.seq,jdbcType=INTEGER},
+      contract_no = #{record.contractNo,jdbcType=VARCHAR},
+      project_no = #{record.projectNo,jdbcType=VARCHAR},
+      sku = #{record.sku,jdbcType=VARCHAR},
+      mete_type = #{record.meteType,jdbcType=VARCHAR},
+      pro_type = #{record.proType,jdbcType=VARCHAR},
+      name_en = #{record.nameEn,jdbcType=VARCHAR},
+      name_zh = #{record.nameZh,jdbcType=VARCHAR},
+      unit = #{record.unit,jdbcType=VARCHAR},
+      brand = #{record.brand,jdbcType=VARCHAR},
+      contract_goods_num = #{record.contractGoodsNum,jdbcType=INTEGER},
+      require_purchase_date = #{record.requirePurchaseDate,jdbcType=DATE},
+      tech_require = #{record.techRequire,jdbcType=VARCHAR},
+      check_type = #{record.checkType,jdbcType=VARCHAR},
+      check_method = #{record.checkMethod,jdbcType=VARCHAR},
+      send_num = #{record.sendNum,jdbcType=INTEGER},
+      certificate = #{record.certificate,jdbcType=VARCHAR},
+      tech_audit = #{record.techAudit,jdbcType=VARCHAR},
+      purchased_num = #{record.purchasedNum,jdbcType=INTEGER},
+      inspect_num = #{record.inspectNum,jdbcType=INTEGER},
+      instock_num = #{record.instockNum,jdbcType=INTEGER},
+      outstock_apply_num = #{record.outstockApplyNum,jdbcType=INTEGER},
+      outstock_num = #{record.outstockNum,jdbcType=INTEGER},
+      exchanged = #{record.exchanged,jdbcType=BIT},
+      pre_purchased_num = #{record.prePurchasedNum,jdbcType=INTEGER},
+      pre_purch_contract_num = #{record.prePurchContractNum,jdbcType=INTEGER},
+      start_date = #{record.startDate,jdbcType=TIMESTAMP},
+      delivery_date = #{record.deliveryDate,jdbcType=VARCHAR},
+      pur_chg_date = #{record.purChgDate,jdbcType=TIMESTAMP},
+      signing_date = #{record.signingDate,jdbcType=TIMESTAMP},
+      agent_id = #{record.agentId,jdbcType=INTEGER},
+      arrival_date = #{record.arrivalDate,jdbcType=TIMESTAMP},
+      inspect_date = #{record.inspectDate,jdbcType=TIMESTAMP},
+      check_user_id = #{record.checkUserId,jdbcType=INTEGER},
+      check_date = #{record.checkDate,jdbcType=TIMESTAMP},
+      check_done_date = #{record.checkDoneDate,jdbcType=TIMESTAMP},
+      uid = #{record.uid,jdbcType=INTEGER},
+      instock_date = #{record.instockDate,jdbcType=TIMESTAMP},
+      release_date = #{record.releaseDate,jdbcType=TIMESTAMP},
+      send_date = #{record.sendDate,jdbcType=TIMESTAMP},
+      sender_id = #{record.senderId,jdbcType=INTEGER},
+      booking_time = #{record.bookingTime,jdbcType=TIMESTAMP},
+      sailing_date = #{record.sailingDate,jdbcType=TIMESTAMP},
+      customs_clearance = #{record.customsClearance,jdbcType=TIMESTAMP},
+      leave_port_time = #{record.leavePortTime,jdbcType=TIMESTAMP},
+      arrival_port_time = #{record.arrivalPortTime,jdbcType=TIMESTAMP},
+      accomplish_date = #{record.accomplishDate,jdbcType=TIMESTAMP},
+      exe_chg_date = #{record.exeChgDate,jdbcType=DATE},
+      project_require_purchase_date = #{record.projectRequirePurchaseDate,jdbcType=DATE},
+      inspect_instock_num = #{record.inspectInstockNum,jdbcType=INTEGER},
+      null_instock_num = #{record.nullInstockNum,jdbcType=INTEGER},
+      ware_houseman = #{record.wareHouseman,jdbcType=INTEGER},
+      leave_date = #{record.leaveDate,jdbcType=DATE},
+      department = #{record.department,jdbcType=VARCHAR},
+      price = #{record.price,jdbcType=DECIMAL},
+      mete_name = #{record.meteName,jdbcType=VARCHAR},
+      tenant = #{record.tenant,jdbcType=VARCHAR},
+      model = #{record.model,jdbcType=LONGVARCHAR},
+      client_desc = #{record.clientDesc,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update goods
+    set id = #{record.id,jdbcType=INTEGER},
+      parent_id = #{record.parentId,jdbcType=INTEGER},
+      order_id = #{record.orderId,jdbcType=INTEGER},
+      project_id = #{record.projectId,jdbcType=INTEGER},
+      seq = #{record.seq,jdbcType=INTEGER},
+      contract_no = #{record.contractNo,jdbcType=VARCHAR},
+      project_no = #{record.projectNo,jdbcType=VARCHAR},
+      sku = #{record.sku,jdbcType=VARCHAR},
+      mete_type = #{record.meteType,jdbcType=VARCHAR},
+      pro_type = #{record.proType,jdbcType=VARCHAR},
+      name_en = #{record.nameEn,jdbcType=VARCHAR},
+      name_zh = #{record.nameZh,jdbcType=VARCHAR},
+      unit = #{record.unit,jdbcType=VARCHAR},
+      brand = #{record.brand,jdbcType=VARCHAR},
+      contract_goods_num = #{record.contractGoodsNum,jdbcType=INTEGER},
+      require_purchase_date = #{record.requirePurchaseDate,jdbcType=DATE},
+      tech_require = #{record.techRequire,jdbcType=VARCHAR},
+      check_type = #{record.checkType,jdbcType=VARCHAR},
+      check_method = #{record.checkMethod,jdbcType=VARCHAR},
+      send_num = #{record.sendNum,jdbcType=INTEGER},
+      certificate = #{record.certificate,jdbcType=VARCHAR},
+      tech_audit = #{record.techAudit,jdbcType=VARCHAR},
+      purchased_num = #{record.purchasedNum,jdbcType=INTEGER},
+      inspect_num = #{record.inspectNum,jdbcType=INTEGER},
+      instock_num = #{record.instockNum,jdbcType=INTEGER},
+      outstock_apply_num = #{record.outstockApplyNum,jdbcType=INTEGER},
+      outstock_num = #{record.outstockNum,jdbcType=INTEGER},
+      exchanged = #{record.exchanged,jdbcType=BIT},
+      pre_purchased_num = #{record.prePurchasedNum,jdbcType=INTEGER},
+      pre_purch_contract_num = #{record.prePurchContractNum,jdbcType=INTEGER},
+      start_date = #{record.startDate,jdbcType=TIMESTAMP},
+      delivery_date = #{record.deliveryDate,jdbcType=VARCHAR},
+      pur_chg_date = #{record.purChgDate,jdbcType=TIMESTAMP},
+      signing_date = #{record.signingDate,jdbcType=TIMESTAMP},
+      agent_id = #{record.agentId,jdbcType=INTEGER},
+      arrival_date = #{record.arrivalDate,jdbcType=TIMESTAMP},
+      inspect_date = #{record.inspectDate,jdbcType=TIMESTAMP},
+      check_user_id = #{record.checkUserId,jdbcType=INTEGER},
+      check_date = #{record.checkDate,jdbcType=TIMESTAMP},
+      check_done_date = #{record.checkDoneDate,jdbcType=TIMESTAMP},
+      uid = #{record.uid,jdbcType=INTEGER},
+      instock_date = #{record.instockDate,jdbcType=TIMESTAMP},
+      release_date = #{record.releaseDate,jdbcType=TIMESTAMP},
+      send_date = #{record.sendDate,jdbcType=TIMESTAMP},
+      sender_id = #{record.senderId,jdbcType=INTEGER},
+      booking_time = #{record.bookingTime,jdbcType=TIMESTAMP},
+      sailing_date = #{record.sailingDate,jdbcType=TIMESTAMP},
+      customs_clearance = #{record.customsClearance,jdbcType=TIMESTAMP},
+      leave_port_time = #{record.leavePortTime,jdbcType=TIMESTAMP},
+      arrival_port_time = #{record.arrivalPortTime,jdbcType=TIMESTAMP},
+      accomplish_date = #{record.accomplishDate,jdbcType=TIMESTAMP},
+      exe_chg_date = #{record.exeChgDate,jdbcType=DATE},
+      project_require_purchase_date = #{record.projectRequirePurchaseDate,jdbcType=DATE},
+      inspect_instock_num = #{record.inspectInstockNum,jdbcType=INTEGER},
+      null_instock_num = #{record.nullInstockNum,jdbcType=INTEGER},
+      ware_houseman = #{record.wareHouseman,jdbcType=INTEGER},
+      leave_date = #{record.leaveDate,jdbcType=DATE},
+      department = #{record.department,jdbcType=VARCHAR},
+      price = #{record.price,jdbcType=DECIMAL},
+      mete_name = #{record.meteName,jdbcType=VARCHAR},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.GoodsWithBLOBs" >
+    update goods
+    <set >
+      <if test="parentId != null" >
+        parent_id = #{parentId,jdbcType=INTEGER},
+      </if>
+      <if test="orderId != null" >
+        order_id = #{orderId,jdbcType=INTEGER},
+      </if>
+      <if test="projectId != null" >
+        project_id = #{projectId,jdbcType=INTEGER},
+      </if>
+      <if test="seq != null" >
+        seq = #{seq,jdbcType=INTEGER},
+      </if>
+      <if test="contractNo != null" >
+        contract_no = #{contractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="projectNo != null" >
+        project_no = #{projectNo,jdbcType=VARCHAR},
+      </if>
+      <if test="sku != null" >
+        sku = #{sku,jdbcType=VARCHAR},
+      </if>
+      <if test="meteType != null" >
+        mete_type = #{meteType,jdbcType=VARCHAR},
+      </if>
+      <if test="proType != null" >
+        pro_type = #{proType,jdbcType=VARCHAR},
+      </if>
+      <if test="nameEn != null" >
+        name_en = #{nameEn,jdbcType=VARCHAR},
+      </if>
+      <if test="nameZh != null" >
+        name_zh = #{nameZh,jdbcType=VARCHAR},
+      </if>
+      <if test="unit != null" >
+        unit = #{unit,jdbcType=VARCHAR},
+      </if>
+      <if test="brand != null" >
+        brand = #{brand,jdbcType=VARCHAR},
+      </if>
+      <if test="contractGoodsNum != null" >
+        contract_goods_num = #{contractGoodsNum,jdbcType=INTEGER},
+      </if>
+      <if test="requirePurchaseDate != null" >
+        require_purchase_date = #{requirePurchaseDate,jdbcType=DATE},
+      </if>
+      <if test="techRequire != null" >
+        tech_require = #{techRequire,jdbcType=VARCHAR},
+      </if>
+      <if test="checkType != null" >
+        check_type = #{checkType,jdbcType=VARCHAR},
+      </if>
+      <if test="checkMethod != null" >
+        check_method = #{checkMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="sendNum != null" >
+        send_num = #{sendNum,jdbcType=INTEGER},
+      </if>
+      <if test="certificate != null" >
+        certificate = #{certificate,jdbcType=VARCHAR},
+      </if>
+      <if test="techAudit != null" >
+        tech_audit = #{techAudit,jdbcType=VARCHAR},
+      </if>
+      <if test="purchasedNum != null" >
+        purchased_num = #{purchasedNum,jdbcType=INTEGER},
+      </if>
+      <if test="inspectNum != null" >
+        inspect_num = #{inspectNum,jdbcType=INTEGER},
+      </if>
+      <if test="instockNum != null" >
+        instock_num = #{instockNum,jdbcType=INTEGER},
+      </if>
+      <if test="outstockApplyNum != null" >
+        outstock_apply_num = #{outstockApplyNum,jdbcType=INTEGER},
+      </if>
+      <if test="outstockNum != null" >
+        outstock_num = #{outstockNum,jdbcType=INTEGER},
+      </if>
+      <if test="exchanged != null" >
+        exchanged = #{exchanged,jdbcType=BIT},
+      </if>
+      <if test="prePurchasedNum != null" >
+        pre_purchased_num = #{prePurchasedNum,jdbcType=INTEGER},
+      </if>
+      <if test="prePurchContractNum != null" >
+        pre_purch_contract_num = #{prePurchContractNum,jdbcType=INTEGER},
+      </if>
+      <if test="startDate != null" >
+        start_date = #{startDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deliveryDate != null" >
+        delivery_date = #{deliveryDate,jdbcType=VARCHAR},
+      </if>
+      <if test="purChgDate != null" >
+        pur_chg_date = #{purChgDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="signingDate != null" >
+        signing_date = #{signingDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="agentId != null" >
+        agent_id = #{agentId,jdbcType=INTEGER},
+      </if>
+      <if test="arrivalDate != null" >
+        arrival_date = #{arrivalDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="inspectDate != null" >
+        inspect_date = #{inspectDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkUserId != null" >
+        check_user_id = #{checkUserId,jdbcType=INTEGER},
+      </if>
+      <if test="checkDate != null" >
+        check_date = #{checkDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkDoneDate != null" >
+        check_done_date = #{checkDoneDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="uid != null" >
+        uid = #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="instockDate != null" >
+        instock_date = #{instockDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="releaseDate != null" >
+        release_date = #{releaseDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sendDate != null" >
+        send_date = #{sendDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="senderId != null" >
+        sender_id = #{senderId,jdbcType=INTEGER},
+      </if>
+      <if test="bookingTime != null" >
+        booking_time = #{bookingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sailingDate != null" >
+        sailing_date = #{sailingDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="customsClearance != null" >
+        customs_clearance = #{customsClearance,jdbcType=TIMESTAMP},
+      </if>
+      <if test="leavePortTime != null" >
+        leave_port_time = #{leavePortTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="arrivalPortTime != null" >
+        arrival_port_time = #{arrivalPortTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="accomplishDate != null" >
+        accomplish_date = #{accomplishDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="exeChgDate != null" >
+        exe_chg_date = #{exeChgDate,jdbcType=DATE},
+      </if>
+      <if test="projectRequirePurchaseDate != null" >
+        project_require_purchase_date = #{projectRequirePurchaseDate,jdbcType=DATE},
+      </if>
+      <if test="inspectInstockNum != null" >
+        inspect_instock_num = #{inspectInstockNum,jdbcType=INTEGER},
+      </if>
+      <if test="nullInstockNum != null" >
+        null_instock_num = #{nullInstockNum,jdbcType=INTEGER},
+      </if>
+      <if test="wareHouseman != null" >
+        ware_houseman = #{wareHouseman,jdbcType=INTEGER},
+      </if>
+      <if test="leaveDate != null" >
+        leave_date = #{leaveDate,jdbcType=DATE},
+      </if>
+      <if test="department != null" >
+        department = #{department,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null" >
+        price = #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="meteName != null" >
+        mete_name = #{meteName,jdbcType=VARCHAR},
+      </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="model != null" >
+        model = #{model,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="clientDesc != null" >
+        client_desc = #{clientDesc,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.erui.order.v2.model.GoodsWithBLOBs" >
+    update goods
+    set parent_id = #{parentId,jdbcType=INTEGER},
+      order_id = #{orderId,jdbcType=INTEGER},
+      project_id = #{projectId,jdbcType=INTEGER},
+      seq = #{seq,jdbcType=INTEGER},
+      contract_no = #{contractNo,jdbcType=VARCHAR},
+      project_no = #{projectNo,jdbcType=VARCHAR},
+      sku = #{sku,jdbcType=VARCHAR},
+      mete_type = #{meteType,jdbcType=VARCHAR},
+      pro_type = #{proType,jdbcType=VARCHAR},
+      name_en = #{nameEn,jdbcType=VARCHAR},
+      name_zh = #{nameZh,jdbcType=VARCHAR},
+      unit = #{unit,jdbcType=VARCHAR},
+      brand = #{brand,jdbcType=VARCHAR},
+      contract_goods_num = #{contractGoodsNum,jdbcType=INTEGER},
+      require_purchase_date = #{requirePurchaseDate,jdbcType=DATE},
+      tech_require = #{techRequire,jdbcType=VARCHAR},
+      check_type = #{checkType,jdbcType=VARCHAR},
+      check_method = #{checkMethod,jdbcType=VARCHAR},
+      send_num = #{sendNum,jdbcType=INTEGER},
+      certificate = #{certificate,jdbcType=VARCHAR},
+      tech_audit = #{techAudit,jdbcType=VARCHAR},
+      purchased_num = #{purchasedNum,jdbcType=INTEGER},
+      inspect_num = #{inspectNum,jdbcType=INTEGER},
+      instock_num = #{instockNum,jdbcType=INTEGER},
+      outstock_apply_num = #{outstockApplyNum,jdbcType=INTEGER},
+      outstock_num = #{outstockNum,jdbcType=INTEGER},
+      exchanged = #{exchanged,jdbcType=BIT},
+      pre_purchased_num = #{prePurchasedNum,jdbcType=INTEGER},
+      pre_purch_contract_num = #{prePurchContractNum,jdbcType=INTEGER},
+      start_date = #{startDate,jdbcType=TIMESTAMP},
+      delivery_date = #{deliveryDate,jdbcType=VARCHAR},
+      pur_chg_date = #{purChgDate,jdbcType=TIMESTAMP},
+      signing_date = #{signingDate,jdbcType=TIMESTAMP},
+      agent_id = #{agentId,jdbcType=INTEGER},
+      arrival_date = #{arrivalDate,jdbcType=TIMESTAMP},
+      inspect_date = #{inspectDate,jdbcType=TIMESTAMP},
+      check_user_id = #{checkUserId,jdbcType=INTEGER},
+      check_date = #{checkDate,jdbcType=TIMESTAMP},
+      check_done_date = #{checkDoneDate,jdbcType=TIMESTAMP},
+      uid = #{uid,jdbcType=INTEGER},
+      instock_date = #{instockDate,jdbcType=TIMESTAMP},
+      release_date = #{releaseDate,jdbcType=TIMESTAMP},
+      send_date = #{sendDate,jdbcType=TIMESTAMP},
+      sender_id = #{senderId,jdbcType=INTEGER},
+      booking_time = #{bookingTime,jdbcType=TIMESTAMP},
+      sailing_date = #{sailingDate,jdbcType=TIMESTAMP},
+      customs_clearance = #{customsClearance,jdbcType=TIMESTAMP},
+      leave_port_time = #{leavePortTime,jdbcType=TIMESTAMP},
+      arrival_port_time = #{arrivalPortTime,jdbcType=TIMESTAMP},
+      accomplish_date = #{accomplishDate,jdbcType=TIMESTAMP},
+      exe_chg_date = #{exeChgDate,jdbcType=DATE},
+      project_require_purchase_date = #{projectRequirePurchaseDate,jdbcType=DATE},
+      inspect_instock_num = #{inspectInstockNum,jdbcType=INTEGER},
+      null_instock_num = #{nullInstockNum,jdbcType=INTEGER},
+      ware_houseman = #{wareHouseman,jdbcType=INTEGER},
+      leave_date = #{leaveDate,jdbcType=DATE},
+      department = #{department,jdbcType=VARCHAR},
+      price = #{price,jdbcType=DECIMAL},
+      mete_name = #{meteName,jdbcType=VARCHAR},
+      tenant = #{tenant,jdbcType=VARCHAR},
+      model = #{model,jdbcType=LONGVARCHAR},
+      client_desc = #{clientDesc,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.Goods" >
+    update goods
+    set parent_id = #{parentId,jdbcType=INTEGER},
+      order_id = #{orderId,jdbcType=INTEGER},
+      project_id = #{projectId,jdbcType=INTEGER},
+      seq = #{seq,jdbcType=INTEGER},
+      contract_no = #{contractNo,jdbcType=VARCHAR},
+      project_no = #{projectNo,jdbcType=VARCHAR},
+      sku = #{sku,jdbcType=VARCHAR},
+      mete_type = #{meteType,jdbcType=VARCHAR},
+      pro_type = #{proType,jdbcType=VARCHAR},
+      name_en = #{nameEn,jdbcType=VARCHAR},
+      name_zh = #{nameZh,jdbcType=VARCHAR},
+      unit = #{unit,jdbcType=VARCHAR},
+      brand = #{brand,jdbcType=VARCHAR},
+      contract_goods_num = #{contractGoodsNum,jdbcType=INTEGER},
+      require_purchase_date = #{requirePurchaseDate,jdbcType=DATE},
+      tech_require = #{techRequire,jdbcType=VARCHAR},
+      check_type = #{checkType,jdbcType=VARCHAR},
+      check_method = #{checkMethod,jdbcType=VARCHAR},
+      send_num = #{sendNum,jdbcType=INTEGER},
+      certificate = #{certificate,jdbcType=VARCHAR},
+      tech_audit = #{techAudit,jdbcType=VARCHAR},
+      purchased_num = #{purchasedNum,jdbcType=INTEGER},
+      inspect_num = #{inspectNum,jdbcType=INTEGER},
+      instock_num = #{instockNum,jdbcType=INTEGER},
+      outstock_apply_num = #{outstockApplyNum,jdbcType=INTEGER},
+      outstock_num = #{outstockNum,jdbcType=INTEGER},
+      exchanged = #{exchanged,jdbcType=BIT},
+      pre_purchased_num = #{prePurchasedNum,jdbcType=INTEGER},
+      pre_purch_contract_num = #{prePurchContractNum,jdbcType=INTEGER},
+      start_date = #{startDate,jdbcType=TIMESTAMP},
+      delivery_date = #{deliveryDate,jdbcType=VARCHAR},
+      pur_chg_date = #{purChgDate,jdbcType=TIMESTAMP},
+      signing_date = #{signingDate,jdbcType=TIMESTAMP},
+      agent_id = #{agentId,jdbcType=INTEGER},
+      arrival_date = #{arrivalDate,jdbcType=TIMESTAMP},
+      inspect_date = #{inspectDate,jdbcType=TIMESTAMP},
+      check_user_id = #{checkUserId,jdbcType=INTEGER},
+      check_date = #{checkDate,jdbcType=TIMESTAMP},
+      check_done_date = #{checkDoneDate,jdbcType=TIMESTAMP},
+      uid = #{uid,jdbcType=INTEGER},
+      instock_date = #{instockDate,jdbcType=TIMESTAMP},
+      release_date = #{releaseDate,jdbcType=TIMESTAMP},
+      send_date = #{sendDate,jdbcType=TIMESTAMP},
+      sender_id = #{senderId,jdbcType=INTEGER},
+      booking_time = #{bookingTime,jdbcType=TIMESTAMP},
+      sailing_date = #{sailingDate,jdbcType=TIMESTAMP},
+      customs_clearance = #{customsClearance,jdbcType=TIMESTAMP},
+      leave_port_time = #{leavePortTime,jdbcType=TIMESTAMP},
+      arrival_port_time = #{arrivalPortTime,jdbcType=TIMESTAMP},
+      accomplish_date = #{accomplishDate,jdbcType=TIMESTAMP},
+      exe_chg_date = #{exeChgDate,jdbcType=DATE},
+      project_require_purchase_date = #{projectRequirePurchaseDate,jdbcType=DATE},
+      inspect_instock_num = #{inspectInstockNum,jdbcType=INTEGER},
+      null_instock_num = #{nullInstockNum,jdbcType=INTEGER},
+      ware_houseman = #{wareHouseman,jdbcType=INTEGER},
+      leave_date = #{leaveDate,jdbcType=DATE},
+      department = #{department,jdbcType=VARCHAR},
+      price = #{price,jdbcType=DECIMAL},
+      mete_name = #{meteName,jdbcType=VARCHAR},
+      tenant = #{tenant,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

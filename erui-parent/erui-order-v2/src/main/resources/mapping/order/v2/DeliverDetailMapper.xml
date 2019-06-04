@@ -1,0 +1,1263 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.order.v2.dao.DeliverDetailMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.DeliverDetail" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="deliver_detail_no" property="deliverDetailNo" jdbcType="VARCHAR" />
+    <result column="deliver_notice_id" property="deliverNoticeId" jdbcType="INTEGER" />
+    <result column="billing_date" property="billingDate" jdbcType="DATE" />
+    <result column="carrier_co" property="carrierCo" jdbcType="VARCHAR" />
+    <result column="driver" property="driver" jdbcType="VARCHAR" />
+    <result column="plate_no" property="plateNo" jdbcType="VARCHAR" />
+    <result column="pickup_date" property="pickupDate" jdbcType="DATE" />
+    <result column="contact_tel" property="contactTel" jdbcType="VARCHAR" />
+    <result column="handle_department" property="handleDepartment" jdbcType="VARCHAR" />
+    <result column="ware_houseman" property="wareHouseman" jdbcType="INTEGER" />
+    <result column="ware_houseman_name" property="wareHousemanName" jdbcType="VARCHAR" />
+    <result column="send_date" property="sendDate" jdbcType="DATE" />
+    <result column="sender" property="sender" jdbcType="INTEGER" />
+    <result column="sender_name" property="senderName" jdbcType="VARCHAR" />
+    <result column="reviewer" property="reviewer" jdbcType="INTEGER" />
+    <result column="reviewer_name" property="reviewerName" jdbcType="VARCHAR" />
+    <result column="goods_chk_status" property="goodsChkStatus" jdbcType="VARCHAR" />
+    <result column="bills_chk_status" property="billsChkStatus" jdbcType="VARCHAR" />
+    <result column="checker_uid" property="checkerUid" jdbcType="INTEGER" />
+    <result column="checker_name" property="checkerName" jdbcType="VARCHAR" />
+    <result column="check_dept" property="checkDept" jdbcType="VARCHAR" />
+    <result column="check_date" property="checkDate" jdbcType="DATE" />
+    <result column="release_date" property="releaseDate" jdbcType="DATE" />
+    <result column="release_name" property="releaseName" jdbcType="VARCHAR" />
+    <result column="release_uid" property="releaseUid" jdbcType="INTEGER" />
+    <result column="quality_leader_id" property="qualityLeaderId" jdbcType="INTEGER" />
+    <result column="quality_leader_name" property="qualityLeaderName" jdbcType="VARCHAR" />
+    <result column="applicant" property="applicant" jdbcType="INTEGER" />
+    <result column="applicant_name" property="applicantName" jdbcType="VARCHAR" />
+    <result column="applicant_date" property="applicantDate" jdbcType="DATE" />
+    <result column="approver" property="approver" jdbcType="INTEGER" />
+    <result column="approver_name" property="approverName" jdbcType="VARCHAR" />
+    <result column="approval_date" property="approvalDate" jdbcType="DATE" />
+    <result column="opinion" property="opinion" jdbcType="VARCHAR" />
+    <result column="leave_date" property="leaveDate" jdbcType="DATE" />
+    <result column="logistics_user_id" property="logisticsUserId" jdbcType="INTEGER" />
+    <result column="logistics_user_name" property="logisticsUserName" jdbcType="VARCHAR" />
+    <result column="logistics_date" property="logisticsDate" jdbcType="DATE" />
+    <result column="booking_time" property="bookingTime" jdbcType="TIMESTAMP" />
+    <result column="logi_invoice_no" property="logiInvoiceNo" jdbcType="VARCHAR" />
+    <result column="packing_time" property="packingTime" jdbcType="TIMESTAMP" />
+    <result column="leave_factory" property="leaveFactory" jdbcType="TIMESTAMP" />
+    <result column="sailing_date" property="sailingDate" jdbcType="TIMESTAMP" />
+    <result column="customs_clearance" property="customsClearance" jdbcType="TIMESTAMP" />
+    <result column="leave_port_time" property="leavePortTime" jdbcType="TIMESTAMP" />
+    <result column="arrival_port_time" property="arrivalPortTime" jdbcType="TIMESTAMP" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="create_user_id" property="createUserId" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="pack_total" property="packTotal" jdbcType="INTEGER" />
+    <result column="the_end_time" property="theEndTime" jdbcType="TIMESTAMP" />
+    <result column="confirm_the_goods" property="confirmTheGoods" jdbcType="TIMESTAMP" />
+    <result column="accomplish_date" property="accomplishDate" jdbcType="TIMESTAMP" />
+    <result column="deliver_consign_id" property="deliverConsignId" jdbcType="INTEGER" />
+    <result column="out_check" property="outCheck" jdbcType="INTEGER" />
+    <result column="submenu_name" property="submenuName" jdbcType="VARCHAR" />
+    <result column="submenu_id" property="submenuId" jdbcType="INTEGER" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.erui.order.v2.model.DeliverDetailWithBLOBs" extends="BaseResultMap" >
+    <result column="reason" property="reason" jdbcType="LONGVARCHAR" />
+    <result column="logs" property="logs" jdbcType="LONGVARCHAR" />
+    <result column="remarks" property="remarks" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, deliver_detail_no, deliver_notice_id, billing_date, carrier_co, driver, plate_no, 
+    pickup_date, contact_tel, handle_department, ware_houseman, ware_houseman_name, send_date, 
+    sender, sender_name, reviewer, reviewer_name, goods_chk_status, bills_chk_status, 
+    checker_uid, checker_name, check_dept, check_date, release_date, release_name, release_uid, 
+    quality_leader_id, quality_leader_name, applicant, applicant_name, applicant_date, 
+    approver, approver_name, approval_date, opinion, leave_date, logistics_user_id, logistics_user_name, 
+    logistics_date, booking_time, logi_invoice_no, packing_time, leave_factory, sailing_date, 
+    customs_clearance, leave_port_time, arrival_port_time, create_user_name, create_user_id, 
+    status, pack_total, the_end_time, confirm_the_goods, accomplish_date, deliver_consign_id, 
+    out_check, submenu_name, submenu_id, tenant
+  </sql>
+  <sql id="Blob_Column_List" >
+    reason, logs, remarks
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.erui.order.v2.model.DeliverDetailExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from deliver_detail
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.DeliverDetailExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from deliver_detail
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from deliver_detail
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from deliver_detail
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.order.v2.model.DeliverDetailExample" >
+    delete from deliver_detail
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.erui.order.v2.model.DeliverDetailWithBLOBs" >
+    insert into deliver_detail (id, deliver_detail_no, deliver_notice_id, 
+      billing_date, carrier_co, driver, 
+      plate_no, pickup_date, contact_tel, 
+      handle_department, ware_houseman, ware_houseman_name, 
+      send_date, sender, sender_name, 
+      reviewer, reviewer_name, goods_chk_status, 
+      bills_chk_status, checker_uid, checker_name, 
+      check_dept, check_date, release_date, 
+      release_name, release_uid, quality_leader_id, 
+      quality_leader_name, applicant, applicant_name, 
+      applicant_date, approver, approver_name, 
+      approval_date, opinion, leave_date, 
+      logistics_user_id, logistics_user_name, logistics_date, 
+      booking_time, logi_invoice_no, packing_time, 
+      leave_factory, sailing_date, customs_clearance, 
+      leave_port_time, arrival_port_time, create_user_name, 
+      create_user_id, status, pack_total, 
+      the_end_time, confirm_the_goods, accomplish_date, 
+      deliver_consign_id, out_check, submenu_name, 
+      submenu_id, tenant, reason, 
+      logs, remarks)
+    values (#{id,jdbcType=INTEGER}, #{deliverDetailNo,jdbcType=VARCHAR}, #{deliverNoticeId,jdbcType=INTEGER}, 
+      #{billingDate,jdbcType=DATE}, #{carrierCo,jdbcType=VARCHAR}, #{driver,jdbcType=VARCHAR}, 
+      #{plateNo,jdbcType=VARCHAR}, #{pickupDate,jdbcType=DATE}, #{contactTel,jdbcType=VARCHAR}, 
+      #{handleDepartment,jdbcType=VARCHAR}, #{wareHouseman,jdbcType=INTEGER}, #{wareHousemanName,jdbcType=VARCHAR}, 
+      #{sendDate,jdbcType=DATE}, #{sender,jdbcType=INTEGER}, #{senderName,jdbcType=VARCHAR}, 
+      #{reviewer,jdbcType=INTEGER}, #{reviewerName,jdbcType=VARCHAR}, #{goodsChkStatus,jdbcType=VARCHAR}, 
+      #{billsChkStatus,jdbcType=VARCHAR}, #{checkerUid,jdbcType=INTEGER}, #{checkerName,jdbcType=VARCHAR}, 
+      #{checkDept,jdbcType=VARCHAR}, #{checkDate,jdbcType=DATE}, #{releaseDate,jdbcType=DATE}, 
+      #{releaseName,jdbcType=VARCHAR}, #{releaseUid,jdbcType=INTEGER}, #{qualityLeaderId,jdbcType=INTEGER}, 
+      #{qualityLeaderName,jdbcType=VARCHAR}, #{applicant,jdbcType=INTEGER}, #{applicantName,jdbcType=VARCHAR}, 
+      #{applicantDate,jdbcType=DATE}, #{approver,jdbcType=INTEGER}, #{approverName,jdbcType=VARCHAR}, 
+      #{approvalDate,jdbcType=DATE}, #{opinion,jdbcType=VARCHAR}, #{leaveDate,jdbcType=DATE}, 
+      #{logisticsUserId,jdbcType=INTEGER}, #{logisticsUserName,jdbcType=VARCHAR}, #{logisticsDate,jdbcType=DATE}, 
+      #{bookingTime,jdbcType=TIMESTAMP}, #{logiInvoiceNo,jdbcType=VARCHAR}, #{packingTime,jdbcType=TIMESTAMP}, 
+      #{leaveFactory,jdbcType=TIMESTAMP}, #{sailingDate,jdbcType=TIMESTAMP}, #{customsClearance,jdbcType=TIMESTAMP}, 
+      #{leavePortTime,jdbcType=TIMESTAMP}, #{arrivalPortTime,jdbcType=TIMESTAMP}, #{createUserName,jdbcType=VARCHAR}, 
+      #{createUserId,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{packTotal,jdbcType=INTEGER}, 
+      #{theEndTime,jdbcType=TIMESTAMP}, #{confirmTheGoods,jdbcType=TIMESTAMP}, #{accomplishDate,jdbcType=TIMESTAMP}, 
+      #{deliverConsignId,jdbcType=INTEGER}, #{outCheck,jdbcType=INTEGER}, #{submenuName,jdbcType=VARCHAR}, 
+      #{submenuId,jdbcType=INTEGER}, #{tenant,jdbcType=VARCHAR}, #{reason,jdbcType=LONGVARCHAR}, 
+      #{logs,jdbcType=LONGVARCHAR}, #{remarks,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.order.v2.model.DeliverDetailWithBLOBs" >
+    insert into deliver_detail
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="deliverDetailNo != null" >
+        deliver_detail_no,
+      </if>
+      <if test="deliverNoticeId != null" >
+        deliver_notice_id,
+      </if>
+      <if test="billingDate != null" >
+        billing_date,
+      </if>
+      <if test="carrierCo != null" >
+        carrier_co,
+      </if>
+      <if test="driver != null" >
+        driver,
+      </if>
+      <if test="plateNo != null" >
+        plate_no,
+      </if>
+      <if test="pickupDate != null" >
+        pickup_date,
+      </if>
+      <if test="contactTel != null" >
+        contact_tel,
+      </if>
+      <if test="handleDepartment != null" >
+        handle_department,
+      </if>
+      <if test="wareHouseman != null" >
+        ware_houseman,
+      </if>
+      <if test="wareHousemanName != null" >
+        ware_houseman_name,
+      </if>
+      <if test="sendDate != null" >
+        send_date,
+      </if>
+      <if test="sender != null" >
+        sender,
+      </if>
+      <if test="senderName != null" >
+        sender_name,
+      </if>
+      <if test="reviewer != null" >
+        reviewer,
+      </if>
+      <if test="reviewerName != null" >
+        reviewer_name,
+      </if>
+      <if test="goodsChkStatus != null" >
+        goods_chk_status,
+      </if>
+      <if test="billsChkStatus != null" >
+        bills_chk_status,
+      </if>
+      <if test="checkerUid != null" >
+        checker_uid,
+      </if>
+      <if test="checkerName != null" >
+        checker_name,
+      </if>
+      <if test="checkDept != null" >
+        check_dept,
+      </if>
+      <if test="checkDate != null" >
+        check_date,
+      </if>
+      <if test="releaseDate != null" >
+        release_date,
+      </if>
+      <if test="releaseName != null" >
+        release_name,
+      </if>
+      <if test="releaseUid != null" >
+        release_uid,
+      </if>
+      <if test="qualityLeaderId != null" >
+        quality_leader_id,
+      </if>
+      <if test="qualityLeaderName != null" >
+        quality_leader_name,
+      </if>
+      <if test="applicant != null" >
+        applicant,
+      </if>
+      <if test="applicantName != null" >
+        applicant_name,
+      </if>
+      <if test="applicantDate != null" >
+        applicant_date,
+      </if>
+      <if test="approver != null" >
+        approver,
+      </if>
+      <if test="approverName != null" >
+        approver_name,
+      </if>
+      <if test="approvalDate != null" >
+        approval_date,
+      </if>
+      <if test="opinion != null" >
+        opinion,
+      </if>
+      <if test="leaveDate != null" >
+        leave_date,
+      </if>
+      <if test="logisticsUserId != null" >
+        logistics_user_id,
+      </if>
+      <if test="logisticsUserName != null" >
+        logistics_user_name,
+      </if>
+      <if test="logisticsDate != null" >
+        logistics_date,
+      </if>
+      <if test="bookingTime != null" >
+        booking_time,
+      </if>
+      <if test="logiInvoiceNo != null" >
+        logi_invoice_no,
+      </if>
+      <if test="packingTime != null" >
+        packing_time,
+      </if>
+      <if test="leaveFactory != null" >
+        leave_factory,
+      </if>
+      <if test="sailingDate != null" >
+        sailing_date,
+      </if>
+      <if test="customsClearance != null" >
+        customs_clearance,
+      </if>
+      <if test="leavePortTime != null" >
+        leave_port_time,
+      </if>
+      <if test="arrivalPortTime != null" >
+        arrival_port_time,
+      </if>
+      <if test="createUserName != null" >
+        create_user_name,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="packTotal != null" >
+        pack_total,
+      </if>
+      <if test="theEndTime != null" >
+        the_end_time,
+      </if>
+      <if test="confirmTheGoods != null" >
+        confirm_the_goods,
+      </if>
+      <if test="accomplishDate != null" >
+        accomplish_date,
+      </if>
+      <if test="deliverConsignId != null" >
+        deliver_consign_id,
+      </if>
+      <if test="outCheck != null" >
+        out_check,
+      </if>
+      <if test="submenuName != null" >
+        submenu_name,
+      </if>
+      <if test="submenuId != null" >
+        submenu_id,
+      </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
+      <if test="reason != null" >
+        reason,
+      </if>
+      <if test="logs != null" >
+        logs,
+      </if>
+      <if test="remarks != null" >
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="deliverDetailNo != null" >
+        #{deliverDetailNo,jdbcType=VARCHAR},
+      </if>
+      <if test="deliverNoticeId != null" >
+        #{deliverNoticeId,jdbcType=INTEGER},
+      </if>
+      <if test="billingDate != null" >
+        #{billingDate,jdbcType=DATE},
+      </if>
+      <if test="carrierCo != null" >
+        #{carrierCo,jdbcType=VARCHAR},
+      </if>
+      <if test="driver != null" >
+        #{driver,jdbcType=VARCHAR},
+      </if>
+      <if test="plateNo != null" >
+        #{plateNo,jdbcType=VARCHAR},
+      </if>
+      <if test="pickupDate != null" >
+        #{pickupDate,jdbcType=DATE},
+      </if>
+      <if test="contactTel != null" >
+        #{contactTel,jdbcType=VARCHAR},
+      </if>
+      <if test="handleDepartment != null" >
+        #{handleDepartment,jdbcType=VARCHAR},
+      </if>
+      <if test="wareHouseman != null" >
+        #{wareHouseman,jdbcType=INTEGER},
+      </if>
+      <if test="wareHousemanName != null" >
+        #{wareHousemanName,jdbcType=VARCHAR},
+      </if>
+      <if test="sendDate != null" >
+        #{sendDate,jdbcType=DATE},
+      </if>
+      <if test="sender != null" >
+        #{sender,jdbcType=INTEGER},
+      </if>
+      <if test="senderName != null" >
+        #{senderName,jdbcType=VARCHAR},
+      </if>
+      <if test="reviewer != null" >
+        #{reviewer,jdbcType=INTEGER},
+      </if>
+      <if test="reviewerName != null" >
+        #{reviewerName,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsChkStatus != null" >
+        #{goodsChkStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="billsChkStatus != null" >
+        #{billsChkStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="checkerUid != null" >
+        #{checkerUid,jdbcType=INTEGER},
+      </if>
+      <if test="checkerName != null" >
+        #{checkerName,jdbcType=VARCHAR},
+      </if>
+      <if test="checkDept != null" >
+        #{checkDept,jdbcType=VARCHAR},
+      </if>
+      <if test="checkDate != null" >
+        #{checkDate,jdbcType=DATE},
+      </if>
+      <if test="releaseDate != null" >
+        #{releaseDate,jdbcType=DATE},
+      </if>
+      <if test="releaseName != null" >
+        #{releaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="releaseUid != null" >
+        #{releaseUid,jdbcType=INTEGER},
+      </if>
+      <if test="qualityLeaderId != null" >
+        #{qualityLeaderId,jdbcType=INTEGER},
+      </if>
+      <if test="qualityLeaderName != null" >
+        #{qualityLeaderName,jdbcType=VARCHAR},
+      </if>
+      <if test="applicant != null" >
+        #{applicant,jdbcType=INTEGER},
+      </if>
+      <if test="applicantName != null" >
+        #{applicantName,jdbcType=VARCHAR},
+      </if>
+      <if test="applicantDate != null" >
+        #{applicantDate,jdbcType=DATE},
+      </if>
+      <if test="approver != null" >
+        #{approver,jdbcType=INTEGER},
+      </if>
+      <if test="approverName != null" >
+        #{approverName,jdbcType=VARCHAR},
+      </if>
+      <if test="approvalDate != null" >
+        #{approvalDate,jdbcType=DATE},
+      </if>
+      <if test="opinion != null" >
+        #{opinion,jdbcType=VARCHAR},
+      </if>
+      <if test="leaveDate != null" >
+        #{leaveDate,jdbcType=DATE},
+      </if>
+      <if test="logisticsUserId != null" >
+        #{logisticsUserId,jdbcType=INTEGER},
+      </if>
+      <if test="logisticsUserName != null" >
+        #{logisticsUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="logisticsDate != null" >
+        #{logisticsDate,jdbcType=DATE},
+      </if>
+      <if test="bookingTime != null" >
+        #{bookingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="logiInvoiceNo != null" >
+        #{logiInvoiceNo,jdbcType=VARCHAR},
+      </if>
+      <if test="packingTime != null" >
+        #{packingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="leaveFactory != null" >
+        #{leaveFactory,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sailingDate != null" >
+        #{sailingDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="customsClearance != null" >
+        #{customsClearance,jdbcType=TIMESTAMP},
+      </if>
+      <if test="leavePortTime != null" >
+        #{leavePortTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="arrivalPortTime != null" >
+        #{arrivalPortTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserName != null" >
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="packTotal != null" >
+        #{packTotal,jdbcType=INTEGER},
+      </if>
+      <if test="theEndTime != null" >
+        #{theEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="confirmTheGoods != null" >
+        #{confirmTheGoods,jdbcType=TIMESTAMP},
+      </if>
+      <if test="accomplishDate != null" >
+        #{accomplishDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deliverConsignId != null" >
+        #{deliverConsignId,jdbcType=INTEGER},
+      </if>
+      <if test="outCheck != null" >
+        #{outCheck,jdbcType=INTEGER},
+      </if>
+      <if test="submenuName != null" >
+        #{submenuName,jdbcType=VARCHAR},
+      </if>
+      <if test="submenuId != null" >
+        #{submenuId,jdbcType=INTEGER},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="reason != null" >
+        #{reason,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="logs != null" >
+        #{logs,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="remarks != null" >
+        #{remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.order.v2.model.DeliverDetailExample" resultType="java.lang.Integer" >
+    select count(*) from deliver_detail
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update deliver_detail
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.deliverDetailNo != null" >
+        deliver_detail_no = #{record.deliverDetailNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deliverNoticeId != null" >
+        deliver_notice_id = #{record.deliverNoticeId,jdbcType=INTEGER},
+      </if>
+      <if test="record.billingDate != null" >
+        billing_date = #{record.billingDate,jdbcType=DATE},
+      </if>
+      <if test="record.carrierCo != null" >
+        carrier_co = #{record.carrierCo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.driver != null" >
+        driver = #{record.driver,jdbcType=VARCHAR},
+      </if>
+      <if test="record.plateNo != null" >
+        plate_no = #{record.plateNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pickupDate != null" >
+        pickup_date = #{record.pickupDate,jdbcType=DATE},
+      </if>
+      <if test="record.contactTel != null" >
+        contact_tel = #{record.contactTel,jdbcType=VARCHAR},
+      </if>
+      <if test="record.handleDepartment != null" >
+        handle_department = #{record.handleDepartment,jdbcType=VARCHAR},
+      </if>
+      <if test="record.wareHouseman != null" >
+        ware_houseman = #{record.wareHouseman,jdbcType=INTEGER},
+      </if>
+      <if test="record.wareHousemanName != null" >
+        ware_houseman_name = #{record.wareHousemanName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sendDate != null" >
+        send_date = #{record.sendDate,jdbcType=DATE},
+      </if>
+      <if test="record.sender != null" >
+        sender = #{record.sender,jdbcType=INTEGER},
+      </if>
+      <if test="record.senderName != null" >
+        sender_name = #{record.senderName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.reviewer != null" >
+        reviewer = #{record.reviewer,jdbcType=INTEGER},
+      </if>
+      <if test="record.reviewerName != null" >
+        reviewer_name = #{record.reviewerName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.goodsChkStatus != null" >
+        goods_chk_status = #{record.goodsChkStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.billsChkStatus != null" >
+        bills_chk_status = #{record.billsChkStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.checkerUid != null" >
+        checker_uid = #{record.checkerUid,jdbcType=INTEGER},
+      </if>
+      <if test="record.checkerName != null" >
+        checker_name = #{record.checkerName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.checkDept != null" >
+        check_dept = #{record.checkDept,jdbcType=VARCHAR},
+      </if>
+      <if test="record.checkDate != null" >
+        check_date = #{record.checkDate,jdbcType=DATE},
+      </if>
+      <if test="record.releaseDate != null" >
+        release_date = #{record.releaseDate,jdbcType=DATE},
+      </if>
+      <if test="record.releaseName != null" >
+        release_name = #{record.releaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.releaseUid != null" >
+        release_uid = #{record.releaseUid,jdbcType=INTEGER},
+      </if>
+      <if test="record.qualityLeaderId != null" >
+        quality_leader_id = #{record.qualityLeaderId,jdbcType=INTEGER},
+      </if>
+      <if test="record.qualityLeaderName != null" >
+        quality_leader_name = #{record.qualityLeaderName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.applicant != null" >
+        applicant = #{record.applicant,jdbcType=INTEGER},
+      </if>
+      <if test="record.applicantName != null" >
+        applicant_name = #{record.applicantName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.applicantDate != null" >
+        applicant_date = #{record.applicantDate,jdbcType=DATE},
+      </if>
+      <if test="record.approver != null" >
+        approver = #{record.approver,jdbcType=INTEGER},
+      </if>
+      <if test="record.approverName != null" >
+        approver_name = #{record.approverName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.approvalDate != null" >
+        approval_date = #{record.approvalDate,jdbcType=DATE},
+      </if>
+      <if test="record.opinion != null" >
+        opinion = #{record.opinion,jdbcType=VARCHAR},
+      </if>
+      <if test="record.leaveDate != null" >
+        leave_date = #{record.leaveDate,jdbcType=DATE},
+      </if>
+      <if test="record.logisticsUserId != null" >
+        logistics_user_id = #{record.logisticsUserId,jdbcType=INTEGER},
+      </if>
+      <if test="record.logisticsUserName != null" >
+        logistics_user_name = #{record.logisticsUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.logisticsDate != null" >
+        logistics_date = #{record.logisticsDate,jdbcType=DATE},
+      </if>
+      <if test="record.bookingTime != null" >
+        booking_time = #{record.bookingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.logiInvoiceNo != null" >
+        logi_invoice_no = #{record.logiInvoiceNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.packingTime != null" >
+        packing_time = #{record.packingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.leaveFactory != null" >
+        leave_factory = #{record.leaveFactory,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.sailingDate != null" >
+        sailing_date = #{record.sailingDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.customsClearance != null" >
+        customs_clearance = #{record.customsClearance,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.leavePortTime != null" >
+        leave_port_time = #{record.leavePortTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.arrivalPortTime != null" >
+        arrival_port_time = #{record.arrivalPortTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createUserName != null" >
+        create_user_name = #{record.createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createUserId != null" >
+        create_user_id = #{record.createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.packTotal != null" >
+        pack_total = #{record.packTotal,jdbcType=INTEGER},
+      </if>
+      <if test="record.theEndTime != null" >
+        the_end_time = #{record.theEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.confirmTheGoods != null" >
+        confirm_the_goods = #{record.confirmTheGoods,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.accomplishDate != null" >
+        accomplish_date = #{record.accomplishDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.deliverConsignId != null" >
+        deliver_consign_id = #{record.deliverConsignId,jdbcType=INTEGER},
+      </if>
+      <if test="record.outCheck != null" >
+        out_check = #{record.outCheck,jdbcType=INTEGER},
+      </if>
+      <if test="record.submenuName != null" >
+        submenu_name = #{record.submenuName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.submenuId != null" >
+        submenu_id = #{record.submenuId,jdbcType=INTEGER},
+      </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="record.reason != null" >
+        reason = #{record.reason,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.logs != null" >
+        logs = #{record.logs,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.remarks != null" >
+        remarks = #{record.remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update deliver_detail
+    set id = #{record.id,jdbcType=INTEGER},
+      deliver_detail_no = #{record.deliverDetailNo,jdbcType=VARCHAR},
+      deliver_notice_id = #{record.deliverNoticeId,jdbcType=INTEGER},
+      billing_date = #{record.billingDate,jdbcType=DATE},
+      carrier_co = #{record.carrierCo,jdbcType=VARCHAR},
+      driver = #{record.driver,jdbcType=VARCHAR},
+      plate_no = #{record.plateNo,jdbcType=VARCHAR},
+      pickup_date = #{record.pickupDate,jdbcType=DATE},
+      contact_tel = #{record.contactTel,jdbcType=VARCHAR},
+      handle_department = #{record.handleDepartment,jdbcType=VARCHAR},
+      ware_houseman = #{record.wareHouseman,jdbcType=INTEGER},
+      ware_houseman_name = #{record.wareHousemanName,jdbcType=VARCHAR},
+      send_date = #{record.sendDate,jdbcType=DATE},
+      sender = #{record.sender,jdbcType=INTEGER},
+      sender_name = #{record.senderName,jdbcType=VARCHAR},
+      reviewer = #{record.reviewer,jdbcType=INTEGER},
+      reviewer_name = #{record.reviewerName,jdbcType=VARCHAR},
+      goods_chk_status = #{record.goodsChkStatus,jdbcType=VARCHAR},
+      bills_chk_status = #{record.billsChkStatus,jdbcType=VARCHAR},
+      checker_uid = #{record.checkerUid,jdbcType=INTEGER},
+      checker_name = #{record.checkerName,jdbcType=VARCHAR},
+      check_dept = #{record.checkDept,jdbcType=VARCHAR},
+      check_date = #{record.checkDate,jdbcType=DATE},
+      release_date = #{record.releaseDate,jdbcType=DATE},
+      release_name = #{record.releaseName,jdbcType=VARCHAR},
+      release_uid = #{record.releaseUid,jdbcType=INTEGER},
+      quality_leader_id = #{record.qualityLeaderId,jdbcType=INTEGER},
+      quality_leader_name = #{record.qualityLeaderName,jdbcType=VARCHAR},
+      applicant = #{record.applicant,jdbcType=INTEGER},
+      applicant_name = #{record.applicantName,jdbcType=VARCHAR},
+      applicant_date = #{record.applicantDate,jdbcType=DATE},
+      approver = #{record.approver,jdbcType=INTEGER},
+      approver_name = #{record.approverName,jdbcType=VARCHAR},
+      approval_date = #{record.approvalDate,jdbcType=DATE},
+      opinion = #{record.opinion,jdbcType=VARCHAR},
+      leave_date = #{record.leaveDate,jdbcType=DATE},
+      logistics_user_id = #{record.logisticsUserId,jdbcType=INTEGER},
+      logistics_user_name = #{record.logisticsUserName,jdbcType=VARCHAR},
+      logistics_date = #{record.logisticsDate,jdbcType=DATE},
+      booking_time = #{record.bookingTime,jdbcType=TIMESTAMP},
+      logi_invoice_no = #{record.logiInvoiceNo,jdbcType=VARCHAR},
+      packing_time = #{record.packingTime,jdbcType=TIMESTAMP},
+      leave_factory = #{record.leaveFactory,jdbcType=TIMESTAMP},
+      sailing_date = #{record.sailingDate,jdbcType=TIMESTAMP},
+      customs_clearance = #{record.customsClearance,jdbcType=TIMESTAMP},
+      leave_port_time = #{record.leavePortTime,jdbcType=TIMESTAMP},
+      arrival_port_time = #{record.arrivalPortTime,jdbcType=TIMESTAMP},
+      create_user_name = #{record.createUserName,jdbcType=VARCHAR},
+      create_user_id = #{record.createUserId,jdbcType=INTEGER},
+      status = #{record.status,jdbcType=INTEGER},
+      pack_total = #{record.packTotal,jdbcType=INTEGER},
+      the_end_time = #{record.theEndTime,jdbcType=TIMESTAMP},
+      confirm_the_goods = #{record.confirmTheGoods,jdbcType=TIMESTAMP},
+      accomplish_date = #{record.accomplishDate,jdbcType=TIMESTAMP},
+      deliver_consign_id = #{record.deliverConsignId,jdbcType=INTEGER},
+      out_check = #{record.outCheck,jdbcType=INTEGER},
+      submenu_name = #{record.submenuName,jdbcType=VARCHAR},
+      submenu_id = #{record.submenuId,jdbcType=INTEGER},
+      tenant = #{record.tenant,jdbcType=VARCHAR},
+      reason = #{record.reason,jdbcType=LONGVARCHAR},
+      logs = #{record.logs,jdbcType=LONGVARCHAR},
+      remarks = #{record.remarks,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update deliver_detail
+    set id = #{record.id,jdbcType=INTEGER},
+      deliver_detail_no = #{record.deliverDetailNo,jdbcType=VARCHAR},
+      deliver_notice_id = #{record.deliverNoticeId,jdbcType=INTEGER},
+      billing_date = #{record.billingDate,jdbcType=DATE},
+      carrier_co = #{record.carrierCo,jdbcType=VARCHAR},
+      driver = #{record.driver,jdbcType=VARCHAR},
+      plate_no = #{record.plateNo,jdbcType=VARCHAR},
+      pickup_date = #{record.pickupDate,jdbcType=DATE},
+      contact_tel = #{record.contactTel,jdbcType=VARCHAR},
+      handle_department = #{record.handleDepartment,jdbcType=VARCHAR},
+      ware_houseman = #{record.wareHouseman,jdbcType=INTEGER},
+      ware_houseman_name = #{record.wareHousemanName,jdbcType=VARCHAR},
+      send_date = #{record.sendDate,jdbcType=DATE},
+      sender = #{record.sender,jdbcType=INTEGER},
+      sender_name = #{record.senderName,jdbcType=VARCHAR},
+      reviewer = #{record.reviewer,jdbcType=INTEGER},
+      reviewer_name = #{record.reviewerName,jdbcType=VARCHAR},
+      goods_chk_status = #{record.goodsChkStatus,jdbcType=VARCHAR},
+      bills_chk_status = #{record.billsChkStatus,jdbcType=VARCHAR},
+      checker_uid = #{record.checkerUid,jdbcType=INTEGER},
+      checker_name = #{record.checkerName,jdbcType=VARCHAR},
+      check_dept = #{record.checkDept,jdbcType=VARCHAR},
+      check_date = #{record.checkDate,jdbcType=DATE},
+      release_date = #{record.releaseDate,jdbcType=DATE},
+      release_name = #{record.releaseName,jdbcType=VARCHAR},
+      release_uid = #{record.releaseUid,jdbcType=INTEGER},
+      quality_leader_id = #{record.qualityLeaderId,jdbcType=INTEGER},
+      quality_leader_name = #{record.qualityLeaderName,jdbcType=VARCHAR},
+      applicant = #{record.applicant,jdbcType=INTEGER},
+      applicant_name = #{record.applicantName,jdbcType=VARCHAR},
+      applicant_date = #{record.applicantDate,jdbcType=DATE},
+      approver = #{record.approver,jdbcType=INTEGER},
+      approver_name = #{record.approverName,jdbcType=VARCHAR},
+      approval_date = #{record.approvalDate,jdbcType=DATE},
+      opinion = #{record.opinion,jdbcType=VARCHAR},
+      leave_date = #{record.leaveDate,jdbcType=DATE},
+      logistics_user_id = #{record.logisticsUserId,jdbcType=INTEGER},
+      logistics_user_name = #{record.logisticsUserName,jdbcType=VARCHAR},
+      logistics_date = #{record.logisticsDate,jdbcType=DATE},
+      booking_time = #{record.bookingTime,jdbcType=TIMESTAMP},
+      logi_invoice_no = #{record.logiInvoiceNo,jdbcType=VARCHAR},
+      packing_time = #{record.packingTime,jdbcType=TIMESTAMP},
+      leave_factory = #{record.leaveFactory,jdbcType=TIMESTAMP},
+      sailing_date = #{record.sailingDate,jdbcType=TIMESTAMP},
+      customs_clearance = #{record.customsClearance,jdbcType=TIMESTAMP},
+      leave_port_time = #{record.leavePortTime,jdbcType=TIMESTAMP},
+      arrival_port_time = #{record.arrivalPortTime,jdbcType=TIMESTAMP},
+      create_user_name = #{record.createUserName,jdbcType=VARCHAR},
+      create_user_id = #{record.createUserId,jdbcType=INTEGER},
+      status = #{record.status,jdbcType=INTEGER},
+      pack_total = #{record.packTotal,jdbcType=INTEGER},
+      the_end_time = #{record.theEndTime,jdbcType=TIMESTAMP},
+      confirm_the_goods = #{record.confirmTheGoods,jdbcType=TIMESTAMP},
+      accomplish_date = #{record.accomplishDate,jdbcType=TIMESTAMP},
+      deliver_consign_id = #{record.deliverConsignId,jdbcType=INTEGER},
+      out_check = #{record.outCheck,jdbcType=INTEGER},
+      submenu_name = #{record.submenuName,jdbcType=VARCHAR},
+      submenu_id = #{record.submenuId,jdbcType=INTEGER},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.DeliverDetailWithBLOBs" >
+    update deliver_detail
+    <set >
+      <if test="deliverDetailNo != null" >
+        deliver_detail_no = #{deliverDetailNo,jdbcType=VARCHAR},
+      </if>
+      <if test="deliverNoticeId != null" >
+        deliver_notice_id = #{deliverNoticeId,jdbcType=INTEGER},
+      </if>
+      <if test="billingDate != null" >
+        billing_date = #{billingDate,jdbcType=DATE},
+      </if>
+      <if test="carrierCo != null" >
+        carrier_co = #{carrierCo,jdbcType=VARCHAR},
+      </if>
+      <if test="driver != null" >
+        driver = #{driver,jdbcType=VARCHAR},
+      </if>
+      <if test="plateNo != null" >
+        plate_no = #{plateNo,jdbcType=VARCHAR},
+      </if>
+      <if test="pickupDate != null" >
+        pickup_date = #{pickupDate,jdbcType=DATE},
+      </if>
+      <if test="contactTel != null" >
+        contact_tel = #{contactTel,jdbcType=VARCHAR},
+      </if>
+      <if test="handleDepartment != null" >
+        handle_department = #{handleDepartment,jdbcType=VARCHAR},
+      </if>
+      <if test="wareHouseman != null" >
+        ware_houseman = #{wareHouseman,jdbcType=INTEGER},
+      </if>
+      <if test="wareHousemanName != null" >
+        ware_houseman_name = #{wareHousemanName,jdbcType=VARCHAR},
+      </if>
+      <if test="sendDate != null" >
+        send_date = #{sendDate,jdbcType=DATE},
+      </if>
+      <if test="sender != null" >
+        sender = #{sender,jdbcType=INTEGER},
+      </if>
+      <if test="senderName != null" >
+        sender_name = #{senderName,jdbcType=VARCHAR},
+      </if>
+      <if test="reviewer != null" >
+        reviewer = #{reviewer,jdbcType=INTEGER},
+      </if>
+      <if test="reviewerName != null" >
+        reviewer_name = #{reviewerName,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsChkStatus != null" >
+        goods_chk_status = #{goodsChkStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="billsChkStatus != null" >
+        bills_chk_status = #{billsChkStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="checkerUid != null" >
+        checker_uid = #{checkerUid,jdbcType=INTEGER},
+      </if>
+      <if test="checkerName != null" >
+        checker_name = #{checkerName,jdbcType=VARCHAR},
+      </if>
+      <if test="checkDept != null" >
+        check_dept = #{checkDept,jdbcType=VARCHAR},
+      </if>
+      <if test="checkDate != null" >
+        check_date = #{checkDate,jdbcType=DATE},
+      </if>
+      <if test="releaseDate != null" >
+        release_date = #{releaseDate,jdbcType=DATE},
+      </if>
+      <if test="releaseName != null" >
+        release_name = #{releaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="releaseUid != null" >
+        release_uid = #{releaseUid,jdbcType=INTEGER},
+      </if>
+      <if test="qualityLeaderId != null" >
+        quality_leader_id = #{qualityLeaderId,jdbcType=INTEGER},
+      </if>
+      <if test="qualityLeaderName != null" >
+        quality_leader_name = #{qualityLeaderName,jdbcType=VARCHAR},
+      </if>
+      <if test="applicant != null" >
+        applicant = #{applicant,jdbcType=INTEGER},
+      </if>
+      <if test="applicantName != null" >
+        applicant_name = #{applicantName,jdbcType=VARCHAR},
+      </if>
+      <if test="applicantDate != null" >
+        applicant_date = #{applicantDate,jdbcType=DATE},
+      </if>
+      <if test="approver != null" >
+        approver = #{approver,jdbcType=INTEGER},
+      </if>
+      <if test="approverName != null" >
+        approver_name = #{approverName,jdbcType=VARCHAR},
+      </if>
+      <if test="approvalDate != null" >
+        approval_date = #{approvalDate,jdbcType=DATE},
+      </if>
+      <if test="opinion != null" >
+        opinion = #{opinion,jdbcType=VARCHAR},
+      </if>
+      <if test="leaveDate != null" >
+        leave_date = #{leaveDate,jdbcType=DATE},
+      </if>
+      <if test="logisticsUserId != null" >
+        logistics_user_id = #{logisticsUserId,jdbcType=INTEGER},
+      </if>
+      <if test="logisticsUserName != null" >
+        logistics_user_name = #{logisticsUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="logisticsDate != null" >
+        logistics_date = #{logisticsDate,jdbcType=DATE},
+      </if>
+      <if test="bookingTime != null" >
+        booking_time = #{bookingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="logiInvoiceNo != null" >
+        logi_invoice_no = #{logiInvoiceNo,jdbcType=VARCHAR},
+      </if>
+      <if test="packingTime != null" >
+        packing_time = #{packingTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="leaveFactory != null" >
+        leave_factory = #{leaveFactory,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sailingDate != null" >
+        sailing_date = #{sailingDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="customsClearance != null" >
+        customs_clearance = #{customsClearance,jdbcType=TIMESTAMP},
+      </if>
+      <if test="leavePortTime != null" >
+        leave_port_time = #{leavePortTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="arrivalPortTime != null" >
+        arrival_port_time = #{arrivalPortTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserName != null" >
+        create_user_name = #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null" >
+        create_user_id = #{createUserId,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="packTotal != null" >
+        pack_total = #{packTotal,jdbcType=INTEGER},
+      </if>
+      <if test="theEndTime != null" >
+        the_end_time = #{theEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="confirmTheGoods != null" >
+        confirm_the_goods = #{confirmTheGoods,jdbcType=TIMESTAMP},
+      </if>
+      <if test="accomplishDate != null" >
+        accomplish_date = #{accomplishDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deliverConsignId != null" >
+        deliver_consign_id = #{deliverConsignId,jdbcType=INTEGER},
+      </if>
+      <if test="outCheck != null" >
+        out_check = #{outCheck,jdbcType=INTEGER},
+      </if>
+      <if test="submenuName != null" >
+        submenu_name = #{submenuName,jdbcType=VARCHAR},
+      </if>
+      <if test="submenuId != null" >
+        submenu_id = #{submenuId,jdbcType=INTEGER},
+      </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
+      <if test="reason != null" >
+        reason = #{reason,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="logs != null" >
+        logs = #{logs,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="remarks != null" >
+        remarks = #{remarks,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.erui.order.v2.model.DeliverDetailWithBLOBs" >
+    update deliver_detail
+    set deliver_detail_no = #{deliverDetailNo,jdbcType=VARCHAR},
+      deliver_notice_id = #{deliverNoticeId,jdbcType=INTEGER},
+      billing_date = #{billingDate,jdbcType=DATE},
+      carrier_co = #{carrierCo,jdbcType=VARCHAR},
+      driver = #{driver,jdbcType=VARCHAR},
+      plate_no = #{plateNo,jdbcType=VARCHAR},
+      pickup_date = #{pickupDate,jdbcType=DATE},
+      contact_tel = #{contactTel,jdbcType=VARCHAR},
+      handle_department = #{handleDepartment,jdbcType=VARCHAR},
+      ware_houseman = #{wareHouseman,jdbcType=INTEGER},
+      ware_houseman_name = #{wareHousemanName,jdbcType=VARCHAR},
+      send_date = #{sendDate,jdbcType=DATE},
+      sender = #{sender,jdbcType=INTEGER},
+      sender_name = #{senderName,jdbcType=VARCHAR},
+      reviewer = #{reviewer,jdbcType=INTEGER},
+      reviewer_name = #{reviewerName,jdbcType=VARCHAR},
+      goods_chk_status = #{goodsChkStatus,jdbcType=VARCHAR},
+      bills_chk_status = #{billsChkStatus,jdbcType=VARCHAR},
+      checker_uid = #{checkerUid,jdbcType=INTEGER},
+      checker_name = #{checkerName,jdbcType=VARCHAR},
+      check_dept = #{checkDept,jdbcType=VARCHAR},
+      check_date = #{checkDate,jdbcType=DATE},
+      release_date = #{releaseDate,jdbcType=DATE},
+      release_name = #{releaseName,jdbcType=VARCHAR},
+      release_uid = #{releaseUid,jdbcType=INTEGER},
+      quality_leader_id = #{qualityLeaderId,jdbcType=INTEGER},
+      quality_leader_name = #{qualityLeaderName,jdbcType=VARCHAR},
+      applicant = #{applicant,jdbcType=INTEGER},
+      applicant_name = #{applicantName,jdbcType=VARCHAR},
+      applicant_date = #{applicantDate,jdbcType=DATE},
+      approver = #{approver,jdbcType=INTEGER},
+      approver_name = #{approverName,jdbcType=VARCHAR},
+      approval_date = #{approvalDate,jdbcType=DATE},
+      opinion = #{opinion,jdbcType=VARCHAR},
+      leave_date = #{leaveDate,jdbcType=DATE},
+      logistics_user_id = #{logisticsUserId,jdbcType=INTEGER},
+      logistics_user_name = #{logisticsUserName,jdbcType=VARCHAR},
+      logistics_date = #{logisticsDate,jdbcType=DATE},
+      booking_time = #{bookingTime,jdbcType=TIMESTAMP},
+      logi_invoice_no = #{logiInvoiceNo,jdbcType=VARCHAR},
+      packing_time = #{packingTime,jdbcType=TIMESTAMP},
+      leave_factory = #{leaveFactory,jdbcType=TIMESTAMP},
+      sailing_date = #{sailingDate,jdbcType=TIMESTAMP},
+      customs_clearance = #{customsClearance,jdbcType=TIMESTAMP},
+      leave_port_time = #{leavePortTime,jdbcType=TIMESTAMP},
+      arrival_port_time = #{arrivalPortTime,jdbcType=TIMESTAMP},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      create_user_id = #{createUserId,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      pack_total = #{packTotal,jdbcType=INTEGER},
+      the_end_time = #{theEndTime,jdbcType=TIMESTAMP},
+      confirm_the_goods = #{confirmTheGoods,jdbcType=TIMESTAMP},
+      accomplish_date = #{accomplishDate,jdbcType=TIMESTAMP},
+      deliver_consign_id = #{deliverConsignId,jdbcType=INTEGER},
+      out_check = #{outCheck,jdbcType=INTEGER},
+      submenu_name = #{submenuName,jdbcType=VARCHAR},
+      submenu_id = #{submenuId,jdbcType=INTEGER},
+      tenant = #{tenant,jdbcType=VARCHAR},
+      reason = #{reason,jdbcType=LONGVARCHAR},
+      logs = #{logs,jdbcType=LONGVARCHAR},
+      remarks = #{remarks,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.DeliverDetail" >
+    update deliver_detail
+    set deliver_detail_no = #{deliverDetailNo,jdbcType=VARCHAR},
+      deliver_notice_id = #{deliverNoticeId,jdbcType=INTEGER},
+      billing_date = #{billingDate,jdbcType=DATE},
+      carrier_co = #{carrierCo,jdbcType=VARCHAR},
+      driver = #{driver,jdbcType=VARCHAR},
+      plate_no = #{plateNo,jdbcType=VARCHAR},
+      pickup_date = #{pickupDate,jdbcType=DATE},
+      contact_tel = #{contactTel,jdbcType=VARCHAR},
+      handle_department = #{handleDepartment,jdbcType=VARCHAR},
+      ware_houseman = #{wareHouseman,jdbcType=INTEGER},
+      ware_houseman_name = #{wareHousemanName,jdbcType=VARCHAR},
+      send_date = #{sendDate,jdbcType=DATE},
+      sender = #{sender,jdbcType=INTEGER},
+      sender_name = #{senderName,jdbcType=VARCHAR},
+      reviewer = #{reviewer,jdbcType=INTEGER},
+      reviewer_name = #{reviewerName,jdbcType=VARCHAR},
+      goods_chk_status = #{goodsChkStatus,jdbcType=VARCHAR},
+      bills_chk_status = #{billsChkStatus,jdbcType=VARCHAR},
+      checker_uid = #{checkerUid,jdbcType=INTEGER},
+      checker_name = #{checkerName,jdbcType=VARCHAR},
+      check_dept = #{checkDept,jdbcType=VARCHAR},
+      check_date = #{checkDate,jdbcType=DATE},
+      release_date = #{releaseDate,jdbcType=DATE},
+      release_name = #{releaseName,jdbcType=VARCHAR},
+      release_uid = #{releaseUid,jdbcType=INTEGER},
+      quality_leader_id = #{qualityLeaderId,jdbcType=INTEGER},
+      quality_leader_name = #{qualityLeaderName,jdbcType=VARCHAR},
+      applicant = #{applicant,jdbcType=INTEGER},
+      applicant_name = #{applicantName,jdbcType=VARCHAR},
+      applicant_date = #{applicantDate,jdbcType=DATE},
+      approver = #{approver,jdbcType=INTEGER},
+      approver_name = #{approverName,jdbcType=VARCHAR},
+      approval_date = #{approvalDate,jdbcType=DATE},
+      opinion = #{opinion,jdbcType=VARCHAR},
+      leave_date = #{leaveDate,jdbcType=DATE},
+      logistics_user_id = #{logisticsUserId,jdbcType=INTEGER},
+      logistics_user_name = #{logisticsUserName,jdbcType=VARCHAR},
+      logistics_date = #{logisticsDate,jdbcType=DATE},
+      booking_time = #{bookingTime,jdbcType=TIMESTAMP},
+      logi_invoice_no = #{logiInvoiceNo,jdbcType=VARCHAR},
+      packing_time = #{packingTime,jdbcType=TIMESTAMP},
+      leave_factory = #{leaveFactory,jdbcType=TIMESTAMP},
+      sailing_date = #{sailingDate,jdbcType=TIMESTAMP},
+      customs_clearance = #{customsClearance,jdbcType=TIMESTAMP},
+      leave_port_time = #{leavePortTime,jdbcType=TIMESTAMP},
+      arrival_port_time = #{arrivalPortTime,jdbcType=TIMESTAMP},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      create_user_id = #{createUserId,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      pack_total = #{packTotal,jdbcType=INTEGER},
+      the_end_time = #{theEndTime,jdbcType=TIMESTAMP},
+      confirm_the_goods = #{confirmTheGoods,jdbcType=TIMESTAMP},
+      accomplish_date = #{accomplishDate,jdbcType=TIMESTAMP},
+      deliver_consign_id = #{deliverConsignId,jdbcType=INTEGER},
+      out_check = #{outCheck,jdbcType=INTEGER},
+      submenu_name = #{submenuName,jdbcType=VARCHAR},
+      submenu_id = #{submenuId,jdbcType=INTEGER},
+      tenant = #{tenant,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,8 +1,11 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
+import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
@@ -10,9 +13,11 @@ import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.service.BackLogService;
 import com.erui.order.service.IogisticsDataService;
 import com.erui.order.util.IReceiverDate;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -57,6 +62,8 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
     @Autowired
     private BackLogService backLogService;
 
+    @Value("#{orderProp[EXPORT_EACP]}")
+    private String exportEacp; //给提供eacp数据
 
     /**
      * 物流跟踪管理（V 2.0）   列表页查询
@@ -203,8 +210,6 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
                             idList.add(order.getId());
                         }
                     }
-
-
                 }
             } else {  //不等于空，更新时间
                 for (OrderLog orderLog : orderLogList) {
@@ -225,8 +230,24 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
         //离厂时间          --
         if (iogisticsData.getLeaveFactory() != null) {
             one.setLeaveFactory(iogisticsData.getLeaveFactory());
-        }
+            //当货物离场时即是出口通知单发货通知EACP回执已发货状态
+            if (one.getDeliverDetailNo() != null) {
+                DeliverDetail deliverDetail = deliverDetailDao.findByDeliverDetailNo(one.getDeliverDetailNo());
+                if (deliverDetail.getDeliverConsign() != null && deliverDetail.getDeliverConsign().getOrder().getOrderSource() == 4) {
+                    if (StringUtils.isNotBlank(eruiToken)) {
+                        Map<String, Object> jsonMap = new HashMap<>();
+                        jsonMap.put("exportId", deliverDetail.getDeliverConsign().getId());
+                        jsonMap.put("exportStatus", "SHIPPEND");
+                        Map<String, String> header = new HashMap<>();
+                        header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+                        header.put("Content-Type", "application/json");
+                        header.put("accept", "*/*");
+                        HttpRequest.sendPost(exportEacp, JSONObject.toJSONString(jsonMap), header);
+                    }
+                }
+            }
 
+        }
         //动态描述
         if (StringUtil.isNotBlank(iogisticsData.getLogs())) {
             one.setLogs(iogisticsData.getLogs());
@@ -308,7 +329,7 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
                         goods.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
                     }
 
-                    if (iogisticsData.getStatus() == 6 && iogisticsData.getLeaveFactory() != null) {
+                    if (iogisticsData.getLeaveFactory() != null) {
                         //已发运
                         applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 9, eruiToken));
                     }

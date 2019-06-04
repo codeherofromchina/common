@@ -157,7 +157,8 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         //  厂家发货且不检查
 //        boolean directInstockGoods = inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() &&
 //                inspectApply.getDirect() && !inspectApply.getOutCheck();
-        // 去掉采购报检的那块空入判断↑代码2018-05-28
+
+        // 去掉采购报检的那块空入判断↑代码2019-05-28
         boolean directInstockGoods = false;
         // 获取本次报检采购中的商品
         Map<Integer, PurchGoods> purchGoodsMap = purch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(PurchGoods::getId, vo -> vo));
@@ -384,9 +385,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 inspectApply.getCreateUserName());
         dbInspectApply.setAttachmentList(attachmentlist);*/
         //  厂家发货且不检查
-//        boolean directInstockGoods = inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() &&
+//       boolean directInstockGoods = inspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode() &&
 //                inspectApply.getDirect() && !inspectApply.getOutCheck();
-        // 去掉采购报检的那块空入判断↑代码2018-05-28
+        // 去掉采购报检的那块空入判断↑代码2019-05-28
         boolean directInstockGoods = false;
         // 处理商品信息
         Purch purch = dbInspectApply.getPurch();
@@ -633,7 +634,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 推送数据到入库质检中
         pushDataToInspectReport(newInspectApply);
 
-        //到货报检通知：到货报检单下达后同时通知质检经办人
+        // 到货报检通知：到货报检单下达后同时通知质检经办人
         disposeSmsDate(newInspectApply, inspectApply);
 
         return true;

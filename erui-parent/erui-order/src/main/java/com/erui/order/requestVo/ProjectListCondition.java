@@ -75,15 +75,15 @@ public class ProjectListCondition {
     private int rows = 20; // 默认每页20条记录
     // 审核状态
     private Integer auditingStatus;
-    private Integer auditingProcess; //审核流程
+    private String auditingProcess; //审核流程
     // 当前审核人ID
     private String auditingUserId;
 
-    public Integer getAuditingProcess() {
+    public String getAuditingProcess() {
         return auditingProcess;
     }
 
-    public void setAuditingProcess(Integer auditingProcess) {
+    public void setAuditingProcess(String auditingProcess) {
         this.auditingProcess = auditingProcess;
     }
 

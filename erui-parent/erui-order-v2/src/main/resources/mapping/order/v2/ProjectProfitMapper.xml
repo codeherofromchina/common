@@ -1,0 +1,846 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.erui.order.v2.dao.ProjectProfitMapper" >
+  <resultMap id="BaseResultMap" type="com.erui.order.v2.model.ProjectProfit" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="project_id" property="projectId" jdbcType="INTEGER" />
+    <result column="country" property="country" jdbcType="VARCHAR" />
+    <result column="trade_term" property="tradeTerm" jdbcType="VARCHAR" />
+    <result column="project_type" property="projectType" jdbcType="VARCHAR" />
+    <result column="contract_amount_usd" property="contractAmountUsd" jdbcType="DECIMAL" />
+    <result column="contract_amount" property="contractAmount" jdbcType="DECIMAL" />
+    <result column="exchange_rate" property="exchangeRate" jdbcType="DECIMAL" />
+    <result column="tax_refund" property="taxRefund" jdbcType="DECIMAL" />
+    <result column="land_freight" property="landFreight" jdbcType="DECIMAL" />
+    <result column="land_insurance" property="landInsurance" jdbcType="DECIMAL" />
+    <result column="port_charges" property="portCharges" jdbcType="DECIMAL" />
+    <result column="inspection_fee" property="inspectionFee" jdbcType="DECIMAL" />
+    <result column="international_transport" property="internationalTransport" jdbcType="DECIMAL" />
+    <result column="tariff" property="tariff" jdbcType="DECIMAL" />
+    <result column="vat" property="vat" jdbcType="DECIMAL" />
+    <result column="customs_clear_fee" property="customsClearFee" jdbcType="DECIMAL" />
+    <result column="customs_agent_fee" property="customsAgentFee" jdbcType="DECIMAL" />
+    <result column="transportion_insurance" property="transportionInsurance" jdbcType="DECIMAL" />
+    <result column="export_credit_insurance" property="exportCreditInsurance" jdbcType="DECIMAL" />
+    <result column="other_credit" property="otherCredit" jdbcType="VARCHAR" />
+    <result column="travel_expenses" property="travelExpenses" jdbcType="DECIMAL" />
+    <result column="project_cost" property="projectCost" jdbcType="DECIMAL" />
+    <result column="gross_profit" property="grossProfit" jdbcType="DECIMAL" />
+    <result column="gross_profit_margin" property="grossProfitMargin" jdbcType="DECIMAL" />
+    <result column="agent_fee" property="agentFee" jdbcType="DECIMAL" />
+    <result column="raise_fee" property="raiseFee" jdbcType="DECIMAL" />
+    <result column="guarance_fee" property="guaranceFee" jdbcType="DECIMAL" />
+    <result column="financing_interest" property="financingInterest" jdbcType="DECIMAL" />
+    <result column="bank_fees" property="bankFees" jdbcType="DECIMAL" />
+    <result column="domestic_taxs" property="domesticTaxs" jdbcType="DECIMAL" />
+    <result column="foreign_taxes" property="foreignTaxes" jdbcType="DECIMAL" />
+    <result column="manage_fee" property="manageFee" jdbcType="DECIMAL" />
+    <result column="after_profit" property="afterProfit" jdbcType="DECIMAL" />
+    <result column="before_profit" property="beforeProfit" jdbcType="DECIMAL" />
+    <result column="quotation_profit" property="quotationProfit" jdbcType="DECIMAL" />
+    <result column="purchasing_costs_d" property="purchasingCostsD" jdbcType="DECIMAL" />
+    <result column="purchasing_costs_f" property="purchasingCostsF" jdbcType="DECIMAL" />
+    <result column="direct_labor" property="directLabor" jdbcType="DECIMAL" />
+    <result column="manufacturing_costs" property="manufacturingCosts" jdbcType="DECIMAL" />
+    <result column="raise_rate" property="raiseRate" jdbcType="DECIMAL" />
+    <result column="total_project_cost" property="totalProjectCost" jdbcType="DECIMAL" />
+    <result column="rear_fee" property="rearFee" jdbcType="DECIMAL" />
+    <result column="platform_agent_cost" property="platformAgentCost" jdbcType="DECIMAL" />
+    <result column="tenant" property="tenant" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, project_id, country, trade_term, project_type, contract_amount_usd, contract_amount, 
+    exchange_rate, tax_refund, land_freight, land_insurance, port_charges, inspection_fee, 
+    international_transport, tariff, vat, customs_clear_fee, customs_agent_fee, transportion_insurance, 
+    export_credit_insurance, other_credit, travel_expenses, project_cost, gross_profit, 
+    gross_profit_margin, agent_fee, raise_fee, guarance_fee, financing_interest, bank_fees, 
+    domestic_taxs, foreign_taxes, manage_fee, after_profit, before_profit, quotation_profit, 
+    purchasing_costs_d, purchasing_costs_f, direct_labor, manufacturing_costs, raise_rate, 
+    total_project_cost, rear_fee, platform_agent_cost, tenant
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.ProjectProfitExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from project_profit
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from project_profit
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from project_profit
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.erui.order.v2.model.ProjectProfitExample" >
+    delete from project_profit
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.erui.order.v2.model.ProjectProfit" >
+    insert into project_profit (id, project_id, country, 
+      trade_term, project_type, contract_amount_usd, 
+      contract_amount, exchange_rate, tax_refund, 
+      land_freight, land_insurance, port_charges, 
+      inspection_fee, international_transport, 
+      tariff, vat, customs_clear_fee, 
+      customs_agent_fee, transportion_insurance, 
+      export_credit_insurance, other_credit, travel_expenses, 
+      project_cost, gross_profit, gross_profit_margin, 
+      agent_fee, raise_fee, guarance_fee, 
+      financing_interest, bank_fees, domestic_taxs, 
+      foreign_taxes, manage_fee, after_profit, 
+      before_profit, quotation_profit, purchasing_costs_d, 
+      purchasing_costs_f, direct_labor, manufacturing_costs, 
+      raise_rate, total_project_cost, rear_fee, 
+      platform_agent_cost, tenant)
+    values (#{id,jdbcType=INTEGER}, #{projectId,jdbcType=INTEGER}, #{country,jdbcType=VARCHAR}, 
+      #{tradeTerm,jdbcType=VARCHAR}, #{projectType,jdbcType=VARCHAR}, #{contractAmountUsd,jdbcType=DECIMAL}, 
+      #{contractAmount,jdbcType=DECIMAL}, #{exchangeRate,jdbcType=DECIMAL}, #{taxRefund,jdbcType=DECIMAL}, 
+      #{landFreight,jdbcType=DECIMAL}, #{landInsurance,jdbcType=DECIMAL}, #{portCharges,jdbcType=DECIMAL}, 
+      #{inspectionFee,jdbcType=DECIMAL}, #{internationalTransport,jdbcType=DECIMAL}, 
+      #{tariff,jdbcType=DECIMAL}, #{vat,jdbcType=DECIMAL}, #{customsClearFee,jdbcType=DECIMAL}, 
+      #{customsAgentFee,jdbcType=DECIMAL}, #{transportionInsurance,jdbcType=DECIMAL}, 
+      #{exportCreditInsurance,jdbcType=DECIMAL}, #{otherCredit,jdbcType=VARCHAR}, #{travelExpenses,jdbcType=DECIMAL}, 
+      #{projectCost,jdbcType=DECIMAL}, #{grossProfit,jdbcType=DECIMAL}, #{grossProfitMargin,jdbcType=DECIMAL}, 
+      #{agentFee,jdbcType=DECIMAL}, #{raiseFee,jdbcType=DECIMAL}, #{guaranceFee,jdbcType=DECIMAL}, 
+      #{financingInterest,jdbcType=DECIMAL}, #{bankFees,jdbcType=DECIMAL}, #{domesticTaxs,jdbcType=DECIMAL}, 
+      #{foreignTaxes,jdbcType=DECIMAL}, #{manageFee,jdbcType=DECIMAL}, #{afterProfit,jdbcType=DECIMAL}, 
+      #{beforeProfit,jdbcType=DECIMAL}, #{quotationProfit,jdbcType=DECIMAL}, #{purchasingCostsD,jdbcType=DECIMAL}, 
+      #{purchasingCostsF,jdbcType=DECIMAL}, #{directLabor,jdbcType=DECIMAL}, #{manufacturingCosts,jdbcType=DECIMAL}, 
+      #{raiseRate,jdbcType=DECIMAL}, #{totalProjectCost,jdbcType=DECIMAL}, #{rearFee,jdbcType=DECIMAL}, 
+      #{platformAgentCost,jdbcType=DECIMAL}, #{tenant,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.erui.order.v2.model.ProjectProfit" >
+    insert into project_profit
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="projectId != null" >
+        project_id,
+      </if>
+      <if test="country != null" >
+        country,
+      </if>
+      <if test="tradeTerm != null" >
+        trade_term,
+      </if>
+      <if test="projectType != null" >
+        project_type,
+      </if>
+      <if test="contractAmountUsd != null" >
+        contract_amount_usd,
+      </if>
+      <if test="contractAmount != null" >
+        contract_amount,
+      </if>
+      <if test="exchangeRate != null" >
+        exchange_rate,
+      </if>
+      <if test="taxRefund != null" >
+        tax_refund,
+      </if>
+      <if test="landFreight != null" >
+        land_freight,
+      </if>
+      <if test="landInsurance != null" >
+        land_insurance,
+      </if>
+      <if test="portCharges != null" >
+        port_charges,
+      </if>
+      <if test="inspectionFee != null" >
+        inspection_fee,
+      </if>
+      <if test="internationalTransport != null" >
+        international_transport,
+      </if>
+      <if test="tariff != null" >
+        tariff,
+      </if>
+      <if test="vat != null" >
+        vat,
+      </if>
+      <if test="customsClearFee != null" >
+        customs_clear_fee,
+      </if>
+      <if test="customsAgentFee != null" >
+        customs_agent_fee,
+      </if>
+      <if test="transportionInsurance != null" >
+        transportion_insurance,
+      </if>
+      <if test="exportCreditInsurance != null" >
+        export_credit_insurance,
+      </if>
+      <if test="otherCredit != null" >
+        other_credit,
+      </if>
+      <if test="travelExpenses != null" >
+        travel_expenses,
+      </if>
+      <if test="projectCost != null" >
+        project_cost,
+      </if>
+      <if test="grossProfit != null" >
+        gross_profit,
+      </if>
+      <if test="grossProfitMargin != null" >
+        gross_profit_margin,
+      </if>
+      <if test="agentFee != null" >
+        agent_fee,
+      </if>
+      <if test="raiseFee != null" >
+        raise_fee,
+      </if>
+      <if test="guaranceFee != null" >
+        guarance_fee,
+      </if>
+      <if test="financingInterest != null" >
+        financing_interest,
+      </if>
+      <if test="bankFees != null" >
+        bank_fees,
+      </if>
+      <if test="domesticTaxs != null" >
+        domestic_taxs,
+      </if>
+      <if test="foreignTaxes != null" >
+        foreign_taxes,
+      </if>
+      <if test="manageFee != null" >
+        manage_fee,
+      </if>
+      <if test="afterProfit != null" >
+        after_profit,
+      </if>
+      <if test="beforeProfit != null" >
+        before_profit,
+      </if>
+      <if test="quotationProfit != null" >
+        quotation_profit,
+      </if>
+      <if test="purchasingCostsD != null" >
+        purchasing_costs_d,
+      </if>
+      <if test="purchasingCostsF != null" >
+        purchasing_costs_f,
+      </if>
+      <if test="directLabor != null" >
+        direct_labor,
+      </if>
+      <if test="manufacturingCosts != null" >
+        manufacturing_costs,
+      </if>
+      <if test="raiseRate != null" >
+        raise_rate,
+      </if>
+      <if test="totalProjectCost != null" >
+        total_project_cost,
+      </if>
+      <if test="rearFee != null" >
+        rear_fee,
+      </if>
+      <if test="platformAgentCost != null" >
+        platform_agent_cost,
+      </if>
+      <if test="tenant != null" >
+        tenant,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="projectId != null" >
+        #{projectId,jdbcType=INTEGER},
+      </if>
+      <if test="country != null" >
+        #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="tradeTerm != null" >
+        #{tradeTerm,jdbcType=VARCHAR},
+      </if>
+      <if test="projectType != null" >
+        #{projectType,jdbcType=VARCHAR},
+      </if>
+      <if test="contractAmountUsd != null" >
+        #{contractAmountUsd,jdbcType=DECIMAL},
+      </if>
+      <if test="contractAmount != null" >
+        #{contractAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="exchangeRate != null" >
+        #{exchangeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="taxRefund != null" >
+        #{taxRefund,jdbcType=DECIMAL},
+      </if>
+      <if test="landFreight != null" >
+        #{landFreight,jdbcType=DECIMAL},
+      </if>
+      <if test="landInsurance != null" >
+        #{landInsurance,jdbcType=DECIMAL},
+      </if>
+      <if test="portCharges != null" >
+        #{portCharges,jdbcType=DECIMAL},
+      </if>
+      <if test="inspectionFee != null" >
+        #{inspectionFee,jdbcType=DECIMAL},
+      </if>
+      <if test="internationalTransport != null" >
+        #{internationalTransport,jdbcType=DECIMAL},
+      </if>
+      <if test="tariff != null" >
+        #{tariff,jdbcType=DECIMAL},
+      </if>
+      <if test="vat != null" >
+        #{vat,jdbcType=DECIMAL},
+      </if>
+      <if test="customsClearFee != null" >
+        #{customsClearFee,jdbcType=DECIMAL},
+      </if>
+      <if test="customsAgentFee != null" >
+        #{customsAgentFee,jdbcType=DECIMAL},
+      </if>
+      <if test="transportionInsurance != null" >
+        #{transportionInsurance,jdbcType=DECIMAL},
+      </if>
+      <if test="exportCreditInsurance != null" >
+        #{exportCreditInsurance,jdbcType=DECIMAL},
+      </if>
+      <if test="otherCredit != null" >
+        #{otherCredit,jdbcType=VARCHAR},
+      </if>
+      <if test="travelExpenses != null" >
+        #{travelExpenses,jdbcType=DECIMAL},
+      </if>
+      <if test="projectCost != null" >
+        #{projectCost,jdbcType=DECIMAL},
+      </if>
+      <if test="grossProfit != null" >
+        #{grossProfit,jdbcType=DECIMAL},
+      </if>
+      <if test="grossProfitMargin != null" >
+        #{grossProfitMargin,jdbcType=DECIMAL},
+      </if>
+      <if test="agentFee != null" >
+        #{agentFee,jdbcType=DECIMAL},
+      </if>
+      <if test="raiseFee != null" >
+        #{raiseFee,jdbcType=DECIMAL},
+      </if>
+      <if test="guaranceFee != null" >
+        #{guaranceFee,jdbcType=DECIMAL},
+      </if>
+      <if test="financingInterest != null" >
+        #{financingInterest,jdbcType=DECIMAL},
+      </if>
+      <if test="bankFees != null" >
+        #{bankFees,jdbcType=DECIMAL},
+      </if>
+      <if test="domesticTaxs != null" >
+        #{domesticTaxs,jdbcType=DECIMAL},
+      </if>
+      <if test="foreignTaxes != null" >
+        #{foreignTaxes,jdbcType=DECIMAL},
+      </if>
+      <if test="manageFee != null" >
+        #{manageFee,jdbcType=DECIMAL},
+      </if>
+      <if test="afterProfit != null" >
+        #{afterProfit,jdbcType=DECIMAL},
+      </if>
+      <if test="beforeProfit != null" >
+        #{beforeProfit,jdbcType=DECIMAL},
+      </if>
+      <if test="quotationProfit != null" >
+        #{quotationProfit,jdbcType=DECIMAL},
+      </if>
+      <if test="purchasingCostsD != null" >
+        #{purchasingCostsD,jdbcType=DECIMAL},
+      </if>
+      <if test="purchasingCostsF != null" >
+        #{purchasingCostsF,jdbcType=DECIMAL},
+      </if>
+      <if test="directLabor != null" >
+        #{directLabor,jdbcType=DECIMAL},
+      </if>
+      <if test="manufacturingCosts != null" >
+        #{manufacturingCosts,jdbcType=DECIMAL},
+      </if>
+      <if test="raiseRate != null" >
+        #{raiseRate,jdbcType=DECIMAL},
+      </if>
+      <if test="totalProjectCost != null" >
+        #{totalProjectCost,jdbcType=DECIMAL},
+      </if>
+      <if test="rearFee != null" >
+        #{rearFee,jdbcType=DECIMAL},
+      </if>
+      <if test="platformAgentCost != null" >
+        #{platformAgentCost,jdbcType=DECIMAL},
+      </if>
+      <if test="tenant != null" >
+        #{tenant,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.erui.order.v2.model.ProjectProfitExample" resultType="java.lang.Integer" >
+    select count(*) from project_profit
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update project_profit
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.projectId != null" >
+        project_id = #{record.projectId,jdbcType=INTEGER},
+      </if>
+      <if test="record.country != null" >
+        country = #{record.country,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tradeTerm != null" >
+        trade_term = #{record.tradeTerm,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectType != null" >
+        project_type = #{record.projectType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.contractAmountUsd != null" >
+        contract_amount_usd = #{record.contractAmountUsd,jdbcType=DECIMAL},
+      </if>
+      <if test="record.contractAmount != null" >
+        contract_amount = #{record.contractAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="record.exchangeRate != null" >
+        exchange_rate = #{record.exchangeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="record.taxRefund != null" >
+        tax_refund = #{record.taxRefund,jdbcType=DECIMAL},
+      </if>
+      <if test="record.landFreight != null" >
+        land_freight = #{record.landFreight,jdbcType=DECIMAL},
+      </if>
+      <if test="record.landInsurance != null" >
+        land_insurance = #{record.landInsurance,jdbcType=DECIMAL},
+      </if>
+      <if test="record.portCharges != null" >
+        port_charges = #{record.portCharges,jdbcType=DECIMAL},
+      </if>
+      <if test="record.inspectionFee != null" >
+        inspection_fee = #{record.inspectionFee,jdbcType=DECIMAL},
+      </if>
+      <if test="record.internationalTransport != null" >
+        international_transport = #{record.internationalTransport,jdbcType=DECIMAL},
+      </if>
+      <if test="record.tariff != null" >
+        tariff = #{record.tariff,jdbcType=DECIMAL},
+      </if>
+      <if test="record.vat != null" >
+        vat = #{record.vat,jdbcType=DECIMAL},
+      </if>
+      <if test="record.customsClearFee != null" >
+        customs_clear_fee = #{record.customsClearFee,jdbcType=DECIMAL},
+      </if>
+      <if test="record.customsAgentFee != null" >
+        customs_agent_fee = #{record.customsAgentFee,jdbcType=DECIMAL},
+      </if>
+      <if test="record.transportionInsurance != null" >
+        transportion_insurance = #{record.transportionInsurance,jdbcType=DECIMAL},
+      </if>
+      <if test="record.exportCreditInsurance != null" >
+        export_credit_insurance = #{record.exportCreditInsurance,jdbcType=DECIMAL},
+      </if>
+      <if test="record.otherCredit != null" >
+        other_credit = #{record.otherCredit,jdbcType=VARCHAR},
+      </if>
+      <if test="record.travelExpenses != null" >
+        travel_expenses = #{record.travelExpenses,jdbcType=DECIMAL},
+      </if>
+      <if test="record.projectCost != null" >
+        project_cost = #{record.projectCost,jdbcType=DECIMAL},
+      </if>
+      <if test="record.grossProfit != null" >
+        gross_profit = #{record.grossProfit,jdbcType=DECIMAL},
+      </if>
+      <if test="record.grossProfitMargin != null" >
+        gross_profit_margin = #{record.grossProfitMargin,jdbcType=DECIMAL},
+      </if>
+      <if test="record.agentFee != null" >
+        agent_fee = #{record.agentFee,jdbcType=DECIMAL},
+      </if>
+      <if test="record.raiseFee != null" >
+        raise_fee = #{record.raiseFee,jdbcType=DECIMAL},
+      </if>
+      <if test="record.guaranceFee != null" >
+        guarance_fee = #{record.guaranceFee,jdbcType=DECIMAL},
+      </if>
+      <if test="record.financingInterest != null" >
+        financing_interest = #{record.financingInterest,jdbcType=DECIMAL},
+      </if>
+      <if test="record.bankFees != null" >
+        bank_fees = #{record.bankFees,jdbcType=DECIMAL},
+      </if>
+      <if test="record.domesticTaxs != null" >
+        domestic_taxs = #{record.domesticTaxs,jdbcType=DECIMAL},
+      </if>
+      <if test="record.foreignTaxes != null" >
+        foreign_taxes = #{record.foreignTaxes,jdbcType=DECIMAL},
+      </if>
+      <if test="record.manageFee != null" >
+        manage_fee = #{record.manageFee,jdbcType=DECIMAL},
+      </if>
+      <if test="record.afterProfit != null" >
+        after_profit = #{record.afterProfit,jdbcType=DECIMAL},
+      </if>
+      <if test="record.beforeProfit != null" >
+        before_profit = #{record.beforeProfit,jdbcType=DECIMAL},
+      </if>
+      <if test="record.quotationProfit != null" >
+        quotation_profit = #{record.quotationProfit,jdbcType=DECIMAL},
+      </if>
+      <if test="record.purchasingCostsD != null" >
+        purchasing_costs_d = #{record.purchasingCostsD,jdbcType=DECIMAL},
+      </if>
+      <if test="record.purchasingCostsF != null" >
+        purchasing_costs_f = #{record.purchasingCostsF,jdbcType=DECIMAL},
+      </if>
+      <if test="record.directLabor != null" >
+        direct_labor = #{record.directLabor,jdbcType=DECIMAL},
+      </if>
+      <if test="record.manufacturingCosts != null" >
+        manufacturing_costs = #{record.manufacturingCosts,jdbcType=DECIMAL},
+      </if>
+      <if test="record.raiseRate != null" >
+        raise_rate = #{record.raiseRate,jdbcType=DECIMAL},
+      </if>
+      <if test="record.totalProjectCost != null" >
+        total_project_cost = #{record.totalProjectCost,jdbcType=DECIMAL},
+      </if>
+      <if test="record.rearFee != null" >
+        rear_fee = #{record.rearFee,jdbcType=DECIMAL},
+      </if>
+      <if test="record.platformAgentCost != null" >
+        platform_agent_cost = #{record.platformAgentCost,jdbcType=DECIMAL},
+      </if>
+      <if test="record.tenant != null" >
+        tenant = #{record.tenant,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update project_profit
+    set id = #{record.id,jdbcType=INTEGER},
+      project_id = #{record.projectId,jdbcType=INTEGER},
+      country = #{record.country,jdbcType=VARCHAR},
+      trade_term = #{record.tradeTerm,jdbcType=VARCHAR},
+      project_type = #{record.projectType,jdbcType=VARCHAR},
+      contract_amount_usd = #{record.contractAmountUsd,jdbcType=DECIMAL},
+      contract_amount = #{record.contractAmount,jdbcType=DECIMAL},
+      exchange_rate = #{record.exchangeRate,jdbcType=DECIMAL},
+      tax_refund = #{record.taxRefund,jdbcType=DECIMAL},
+      land_freight = #{record.landFreight,jdbcType=DECIMAL},
+      land_insurance = #{record.landInsurance,jdbcType=DECIMAL},
+      port_charges = #{record.portCharges,jdbcType=DECIMAL},
+      inspection_fee = #{record.inspectionFee,jdbcType=DECIMAL},
+      international_transport = #{record.internationalTransport,jdbcType=DECIMAL},
+      tariff = #{record.tariff,jdbcType=DECIMAL},
+      vat = #{record.vat,jdbcType=DECIMAL},
+      customs_clear_fee = #{record.customsClearFee,jdbcType=DECIMAL},
+      customs_agent_fee = #{record.customsAgentFee,jdbcType=DECIMAL},
+      transportion_insurance = #{record.transportionInsurance,jdbcType=DECIMAL},
+      export_credit_insurance = #{record.exportCreditInsurance,jdbcType=DECIMAL},
+      other_credit = #{record.otherCredit,jdbcType=VARCHAR},
+      travel_expenses = #{record.travelExpenses,jdbcType=DECIMAL},
+      project_cost = #{record.projectCost,jdbcType=DECIMAL},
+      gross_profit = #{record.grossProfit,jdbcType=DECIMAL},
+      gross_profit_margin = #{record.grossProfitMargin,jdbcType=DECIMAL},
+      agent_fee = #{record.agentFee,jdbcType=DECIMAL},
+      raise_fee = #{record.raiseFee,jdbcType=DECIMAL},
+      guarance_fee = #{record.guaranceFee,jdbcType=DECIMAL},
+      financing_interest = #{record.financingInterest,jdbcType=DECIMAL},
+      bank_fees = #{record.bankFees,jdbcType=DECIMAL},
+      domestic_taxs = #{record.domesticTaxs,jdbcType=DECIMAL},
+      foreign_taxes = #{record.foreignTaxes,jdbcType=DECIMAL},
+      manage_fee = #{record.manageFee,jdbcType=DECIMAL},
+      after_profit = #{record.afterProfit,jdbcType=DECIMAL},
+      before_profit = #{record.beforeProfit,jdbcType=DECIMAL},
+      quotation_profit = #{record.quotationProfit,jdbcType=DECIMAL},
+      purchasing_costs_d = #{record.purchasingCostsD,jdbcType=DECIMAL},
+      purchasing_costs_f = #{record.purchasingCostsF,jdbcType=DECIMAL},
+      direct_labor = #{record.directLabor,jdbcType=DECIMAL},
+      manufacturing_costs = #{record.manufacturingCosts,jdbcType=DECIMAL},
+      raise_rate = #{record.raiseRate,jdbcType=DECIMAL},
+      total_project_cost = #{record.totalProjectCost,jdbcType=DECIMAL},
+      rear_fee = #{record.rearFee,jdbcType=DECIMAL},
+      platform_agent_cost = #{record.platformAgentCost,jdbcType=DECIMAL},
+      tenant = #{record.tenant,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.erui.order.v2.model.ProjectProfit" >
+    update project_profit
+    <set >
+      <if test="projectId != null" >
+        project_id = #{projectId,jdbcType=INTEGER},
+      </if>
+      <if test="country != null" >
+        country = #{country,jdbcType=VARCHAR},
+      </if>
+      <if test="tradeTerm != null" >
+        trade_term = #{tradeTerm,jdbcType=VARCHAR},
+      </if>
+      <if test="projectType != null" >
+        project_type = #{projectType,jdbcType=VARCHAR},
+      </if>
+      <if test="contractAmountUsd != null" >
+        contract_amount_usd = #{contractAmountUsd,jdbcType=DECIMAL},
+      </if>
+      <if test="contractAmount != null" >
+        contract_amount = #{contractAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="exchangeRate != null" >
+        exchange_rate = #{exchangeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="taxRefund != null" >
+        tax_refund = #{taxRefund,jdbcType=DECIMAL},
+      </if>
+      <if test="landFreight != null" >
+        land_freight = #{landFreight,jdbcType=DECIMAL},
+      </if>
+      <if test="landInsurance != null" >
+        land_insurance = #{landInsurance,jdbcType=DECIMAL},
+      </if>
+      <if test="portCharges != null" >
+        port_charges = #{portCharges,jdbcType=DECIMAL},
+      </if>
+      <if test="inspectionFee != null" >
+        inspection_fee = #{inspectionFee,jdbcType=DECIMAL},
+      </if>
+      <if test="internationalTransport != null" >
+        international_transport = #{internationalTransport,jdbcType=DECIMAL},
+      </if>
+      <if test="tariff != null" >
+        tariff = #{tariff,jdbcType=DECIMAL},
+      </if>
+      <if test="vat != null" >
+        vat = #{vat,jdbcType=DECIMAL},
+      </if>
+      <if test="customsClearFee != null" >
+        customs_clear_fee = #{customsClearFee,jdbcType=DECIMAL},
+      </if>
+      <if test="customsAgentFee != null" >
+        customs_agent_fee = #{customsAgentFee,jdbcType=DECIMAL},
+      </if>
+      <if test="transportionInsurance != null" >
+        transportion_insurance = #{transportionInsurance,jdbcType=DECIMAL},
+      </if>
+      <if test="exportCreditInsurance != null" >
+        export_credit_insurance = #{exportCreditInsurance,jdbcType=DECIMAL},
+      </if>
+      <if test="otherCredit != null" >
+        other_credit = #{otherCredit,jdbcType=VARCHAR},
+      </if>
+      <if test="travelExpenses != null" >
+        travel_expenses = #{travelExpenses,jdbcType=DECIMAL},
+      </if>
+      <if test="projectCost != null" >
+        project_cost = #{projectCost,jdbcType=DECIMAL},
+      </if>
+      <if test="grossProfit != null" >
+        gross_profit = #{grossProfit,jdbcType=DECIMAL},
+      </if>
+      <if test="grossProfitMargin != null" >
+        gross_profit_margin = #{grossProfitMargin,jdbcType=DECIMAL},
+      </if>
+      <if test="agentFee != null" >
+        agent_fee = #{agentFee,jdbcType=DECIMAL},
+      </if>
+      <if test="raiseFee != null" >
+        raise_fee = #{raiseFee,jdbcType=DECIMAL},
+      </if>
+      <if test="guaranceFee != null" >
+        guarance_fee = #{guaranceFee,jdbcType=DECIMAL},
+      </if>
+      <if test="financingInterest != null" >
+        financing_interest = #{financingInterest,jdbcType=DECIMAL},
+      </if>
+      <if test="bankFees != null" >
+        bank_fees = #{bankFees,jdbcType=DECIMAL},
+      </if>
+      <if test="domesticTaxs != null" >
+        domestic_taxs = #{domesticTaxs,jdbcType=DECIMAL},
+      </if>
+      <if test="foreignTaxes != null" >
+        foreign_taxes = #{foreignTaxes,jdbcType=DECIMAL},
+      </if>
+      <if test="manageFee != null" >
+        manage_fee = #{manageFee,jdbcType=DECIMAL},
+      </if>
+      <if test="afterProfit != null" >
+        after_profit = #{afterProfit,jdbcType=DECIMAL},
+      </if>
+      <if test="beforeProfit != null" >
+        before_profit = #{beforeProfit,jdbcType=DECIMAL},
+      </if>
+      <if test="quotationProfit != null" >
+        quotation_profit = #{quotationProfit,jdbcType=DECIMAL},
+      </if>
+      <if test="purchasingCostsD != null" >
+        purchasing_costs_d = #{purchasingCostsD,jdbcType=DECIMAL},
+      </if>
+      <if test="purchasingCostsF != null" >
+        purchasing_costs_f = #{purchasingCostsF,jdbcType=DECIMAL},
+      </if>
+      <if test="directLabor != null" >
+        direct_labor = #{directLabor,jdbcType=DECIMAL},
+      </if>
+      <if test="manufacturingCosts != null" >
+        manufacturing_costs = #{manufacturingCosts,jdbcType=DECIMAL},
+      </if>
+      <if test="raiseRate != null" >
+        raise_rate = #{raiseRate,jdbcType=DECIMAL},
+      </if>
+      <if test="totalProjectCost != null" >
+        total_project_cost = #{totalProjectCost,jdbcType=DECIMAL},
+      </if>
+      <if test="rearFee != null" >
+        rear_fee = #{rearFee,jdbcType=DECIMAL},
+      </if>
+      <if test="platformAgentCost != null" >
+        platform_agent_cost = #{platformAgentCost,jdbcType=DECIMAL},
+      </if>
+      <if test="tenant != null" >
+        tenant = #{tenant,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.ProjectProfit" >
+    update project_profit
+    set project_id = #{projectId,jdbcType=INTEGER},
+      country = #{country,jdbcType=VARCHAR},
+      trade_term = #{tradeTerm,jdbcType=VARCHAR},
+      project_type = #{projectType,jdbcType=VARCHAR},
+      contract_amount_usd = #{contractAmountUsd,jdbcType=DECIMAL},
+      contract_amount = #{contractAmount,jdbcType=DECIMAL},
+      exchange_rate = #{exchangeRate,jdbcType=DECIMAL},
+      tax_refund = #{taxRefund,jdbcType=DECIMAL},
+      land_freight = #{landFreight,jdbcType=DECIMAL},
+      land_insurance = #{landInsurance,jdbcType=DECIMAL},
+      port_charges = #{portCharges,jdbcType=DECIMAL},
+      inspection_fee = #{inspectionFee,jdbcType=DECIMAL},
+      international_transport = #{internationalTransport,jdbcType=DECIMAL},
+      tariff = #{tariff,jdbcType=DECIMAL},
+      vat = #{vat,jdbcType=DECIMAL},
+      customs_clear_fee = #{customsClearFee,jdbcType=DECIMAL},
+      customs_agent_fee = #{customsAgentFee,jdbcType=DECIMAL},
+      transportion_insurance = #{transportionInsurance,jdbcType=DECIMAL},
+      export_credit_insurance = #{exportCreditInsurance,jdbcType=DECIMAL},
+      other_credit = #{otherCredit,jdbcType=VARCHAR},
+      travel_expenses = #{travelExpenses,jdbcType=DECIMAL},
+      project_cost = #{projectCost,jdbcType=DECIMAL},
+      gross_profit = #{grossProfit,jdbcType=DECIMAL},
+      gross_profit_margin = #{grossProfitMargin,jdbcType=DECIMAL},
+      agent_fee = #{agentFee,jdbcType=DECIMAL},
+      raise_fee = #{raiseFee,jdbcType=DECIMAL},
+      guarance_fee = #{guaranceFee,jdbcType=DECIMAL},
+      financing_interest = #{financingInterest,jdbcType=DECIMAL},
+      bank_fees = #{bankFees,jdbcType=DECIMAL},
+      domestic_taxs = #{domesticTaxs,jdbcType=DECIMAL},
+      foreign_taxes = #{foreignTaxes,jdbcType=DECIMAL},
+      manage_fee = #{manageFee,jdbcType=DECIMAL},
+      after_profit = #{afterProfit,jdbcType=DECIMAL},
+      before_profit = #{beforeProfit,jdbcType=DECIMAL},
+      quotation_profit = #{quotationProfit,jdbcType=DECIMAL},
+      purchasing_costs_d = #{purchasingCostsD,jdbcType=DECIMAL},
+      purchasing_costs_f = #{purchasingCostsF,jdbcType=DECIMAL},
+      direct_labor = #{directLabor,jdbcType=DECIMAL},
+      manufacturing_costs = #{manufacturingCosts,jdbcType=DECIMAL},
+      raise_rate = #{raiseRate,jdbcType=DECIMAL},
+      total_project_cost = #{totalProjectCost,jdbcType=DECIMAL},
+      rear_fee = #{rearFee,jdbcType=DECIMAL},
+      platform_agent_cost = #{platformAgentCost,jdbcType=DECIMAL},
+      tenant = #{tenant,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

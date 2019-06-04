@@ -404,6 +404,13 @@ public class DeliverConsign {
     @Column(name = "operation_specialist")
     private String operationSpecialist;
 
+    @Column(name = "process_id")
+    private String processId;
+
+
+    @Column(name = "task_id")
+    private String taskId;
+
 
 
     public List<DeliverConsignPayment> getDeliverConsignPayments() {
@@ -894,6 +901,22 @@ public class DeliverConsign {
 
     public void setCheckLogId(Integer checkLogId) {
         this.checkLogId = checkLogId;
+    }
+
+    public void setProcessId(String processId) {
+        this.processId = processId;
+    }
+
+    public String getProcessId() {
+        return processId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+
+    public String getTaskId() {
+        return taskId;
     }
 
     /**
