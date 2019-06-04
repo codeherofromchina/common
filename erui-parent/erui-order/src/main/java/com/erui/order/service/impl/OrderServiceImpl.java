@@ -981,6 +981,7 @@ public class OrderServiceImpl implements OrderService {
                     contractNo = StringUtil.genContractNo02(lastContractNo);
                 }
             }
+
         } else if (addOrderVo.getOrderCategory() == 6 && StringUtils.equals("Erui International Electronic Commerce Co., Ltd.", addOrderVo.getSigningCo())
                 && StringUtils.isBlank(order.getContractNo())) {
             String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
@@ -1171,6 +1172,29 @@ public class OrderServiceImpl implements OrderService {
                     }
                     orderUpdate.setProcessId(processResp.getString("instanceId"));
                     orderUpdate.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
+
+
+                    /// 删除老流程待办 ，驳回到初始节点时候会开启新流程 TODO 如果不存在老审核流程可删除
+                    //项目提交的时候判断是否有驳回的信息  如果有删除  “驳回订单” 待办提示
+                    try {
+                        BackLog backLog = new BackLog();
+                        backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.REJECTORDER.getNum());    //功能访问路径标识
+                        backLog.setHostId(order.getId());
+                        backLogService.updateBackLogByDelYn(backLog);
+                        // 删除上一个待办
+                        BackLog backLog2 = new BackLog();
+                        backLog2.setHostId(order.getId());
+                        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT.getNum());
+                        backLogService.updateBackLogByDelYn(backLog2);
+                        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_REJECT2.getNum());
+                        backLogService.updateBackLogByDelYn(backLog2);
+                        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_AUDIT.getNum());
+                        backLogService.updateBackLogByDelYn(backLog2);
+                        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_AUDIT2.getNum());  //功能访问路径标识
+                        backLogService.updateBackLogByDelYn(backLog2);
+                    }catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 } else {
                     Map<String, Object> bpmVar = new HashMap<>();
                     bpmVar.put("order_amount", orderUpdate.getTotalPriceUsd().doubleValue());
@@ -3249,7 +3273,12 @@ public class OrderServiceImpl implements OrderService {
         List<CheckLog> passed = null;
         List<CheckLog> resultCheckLogs = null;
         if (orderDec.getId() != null) {
-            resultCheckLogs = checkLogService.findListByOrderId(orderDec.getId());
+            // TODO 添加适配业务流审核日志到现有审核日志
+            if (StringUtils.isBlank(orderDec.getProcessId())) {
+                resultCheckLogs = checkLogService.findListByOrderId(orderDec.getId());
+            } else {
+                resultCheckLogs = checkLogService.findAdapterListByProcessId(orderDec.getProcessId());
+            }
             Map<String, CheckLog> map = new LinkedMap<>();
             if (resultCheckLogs != null && resultCheckLogs.size() > 0) {
                 for (CheckLog cLog : resultCheckLogs) {
