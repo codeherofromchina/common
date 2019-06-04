@@ -354,6 +354,8 @@ public class ExportDataController {
      */
     @RequestMapping(value = "/exportOrderContract")
     public ModelAndView exportOrderContract(HttpServletResponse response, HttpServletRequest request) {
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
         Map<String, String> params = getParameters(request);
         Integer id = null;
         if (params.containsKey("id") && params.get("id") != null) {

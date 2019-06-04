@@ -1,13 +1,20 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.erui.comm.ThreadLocalUtil;
 import com.erui.order.dao.CheckLogDao;
+import com.erui.order.dao.OrderDao;
 import com.erui.order.entity.CheckLog;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
 import com.erui.order.service.CheckLogService;
 import com.erui.order.service.OrderService;
+import com.erui.order.util.BpmUtils;
 import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -31,7 +38,9 @@ import java.util.stream.Collectors;
  * @modified By
  */
 @Service
+@Transactional
 public class CheckLogServiceImpl implements CheckLogService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CheckLogServiceImpl.class);
     @Autowired
     private CheckLogDao checkLogDao;
     @Autowired
@@ -320,4 +329,46 @@ public class CheckLogServiceImpl implements CheckLogService {
     public List<CheckLog> findCheckLogsByPurchId(int purchId) {
         return checkLogDao.findByJoinIdAndCategoryOrderByCreateTime(purchId, "PURCH");
     }
+
+
+    @Override
+    public List<CheckLog> findAdapterListByProcessId(String processId) {
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        List<CheckLog> result = null;
+        if (StringUtils.isBlank(eruiToken)) {
+            return result;
+        }
+        try {
+            // 查询业务流中的审核日志信息
+            JSONObject jsonObject = BpmUtils.processLogs(processId, eruiToken, null);
+            JSONArray data = jsonObject.getJSONArray("instanceLogs");
+            if (data != null && data.size() > 0) {
+                result = new ArrayList<>();
+                for (int n = 0; n < data.size(); ++n) {
+                    CheckLog tmp = coverBpmLog2CheckLog(data.getJSONObject(n));
+                    result.add(tmp);
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOGGER.error("调用BPM业务流数据审核日志失败processId:{},eruiToken:{}", processId, eruiToken);
+        }
+        return result;
+    }
+
+
+    private CheckLog coverBpmLog2CheckLog(JSONObject bpmLog) {
+        // TODO
+
+
+
+
+        return null;
+    }
+
+
+    private Map<String, String> newsEventMap = new HashMap<String, String>(){{
+        put("2","v1");
+        put("3","v2");
+    }};
 }

@@ -74,4 +74,12 @@ public interface CheckLogService {
      * @return
      */
     List<CheckLog> findCheckLogsByPurchId(int purchId);
+
+
+    /**
+     * 查询新BPM业务流日志并适配成现有平台日志形式
+     * @param processId
+     * @return
+     */
+    List<CheckLog> findAdapterListByProcessId(String processId);
 }

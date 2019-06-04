@@ -1790,6 +1790,19 @@ public class PurchServiceImpl implements PurchService {
                         BpmUtils.completeTask(taskId, eruiToken, null, localVariables, "同意");
                     }
                     save.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
+
+                    // 删除老的待办，如果要是驳回，会存在老待办，但是现在要启动新的审核流程
+                    // 删除上一个待办 TODO 待没有老审核流程可删除
+                    try {
+                        BackLog backLog2 = new BackLog();
+                        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCH_REJECT.getNum());    //功能访问路径标识
+                        backLog2.setHostId(purch.getId());
+                        backLogService.updateBackLogByDelYn(backLog2);
+                        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCH_AUDIT.getNum());    //功能访问路径标识
+                        backLogService.updateBackLogByDelYn(backLog2);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
             if (save.getStatus() == 2) {

@@ -368,6 +368,19 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     // 设置订单和业务流标示关联
                     deliverConsign1.setProcessId(processResp.getString("instanceId"));
 
+                    /// 删除老流程待办 ，驳回到初始节点时候会开启新流程 TODO 如果不存在老审核流程可删除
+                    // 删除上一个待办
+                    try {
+                        BackLog backLog2 = new BackLog();
+                        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERCONSIGN_REJECT.getNum());    //功能访问路径标识
+                        backLog2.setHostId(deliverConsign.getOrder().getId());
+                        backLog2.setFollowId(deliverConsign.getId());
+                        backLogService.updateBackLogByDelYn(backLog2);
+                        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERCONSIGN_AUDIT.getNum());    //功能访问路径标识
+                        backLogService.updateBackLogByDelYn(backLog2);
+                    }catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 } else {
                     // 完善订单任务调用
                     Map<String, Object> localVariables = new HashMap<>();
