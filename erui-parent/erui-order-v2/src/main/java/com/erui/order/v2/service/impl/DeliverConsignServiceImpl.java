@@ -72,7 +72,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         DeliverConsignExample.Criteria criteria = example.createCriteria();
         criteria.andProcessIdEqualTo(processId);
         List<DeliverConsign> deliverConsigns = deliverConsignMapper.selectByExample(example);
-        if (deliverConsigns != null || deliverConsigns.size() > 0) {
+        if (deliverConsigns != null && deliverConsigns.size() > 0) {
             return deliverConsigns.get(0);
         }
         return null;
@@ -161,9 +161,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     }
 
     @Override
-    public void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId, boolean rejected) {
+    public void updateAuditProcessDoing(Long deliverConsignId, String auditingProcess, String taskId, boolean rejected) {
         // 查询出口通知单
-        DeliverConsign deliverConsign = findDeliverConsignByProcessId(processInstanceId);
+        DeliverConsign deliverConsign = deliverConsignMapper.selectByPrimaryKey(Math.toIntExact(deliverConsignId));
         if (deliverConsign == null) {
             return;
         }

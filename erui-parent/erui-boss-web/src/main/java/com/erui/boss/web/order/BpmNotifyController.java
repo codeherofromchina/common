@@ -206,8 +206,8 @@ public class BpmNotifyController {
         }
         if (StringUtils.equals("order", bpmTaskRuntime.getBizType())) {
             // 订单审核流程
-            orderService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId(), rejected);
-            projectService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId(), rejected);
+            orderService.updateAuditProcessDoing(bpmTaskRuntime.getBizObjId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId(), rejected);
+            projectService.updateAuditProcessDoing(bpmTaskRuntime.getBizObjId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId(), rejected);
             if (user != null) {
                 // 添加当前审核人
                 orderService.updateAuditUser(bpmTaskRuntime.getBizObjId(), user.getId(), user.getName(), bpmTaskRuntime.getActId());
@@ -215,14 +215,14 @@ public class BpmNotifyController {
             }
         } else if (StringUtils.equals("deliver_consign", bpmTaskRuntime.getBizType())) {
             // 订舱审核流程
-            deliverConsignService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId(), rejected);
+            deliverConsignService.updateAuditProcessDoing(bpmTaskRuntime.getBizObjId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId(), rejected);
             if (user != null) {
                 // 添加当前审核人
                 deliverConsignService.updateAuditUser(bpmTaskRuntime.getBizObjId(), user.getId(), user.getName(), bpmTaskRuntime.getActId());
             }
         } else if (StringUtils.equals("purch", bpmTaskRuntime.getBizType())) {
             // 采购审核流程
-            purchService.updateAuditProcessDoing(bpmTaskRuntime.getPiId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId(), rejected);
+            purchService.updateAuditProcessDoing(bpmTaskRuntime.getBizObjId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId(), rejected);
             if (user != null) {
                 // 添加当前审核人
                 purchService.updateAuditUser(bpmTaskRuntime.getBizObjId(), user.getId(), user.getName(), bpmTaskRuntime.getActId());

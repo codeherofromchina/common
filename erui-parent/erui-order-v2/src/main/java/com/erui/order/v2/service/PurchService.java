@@ -22,12 +22,12 @@ public interface PurchService {
 
     /**
      * 更新项目审核进度进行中
-     * @param processInstanceId
+     * @param purchId
      * @param auditingProcess
      * @param taskId    当前进行的项目
      * @param rejected    是否是驳回
      */
-    void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId, boolean rejected);
+    void updateAuditProcessDoing(Long purchId, String auditingProcess, String taskId, boolean rejected);
 
     /**
      * 业务流实例执行结束更新
