@@ -48,7 +48,6 @@ public class AreaController {
     public void setStr(String str) {
         this.str = str;
     }
-
     /**
      * 根据ID获取地区信息
      *
