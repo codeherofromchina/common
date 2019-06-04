@@ -880,18 +880,29 @@ public class PurchServiceImpl implements PurchService {
         row.getCell(1).setCellValue(priceMode); // 定价方式
         row.getCell(3).setCellValue(saveMode); // 节约方式
 
-        /*row = sheet.getRow(13);
-        Integer payType = purch.getPayType();
+        row = sheet.getRow(13);
+        Integer payType = 0;
+        if(purch.getPurchPaymentList() != null && purch.getPurchPaymentList().size()>0)
+            payType = purch.getPurchPaymentList().get(0).getType();
         switch (payType) {
             case 1:
-                row.getCell(1).setCellValue("货到验收合格后付款"); // 付款方式
+                row.getCell(1).setCellValue("预付"); // 付款方式
                 break;
             case 2:
-                row.getCell(1).setCellValue("款到发货"); // 付款方式
+                row.getCell(1).setCellValue("进度"); // 付款方式
+                break;
+            case 3:
+                row.getCell(1).setCellValue("提货前"); // 付款方式
+                break;
+            case 4:
+                row.getCell(1).setCellValue("提货后"); // 付款方式
+                break;
+            case 5:
+                row.getCell(1).setCellValue("质保金"); // 付款方式
                 break;
             default:
-                row.getCell(1).setCellValue("其他"); // 付款方式
-        }*/
+                row.getCell(1).setCellValue("其它"); // 付款方式
+        }
         Date arraivalDate = purch.getPurChgDate();
         if (arraivalDate == null) {
             arraivalDate = purch.getArrivalDate();
