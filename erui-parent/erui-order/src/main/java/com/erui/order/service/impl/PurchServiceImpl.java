@@ -1781,6 +1781,9 @@ public class PurchServiceImpl implements PurchService {
                         bpmInitVar.put("task_la_check", StringUtils.equals("3", purch.getContractVersion()) ? "Y" : "N"); // 标准版本
                         JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
                         save.setProcessId(processResp.getString("instanceId"));
+                        save.setAuditingUser("");
+                        save.setAuditingUserId("");
+                        save.setAuditingProcess("");
                     } else {
                         // 完善订单任务调用
                         Map<String, Object> localVariables = new HashMap<>();
