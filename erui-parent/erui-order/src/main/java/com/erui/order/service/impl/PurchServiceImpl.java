@@ -901,7 +901,7 @@ public class PurchServiceImpl implements PurchService {
                 row.getCell(1).setCellValue("质保金"); // 付款方式
                 break;
             default:
-                row.getCell(1).setCellValue("其它"); // 付款方式
+                row.getCell(1).setCellValue("其它");  // 付款方式
         }
         Date arraivalDate = purch.getPurChgDate();
         if (arraivalDate == null) {
