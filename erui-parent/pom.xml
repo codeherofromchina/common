@@ -15,6 +15,7 @@
         <module>erui-bmp</module>
         <module>erui-sms</module>
         <module>erui-order</module>
+        <module>erui-order-v2</module>
         <module>erui-pay</module>
         <module>erui-cms</module>
         <module>erui-monitor</module>
