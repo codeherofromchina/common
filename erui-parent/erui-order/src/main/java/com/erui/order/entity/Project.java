@@ -150,6 +150,7 @@ public class Project {
     private String processProgress;
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
+    @OrderBy("id asc")
     private List<Goods> goodsList = new ArrayList<>();
     //是否已生成出口通知单 删除字段
     @Column(name = "deliver_consign_has")
@@ -247,9 +248,9 @@ public class Project {
     }
 
     // 流程实例ID
-    @Column(name="process_id")
+    @Column(name = "process_id")
     private String processId;
-    @Column(name="task_id")
+    @Column(name = "task_id")
     private String taskId;
 
     public String getProcessId() {
