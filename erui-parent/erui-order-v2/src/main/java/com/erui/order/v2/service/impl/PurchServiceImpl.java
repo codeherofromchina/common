@@ -138,9 +138,10 @@ public class PurchServiceImpl implements PurchService {
     }
 
     @Override
-    public void updateAuditProcessDoing(Long purchId, String auditingProcess, String taskId, boolean rejected) {
+    public void updateAuditProcessDoing(String processId, String auditingProcess, String taskId, boolean rejected) {
         // 查询采购
-        Purch purch =  purchMapper.selectByPrimaryKey(Math.toIntExact(purchId));
+//        Purch purch =  purchMapper.selectByPrimaryKey(Math.toIntExact(purchId));
+        Purch purch =  findPurchByProcessId(processId);
         if (purch == null) {
             return;
         }

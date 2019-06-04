@@ -31,11 +31,11 @@ public interface OrderService {
     /**
      * 更新订单审核进度进行中
      *
-     * @param orderId
+     * @param processId
      * @param auditingProcess
      * @param rejected    是否是驳回
      */
-    void updateAuditProcessDoing(Long orderId, String auditingProcess, String taskId, boolean rejected);
+    void updateAuditProcessDoing(String processId, String auditingProcess, String taskId, boolean rejected);
 
     /**
      * 业务流实例执行结束更新

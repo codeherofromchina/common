@@ -1747,7 +1747,9 @@ public class PurchServiceImpl implements PurchService {
        /* if (dbPurch.getProjects().size() > 0 && dbPurch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
             dbPurch.setStatus(3);
         }*/
-
+            dbPurch.setAuditingUser(",");
+            dbPurch.setAuditingUserId(",");
+            dbPurch.setAuditingProcess("task_pu,task_pm");
             Purch save = purchDao.save(dbPurch);
             // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
             //save.setAttachmentList(save.getAttachmentList());
@@ -1783,7 +1785,7 @@ public class PurchServiceImpl implements PurchService {
                         bpmInitVar.put("param_contract", purch.getPurchNo()); // 采购合同号
                         bpmInitVar.put("task_la_check", StringUtils.equals("3", purch.getContractVersion()) ? "Y" : "N"); // 标准版本
                         JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
-                        save.setProcessId(processResp.getString("instanceId"));
+                        dbPurch.setProcessId(processResp.getString("instanceId"));
                     } else {
                         // 完善订单任务调用
                         Map<String, Object> localVariables = new HashMap<>();
@@ -1792,10 +1794,10 @@ public class PurchServiceImpl implements PurchService {
                         localVariables.put("task_la_check", StringUtils.equals("3", save.getContractVersion()) ? "Y" : "N"); // 标准版本
                         BpmUtils.completeTask(taskId, eruiToken, null, localVariables, "同意");
                     }
-                    save.setAuditingUser(",");
-                    save.setAuditingUserId(",");
-                    save.setAuditingProcess("task_pu,task_pm");
-                    save.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
+                    dbPurch.setAuditingUser(",");
+                    dbPurch.setAuditingUserId(",");
+                    dbPurch.setAuditingProcess("task_pu,task_pm");
+                    dbPurch.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
 
 
                     // 删除老的待办，如果要是驳回，会存在老待办，但是现在要启动新的审核流程
