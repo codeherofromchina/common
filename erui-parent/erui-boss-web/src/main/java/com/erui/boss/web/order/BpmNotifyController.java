@@ -204,6 +204,7 @@ public class BpmNotifyController {
         if (StringUtils.isNotBlank(bpmTaskRuntime.getAssignee())) {
             user = userService.findUserNoByUserNo(bpmTaskRuntime.getAssignee());
         }
+
         if (StringUtils.equals("order", bpmTaskRuntime.getBizType())) {
             // 订单审核流程
             orderService.updateAuditProcessDoing(bpmTaskRuntime.getBizObjId(), bpmTaskRuntime.getActId(), bpmTaskRuntime.getTaskId(), rejected);
