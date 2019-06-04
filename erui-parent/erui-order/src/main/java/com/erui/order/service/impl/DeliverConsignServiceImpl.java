@@ -559,7 +559,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if (deliverConsign.getAttachmentSet() != null && deliverConsign.getAttachmentSet().size() > 0) {
             attachmentService.addAttachments(deliverConsign.getAttachmentSet(), deliverConsign1.getId(), Attachment.AttachmentCategory.DELIVERCONSIGN.getCode());
         }
-
         //出口发货通知单订舱信息
         if (deliverConsign.getDeliverConsignBookingSpace() != null) {
             DeliverConsignBookingSpace deliverConsignBookingSpace = deliverConsign.getDeliverConsignBookingSpace();
