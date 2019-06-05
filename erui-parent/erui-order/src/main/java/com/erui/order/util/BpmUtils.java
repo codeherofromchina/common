@@ -218,7 +218,6 @@ public class BpmUtils {
                 result.add(tmp);
             }
         }
-
         System.out.println("---------------");
         System.out.println(JSONObject.toJSONString(result));
     }
