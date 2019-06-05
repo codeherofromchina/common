@@ -216,10 +216,10 @@ public class ProjectServiceImpl implements ProjectService {
                         }
                         projectUpdate.setBuVpAuditer(project.getBuVpAuditer());
                         projectUpdate.setBuVpAuditerId(project.getBuVpAuditerId());
-                        projectUpdate.setCeo(project.getCeo());
-                        projectUpdate.setCeoId(project.getCeoId());
-                        projectUpdate.setChairman(project.getChairman());
-                        projectUpdate.setChairmanId(project.getChairmanId());
+//                        projectUpdate.setCeo(project.getCeo());
+//                        projectUpdate.setCeoId(project.getCeoId());
+//                        projectUpdate.setChairman(project.getChairman());
+//                        projectUpdate.setChairmanId(project.getChairmanId());
                         projectUpdate.setAuditingLevel(auditingLevel);
                     }
                 }
