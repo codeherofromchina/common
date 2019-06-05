@@ -221,6 +221,7 @@ public class ProjectServiceImpl implements ProjectService {
 //                        projectUpdate.setChairman(project.getChairman());
 //                        projectUpdate.setChairmanId(project.getChairmanId());
                         projectUpdate.setAuditingLevel(auditingLevel);
+
                     }
                 }
                 // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
