@@ -1039,7 +1039,7 @@ public class PurchServiceImpl implements PurchService {
         Set<Project> projectSet = new HashSet<>();
         for (PurchGoods purchGoods : purch.getPurchGoodsList()) {
             // 获取要采购的商品
-            Goods goods = goodsDao.findOne(purchGoods.getgId());
+            Goods goods = goodsDao.findById(purchGoods.getgId());
             //获取采购合同商品
             PurchContractGoods purchContractGoods = purchContractGoodsDao.findOne(purchGoods.getPcgId());
             if (goods == null || goods.getExchanged()) {
