@@ -140,11 +140,11 @@ public class PurchServiceImpl implements PurchService {
     public List<Purch> findByPurchNo(String purchNo) {
         if (purchNo != null) {
             List<Purch> puchList = purchDao.findByPurchNo(purchNo);
-            if (puchList != null && puchList.size() > 0) {
+           /* if (puchList != null && puchList.size() > 0) {
                 for (Purch purch : puchList) {
                     purch.setPurchGoodsList(null);
                 }
-            }
+            }*/
             return puchList;
         }
         return null;

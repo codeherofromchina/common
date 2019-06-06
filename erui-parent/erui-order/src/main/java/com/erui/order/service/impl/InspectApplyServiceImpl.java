@@ -172,7 +172,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             iaGoods.setGoods(goods);
             iaGoods.setPurchGoods(purchGoods);
             iaGoods.setPurchaseNum(purchGoods.getPurchaseNum());
-            iaGoods.setQualityInspectType(purchGoods.getQualityInspectType() == null ? purchGoods.getQualityInspectType():purchGoods.getQualityInspectType().trim()); // 质量检验类型
+            iaGoods.setQualityInspectType(purchGoods.getQualityInspectType() == null ? purchGoods.getQualityInspectType() : purchGoods.getQualityInspectType().trim()); // 质量检验类型
             // 报检数量
             Integer inspectNum = iaGoods.getInspectNum();
             if (inspectNum == null || inspectNum == 0) {
@@ -414,7 +414,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
             if (inspectNum < 0 || inspectNum - oldInspectNum > purchGoods.getPurchaseNum() - purchGoods.getPreInspectNum()) {
                 throw new Exception(String.format("%s%s%s", "报检数量错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Error in number of inspection"));
             }
-            applyGoods.setQualityInspectType(purchGoods.getQualityInspectType()==null?purchGoods.getQualityInspectType():purchGoods.getQualityInspectType().trim()); // 质量检验类型
+            applyGoods.setQualityInspectType(purchGoods.getQualityInspectType() == null ? purchGoods.getQualityInspectType() : purchGoods.getQualityInspectType().trim()); // 质量检验类型
             // 如果是提交，则修改采购商品（父采购商品）中的已报检数量和商品（父商品）中的已报检数量
             if (dbInspectApply.getStatus() == InspectApply.StatusEnum.SUBMITED.getCode()) {
                 purchGoods.setInspectNum(purchGoods.getInspectNum() + inspectNum);
@@ -474,8 +474,11 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
         //deliverConsign1.setAttachmentList(deliverConsign1.getAttachmentList());
         List<Attachment> attachmentList = inspectApply.getAttachmentList();
+        Map<Integer, Attachment> dbAttahmentsMap = new HashMap<>();
         if (attachmentList != null && attachmentList.size() > 0) {
-            Map<Integer, Attachment> dbAttahmentsMap = dbInspectApply.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+            if (dbInspectApply.getAttachmentList() != null && dbInspectApply.getAttachmentList().size() > 0) {
+                dbAttahmentsMap = dbInspectApply.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
+            }
             attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbInspectApply.getId(), Attachment.AttachmentCategory.INSPECTAPPLY.getCode());
         }
         // 完善提交后的后续操作
@@ -715,19 +718,19 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         report.setIsShow(1);
 
         for (InspectApplyGoods applyGoods : inspectApply.getInspectApplyGoodsList()) {
-            if(applyGoods.getQualityInspectType() != null && "QRL1".equals(applyGoods.getQualityInspectType().trim())){
+            if (applyGoods.getQualityInspectType() != null && "QRL1".equals(applyGoods.getQualityInspectType().trim())) {
                 PurchGoods purchGoods = applyGoods.getPurchGoods();
                 applyGoods.setSamples(0);
                 applyGoods.setUnqualified(0);
                 // 设置采购商品的已合格数量
                 purchGoods.setInspectNum(purchGoods.getPurchaseNum());
                 purchGoods.setPreInspectNum(purchGoods.getPurchaseNum());
-                if(isAllQRL1) purchGoods.setGoodNum(purchGoods.getPurchaseNum());
+                if (isAllQRL1) purchGoods.setGoodNum(purchGoods.getPurchaseNum());
                 purchGoodsDao.save(purchGoods);
             }
         }
 
-        if(isAllQRL1){ // 质检类型全部为QRL1时，不需要入库质检了，直接在入库管理里面加入一条记录，入库质检不显示该记录，质检状态显示完成
+        if (isAllQRL1) { // 质检类型全部为QRL1时，不需要入库质检了，直接在入库管理里面加入一条记录，入库质检不显示该记录，质检状态显示完成
             report.setNcrNo("");
             report.setReportRemarks("质检商品全部都是QRL1，所以不需要质检员质检商品。");
             report.setStatus(InspectReport.StatusEnum.DONE.getCode());
@@ -753,7 +756,7 @@ public class InspectApplyServiceImpl implements InspectApplyService {
         // 保存推送的质检信息并等待人工质检
         InspectReport save = inspectReportDao.save(report);
         if (save != null) {
-            if(isAllQRL1){ // 质检类型全部为QRL1时，不需要入库质检了，直接在入库管理里面加入一条记录。
+            if (isAllQRL1) { // 质检类型全部为QRL1时，不需要入库质检了，直接在入库管理里面加入一条记录。
                 pushInstock(save, inspectApply.getInspectApplyGoodsList());
             }
             return save;
