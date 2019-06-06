@@ -603,6 +603,8 @@
             erui_order.`project` t3
         WHERE
             t1.`status` in (3,4) and t1.id = t3.order_id AND t1.order_category != 1 AND t1.order_category != 3
+            AND t1.delete_flag = 0
+            AND t1.contract_no like 'YRX%'
             <if test="startTime!=null and startTime!=''">
                 AND t3.start_date BETWEEN #{startTime} AND #{endTime}
             </if>
@@ -626,6 +628,8 @@
             ,erui_order.`project` t2
         WHERE
             t1.`status` in (3,4) and t1.id = t2.order_id AND t1.order_category != 1 AND t1.order_category != 3
+            AND t1.delete_flag = 0
+            AND t1.contract_no like 'YRX%'
             <if test="startTime!=null and startTime!=''">
                 AND t2.start_date BETWEEN #{startTime} AND #{endTime}
             </if>
@@ -648,6 +652,8 @@
             erui_order.`project` t3
         WHERE
             t1.`status` in (3,4) and t1.id = t3.order_id AND t1.order_category != 1 AND t1.order_category != 3
+            AND t1.delete_flag = 0
+            AND t1.contract_no like 'YRX%'
             <if test="startTime!=null and startTime!=''">
                 AND t3.start_date BETWEEN #{startTime} AND #{endTime}
             </if>
@@ -670,6 +676,8 @@
             erui_order.`project` t3
         WHERE
             t1.id = t3.order_id AND t1.`status` in (3,4) AND t1.order_category != 1 AND t1.order_category != 3
+            AND t1.delete_flag = 0
+            AND t1.contract_no like 'YRX%'
                 AND t3.`project_status` IN ('EXECUTING' , 'DONE',
                     'DELAYED_EXECUTION',
                     'DELAYED_COMPLETE',
@@ -695,6 +703,8 @@
             erui_order.`project` t3
         WHERE
             t1.id = t3.order_id AND t1.`status` in (3,4) AND t1.order_category != 1 AND t1.order_category != 3
+            AND t1.delete_flag = 0
+            AND t1.contract_no like 'YRX%'
                 AND t3.`project_status` IN ('EXECUTING' , 'DONE',
                         'DELAYED_EXECUTION',
                         'DELAYED_COMPLETE',
@@ -721,6 +731,8 @@
         erui_order.`project` t3
         WHERE
         t1.id = t3.order_id AND t1.`status` in (3,4) AND t1.order_category != 1 AND t1.order_category != 3
+        AND t1.delete_flag = 0
+        AND t1.contract_no like 'YRX%'
         AND t3.`project_status` IN ('EXECUTING' , 'DONE',
         'DELAYED_EXECUTION',
         'DELAYED_COMPLETE',
@@ -752,6 +764,8 @@
         erui_order.`order` t1, erui_order.`project` t2
         WHERE
         t1.id = t2.order_id AND t1.`status` in (3,4) AND t1.order_category != 1 AND t1.order_category != 3
+        AND t1.delete_flag = 0
+        AND t1.contract_no like 'YRX%'
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t1.business_unit_id
         UNION ALL
@@ -790,6 +804,8 @@
         erui_order.`order` t1, erui_order.`project` t2
         WHERE
         t1.id = t2.order_id AND t1.`status` in (3,4) AND t1.order_category != 1 AND t1.order_category != 3
+        AND t1.delete_flag = 0
+        AND t1.contract_no like 'YRX%'
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t1.region
         UNION ALL
@@ -828,6 +844,8 @@
             erui_order.`order` t1, erui_order.`project` t2
             WHERE
             t1.id = t2.order_id AND t1.`status` in (3,4) AND t1.order_category != 1 AND t1.order_category != 3
+            AND t1.delete_flag = 0
+            AND t1.contract_no like 'YRX%'
             AND t2.start_date BETWEEN #{startTime} AND #{endTime}
             GROUP BY t1.country
               UNION ALL
@@ -881,6 +899,8 @@
         erui_order.`order` t1, erui_order.`project` t2, erui_buyer.buyer t3
         WHERE
         t1.id = t2.order_id AND t1.order_category != 1 AND t1.order_category != 3
+        AND t1.delete_flag = 0
+        AND t1.contract_no like 'YRX%'
         AND t1.crm_code = t3.buyer_code
         AND t1.crm_code IS NOT NULL
         AND t1.`status`  in (3,4)
@@ -895,6 +915,8 @@
         AND tb4.lang = 'zh'
         WHERE
         tb1.crm_code = tb2.buyer_code AND tb1.order_category != 1 AND tb1.order_category != 3
+        AND tb1.delete_flag = 0
+        AND tb1.contract_no like 'YRX%'
         AND IFNULL(tb1.total_price_usd, 0) = tb2.maxQuotePrice
         AND tb1.id = tb5.order_id
         <if test="startTime!=null and startTime!=''">
@@ -933,6 +955,8 @@
             erui_order.`order` t1, erui_order.`project` t4, erui_buyer.`buyer` t5
             WHERE
             t1.`status` in (3,4) AND t1.id = t4.order_id AND t1.order_category != 1 AND t1.order_category != 3
+            AND t1.delete_flag = 0
+            AND t1.contract_no like 'YRX%'
             AND t1.crm_code IS NOT NULL
             AND t1.crm_code = t5.buyer_code
             <if test="startTime!=null and startTime!=''">
@@ -944,17 +968,17 @@
             LEFT JOIN
             erui_dict.country tb3 ON tb1.country_bn = tb3.bn
             AND tb3.lang = 'zh'
-            WHERE
-            1 = 1
-            <if test="countryBn!=null and countryBn!=''">
-                AND tb1.country_bn = #{countryBn}
-            </if>
-            <if test="areaBn!=null and areaBn!=''">
-                AND tb1.area_bn = #{areaBn}
-            </if>
-            <if test="buyerCode!=null and buyerCode!=''">
-                AND tb1.buyer_code LIKE '%${buyerCode}%'
-            </if>
+            <where>
+                <if test="countryBn!=null and countryBn!=''">
+                    AND tb1.country_bn = #{countryBn}
+                </if>
+                <if test="areaBn!=null and areaBn!=''">
+                    AND tb1.area_bn = #{areaBn}
+                </if>
+                <if test="buyerCode!=null and buyerCode!=''">
+                    AND tb1.buyer_code LIKE '%${buyerCode}%'
+                </if>
+            </where>
     </select>
 
 
@@ -970,6 +994,9 @@
             erui_order.`project` t2
         WHERE
             t1.id = t2.order_id AND t1.order_category != 1 AND t1.order_category != 3
+            AND t1.delete_flag = 0
+            AND t1.contract_no like 'YRX%'
+            AND t1.`status` in (3,4)
                 AND t2.project_status IN ('EXECUTING' , 'DONE',
                 'DELAYED_EXECUTION',
                 'DELAYED_COMPLETE',
@@ -993,6 +1020,9 @@
             erui_buyer.buyer t4
         WHERE
             t1.id = t2.order_id AND t1.order_category != 1 AND t1.order_category != 3
+            AND t1.delete_flag = 0
+            AND t1.contract_no like 'YRX%'
+            AND t1.`status` in (3,4)
                 AND t1.crm_code = t4.buyer_code
                 AND t4.`status` in  ('APPROVED','PASS')
                 AND t4.created_at BETWEEN DATE_ADD(#{startTime},
@@ -1021,6 +1051,8 @@
                 erui_order.`project` AS t2
             WHERE
                 t1.id = t2.order_id AND t1.`status` in (3,4) AND t1.order_category != 1 AND t1.order_category != 3
+                AND t1.delete_flag = 0
+                AND t1.contract_no like 'YRX%'
                     AND t1.business_unit_id IS NOT NULL
                     AND t3.`name` IS NOT NULL
                     AND t2.start_date BETWEEN #{startTime} AND #{endTime}
@@ -1041,6 +1073,8 @@
             erui_order.`project` AS t2
         WHERE
             t1.id = t2.order_id AND t1.`status` in (3,4) AND t1.order_category != 1 AND t1.order_category != 3
+            AND t1.delete_flag = 0
+            AND t1.contract_no like 'YRX%'
                 AND t1.region IS NOT NULL
                 AND t3.`name` IS NOT NULL
                 AND t2.start_date BETWEEN #{startTime} AND #{endTime}
@@ -1061,6 +1095,8 @@
                 erui_order.`project` AS t2
             WHERE
                 t1.id = t2.order_id AND t1.`status` in (3,4) AND t1.order_category != 1 AND t1.order_category != 3
+                AND t1.delete_flag = 0
+                AND t1.contract_no like 'YRX%'
                     AND t1.country IS NOT NULL
                     AND t3.`name` IS NOT NULL
                     AND t2.start_date BETWEEN #{startTime} AND #{endTime}
