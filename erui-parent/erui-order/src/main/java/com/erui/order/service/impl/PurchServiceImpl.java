@@ -1841,7 +1841,6 @@ public class PurchServiceImpl implements PurchService {
                     dbPurch.setAuditingProcess("task_pu,task_pm");
                     dbPurch.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
 
-
                     // 删除老的待办，如果要是驳回，会存在老待办，但是现在要启动新的审核流程
                     // 删除上一个待办 TODO 待没有老审核流程可删除
                     try {
