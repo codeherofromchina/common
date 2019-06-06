@@ -1768,7 +1768,6 @@ public class PurchServiceImpl implements PurchService {
                         Goods parentOne = goodsDao.findOne(one.getParentId());
                         parentOne.setContractGoodsNum(parentOne.getContractGoodsNum() + purchaseNum);
                         goodsDao.save(parentOne);
-                        //goodsDao.delete(one);
                         deleteGoods.add(one);
                     } else {
                         one.setPrePurchsedNum(one.getPrePurchsedNum() - purchaseNum);
