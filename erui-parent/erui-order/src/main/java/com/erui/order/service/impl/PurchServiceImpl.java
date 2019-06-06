@@ -1642,7 +1642,9 @@ public class PurchServiceImpl implements PurchService {
                     //采购合同
                     existPurchContractId.add(cId);
                     Project project = purchGoods.getProject();
-
+                    if (project.getBusinessUid() != null) {
+                        businessUids.add(project.getBusinessUid().longValue()); // 添加项目负责人到集合中
+                    }
                     boolean hasSon = false;
                     if (purchGoods.getExchanged()) {
                         // 是替换商品，查看父商品是否存在
