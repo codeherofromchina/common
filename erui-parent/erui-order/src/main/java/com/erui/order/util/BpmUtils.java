@@ -163,7 +163,7 @@ public class BpmUtils {
         header.put("Content-Type", "application/json;charset=utf-8");
         header.put("Cookie", "eruitoken=" + token);
         String resp = HttpRequest.sendPost(bpmUrl + "/task/instance/" + taskId + "/complete", params.toJSONString(), header);
-        LOGGER.info("完成流程任务返回内容为：{}", resp);
+        LOGGER.info("完成流程任务返回内容为：requestUrl -> {}, respContent -> {}", bpmUrl + "/task/instance/" + taskId + "/complete", resp);
         JSONObject respJson = JSONObject.parseObject(resp);
         if (respJson != null && respJson.getInteger("code") == 0) {
             return respJson;

@@ -759,7 +759,13 @@ public class PurchServiceImpl implements PurchService {
             // 采购为空、采购状态未进行、采购未审核都不能导出
             throw new Exception("采购状态未进行或采购未审核错误");
         }
-        List<CheckLog> checkLogList = checkLogService.findCheckLogsByPurchId(purchId);
+
+        List<CheckLog> checkLogList = null;
+        if (StringUtils.isBlank(purch.getProcessId())) {
+            checkLogList = checkLogService.findCheckLogsByPurchId(purchId);
+        } else {
+            checkLogList = checkLogService.findAdapterListByProcessId(purch.getProcessId());
+        }
         List<Project> projects = purch.getProjects();
         StringBuffer businessUnitNames = new StringBuffer(); // 执行事业部
         Set<String> businessUnitNameSet = new HashSet<>();

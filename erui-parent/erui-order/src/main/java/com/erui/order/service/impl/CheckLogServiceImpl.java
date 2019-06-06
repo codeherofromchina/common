@@ -10,6 +10,10 @@ import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
 import com.erui.order.service.CheckLogService;
 import com.erui.order.service.OrderService;
+import com.erui.order.v2.model.DeliverConsign;
+import com.erui.order.v2.model.Purch;
+import com.erui.order.v2.service.DeliverConsignService;
+import com.erui.order.v2.service.PurchService;
 import com.erui.order.util.BpmUtils;
 import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +51,12 @@ public class CheckLogServiceImpl implements CheckLogService {
     private CheckLogDao checkLogDao;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private com.erui.order.v2.service.OrderService orderService2;
+    @Autowired
+    private PurchService purchService;
+    @Autowired
+    private DeliverConsignService deliverConsignService;
 
     /**
      * 查找最近的一个审核记录
@@ -341,6 +351,21 @@ public class CheckLogServiceImpl implements CheckLogService {
             return result;
         }
         try {
+            com.erui.order.v2.model.Order order2 = orderService2.findOrderByProcessId(processId);
+            Integer orderId = null;
+            Integer joinId = null;
+            if (order2 != null) {
+                orderId = order2.getId();
+                joinId = orderId;
+            }
+            Purch purch = purchService.findPurchByProcessId(processId);
+            if (purch != null) {
+                joinId = purch.getId();
+            }
+            DeliverConsign deliverConsign = deliverConsignService.findByProcessInstanceId(processId);
+            if (deliverConsign != null) {
+                joinId = deliverConsign.getId();
+            }
             // 查询业务流中的审核日志信息
             JSONObject jsonObject = BpmUtils.processLogs(processId, eruiToken, null);
             JSONArray data = jsonObject.getJSONArray("instanceLogs");
@@ -348,6 +373,8 @@ public class CheckLogServiceImpl implements CheckLogService {
                 result = new ArrayList<>();
                 for (int n = 0; n < data.size(); ++n) {
                     CheckLog tmp = coverBpmLog2CheckLog(data.getJSONObject(n));
+                    tmp.setOrderId(orderId);
+                    tmp.setJoinId(joinId);
                     result.add(tmp);
                 }
             }
