@@ -381,7 +381,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateProjectQualityInspectType(Project project) throws Exception {
-        Project projectUpdate = findById(project.getId());
+        Project projectUpdate = findByIdForLock(project.getId());
         projectUpdate.setQualityInspectType(project.getQualityInspectType().trim());
         if (project.getQualityUid() != null) {
             projectUpdate.setQualityUid(project.getQualityUid());
@@ -402,7 +402,7 @@ public class ProjectServiceImpl implements ProjectService {
             String auditingUserId = projectUpdate.getAuditingUserId();
             String auditingUserName = projectUpdate.getAuditingUser();
             if (StringUtils.equals(auditingProcess, "task_pc")) {
-                auditingProcess = "task_gm";
+                auditingProcess = "";
                 auditingUserId = "";
                 auditingUserName = "";
             } else if (StringUtils.isNotBlank(auditingProcess)) {

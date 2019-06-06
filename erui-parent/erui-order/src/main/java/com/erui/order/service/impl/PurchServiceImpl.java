@@ -20,6 +20,7 @@ import com.erui.order.service.*;
 
 import com.erui.order.util.BpmUtils;
 
+import com.erui.order.v2.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -79,6 +80,8 @@ public class PurchServiceImpl implements PurchService {
     private BackLogService backLogService;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private UserService userService;
     @Autowired
     private CheckLogService checkLogService;
     @Value("#{orderProp[MEMBER_INFORMATION]}")
@@ -1043,6 +1046,7 @@ public class PurchServiceImpl implements PurchService {
         // 处理商品信息
         List<PurchGoods> purchGoodsList = new ArrayList<>();
         Set<Project> projectSet = new HashSet<>();
+        List<Long> businessUids = new ArrayList<>();
         for (PurchGoods purchGoods : purch.getPurchGoodsList()) {
             // 获取要采购的商品
             Goods goods = goodsDao.findById(purchGoods.getgId());
@@ -1065,6 +1069,9 @@ public class PurchServiceImpl implements PurchService {
             }
             if (project.getPurchDone()) {
                 throw new Exception(String.format("%s%s%s", "项目采购已完成，不能再次采购", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project procurement has been completed and can not be repurchased"));
+            }
+            if (project.getBusinessUid() != null) {
+                businessUids.add(project.getBusinessUid().longValue());
             }
             projectSet.add(project);
             PurchGoods son = handleAddNewPurchGoods(project, purch, goods, purchGoods, purchContractGoods);
@@ -1127,6 +1134,14 @@ public class PurchServiceImpl implements PurchService {
                 task_la_check = "Y";
             }
             bpmInitVar.put("task_la_check", task_la_check); // 标准版本
+            List<String> businessUserNos = userService.findUserNosByIds(businessUids);
+            if (businessUserNos.size() == 1) {
+                bpmInitVar.put("assignee_pm", businessUserNos.get(0));  // 设置项目负责人为项目中的项目负责人
+            } else if (businessUserNos.size() > 1){
+                bpmInitVar.put("candidate_users_pm", StringUtils.join(businessUserNos,","));  // 设置项目负责人为项目中的项目负责人
+            } else {
+                throw new Exception("没有项目负责人");
+            }
             JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
             save.setProcessId(processResp.getString("instanceId"));
 
@@ -1528,6 +1543,7 @@ public class PurchServiceImpl implements PurchService {
             Map<Integer, PurchGoods> dbPurchGoodsMap = dbPurch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(PurchGoods::getId, vo -> vo));
             Set<Integer> existId = new HashSet<>();
             Set<Integer> existPurchContractId = new HashSet<>();
+            List<Long> businessUids = new ArrayList<>(); // 事业部负责人列表
             // 处理参数中的采购商品信息
             for (PurchGoods pg : purch.getPurchGoodsList()) {
                 Integer pgId = pg.getId();
@@ -1553,6 +1569,9 @@ public class PurchServiceImpl implements PurchService {
                     }
                     if (project.getPurchDone()) {
                         throw new Exception(String.format("%s%s%s", "项目采购已完成，不能再次采购", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project procurement has been completed and can not be repurchased"));
+                    }
+                    if (project.getBusinessUid() != null) {
+                        businessUids.add(project.getBusinessUid().longValue()); // 添加项目负责人到集合中
                     }
                     projectSet.add(project);
                     // 查看是否存在替换商品
@@ -1801,6 +1820,14 @@ public class PurchServiceImpl implements PurchService {
                         bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
                         bpmInitVar.put("param_contract", purch.getPurchNo()); // 采购合同号
                         bpmInitVar.put("task_la_check", StringUtils.equals("3", purch.getContractVersion()) ? "Y" : "N"); // 标准版本
+                        List<String> businessUserNos = userService.findUserNosByIds(businessUids);
+                        if (businessUserNos.size() == 1) {
+                            bpmInitVar.put("assignee_pm", businessUserNos.get(0));  // 设置项目负责人为项目中的项目负责人
+                        } else if (businessUserNos.size() > 1){
+                            bpmInitVar.put("candidate_users_pm", StringUtils.join(businessUserNos,","));  // 设置项目负责人为项目中的项目负责人
+                        } else {
+                            throw new Exception("没有项目负责人");
+                        }
                         JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
                         dbPurch.setProcessId(processResp.getString("instanceId"));
                     } else {

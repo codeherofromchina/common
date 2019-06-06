@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,6 +51,21 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+    @Override
+    public List<String> findUserNosByIds(List<Long> ids) {
+        List<String> result = new ArrayList<>();
+        if (ids != null && ids.size() > 0) {
+            UserExample example = new UserExample();
+            example.createCriteria().andIdIn(ids);
+            List<User> users = UserMapper.selectByExample(example);
+            if (users != null && users.size() > 0) {
+                users.stream().filter(vo -> StringUtils.isNotBlank(vo.getUserNo())).forEach(
+                        vo -> result.add(vo.getUserNo())
+                );
+            }
+        }
+        return result;
+    }
 
     @Override
     public User findUserNoByUserNo(String userNo) {
