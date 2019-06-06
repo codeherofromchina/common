@@ -365,6 +365,16 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                     initVar.put("param_contract", deliverConsign1.getDeliverConsignNo());
                     initVar.put("task_cm_country", deliverConsign1.getCountry());
                     initVar.put("task_rm_area", deliverConsign1.getRegion());
+                    if (order.getTechnicalId() != null) {
+                        String userNo = userService.findUserNoById(order.getTechnicalId().longValue());
+                        if (StringUtils.isNotBlank(userNo)) {
+                            initVar.put("assignee_pm", userNo);  // 设置项目负责人为项目中的项目负责人
+                        } else {
+                            throw new Exception("没有项目负责人错误");
+                        }
+                    } else {
+                        throw new Exception("没有项目负责人错误");
+                    }
                     // 启动业务流流程实例
                     JSONObject processResp = BpmUtils.startProcessInstanceByKey("booking_order", null, eruitoken, "deliver_consign:" + deliverConsign1.getId(), initVar);
                     // 设置订单和业务流标示关联
@@ -548,6 +558,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             Map<String, Object> initVar = new HashMap<>();
             initVar.put("param_contract", deliverConsign1.getDeliverConsignNo());
+            initVar.put("task_cm_country", deliverConsign1.getCountry());
+            initVar.put("task_rm_area", deliverConsign1.getRegion());
             if (order.getTechnicalId() != null) {
                 String userNo = userService.findUserNoById(order.getTechnicalId().longValue());
                 if (StringUtils.isNotBlank(userNo)) {
