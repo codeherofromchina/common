@@ -1642,7 +1642,9 @@ public class PurchServiceImpl implements PurchService {
                     //采购合同
                     existPurchContractId.add(cId);
                     Project project = purchGoods.getProject();
-
+                    if (project.getBusinessUid() != null) {
+                        businessUids.add(project.getBusinessUid().longValue()); // 添加项目负责人到集合中
+                    }
                     boolean hasSon = false;
                     if (purchGoods.getExchanged()) {
                         // 是替换商品，查看父商品是否存在
@@ -1766,7 +1768,6 @@ public class PurchServiceImpl implements PurchService {
                         Goods parentOne = goodsDao.findOne(one.getParentId());
                         parentOne.setContractGoodsNum(parentOne.getContractGoodsNum() + purchaseNum);
                         goodsDao.save(parentOne);
-                        //goodsDao.delete(one);
                         deleteGoods.add(one);
                     } else {
                         one.setPrePurchsedNum(one.getPrePurchsedNum() - purchaseNum);
@@ -1783,9 +1784,6 @@ public class PurchServiceImpl implements PurchService {
        /* if (dbPurch.getProjects().size() > 0 && dbPurch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
             dbPurch.setStatus(3);
         }*/
-            dbPurch.setAuditingUser(",");
-            dbPurch.setAuditingUserId(",");
-            dbPurch.setAuditingProcess("task_pu,task_pm");
             Purch save = purchDao.save(dbPurch);
             // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
             //save.setAttachmentList(save.getAttachmentList());
@@ -1842,7 +1840,6 @@ public class PurchServiceImpl implements PurchService {
                     dbPurch.setAuditingUserId(",");
                     dbPurch.setAuditingProcess("task_pu,task_pm");
                     dbPurch.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
-
 
                     // 删除老的待办，如果要是驳回，会存在老待办，但是现在要启动新的审核流程
                     // 删除上一个待办 TODO 待没有老审核流程可删除
