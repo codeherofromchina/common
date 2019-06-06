@@ -1784,9 +1784,6 @@ public class PurchServiceImpl implements PurchService {
        /* if (dbPurch.getProjects().size() > 0 && dbPurch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
             dbPurch.setStatus(3);
         }*/
-            dbPurch.setAuditingUser(",");
-            dbPurch.setAuditingUserId(",");
-            dbPurch.setAuditingProcess("task_pu,task_pm");
             Purch save = purchDao.save(dbPurch);
             // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
             //save.setAttachmentList(save.getAttachmentList());
