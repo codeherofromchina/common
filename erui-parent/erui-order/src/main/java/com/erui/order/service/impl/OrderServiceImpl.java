@@ -166,7 +166,6 @@ public class OrderServiceImpl implements OrderService {
             }
             order.setDistributionDeptName(distributionDeptName);
         }
-
         // and  处理授信数据信息
        /* BigDecimal currencyBnShipmentsMoney =  order.getShipmentsMoney() == null ? BigDecimal.valueOf(0) : order.getShipmentsMoney();  //已发货总金额 （财务管理
         BigDecimal currencyBnAlreadyGatheringMoney = order.getAlreadyGatheringMoney() == null ? BigDecimal.valueOf(0) : order.getAlreadyGatheringMoney();//已收款总金额
