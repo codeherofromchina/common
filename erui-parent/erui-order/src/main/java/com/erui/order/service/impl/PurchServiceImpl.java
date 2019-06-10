@@ -798,7 +798,7 @@ public class PurchServiceImpl implements PurchService {
         if (StringUtils.isBlank(purch.getProcessId())) {
             checkLogList = checkLogService.findCheckLogsByPurchId(purchId);
         } else {
-            checkLogList = checkLogService.findAdapterListByProcessId(purch.getProcessId());
+            checkLogList = checkLogService.findAdapterListByProcessId(purch.getProcessId(), 2);
         }
         List<Project> projects = purch.getProjects();
         StringBuffer businessUnitNames = new StringBuffer(); // 执行事业部

@@ -3287,7 +3287,7 @@ public class OrderServiceImpl implements OrderService {
             if (StringUtils.isBlank(orderDec.getProcessId())) {
                 resultCheckLogs = checkLogService.findListByOrderId(orderDec.getId());
             } else {
-                resultCheckLogs = checkLogService.findAdapterListByProcessId(orderDec.getProcessId());
+                resultCheckLogs = checkLogService.findAdapterListByProcessId(orderDec.getProcessId(), 1);
             }
             Map<String, CheckLog> map = new LinkedMap<>();
             if (resultCheckLogs != null && resultCheckLogs.size() > 0) {
