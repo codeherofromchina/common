@@ -424,8 +424,6 @@ public class CheckLogServiceImpl implements CheckLogService {
         put("task_ed",Integer.valueOf(208)); // '董事长审核'
     }};
 
-
-
     private static Map<String, Integer> newCheckLog2oldCheckLogPurchMap = new HashMap<String, Integer>(){{
         put("task_pu",Integer.valueOf(21)); // '采购经理审核'
         put("task_pm",Integer.valueOf(22)); // '事业部项目负责人'
