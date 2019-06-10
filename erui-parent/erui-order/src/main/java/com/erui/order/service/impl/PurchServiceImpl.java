@@ -750,7 +750,6 @@ public class PurchServiceImpl implements PurchService {
      * 签约主体 英文转中文
      *
      * @param signingCo 签约主体
-     * @throws Exception
      */
     private String getSigningCoCn(String signingCo){
         String signingCoCn = null;
