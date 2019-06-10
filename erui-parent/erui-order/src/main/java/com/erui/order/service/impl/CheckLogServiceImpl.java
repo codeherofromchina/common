@@ -441,7 +441,7 @@ public class CheckLogServiceImpl implements CheckLogService {
      */
     @Override
     public String getSigningCoCn(String signingCo){
-        String signingCoCn = null;
+        String signingCoCn = "";
         if(signingCo != null){
             switch (signingCo) {
                 case "Erui International Electronic Commerce Co., Ltd.":
