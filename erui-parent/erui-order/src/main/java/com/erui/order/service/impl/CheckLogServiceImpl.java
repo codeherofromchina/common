@@ -10,9 +10,15 @@ import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
 import com.erui.order.service.CheckLogService;
 import com.erui.order.service.OrderService;
+import com.erui.order.v2.model.DeliverConsign;
+import com.erui.order.v2.model.Purch;
+import com.erui.order.v2.service.DeliverConsignService;
+import com.erui.order.v2.service.PurchService;
 import com.erui.order.util.BpmUtils;
 import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +51,12 @@ public class CheckLogServiceImpl implements CheckLogService {
     private CheckLogDao checkLogDao;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private com.erui.order.v2.service.OrderService orderService2;
+    @Autowired
+    private PurchService purchService;
+    @Autowired
+    private DeliverConsignService deliverConsignService;
 
     /**
      * 查找最近的一个审核记录
@@ -339,6 +351,21 @@ public class CheckLogServiceImpl implements CheckLogService {
             return result;
         }
         try {
+            com.erui.order.v2.model.Order order2 = orderService2.findOrderByProcessId(processId);
+            Integer orderId = null;
+            Integer joinId = null;
+            if (order2 != null) {
+                orderId = order2.getId();
+                joinId = orderId;
+            }
+            Purch purch = purchService.findPurchByProcessId(processId);
+            if (purch != null) {
+                joinId = purch.getId();
+            }
+            DeliverConsign deliverConsign = deliverConsignService.findByProcessInstanceId(processId);
+            if (deliverConsign != null) {
+                joinId = deliverConsign.getId();
+            }
             // 查询业务流中的审核日志信息
             JSONObject jsonObject = BpmUtils.processLogs(processId, eruiToken, null);
             JSONArray data = jsonObject.getJSONArray("instanceLogs");
@@ -346,6 +373,8 @@ public class CheckLogServiceImpl implements CheckLogService {
                 result = new ArrayList<>();
                 for (int n = 0; n < data.size(); ++n) {
                     CheckLog tmp = coverBpmLog2CheckLog(data.getJSONObject(n));
+                    tmp.setOrderId(orderId);
+                    tmp.setJoinId(joinId);
                     result.add(tmp);
                 }
             }
@@ -356,19 +385,33 @@ public class CheckLogServiceImpl implements CheckLogService {
         return result;
     }
 
-
-    private CheckLog coverBpmLog2CheckLog(JSONObject bpmLog) {
-        // TODO
-
-
-
-
-        return null;
+    private static CheckLog coverBpmLog2CheckLog(JSONObject bpmLog) {
+        CheckLog checkLog = new CheckLog();
+        checkLog.setCreateTime(bpmLog.getDate("createTime"));
+        Integer auditProcess = newCheckLog2oldCheckLogCodeMap.get(bpmLog.getString("taskDefKey"));
+        checkLog.setAuditingProcess(auditProcess);
+        if (auditProcess != null) {
+            checkLog.setType(auditProcess / 100);
+        }
+        checkLog.setAuditingUserName(bpmLog.getString("userName"));
+        checkLog.setOperation(StringUtils.equalsIgnoreCase("APPROVED", bpmLog.getString("approvalResult")) ? "2" : "-1");
+        return checkLog;
     }
 
-
-    private Map<String, String> newsEventMap = new HashMap<String, String>(){{
-        put("2","v1");
-        put("3","v2");
+    private static Map<String, Integer> newCheckLog2oldCheckLogCodeMap = new HashMap<String, Integer>() {{
+        put("task_mm", Integer.valueOf(100)); // '完善订单信息'
+        put("task_cm", Integer.valueOf(101)); // '国家负责人审核'
+        put("task_rm", Integer.valueOf(102)); // '地区总经理审核'
+        put("task_vp", Integer.valueOf(103)); // '分管领导审核'
+        put("task_fn", Integer.valueOf(104)); // '融资负责人审核'
+        put("task_la", Integer.valueOf(105)); // '法务负责人审核'
+        put("task_fa", Integer.valueOf(106)); // '结算负责人审核'
+        put("task_pm", Integer.valueOf(201)); // '事业部项目负责人审核'
+        put("task_lg", Integer.valueOf(202)); // '物流经办人审核'
+        put("task_pu", Integer.valueOf(204)); // '采购经办人审核'
+        put("task_pc", Integer.valueOf(205)); // '品控经办人审核'
+        put("task_gm", Integer.valueOf(206)); // '事业部总经理审核'
+        put("task_ceo", Integer.valueOf(207)); // '总裁审核'
+        put("task_ed", Integer.valueOf(208)); // '董事长审核'
     }};
 }

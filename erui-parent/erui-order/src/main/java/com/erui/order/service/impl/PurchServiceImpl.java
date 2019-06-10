@@ -20,6 +20,7 @@ import com.erui.order.service.*;
 
 import com.erui.order.util.BpmUtils;
 
+import com.erui.order.v2.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -80,6 +81,8 @@ public class PurchServiceImpl implements PurchService {
     @Autowired
     private OrderService orderService;
     @Autowired
+    private UserService userService;
+    @Autowired
     private CheckLogService checkLogService;
     @Value("#{orderProp[MEMBER_INFORMATION]}")
     private String memberInformation;  //查询人员信息调用接口
@@ -137,11 +140,11 @@ public class PurchServiceImpl implements PurchService {
     public List<Purch> findByPurchNo(String purchNo) {
         if (purchNo != null) {
             List<Purch> puchList = purchDao.findByPurchNo(purchNo);
-            if (puchList != null && puchList.size() > 0) {
+           /* if (puchList != null && puchList.size() > 0) {
                 for (Purch purch : puchList) {
                     purch.setPurchGoodsList(null);
                 }
-            }
+            }*/
             return puchList;
         }
         return null;
@@ -243,7 +246,6 @@ public class PurchServiceImpl implements PurchService {
         if (order == null) {
             throw new Exception(String.format("%s%s%s", "不存在的订单", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Nonexistent order"));
         }
-
         List<Map<String, Object>> result = new ArrayList<>();
         List<Purch> list = purchDao.findAll(new Specification<Purch>() {
             @Override
@@ -759,7 +761,13 @@ public class PurchServiceImpl implements PurchService {
             // 采购为空、采购状态未进行、采购未审核都不能导出
             throw new Exception("采购状态未进行或采购未审核错误");
         }
-        List<CheckLog> checkLogList = checkLogService.findCheckLogsByPurchId(purchId);
+
+        List<CheckLog> checkLogList = null;
+        if (StringUtils.isBlank(purch.getProcessId())) {
+            checkLogList = checkLogService.findCheckLogsByPurchId(purchId);
+        } else {
+            checkLogList = checkLogService.findAdapterListByProcessId(purch.getProcessId());
+        }
         List<Project> projects = purch.getProjects();
         StringBuffer businessUnitNames = new StringBuffer(); // 执行事业部
         Set<String> businessUnitNameSet = new HashSet<>();
@@ -882,7 +890,7 @@ public class PurchServiceImpl implements PurchService {
 
         row = sheet.getRow(13);
         Integer payType = 0;
-        if(purch.getPurchPaymentList() != null && purch.getPurchPaymentList().size()>0)
+        if (purch.getPurchPaymentList() != null && purch.getPurchPaymentList().size() > 0)
             payType = purch.getPurchPaymentList().get(0).getType();
         switch (payType) {
             case 1:
@@ -1022,10 +1030,10 @@ public class PurchServiceImpl implements PurchService {
             vo.setCreateTime(now);
         });
         // 提交时商品数量为0的商品不保存
-        if(purch.getStatus() == Purch.StatusEnum.BEING.getCode()){
+        if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
             List<PurchGoods> pgList = new ArrayList<>();
             for (PurchGoods pgs : purch.getPurchGoodsList()) {
-                if(pgs.getPurchaseNum() != null && pgs.getPurchaseNum() > 0){
+                if (pgs.getPurchaseNum() != null && pgs.getPurchaseNum() > 0) {
                     pgList.add(pgs);
                 }
             }
@@ -1037,9 +1045,10 @@ public class PurchServiceImpl implements PurchService {
         // 处理商品信息
         List<PurchGoods> purchGoodsList = new ArrayList<>();
         Set<Project> projectSet = new HashSet<>();
+        List<Long> businessUids = new ArrayList<>();
         for (PurchGoods purchGoods : purch.getPurchGoodsList()) {
             // 获取要采购的商品
-            Goods goods = goodsDao.findOne(purchGoods.getgId());
+            Goods goods = goodsDao.findById(purchGoods.getgId());
             //获取采购合同商品
             PurchContractGoods purchContractGoods = purchContractGoodsDao.findOne(purchGoods.getPcgId());
             if (goods == null || goods.getExchanged()) {
@@ -1060,11 +1069,14 @@ public class PurchServiceImpl implements PurchService {
             if (project.getPurchDone()) {
                 throw new Exception(String.format("%s%s%s", "项目采购已完成，不能再次采购", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project procurement has been completed and can not be repurchased"));
             }
+            if (project.getBusinessUid() != null) {
+                businessUids.add(project.getBusinessUid().longValue());
+            }
             projectSet.add(project);
             PurchGoods son = handleAddNewPurchGoods(project, purch, goods, purchGoods, purchContractGoods);
             purchGoods.setPurchContractGoods(purchContractGoods);
             purchGoods.setPurchContract(purchContractGoods.getPurchContract());
-            purchGoods.setQualityInspectType(project.getQualityInspectType()==null?project.getQualityInspectType():project.getQualityInspectType().trim()); // 质检类型默认赋值项目中的
+            purchGoods.setQualityInspectType(project.getQualityInspectType() == null ? project.getQualityInspectType() : project.getQualityInspectType().trim()); // 质检类型默认赋值项目中的
             purchGoodsList.add(purchGoods);
             if (son != null) {
                 purchGoodsList.add(son);
@@ -1121,6 +1133,14 @@ public class PurchServiceImpl implements PurchService {
                 task_la_check = "Y";
             }
             bpmInitVar.put("task_la_check", task_la_check); // 标准版本
+            List<String> businessUserNos = userService.findUserNosByIds(businessUids);
+            if (businessUserNos.size() == 1) {
+                bpmInitVar.put("assignee_pm", businessUserNos.get(0));  // 设置项目负责人为项目中的项目负责人
+            } else if (businessUserNos.size() > 1) {
+                bpmInitVar.put("candidate_users_pm", StringUtils.join(businessUserNos, ","));  // 设置项目负责人为项目中的项目负责人
+            } else {
+                throw new Exception("没有项目负责人");
+            }
             JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
             save.setProcessId(processResp.getString("instanceId"));
 
@@ -1171,7 +1191,7 @@ public class PurchServiceImpl implements PurchService {
      * @return
      */
     @Override
-    @Transactional(rollbackFor = Exception.class,isolation = Isolation.REPEATABLE_READ)
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.REPEATABLE_READ)
     public boolean update(Purch purch) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
         Purch dbPurch = findBaseInfoLock(purch.getId());
@@ -1212,10 +1232,10 @@ public class PurchServiceImpl implements PurchService {
                 purchPaymentDao.delete(collect.values());
             }
             // 提交时商品数量为0的商品不保存
-            if(purch.getStatus() == Purch.StatusEnum.BEING.getCode()){
+            if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                 List<PurchGoods> pgList = new ArrayList<>();
                 for (PurchGoods pgs : purch.getPurchGoodsList()) {
-                    if(pgs.getPurchaseNum() != null && pgs.getPurchaseNum() > 0){
+                    if (pgs.getPurchaseNum() != null && pgs.getPurchaseNum() > 0) {
                         pgList.add(pgs);
                     }
                 }
@@ -1503,10 +1523,10 @@ public class PurchServiceImpl implements PurchService {
                 purchPaymentDao.delete(collect.values());
             }
             // 提交时商品数量为0的商品不保存
-            if(purch.getStatus() == Purch.StatusEnum.BEING.getCode()){
+            if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                 List<PurchGoods> pgList = new ArrayList<>();
                 for (PurchGoods pgs : purch.getPurchGoodsList()) {
-                    if(pgs.getPurchaseNum() != null && pgs.getPurchaseNum() > 0){
+                    if (pgs.getPurchaseNum() != null && pgs.getPurchaseNum() > 0) {
                         pgList.add(pgs);
                     }
                 }
@@ -1522,6 +1542,7 @@ public class PurchServiceImpl implements PurchService {
             Map<Integer, PurchGoods> dbPurchGoodsMap = dbPurch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(PurchGoods::getId, vo -> vo));
             Set<Integer> existId = new HashSet<>();
             Set<Integer> existPurchContractId = new HashSet<>();
+            List<Long> businessUids = new ArrayList<>(); // 事业部负责人列表
             // 处理参数中的采购商品信息
             for (PurchGoods pg : purch.getPurchGoodsList()) {
                 Integer pgId = pg.getId();
@@ -1547,6 +1568,9 @@ public class PurchServiceImpl implements PurchService {
                     }
                     if (project.getPurchDone()) {
                         throw new Exception(String.format("%s%s%s", "项目采购已完成，不能再次采购", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project procurement has been completed and can not be repurchased"));
+                    }
+                    if (project.getBusinessUid() != null) {
+                        businessUids.add(project.getBusinessUid().longValue()); // 添加项目负责人到集合中
                     }
                     projectSet.add(project);
                     // 查看是否存在替换商品
@@ -1719,9 +1743,9 @@ public class PurchServiceImpl implements PurchService {
 
             }
 
-            for(PurchGoods purchGoods : purchGoodsList){
-                if(purchGoods.getQualityInspectType() == null){
-                    purchGoods.setQualityInspectType(purchGoods.getProject().getQualityInspectType()==null?purchGoods.getProject().getQualityInspectType():purchGoods.getProject().getQualityInspectType().trim()); // 质检类型默认赋值项目中的
+            for (PurchGoods purchGoods : purchGoodsList) {
+                if (purchGoods.getQualityInspectType() == null) {
+                    purchGoods.setQualityInspectType(purchGoods.getProject().getQualityInspectType() == null ? purchGoods.getProject().getQualityInspectType() : purchGoods.getProject().getQualityInspectType().trim()); // 质检类型默认赋值项目中的
                 }
             }
             dbPurch.setPurchGoodsList(purchGoodsList);
@@ -1773,12 +1797,12 @@ public class PurchServiceImpl implements PurchService {
 
             if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
 //                if (StringUtils.isNotBlank(dbPurch.getAudiRemark()) && StringUtils.isBlank(dbPurch.getProcessId())) {
-                if(false){
+                if (false) {
                     // 老审核流程
                     dbPurch.setAuditingProcess("21,22");
                     dbPurch.setAuditingStatus(1);
                     dbPurch.setAuditingUserId(String.format("%d,%d", purch.getPurchAuditerId(), purch.getBusinessAuditerId()));
-                     //审批流日志
+                    //审批流日志
                     CheckLog checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
                     checkLogService.insert(checkLog_i);
                     if (save.getAuditingUserId() != null) {
@@ -1795,6 +1819,14 @@ public class PurchServiceImpl implements PurchService {
                         bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
                         bpmInitVar.put("param_contract", purch.getPurchNo()); // 采购合同号
                         bpmInitVar.put("task_la_check", StringUtils.equals("3", purch.getContractVersion()) ? "Y" : "N"); // 标准版本
+                        List<String> businessUserNos = userService.findUserNosByIds(businessUids);
+                        if (businessUserNos.size() == 1) {
+                            bpmInitVar.put("assignee_pm", businessUserNos.get(0));  // 设置项目负责人为项目中的项目负责人
+                        } else if (businessUserNos.size() > 1) {
+                            bpmInitVar.put("candidate_users_pm", StringUtils.join(businessUserNos, ","));  // 设置项目负责人为项目中的项目负责人
+                        } else {
+                            throw new Exception("没有项目负责人");
+                        }
                         JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
                         dbPurch.setProcessId(processResp.getString("instanceId"));
                     } else {
@@ -2081,9 +2113,9 @@ public class PurchServiceImpl implements PurchService {
 
         Map<Integer, PurchGoods> purchGoodsListMap = purch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(PurchGoods::getId, vo -> vo));
 
-        List<PurchGoods>dbPurchGoodsList = purchdb.getPurchGoodsList();
-        for(PurchGoods purchGoods : dbPurchGoodsList){
-            purchGoods.setQualityInspectType(purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType() == null?purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType():purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType().trim());
+        List<PurchGoods> dbPurchGoodsList = purchdb.getPurchGoodsList();
+        for (PurchGoods purchGoods : dbPurchGoodsList) {
+            purchGoods.setQualityInspectType(purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType() == null ? purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType() : purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType().trim());
         }
         purchdb.setPurchGoodsList(dbPurchGoodsList);
         purchdb.setQualityTime(new Date());

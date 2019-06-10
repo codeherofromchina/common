@@ -20,6 +20,8 @@ public interface PurchService {
      */
     void updateAuditProcessDone(String processInstanceId, String auditingProcess, String assignee);
 
+
+    Purch findPurchByProcessId(String processId);
     /**
      * 更新项目审核进度进行中
      * @param processId

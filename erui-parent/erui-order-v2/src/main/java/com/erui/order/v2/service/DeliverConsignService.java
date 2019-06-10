@@ -35,6 +35,7 @@ public interface DeliverConsignService {
      */
     void updateProcessCompleted(String processInstanceId);
 
+    DeliverConsign findByProcessInstanceId(String processInstanceId);
     /**
      * 通过id查找出口通知单信息
      * @param id

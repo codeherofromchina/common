@@ -264,7 +264,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                     throw new Exception(String.format("%s%s%s", "要采购的商品单价错误【sku :" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unit price error to be purchased [SKU: " + goods.getSku() + "]"));
 
                 }
-
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum);
                 goodsDao.save(goods);
             } else {

@@ -594,7 +594,6 @@ public class InspectReportServiceImpl implements InspectReportService {
                 applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 5, token));
             }
         }
-
         return true;
     }
 

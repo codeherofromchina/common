@@ -1,13 +1,9 @@
 package com.erui.order.service;
 
-import com.erui.order.entity.Area;
 import com.erui.order.entity.InspectReport;
-import com.erui.order.entity.Purch;
-import com.erui.order.requestVo.InspectReportVo;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by wangxiaodan on 2017/12/11.

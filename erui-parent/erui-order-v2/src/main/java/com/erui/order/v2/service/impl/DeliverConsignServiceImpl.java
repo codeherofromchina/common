@@ -203,7 +203,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
      * @param processInstanceId
      * @return
      */
-    private DeliverConsign findByProcessInstanceId(String processInstanceId) {
+    public DeliverConsign findByProcessInstanceId(String processInstanceId) {
         DeliverConsignExample example = new DeliverConsignExample();
         example.createCriteria().andProcessIdEqualTo(processInstanceId);
 
