@@ -342,7 +342,6 @@ public class CheckLogServiceImpl implements CheckLogService {
         return checkLogDao.findByJoinIdAndCategoryOrderByCreateTime(purchId, "PURCH");
     }
 
-
     @Override
     public List<CheckLog> findAdapterListByProcessId(String processId, Integer type) {
         String eruiToken = (String) ThreadLocalUtil.getObject();
