@@ -745,39 +745,6 @@ public class PurchServiceImpl implements PurchService {
 
         return page;
     }
-
-    /**
-     * 签约主体 英文转中文
-     *
-     * @param signingCo 签约主体
-     */
-    private String getSigningCoCn(String signingCo){
-        String signingCoCn = null;
-        if(signingCo != null){
-            switch (signingCo) {
-                case "Erui International Electronic Commerce Co., Ltd.":
-                    signingCoCn = "易瑞国际电子商务有限公司";
-                    break;
-                case "Erui International USA, LLC":
-                    signingCoCn = "易瑞国际（美国）有限公司";
-                    break;
-                case "Erui International (Canada) Co., Ltd.":
-                    signingCoCn = "易瑞国际（加拿大）有限公司";
-                    break;
-                case "Erui Intemational Electronic Commerce (HK) Co., Lirnited":
-                    signingCoCn = "易瑞國際電子商務（香港）有限公司";
-                    break;
-                case "PT ERUI INTERNATIONAL INDONESIA":
-                    signingCoCn = "易瑞国际印尼有限公司";
-                    break;
-                case "Erui Intemational Electronic Commerce (Peru) S.A.C":
-                    signingCoCn = "易瑞国际电子商务（秘鲁）有限公司";
-                    break;
-            }
-        }
-        return signingCoCn;
-    }
-
     /**
      * 填充导出采购合同模板
      *
@@ -808,7 +775,7 @@ public class PurchServiceImpl implements PurchService {
         for (Project project : projects) {
             Order order = project.getOrder();
             businessUnitNameSet.add(project.getBusinessUnitName());
-            signingComs.append(getSigningCoCn(order.getSigningCo())).append("、");
+            signingComs.append(checkLogService.getSigningCoCn(order.getSigningCo())).append("、");
             contractNos.append(order.getContractNo()).append("、");
         }
         businessUnitNames.append(StringUtils.join(businessUnitNameSet.toArray(new String[businessUnitNameSet.size()]), "、"));
