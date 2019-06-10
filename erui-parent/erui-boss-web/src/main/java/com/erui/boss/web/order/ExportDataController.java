@@ -488,6 +488,7 @@ public class ExportDataController {
     public void exportPurchContract(HttpServletRequest request, HttpServletResponse response) {
         String eruiToken = CookiesUtil.getEruiToken(request);
         ThreadLocalUtil.setObject(eruiToken);
+
         String id = request.getParameter("id");
         if (StringUtils.isBlank(id) || !StringUtils.isNumeric(id)) {
             LOGGER.error("参数不正确 {}", id);
