@@ -79,7 +79,8 @@ public interface CheckLogService {
     /**
      * 查询新BPM业务流日志并适配成现有平台日志形式
      * @param processId
+     * @param type 1 订单  2 采购订单
      * @return
      */
-    List<CheckLog> findAdapterListByProcessId(String processId);
+    List<CheckLog> findAdapterListByProcessId(String processId, Integer type);
 }
