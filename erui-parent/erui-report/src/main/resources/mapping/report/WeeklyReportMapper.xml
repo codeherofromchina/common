@@ -102,7 +102,7 @@
             erui_rfq_new.inquiry_check_log
             WHERE
             inquiry_id = t1.id AND action = 'CREATE'
-            AND out_node = 'BIZ_DISPATCHING'
+            AND out_node = 'BIZ_GRABING'
             GROUP BY inquiry_id
             HAVING MIN(out_at) BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
                                 AND DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s"))
