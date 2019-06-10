@@ -344,7 +344,7 @@ public class CheckLogServiceImpl implements CheckLogService {
 
 
     @Override
-    public List<CheckLog> findAdapterListByProcessId(String processId) {
+    public List<CheckLog> findAdapterListByProcessId(String processId, Integer type) {
         String eruiToken = (String) ThreadLocalUtil.getObject();
         List<CheckLog> result = null;
         if (StringUtils.isBlank(eruiToken)) {
@@ -372,7 +372,7 @@ public class CheckLogServiceImpl implements CheckLogService {
             if (data != null && data.size() > 0) {
                 result = new ArrayList<>();
                 for (int n = 0; n < data.size(); ++n) {
-                    CheckLog tmp = coverBpmLog2CheckLog(data.getJSONObject(n));
+                    CheckLog tmp = coverBpmLog2CheckLog(data.getJSONObject(n), type);
                     tmp.setOrderId(orderId);
                     tmp.setJoinId(joinId);
                     result.add(tmp);
@@ -385,10 +385,19 @@ public class CheckLogServiceImpl implements CheckLogService {
         return result;
     }
 
-    private static CheckLog coverBpmLog2CheckLog(JSONObject bpmLog) {
+
+    private static CheckLog coverBpmLog2CheckLog(JSONObject bpmLog, Integer type) {
         CheckLog checkLog = new CheckLog();
         checkLog.setCreateTime(bpmLog.getDate("createTime"));
-        Integer auditProcess = newCheckLog2oldCheckLogCodeMap.get(bpmLog.getString("taskDefKey"));
+        Integer auditProcess = null;
+        switch (type) {
+            case 1: // 订单
+                auditProcess = newCheckLog2oldCheckLogOrderMap.get(bpmLog.getString("taskDefKey"));
+                break;
+            case 2:// 采购订单
+                auditProcess = newCheckLog2oldCheckLogPurchMap.get(bpmLog.getString("taskDefKey"));
+                break;
+        }
         checkLog.setAuditingProcess(auditProcess);
         if (auditProcess != null) {
             checkLog.setType(auditProcess / 100);
@@ -398,7 +407,7 @@ public class CheckLogServiceImpl implements CheckLogService {
         return checkLog;
     }
 
-    private static Map<String, Integer> newCheckLog2oldCheckLogCodeMap = new HashMap<String, Integer>() {{
+    private static Map<String, Integer> newCheckLog2oldCheckLogOrderMap = new HashMap<String, Integer>() {{
         put("task_mm", Integer.valueOf(100)); // '完善订单信息'
         put("task_cm", Integer.valueOf(101)); // '国家负责人审核'
         put("task_rm", Integer.valueOf(102)); // '地区总经理审核'
@@ -413,5 +422,15 @@ public class CheckLogServiceImpl implements CheckLogService {
         put("task_gm", Integer.valueOf(206)); // '事业部总经理审核'
         put("task_ceo", Integer.valueOf(207)); // '总裁审核'
         put("task_ed", Integer.valueOf(208)); // '董事长审核'
+    }};
+
+    private static Map<String, Integer> newCheckLog2oldCheckLogPurchMap = new HashMap<String, Integer>() {{
+        put("task_pu", Integer.valueOf(21)); // '采购经理审核'
+        put("task_pm", Integer.valueOf(22)); // '事业部项目负责人'
+        put("task_la", Integer.valueOf(23)); // '法务审核'
+        put("task_fa", Integer.valueOf(24)); // '财务审核'
+        put("task_sm", Integer.valueOf(25)); // '供应链中心总经理审核'
+        put("task_ceo", Integer.valueOf(26)); // '总裁审核'
+        put("task_ed", Integer.valueOf(27)); // '董事长审核'
     }};
 }
