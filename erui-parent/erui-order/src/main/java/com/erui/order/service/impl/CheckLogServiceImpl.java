@@ -385,7 +385,6 @@ public class CheckLogServiceImpl implements CheckLogService {
         return result;
     }
 
-
     private static CheckLog coverBpmLog2CheckLog(JSONObject bpmLog, Integer type) {
         CheckLog checkLog = new CheckLog();
         checkLog.setCreateTime(bpmLog.getDate("createTime"));
