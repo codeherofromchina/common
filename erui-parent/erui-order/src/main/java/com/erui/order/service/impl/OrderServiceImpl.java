@@ -3103,8 +3103,7 @@ public class OrderServiceImpl implements OrderService {
             sheet1.getRow(0).getCell(0).setCellValue(stringCell0);
         }*/
         if (orderDec.getExecCoName() != null) {
-            Company company = companyService.findAll(null, null, orderDec.getExecCoName()).get(0);
-            String stringRC2 = sheet1.getRow(2).getCell(2).getStringCellValue().replace("执行分公司", company.getName());
+            String stringRC2 = sheet1.getRow(2).getCell(2).getStringCellValue().replace("执行分公司", checkLogService.getSigningCoCn(orderDec.getExecCoName()));
             sheet1.getRow(2).getCell(2).setCellValue(stringRC2);
         }
         //合同标的
@@ -3389,7 +3388,7 @@ public class OrderServiceImpl implements OrderService {
                     //国际金融取走时间
                     if (orderDec.getFinancing() != null && orderDec.getFinancing() == 1) {
                         if (!cshell17) {
-                            String stringR17C1 = sheet1.getRow(17).getCell(1).getStringCellValue().replace("审核人：", "审核人：" + orderDec.getFinancingCommissioner());
+                            String stringR17C1 = sheet1.getRow(17).getCell(1).getStringCellValue().replace("审核人：", "审核人：" + cl.getAuditingUserName());
                             sheet1.getRow(17).getCell(1).setCellValue(stringR17C1);
                             cshell23 = true;
                         }
@@ -3528,9 +3527,6 @@ public class OrderServiceImpl implements OrderService {
                 }
                 if (cl.getAuditingProcess() == 202) {
                     orderDec.getProject().setLogisticsAuditer(cl.getAuditingUserName());
-                }
-                if (cl.getAuditingProcess() == 104) {
-                    orderDec.setFinancingCommissioner(cl.getAuditingUserName());
                 }
             }
 

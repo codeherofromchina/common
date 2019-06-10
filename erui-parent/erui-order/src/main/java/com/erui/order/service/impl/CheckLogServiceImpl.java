@@ -433,4 +433,42 @@ public class CheckLogServiceImpl implements CheckLogService {
         put("task_ceo",Integer.valueOf(26)); // '总裁审核'
         put("task_ed",Integer.valueOf(27)); // '董事长审核'
     }};
+
+
+
+    /**
+     * 签约主体 英文转中文
+     *
+     * @param signingCo 签约主体
+     */
+    @Override
+    public String getSigningCoCn(String signingCo){
+        String signingCoCn = null;
+        if(signingCo != null){
+            switch (signingCo) {
+                case "Erui International Electronic Commerce Co., Ltd.":
+                    signingCoCn = "易瑞国际电子商务有限公司";
+                    break;
+                case "Erui International USA, LLC":
+                    signingCoCn = "易瑞国际（美国）有限公司";
+                    break;
+                case "Erui International (Canada) Co., Ltd.":
+                    signingCoCn = "易瑞国际（加拿大）有限公司";
+                    break;
+                case "Erui Intemational Electronic Commerce (HK) Co., Lirnited":
+                    signingCoCn = "易瑞國際電子商務（香港）有限公司";
+                    break;
+                case "PT ERUI INTERNATIONAL INDONESIA":
+                    signingCoCn = "易瑞国际印尼有限公司";
+                    break;
+                case "Erui Intemational Electronic Commerce (Peru) S.A.C":
+                    signingCoCn = "易瑞国际电子商务（秘鲁）有限公司";
+                    break;
+                case "Domestic Sales Department":
+                    signingCoCn = "国内销售部";
+                    break;
+            }
+        }
+        return signingCoCn;
+    }
 }
