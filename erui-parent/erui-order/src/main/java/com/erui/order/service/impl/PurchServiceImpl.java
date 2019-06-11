@@ -19,7 +19,7 @@ import com.erui.order.requestVo.PurchParam;
 import com.erui.order.service.*;
 
 import com.erui.order.util.BpmUtils;
-
+import com.erui.order.v2.model.User;
 import com.erui.order.v2.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
@@ -1143,8 +1143,17 @@ public class PurchServiceImpl implements PurchService {
             JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
             save.setProcessId(processResp.getString("instanceId"));
 
-            save.setAuditingUser(",");
-            save.setAuditingUserId(",");
+            User user = null;
+            if (businessUserNos.size() == 1) {
+                user = userService.findUserNoByUserNo(businessUserNos.get(0));
+            }
+            if (user == null){
+                save.setAuditingUser(",");
+                save.setAuditingUserId(",");
+            } else {
+                save.setAuditingUser("," + user.getId());
+                save.setAuditingUserId("," + user.getName());
+            }
             save.setAuditingProcess("task_pu,task_pm");
             save.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
         }
@@ -1640,7 +1649,9 @@ public class PurchServiceImpl implements PurchService {
                     //采购合同
                     existPurchContractId.add(cId);
                     Project project = purchGoods.getProject();
-
+                    if (project.getBusinessUid() != null) {
+                        businessUids.add(project.getBusinessUid().longValue()); // 添加项目负责人到集合中
+                    }
                     boolean hasSon = false;
                     if (purchGoods.getExchanged()) {
                         // 是替换商品，查看父商品是否存在
