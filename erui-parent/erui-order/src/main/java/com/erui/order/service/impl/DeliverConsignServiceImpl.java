@@ -422,7 +422,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 deliverConsignBookingSpace.setId(deliverConsign1.getDeliverConsignBookingSpace().getId());
             }
             deliverConsignBookingSpaceDao.saveAndFlush(deliverConsignBookingSpace);
-        }
+        } 
+        
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             try {
                 disposeAdvanceMoney(order, deliverConsign);
