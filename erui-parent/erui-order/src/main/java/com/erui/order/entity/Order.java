@@ -1249,7 +1249,6 @@ public class Order {
         this.goodsList = goodsList;
     }
 
-
     public List<OrderPayment> getOrderPayments() {
         return orderPayments;
     }
@@ -1388,7 +1387,7 @@ public class Order {
     }
 
     public static enum enStatusEnum {
-        INIT(1, "To be confirmed"), UNEXECUTED(2, "Not executed"), EXECUTING(3, "Being executed"), DONE(4, "Finished");
+        INIT(1, "To be confirmed"), UNEXECUTED(2, "Not executed"), EXECUTING(3, "Being executed"), DONE(4, "Finished"),CHANGE(5, "CHANGE"), CANCEL(0, "CANCELED");
 
         public int code;
         public String msg;
