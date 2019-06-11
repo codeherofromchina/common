@@ -1249,7 +1249,6 @@ public class Order {
         this.goodsList = goodsList;
     }
 
-
     public List<OrderPayment> getOrderPayments() {
         return orderPayments;
     }
