@@ -948,7 +948,6 @@ public class Project {
     }
 
     public static enum ProjectStatusEnum {
-
         AUDIT("AUDIT", "未执行", 1), SUBMIT("SUBMIT", "未执行", 1), HASMANAGER("HASMANAGER", "有项目经理", 2),
         EXECUTING("EXECUTING", "正常执行", 3), DONE("DONE", "正常完成", 4), DELAYED_EXECUTION("DELAYED_EXECUTION", "延期执行", 5),
         DELAYED_COMPLETE("DELAYED_COMPLETE", "延期完成", 6), UNSHIPPED("UNSHIPPED", "正常待发运", 7),
