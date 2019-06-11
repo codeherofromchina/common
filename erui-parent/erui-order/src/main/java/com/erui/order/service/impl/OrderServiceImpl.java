@@ -3102,9 +3102,8 @@ public class OrderServiceImpl implements OrderService {
             String stringCell0 = sheet1.getRow(0).getCell(0).getStringCellValue().replace("填写签约主体公司", Order.COM.getByEn(orderDec.getSigningCo()).getMsg());
             sheet1.getRow(0).getCell(0).setCellValue(stringCell0);
         }*/
-        if (orderDec.getExecCoId() != null) {
-            Company company = companyService.findByIdLazy(orderDec.getExecCoId());
-            String stringRC2 = sheet1.getRow(2).getCell(2).getStringCellValue().replace("执行分公司", company.getName());
+        if (orderDec.getExecCoName() != null) {
+            String stringRC2 = sheet1.getRow(2).getCell(2).getStringCellValue().replace("执行分公司", checkLogService.getSigningCoCn(orderDec.getExecCoName()));
             sheet1.getRow(2).getCell(2).setCellValue(stringRC2);
         }
         //合同标的
@@ -3274,11 +3273,7 @@ public class OrderServiceImpl implements OrderService {
             String stringR14C2 = sheet1.getRow(14).getCell(2).getStringCellValue().replace("回款负责人：", "回款负责人：" + orderDec.getPerLiableRepay());
             sheet1.getRow(14).getCell(2).setCellValue(stringR14C2);
         }
-        //单位总：国家负责人
-        if (orderDec.getCountryLeader() != null) {
-            String stringR14C2 = sheet1.getRow(14).getCell(2).getStringCellValue().replace("单位总：", "单位总：" + orderDec.getCountryLeader());
-            sheet1.getRow(14).getCell(2).setCellValue(stringR14C2);
-        }
+
         boolean isNewAuditing = Boolean.FALSE; // 是否是新的审批流程
         List<CheckLog> passed = null;
         List<CheckLog> resultCheckLogs = null;
@@ -3292,6 +3287,9 @@ public class OrderServiceImpl implements OrderService {
             Map<String, CheckLog> map = new LinkedMap<>();
             if (resultCheckLogs != null && resultCheckLogs.size() > 0) {
                 for (CheckLog cLog : resultCheckLogs) {
+                    if(cLog.getAuditingProcess() == 101){
+                        orderDec.setCountryLeader(cLog.getAuditingUserName());
+                    }
                     if (map.containsKey(cLog.getAuditingProcess() + "_" + cLog.getType())) {
                         map.remove(cLog.getAuditingProcess() + "_" + cLog.getType());
                     }
@@ -3305,6 +3303,11 @@ public class OrderServiceImpl implements OrderService {
                 Date dateTime = DateUtil.parseString2DateNoException("2019-03-29 21:00:00", DateUtil.FULL_FORMAT_STR);
                 isNewAuditing = passed.get(0).getCreateTime().after(dateTime);
             }
+        }
+        //单位总：国家负责人
+        if (orderDec.getCountryLeader() != null) {
+            String stringR14C2 = sheet1.getRow(14).getCell(2).getStringCellValue().replace("单位总：", "单位总：" + orderDec.getCountryLeader());
+            sheet1.getRow(14).getCell(2).setCellValue(stringR14C2);
         }
         if (isNewAuditing) {//判断是否是新的审批流程
          /*   String stringR33C1 = sheet1.getRow(31).getCell(2).getStringCellValue().replace("                                                        ＞50万美金", "                                                        ＞20万美金");
@@ -3385,7 +3388,7 @@ public class OrderServiceImpl implements OrderService {
                     //国际金融取走时间
                     if (orderDec.getFinancing() != null && orderDec.getFinancing() == 1) {
                         if (!cshell17) {
-                            String stringR17C1 = sheet1.getRow(17).getCell(1).getStringCellValue().replace("审核人：", "审核人：" + orderDec.getFinancingCommissioner());
+                            String stringR17C1 = sheet1.getRow(17).getCell(1).getStringCellValue().replace("审核人：", "审核人：" + cl.getAuditingUserName());
                             sheet1.getRow(17).getCell(1).setCellValue(stringR17C1);
                             cshell23 = true;
                         }
@@ -3465,7 +3468,7 @@ public class OrderServiceImpl implements OrderService {
                 }
                 //物流审核取走时间
                 if (cl.getAuditingProcess() == 206) {
-                    if (orderDec.getProject().getLogisticsAuditerId() != null) {
+                    if (cl.getAuditingUserName() != null) {
                         String stringR27C10 = sheet1.getRow(28).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                         sheet1.getRow(28).getCell(10).setCellValue(stringR27C10);
                     }
@@ -3522,10 +3525,13 @@ public class OrderServiceImpl implements OrderService {
                     String stringR32C10 = sheet1.getRow(34).getCell(10).getStringCellValue().replace("取走时间：", "取走时间：" + DateUtil.format(DateUtil.SHORT_FORMAT_STR, cl.getCreateTime()));
                     sheet1.getRow(34).getCell(10).setCellValue(stringR32C10);
                 }
+                if (cl.getAuditingProcess() == 202) {
+                    orderDec.getProject().setLogisticsAuditer(cl.getAuditingUserName());
+                }
             }
 
             if (orderDec.getProject() != null) {
-                //是否物流审核 1:不需要  2：需要
+                // 是否物流审核 1:不需要  2：需要
                 if (orderDec.getProject().getLogisticsAuditer() != null) {
                     String stringR27C1 = sheet1.getRow(27).getCell(1).getStringCellValue().replace("□ 是", sheet1.getRow(3).getCell(11).getStringCellValue() + " 是");
                     sheet1.getRow(27).getCell(1).setCellValue(stringR27C1);

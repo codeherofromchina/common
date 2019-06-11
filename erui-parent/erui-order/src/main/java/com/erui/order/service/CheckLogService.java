@@ -83,4 +83,10 @@ public interface CheckLogService {
      * @return
      */
     List<CheckLog> findAdapterListByProcessId(String processId, Integer type);
+    /**
+     * 签约主体 英文转中文
+     *
+     * @param signingCo 签约主体
+     */
+    String getSigningCoCn(String signingCo);
 }
