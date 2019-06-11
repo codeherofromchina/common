@@ -1828,7 +1828,14 @@ public class PurchServiceImpl implements PurchService {
                         Map<String, Object> bpmInitVar = new HashMap<>();
                         bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
                         bpmInitVar.put("param_contract", purch.getPurchNo()); // 采购合同号
-                        bpmInitVar.put("task_la_check", StringUtils.equals("3", purch.getContractVersion()) ? "Y" : "N"); // 标准版本
+                        String task_la_check ;
+                        if (StringUtils.equals("3", purch.getContractVersion())) {
+                        	task_la_check = "Y";
+                        } else {
+                        	task_la_check = "N";
+                        	bpmInitVar.put("task_la_audit_status", "APPROVED");
+                        }
+                        bpmInitVar.put("task_la_check", task_la_check); // 标准版本
                         List<String> businessUserNos = userService.findUserNosByIds(businessUids);
                         if (businessUserNos.size() == 1) {
                             bpmInitVar.put("assignee_pm", businessUserNos.get(0));  // 设置项目负责人为项目中的项目负责人
@@ -1844,7 +1851,15 @@ public class PurchServiceImpl implements PurchService {
                         Map<String, Object> localVariables = new HashMap<>();
                         localVariables.put("audit_status", "APPROVED");
                         localVariables.put("order_amount", save.getTotalPrice().doubleValue()); // 总采购订单金额
-                        localVariables.put("task_la_check", StringUtils.equals("3", save.getContractVersion()) ? "Y" : "N"); // 标准版本
+                        
+                        String task_la_check ;
+                        if (StringUtils.equals("3", purch.getContractVersion())) {
+                        	task_la_check = "Y";
+                        } else {
+                        	task_la_check = "N";
+                        	localVariables.put("task_la_audit_status", "APPROVED");
+                        }
+                        localVariables.put("task_la_check", task_la_check); // 标准版本
                         BpmUtils.completeTask(taskId, eruiToken, null, localVariables, "同意");
                     }
                     dbPurch.setAuditingUser(",");

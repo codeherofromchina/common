@@ -1123,6 +1123,8 @@ public class OrderServiceImpl implements OrderService {
                     String task_fn_check = "N";
                     if (addOrderVo.getFinancing() != null && addOrderVo.getFinancing() == 1) {
                         task_fn_check = "Y";
+                    }else {
+                    	bpmInitVar.put("task_fn_audit_status", "APPROVED");
                     }
                     bpmInitVar.put("task_fn_check", task_fn_check);
                     if (StringUtils.isNotBlank(techicalUserNo)) {
@@ -1207,6 +1209,8 @@ public class OrderServiceImpl implements OrderService {
                     String task_fn_check = "N";
                     if (orderUpdate.getFinancing() != null && orderUpdate.getFinancing() == 1) {
                         task_fn_check = "Y";
+                    }else {
+                    	bpmVar.put("task_fn_audit_status", "APPROVED");
                     }
 
                     bpmVar.put("task_fn_check", task_fn_check);
