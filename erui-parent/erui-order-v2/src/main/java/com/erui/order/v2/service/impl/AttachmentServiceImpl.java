@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
  * @Auther 王晓丹
  * @Date 2019/6/12 下午7:01
  */
-@Service
+@Service("attachmentServiceImplV2")
 public class AttachmentServiceImpl implements AttachmentService {
     @Autowired
     private AttachmentMapper attachmentMapper ;
