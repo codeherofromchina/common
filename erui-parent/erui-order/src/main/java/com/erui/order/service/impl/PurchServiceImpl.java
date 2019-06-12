@@ -486,16 +486,15 @@ public class PurchServiceImpl implements PurchService {
             e.printStackTrace();
         }
     }
-
-    //钉钉通知 审批人
+    //修改供应商状态
     public void updateSupplierStatus(Integer purchId, String status) {
-        //获取token
+
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         String jsonParam = "{\"purch_id\":\"" + purchId + "\",\"status\":\"" + status + "\"}";
         Map<String, String> header = new HashMap<>();
         header.put("Cookie", "eruitoken=" + eruiToken);
         header.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
-        //发送钉钉通知
+        //修改供应商状态
         String s1 = HttpRequest.sendPost(supplierStatus, jsonParam, header);
         logger.info("修改供应商状态返回状态" + s1);
     }

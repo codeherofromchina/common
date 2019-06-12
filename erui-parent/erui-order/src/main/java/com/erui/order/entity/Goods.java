@@ -234,10 +234,30 @@ public class Goods {
 
     private String attrs;//模板属性
 
+    private String temporary;//临时编码
+
+    private String supplier;//供应商
+
     // 务必没有修改PurchGoods权限的能力
     @OneToMany(mappedBy = "goods", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<PurchGoods> purchGoods;
+
+    public String getTemporary() {
+        return temporary;
+    }
+
+    public void setTemporary(String temporary) {
+        this.temporary = temporary;
+    }
+
+    public String getSupplier() {
+        return supplier;
+    }
+
+    public void setSupplier(String supplier) {
+        this.supplier = supplier;
+    }
 
     public String getTplNo() {
         return tplNo;

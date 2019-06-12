@@ -137,7 +137,10 @@ public class PurchContractGoods {
      */
     @Column(name = "purchase_remark")
     private String purchaseRemark;
-
+    /**
+     * 品牌
+     */
+    private String brand;
     /**
      * 含税单价,提交采购时计算
      */
@@ -157,6 +160,14 @@ public class PurchContractGoods {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "create_time")
     private Date createTime;
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
 
     public List<PurchGoods> getPurchGoods() {
         return purchGoods;
