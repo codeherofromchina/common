@@ -435,7 +435,6 @@ public class CheckLogServiceImpl implements CheckLogService {
     }};
 
 
-
     /**
      * 签约主体 英文转中文
      *
