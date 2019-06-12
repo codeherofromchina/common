@@ -725,12 +725,14 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 // 设置采购商品的已合格数量
                 purchGoods.setInspectNum(purchGoods.getPurchaseNum());
                 purchGoods.setPreInspectNum(purchGoods.getPurchaseNum());
+
                 if (isAllQRL1) purchGoods.setGoodNum(purchGoods.getPurchaseNum());
                 purchGoodsDao.save(purchGoods);
             }
         }
 
         if (isAllQRL1) { // 质检类型全部为QRL1时，不需要入库质检了，直接在入库管理里面加入一条记录，入库质检不显示该记录，质检状态显示完成
+
             report.setNcrNo("");
             report.setReportRemarks("质检商品全部都是QRL1，所以不需要质检员质检商品。");
             report.setStatus(InspectReport.StatusEnum.DONE.getCode());

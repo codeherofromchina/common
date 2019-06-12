@@ -1,0 +1,212 @@
+[33mbbdf076c[m[33m ([m[1;36mHEAD -> [m[1;32mprepare[m[33m, [m[1;31morigin/dev[m[33m, [m[1;32mdev[m[33m)[m HEAD@{0}: checkout: moving from vice-order to prepare
+[33m0b53ffe9[m[33m ([m[1;31morigin/vice-order[m[33m, [m[1;32mvice-order[m[33m)[m HEAD@{1}: commit: 当地采购
+[33mbbdf076c[m[33m ([m[1;36mHEAD -> [m[1;32mprepare[m[33m, [m[1;31morigin/dev[m[33m, [m[1;32mdev[m[33m)[m HEAD@{2}: merge prepare: Fast-forward
+[33m95b18b96[m HEAD@{3}: checkout: moving from dev to vice-order
+[33mbbdf076c[m[33m ([m[1;36mHEAD -> [m[1;32mprepare[m[33m, [m[1;31morigin/dev[m[33m, [m[1;32mdev[m[33m)[m HEAD@{4}: checkout: moving from test to dev
+[33m66177d9c[m[33m ([m[1;31morigin/test[m[33m, [m[1;32mtest[m[33m)[m HEAD@{5}: checkout: moving from prepare to test
+[33mbbdf076c[m[33m ([m[1;36mHEAD -> [m[1;32mprepare[m[33m, [m[1;31morigin/dev[m[33m, [m[1;32mdev[m[33m)[m HEAD@{6}: merge dev: Fast-forward
+[33m8fa9dbd4[m[33m ([m[1;31morigin/prepare[m[33m)[m HEAD@{7}: checkout: moving from dev to prepare
+[33mbbdf076c[m[33m ([m[1;36mHEAD -> [m[1;32mprepare[m[33m, [m[1;31morigin/dev[m[33m, [m[1;32mdev[m[33m)[m HEAD@{8}: commit: 项目办理没有导出按钮
+[33mbfc265ee[m HEAD@{9}: commit: 项目办理没有导出按钮
+[33m596c5930[m HEAD@{10}: merge prepare: Merge made by the 'recursive' strategy.
+[33m1485505f[m HEAD@{11}: checkout: moving from prepare to dev
+[33m8fa9dbd4[m[33m ([m[1;31morigin/prepare[m[33m)[m HEAD@{12}: commit: 空格提交
+[33m0c862ec4[m HEAD@{13}: commit: 修改
+[33m18108aad[m HEAD@{14}: commit: 空格提交
+[33mf5dc37d6[m HEAD@{15}: commit: 空格提交
+[33md69f7642[m HEAD@{16}: commit: 空格提交
+[33m2b3b3ec1[m HEAD@{17}: commit: 执行项目问题
+[33mc0245b1f[m HEAD@{18}: checkout: moving from test to prepare
+[33m66177d9c[m[33m ([m[1;31morigin/test[m[33m, [m[1;32mtest[m[33m)[m HEAD@{19}: merge prepare: Merge made by the 'recursive' strategy.
+[33m1d03f44c[m HEAD@{20}: pull --progress --no-stat -v --progress origin test: Fast-forward
+[33m95b18b96[m HEAD@{21}: checkout: moving from dev to test
+[33m1485505f[m HEAD@{22}: pull --progress --no-stat -v --progress origin dev: Merge made by the 'recursive' strategy.
+[33mc0245b1f[m HEAD@{23}: merge prepare: Fast-forward
+[33m8bfd5f0d[m HEAD@{24}: checkout: moving from prepare to dev
+[33mc0245b1f[m HEAD@{25}: commit: 空格提交
+[33md6c2914a[m HEAD@{26}: commit: 空格提交
+[33m4192e9ad[m HEAD@{27}: commit: 空格提交
+[33m134e0136[m HEAD@{28}: commit: 售后订单，合同总价为空时，提交无反应。 为0时，提示“合同总价错误”
+[33mecc8b2cf[m HEAD@{29}: commit: 空格提交
+[33mcc4b4502[m HEAD@{30}: commit: 空格提交
+[33m9b7879cc[m HEAD@{31}: commit: 空格提交
+[33m08cf7e89[m HEAD@{32}: commit: 新增报检单->先保存再办理，提示“失败”
+[33m6dd11d05[m HEAD@{33}: commit: 空格提交
+[33m8bfd5f0d[m HEAD@{34}: merge dev: Fast-forward
+[33m39820b98[m HEAD@{35}: checkout: moving from dev to prepare
+[33m8bfd5f0d[m HEAD@{36}: commit: 订单类别为【现货出库】的订单 不需要采购、品控及物流审核。
+[33m39820b98[m HEAD@{37}: merge prepare: Fast-forward
+[33m95b18b96[m HEAD@{38}: checkout: moving from prepare to dev
+[33m39820b98[m HEAD@{39}: commit: 空格提交
+[33m6739d271[m HEAD@{40}: commit: 空格提交
+[33m1dde377c[m HEAD@{41}: commit: 空格提交
+[33m3b099988[m HEAD@{42}: commit: 国际销售合同签订审批表V3.0
+[33m2c80763a[m HEAD@{43}: commit: 国际销售合同签订审批表V3.0
+[33ma5057708[m HEAD@{44}: commit: 空格提交
+[33mf89d6186[m HEAD@{45}: commit: 空格提交
+[33m9f0a0bbc[m HEAD@{46}: commit: 空格提交
+[33m1ecea11a[m HEAD@{47}: commit: 空格提交
+[33m36bc8312[m HEAD@{48}: commit: 空格提交
+[33me878e291[m HEAD@{49}: commit: 国际销售合同签订审批表V3.0导出
+[33ma3828517[m HEAD@{50}: pull --progress --no-stat -v --progress origin prepare: Fast-forward
+[33mc88beefc[m HEAD@{51}: commit: 空格提交
+[33m2eb30f48[m HEAD@{52}: commit: 空格提交
+[33m766be65a[m HEAD@{53}: commit: 更新出口通知单的预收金额
+[33mc2bd254c[m HEAD@{54}: checkout: moving from vice-order to prepare
+[33m95b18b96[m HEAD@{55}: checkout: moving from prepare to vice-order
+[33mc2bd254c[m HEAD@{56}: commit: 空格提交
+[33m4b7d1888[m HEAD@{57}: commit: 采购申请待办place_system改为项目
+[33m111e2f6a[m HEAD@{58}: commit: 国内订单不需要物流审批，其他订单类型保持原样
+[33mb620a074[m HEAD@{59}: commit: 国内订单不需要物流审批，其他订单类型保持原样
+[33mb764d6c6[m HEAD@{60}: commit: 国内订单不需要物流审批，其他订单类型保持原样
+[33m71add195[m HEAD@{61}: commit: 空格提交
+[33m7bd30465[m HEAD@{62}: pull --progress --no-stat -v --progress origin prepare: Merge made by the 'recursive' strategy.
+[33m7f8195da[m HEAD@{63}: commit: 空格提交
+[33m0342a095[m HEAD@{64}: commit: 空格提交
+[33m43b98e73[m HEAD@{65}: commit: 4、待办提醒优化：项目执行环节，针对后续项目执行单变更日期和项目状态进行修改不做待办提醒。
+[33m95b18b96[m HEAD@{66}: checkout: moving from vice-order to prepare
+[33m95b18b96[m HEAD@{67}: merge prepare: Fast-forward
+[33m6642de91[m HEAD@{68}: checkout: moving from dev to vice-order
+[33m95b18b96[m HEAD@{69}: merge test: Fast-forward
+[33m4f22af4d[m HEAD@{70}: checkout: moving from master to dev
+[33m9b36983f[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m HEAD@{71}: checkout: moving from prepare to master
+[33m95b18b96[m HEAD@{72}: merge test: Fast-forward
+[33m9b36983f[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m HEAD@{73}: checkout: moving from test to prepare
+[33m95b18b96[m HEAD@{74}: commit (merge): Merge branch 'prepare' into test
+[33m8f752382[m HEAD@{75}: checkout: moving from prepare to test
+[33m9b36983f[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m HEAD@{76}: merge master: Fast-forward
+[33m48b433d2[m HEAD@{77}: checkout: moving from master to prepare
+[33m9b36983f[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m HEAD@{78}: commit: 空格提交
+[33m48b433d2[m HEAD@{79}: merge prepare: Fast-forward
+[33m6642de91[m HEAD@{80}: checkout: moving from prepare to master
+[33m48b433d2[m HEAD@{81}: commit: 采购合同导出附件名字不显示
+[33m87669d5c[m HEAD@{82}: pull --progress --no-stat -v --progress origin prepare: Merge made by the 'recursive' strategy.
+[33m2e1bb499[m HEAD@{83}: commit: 采购合同导出附件名字不显示
+[33m2667bfed[m HEAD@{84}: checkout: moving from test to prepare
+[33m8f752382[m HEAD@{85}: checkout: moving from prepare to test
+[33m2667bfed[m HEAD@{86}: checkout: moving from test to prepare
+[33m8f752382[m HEAD@{87}: pull --progress --no-stat -v --progress origin test: Fast-forward
+[33m4f22af4d[m HEAD@{88}: checkout: moving from prepare to test
+[33m2667bfed[m HEAD@{89}: pull --progress --no-stat -v --progress origin prepare: Fast-forward
+[33m37f05082[m HEAD@{90}: commit: 空格提交
+[33m4f22af4d[m HEAD@{91}: merge dev: Fast-forward
+[33m6642de91[m HEAD@{92}: checkout: moving from test to prepare
+[33m4f22af4d[m HEAD@{93}: merge dev: Fast-forward
+[33m6642de91[m HEAD@{94}: checkout: moving from dev to test
+[33m4f22af4d[m HEAD@{95}: commit: 3、采购订单流程业务方需求变更：针对标准版本的采购合同，依然需要财务和供应链中心总经理审核；
+[33m6642de91[m HEAD@{96}: checkout: moving from vice-order to dev
+[33m6642de91[m HEAD@{97}: merge master: Fast-forward
+[33m43bef085[m HEAD@{98}: checkout: moving from prepare to vice-order
+[33m6642de91[m HEAD@{99}: merge master: Fast-forward
+[33med18444c[m HEAD@{100}: checkout: moving from test to prepare
+[33m6642de91[m HEAD@{101}: merge master: Fast-forward
+[33med18444c[m HEAD@{102}: checkout: moving from dev to test
+[33m6642de91[m HEAD@{103}: merge master: Fast-forward
+[33med18444c[m HEAD@{104}: checkout: moving from master to dev
+[33m6642de91[m HEAD@{105}: commit: 空格
+[33med18444c[m HEAD@{106}: merge prepare: Fast-forward
+[33m41f13df9[m HEAD@{107}: checkout: moving from prepare to master
+[33med18444c[m HEAD@{108}: merge test: Fast-forward
+[33me206d90a[m HEAD@{109}: checkout: moving from test to prepare
+[33med18444c[m HEAD@{110}: merge dev: Fast-forward
+[33m708aafec[m HEAD@{111}: checkout: moving from dev to test
+[33med18444c[m HEAD@{112}: commit: 关闭钉钉通知
+[33me206d90a[m HEAD@{113}: merge prepare: Fast-forward
+[33m381b7873[m HEAD@{114}: checkout: moving from prepare to dev
+[33me206d90a[m HEAD@{115}: checkout: moving from test to prepare
+[33m708aafec[m HEAD@{116}: checkout: moving from prepare to test
+[33me206d90a[m HEAD@{117}: pull --progress --no-stat -v --progress origin prepare: Fast-forward
+[33m708aafec[m HEAD@{118}: checkout: moving from test to prepare
+[33m708aafec[m HEAD@{119}: merge prepare: Fast-forward
+[33md7cc900a[m HEAD@{120}: checkout: moving from prepare to test
+[33m708aafec[m HEAD@{121}: checkout: moving from test to prepare
+[33md7cc900a[m HEAD@{122}: checkout: moving from prepare to test
+[33m708aafec[m HEAD@{123}: commit: 项目预投需要总裁和董事长审批
+[33m08be902b[m HEAD@{124}: checkout: moving from test to prepare
+[33md7cc900a[m HEAD@{125}: pull --progress --no-stat -v --progress origin test: Fast-forward
+[33mebd627f4[m HEAD@{126}: checkout: moving from prepare to test
+[33m08be902b[m HEAD@{127}: commit: 项目预投需要总裁和董事长审批
+[33m92a227b7[m HEAD@{128}: pull --progress --no-stat -v --progress origin prepare: Merge made by the 'recursive' strategy.
+[33m81f7b03d[m HEAD@{129}: commit: 项目预投需要总裁和董事长审批
+[33mebd627f4[m HEAD@{130}: merge test: Fast-forward
+[33mce861da9[m HEAD@{131}: checkout: moving from test to prepare
+[33mebd627f4[m HEAD@{132}: commit: 项目预投需要总裁和董事长审批
+[33m166b9b44[m HEAD@{133}: pull --progress --no-stat -v --progress origin test: Merge made by the 'recursive' strategy.
+[33mce861da9[m HEAD@{134}: merge prepare: Fast-forward
+[33m381b7873[m HEAD@{135}: checkout: moving from prepare to test
+[33mce861da9[m HEAD@{136}: pull --progress --no-stat -v --progress origin prepare: Merge made by the 'recursive' strategy.
+[33m4d1755c1[m HEAD@{137}: commit: 项目预投需要总裁和董事长审批
+[33mc77c9ac0[m HEAD@{138}: commit: 国内订购 不需要品控经办人 审批
+[33mde9e966d[m HEAD@{139}: commit: 国内订购 不需要品控经办人 审批
+[33m810a7b22[m HEAD@{140}: commit: 订单预投审核人修改
+[33m2cc5e916[m HEAD@{141}: commit: 订单预投审核人修改
+[33ma68b3ccf[m HEAD@{142}: pull --progress --no-stat -v --progress origin prepare: Fast-forward
+[33m381b7873[m HEAD@{143}: pull --progress --no-stat -v --progress origin prepare: Fast-forward
+[33m41f13df9[m HEAD@{144}: checkout: moving from dev to prepare
+[33m381b7873[m HEAD@{145}: pull --progress --no-stat -v --progress origin dev: Fast-forward
+[33m6c9acbd1[m HEAD@{146}: checkout: moving from test to dev
+[33m381b7873[m HEAD@{147}: pull --progress --no-stat -v --progress origin test: Fast-forward
+[33m6c9acbd1[m HEAD@{148}: merge dev: Fast-forward
+[33mcae90dbf[m HEAD@{149}: pull --progress --no-stat -v --progress origin test: Fast-forward
+[33mc49dd1db[m HEAD@{150}: checkout: moving from dev to test
+[33m6c9acbd1[m HEAD@{151}: commit: 项目驳回订单没待办问题修改
+[33mcae90dbf[m HEAD@{152}: pull --progress --no-stat -v --progress origin dev: Fast-forward
+[33m9c4e2f89[m HEAD@{153}: checkout: moving from prepare to dev
+[33m41f13df9[m HEAD@{154}: checkout: moving from test to prepare
+[33mc49dd1db[m HEAD@{155}: pull --progress --no-stat -v --progress origin test: Fast-forward
+[33m2a18cd72[m HEAD@{156}: checkout: moving from dev to test
+[33m9c4e2f89[m HEAD@{157}: pull --progress --no-stat -v --progress origin dev: Fast-forward
+[33m663cfa49[m HEAD@{158}: pull --progress --no-stat -v --progress origin dev: Fast-forward
+[33ma927891d[m HEAD@{159}: checkout: moving from test to dev
+[33m2a18cd72[m HEAD@{160}: pull --progress --no-stat -v --progress origin test: Fast-forward
+[33m263fc786[m HEAD@{161}: checkout: moving from prepare to test
+[33m41f13df9[m HEAD@{162}: checkout: moving from test to prepare
+[33m263fc786[m HEAD@{163}: pull --progress --no-stat -v --progress origin test: Fast-forward
+[33ma927891d[m HEAD@{164}: checkout: moving from prepare to test
+[33m41f13df9[m HEAD@{165}: checkout: moving from test to prepare
+[33ma927891d[m HEAD@{166}: checkout: moving from prepare to test
+[33m41f13df9[m HEAD@{167}: pull --progress --no-stat -v --progress origin prepare: Fast-forward
+[33m8404db5c[m HEAD@{168}: checkout: moving from master to prepare
+[33m41f13df9[m HEAD@{169}: pull --progress --no-stat -v --progress origin master: Fast-forward
+[33md8262296[m HEAD@{170}: checkout: moving from prepare to master
+[33m8404db5c[m HEAD@{171}: checkout: moving from master to prepare
+[33md8262296[m HEAD@{172}: merge prepare: Merge made by the 'recursive' strategy.
+[33md9e2d173[m HEAD@{173}: pull --progress --no-stat -v --progress origin master: Fast-forward
+[33m310d39b1[m HEAD@{174}: checkout: moving from prepare to master
+[33m8404db5c[m HEAD@{175}: commit: 空格提交
+[33m62783eba[m HEAD@{176}: commit: 利润核算单变更
+[33m74603343[m HEAD@{177}: pull --progress --no-stat -v --progress origin prepare: Fast-forward
+[33me7d01a48[m HEAD@{178}: pull --progress --no-stat -v --progress origin prepare: Fast-forward
+[33m7d1da5d1[m HEAD@{179}: commit: 利润核算单变更
+[33m8152a6f4[m HEAD@{180}: commit: 利润核算单变更
+[33m22b2fbb9[m HEAD@{181}: commit: 利润核算单变更
+[33me0731cc8[m HEAD@{182}: commit: 利润核算单变更
+[33mca0d8db9[m HEAD@{183}: pull --progress --no-stat -v --progress origin prepare: Fast-forward
+[33m98621243[m HEAD@{184}: commit: 利润核算单变更
+[33m76a135f6[m HEAD@{185}: pull --progress --no-stat -v --progress origin prepare: Fast-forward
+[33m310d39b1[m HEAD@{186}: checkout: moving from dev to prepare
+[33ma927891d[m HEAD@{187}: merge test: Fast-forward
+[33m207e7204[m HEAD@{188}: checkout: moving from test to dev
+[33ma927891d[m HEAD@{189}: merge dev: Merge made by the 'recursive' strategy.
+[33m5fdfca35[m HEAD@{190}: checkout: moving from dev to test
+[33m207e7204[m HEAD@{191}: commit: 项目订单流程修改
+[33m596818d1[m HEAD@{192}: checkout: moving from test to dev
+[33m5fdfca35[m HEAD@{193}: merge dev: Merge made by the 'recursive' strategy.
+[33m19077308[m HEAD@{194}: checkout: moving from dev to test
+[33m596818d1[m HEAD@{195}: commit: 项目订单流程修改
+[33m9c1184ef[m HEAD@{196}: checkout: moving from test to dev
+[33m19077308[m HEAD@{197}: pull --progress --no-stat -v --progress origin test: Fast-forward
+[33m9c1184ef[m HEAD@{198}: pull --progress --no-stat -v --progress origin test: Fast-forward
+[33md95745a4[m HEAD@{199}: checkout: moving from dev to test
+[33m9c1184ef[m HEAD@{200}: pull --progress --no-stat -v --progress origin dev: Fast-forward
+[33ma7dc6b10[m HEAD@{201}: checkout: moving from test to dev
+[33md95745a4[m HEAD@{202}: checkout: moving from dev to test
+[33ma7dc6b10[m HEAD@{203}: pull --progress --no-stat -v --progress origin dev: Fast-forward
+[33mc568ef8b[m HEAD@{204}: pull --progress --no-stat -v --progress origin dev: Fast-forward
+[33md95745a4[m HEAD@{205}: checkout: moving from test to dev
+[33md95745a4[m HEAD@{206}: merge dev: Fast-forward
+[33m79884984[m HEAD@{207}: pull --progress --no-stat -v --progress origin test: Fast-forward
+[33m292bc894[m HEAD@{208}: checkout: moving from dev to test
+[33md95745a4[m HEAD@{209}: pull --progress --no-stat -v --progress origin dev: Fast-forward
+[33m03940ab0[m HEAD@{210}: merge test: Merge made by the 'recursive' strategy.
+[33m4876a784[m HEAD@{211}: pull --progress --no-stat -v --progress origin dev: Fast-forward

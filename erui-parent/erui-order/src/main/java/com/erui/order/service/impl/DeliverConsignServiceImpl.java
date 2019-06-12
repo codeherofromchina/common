@@ -15,7 +15,6 @@ import com.erui.order.event.TasksAddEvent;
 import com.erui.order.requestVo.DeliverConsignListCondition;
 import com.erui.order.service.*;
 import com.erui.order.util.BpmUtils;
-import com.erui.order.util.exception.MyException;
 import com.erui.order.v2.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
