@@ -170,7 +170,6 @@ public class Attachment {
         attachment.setUserName(this.getUserName());
     }
 
-
     public static enum AttachmentCategory {
         ORDER("ORDER", "订单", 1), PROJECT("PROJECT", "项目", 2),
         PURCHREQUEST("PURCHREQUEST", "采购申请", 3), PURCH("PURCH", "采购", 4), INSTOCKQUALITY("INSTOCKQUALITY", "入库质检", 5), PURCHCONTRACT("PURCHCONTRACT", "采购合同", 6),
