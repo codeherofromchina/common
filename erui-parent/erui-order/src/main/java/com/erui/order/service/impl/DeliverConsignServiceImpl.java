@@ -170,7 +170,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     }
 
 
-
     private DeliverConsign findByIdForUpdate(Integer id) throws Exception {
         DeliverConsign deliverConsign = deliverConsignDao.findById(id);
         if (deliverConsign != null) {
