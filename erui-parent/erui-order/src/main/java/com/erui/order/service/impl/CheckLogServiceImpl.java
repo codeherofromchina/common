@@ -434,7 +434,6 @@ public class CheckLogServiceImpl implements CheckLogService {
         put("task_ed",Integer.valueOf(27)); // '董事长审核'
     }};
 
-
     /**
      * 签约主体 英文转中文
      *
