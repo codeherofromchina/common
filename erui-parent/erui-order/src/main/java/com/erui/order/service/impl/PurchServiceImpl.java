@@ -1823,47 +1823,47 @@ public class PurchServiceImpl implements PurchService {
                     auditBackLogHandle(save, false, save.getAuditingUserId(), "", false);
                 } else {
                     String taskId = purch.getTaskId();
+                    // 采购合同订单流程实例变量（purchase_order）
+                    Map<String, Object> bpmInitVar = new HashMap<>();
+                    List<String> businessUserNos = userService.findUserNosByIds(businessUids);
+                    if (businessUserNos.size() == 1) {
+                        bpmInitVar.put("assignee_pm", businessUserNos.get(0));  // 设置项目负责人为项目中的项目负责人
+                    } else if (businessUserNos.size() > 1){
+                        bpmInitVar.put("candidate_users_pm", StringUtils.join(businessUserNos,","));  // 设置项目负责人为项目中的项目负责人
+                    } else {
+                        throw new Exception("没有项目负责人");
+                    }
+                    bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
+                    String task_la_check ;
+                    if (StringUtils.equals("3", purch.getContractVersion())) {
+                        task_la_check = "Y";
+                    } else {
+                        task_la_check = "N";
+                        bpmInitVar.put("task_la_audit_status", "APPROVED");
+                    }
+                    bpmInitVar.put("task_la_check", task_la_check); // 标准版本
+
                     if (StringUtils.isBlank(taskId)) {
                         // 启动采购合同订单流程实例（purchase_order）
-                        Map<String, Object> bpmInitVar = new HashMap<>();
-                        bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
                         bpmInitVar.put("param_contract", purch.getPurchNo()); // 采购合同号
-                        String task_la_check ;
-                        if (StringUtils.equals("3", purch.getContractVersion())) {
-                        	task_la_check = "Y";
-                        } else {
-                        	task_la_check = "N";
-                        	bpmInitVar.put("task_la_audit_status", "APPROVED");
-                        }
-                        bpmInitVar.put("task_la_check", task_la_check); // 标准版本
-                        List<String> businessUserNos = userService.findUserNosByIds(businessUids);
-                        if (businessUserNos.size() == 1) {
-                            bpmInitVar.put("assignee_pm", businessUserNos.get(0));  // 设置项目负责人为项目中的项目负责人
-                        } else if (businessUserNos.size() > 1){
-                            bpmInitVar.put("candidate_users_pm", StringUtils.join(businessUserNos,","));  // 设置项目负责人为项目中的项目负责人
-                        } else {
-                            throw new Exception("没有项目负责人");
-                        }
                         JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
                         dbPurch.setProcessId(processResp.getString("instanceId"));
                     } else {
                         // 完善订单任务调用
-                        Map<String, Object> localVariables = new HashMap<>();
-                        localVariables.put("audit_status", "APPROVED");
-                        localVariables.put("order_amount", save.getTotalPrice().doubleValue()); // 总采购订单金额
-                        
-                        String task_la_check ;
-                        if (StringUtils.equals("3", purch.getContractVersion())) {
-                        	task_la_check = "Y";
-                        } else {
-                        	task_la_check = "N";
-                        	localVariables.put("task_la_audit_status", "APPROVED");
-                        }
-                        localVariables.put("task_la_check", task_la_check); // 标准版本
-                        BpmUtils.completeTask(taskId, eruiToken, null, localVariables, "同意");
+                        bpmInitVar.put("audit_status", "APPROVED");
+                        BpmUtils.completeTask(taskId, eruiToken, null, bpmInitVar, "同意");
                     }
-                    dbPurch.setAuditingUser(",");
-                    dbPurch.setAuditingUserId(",");
+                    User user = null;
+                    if (businessUserNos.size() == 1) {
+                        user = userService.findUserNoByUserNo(businessUserNos.get(0));
+                    }
+                    if (user == null){
+                        dbPurch.setAuditingUser(",");
+                        dbPurch.setAuditingUserId(",");
+                    } else {
+                        dbPurch.setAuditingUser("," + user.getId());
+                        dbPurch.setAuditingUserId("," + user.getName());
+                    }
                     dbPurch.setAuditingProcess("task_pu,task_pm");
                     dbPurch.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
 

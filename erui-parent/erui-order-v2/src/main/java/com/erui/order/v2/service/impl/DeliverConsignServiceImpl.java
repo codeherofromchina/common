@@ -3,10 +3,12 @@ package com.erui.order.v2.service.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.pojo.BookingSpaceAuditRequest;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
+import com.erui.order.v2.dao.AttachmentMapper;
 import com.erui.order.v2.dao.DeliverConsignGoodsMapper;
 import com.erui.order.v2.dao.DeliverConsignMapper;
 import com.erui.order.v2.dao.OrderMapper;
@@ -49,6 +51,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     private DeliverdetailService deliverdetailService;
     @Autowired
     private ProjectService projectService;
+    @Autowired
+    private AttachmentMapper attachmentMapper;
     @Autowired
     private BacklogService backlogService;
     @Value("#{orderV2Prop[MEMBER_LIST]}")
@@ -605,6 +609,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         selectiveDeliverConsign.setAuditingUser(StringUtils.join(userNames, ","));
         deliverConsignMapper.updateByPrimaryKeySelective(selectiveDeliverConsign);
     }
+
+
 
     /**
      * 根据订单中crm编码，查询授信信息

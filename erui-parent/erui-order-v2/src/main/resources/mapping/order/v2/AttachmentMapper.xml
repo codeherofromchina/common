@@ -121,7 +121,7 @@
       #{createTime,jdbcType=TIMESTAMP}, #{type,jdbcType=INTEGER}, #{relObjId,jdbcType=INTEGER}, 
       #{category,jdbcType=VARCHAR}, #{tenant,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.erui.order.v2.model.Attachment" >
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.erui.order.v2.model.Attachment" >
     insert into attachment
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
