@@ -129,6 +129,61 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
+    private Order findByIdLangLock(Integer id, String lang) {
+        Order order = orderDao.findById(id);
+        if (order != null) {
+            if (order.getProject() != null && order.getProject().getAuditingStatus() != null && order.getProject().getAuditingStatus() == 4) {
+                order.setProAuditStatus(1);
+            }
+            Integer size = order.getGoodsList().size();
+            if (size > 0) {
+                List<Goods> goodsList = order.getGoodsList();
+                for (Goods goods : goodsList) {
+                    goods.setPurchGoods(null);
+                }
+            }
+            List<Attachment> orderAttachment = attachmentDao.findByRelObjIdAndCategory(id, Attachment.AttachmentCategory.ORDER.getCode());
+            if (orderAttachment != null && orderAttachment.size() > 0) {
+                order.setAttachmentSet(orderAttachment);
+            }
+            order.getAttachmentSet().size();
+            order.getOrderPayments().size();
+            // 获取执行分公司、分销部
+            Integer execCoId = order.getExecCoId();
+            if (execCoId != null) {
+                Company company = companyService.findByIdLazy(execCoId);
+                if ("en".equals(lang)) {
+                    order.setExecCoName(company.getEnName());
+                } else {
+                    order.setExecCoName(company.getName());
+                }
+            }
+            String distributionDeptName = null;
+            if (StringUtils.isNotBlank(order.getDistributionDeptName())) {
+                distributionDeptName = getDeptNameByLang(lang, order.getDistributionDeptName());
+            }
+            order.setDistributionDeptName(distributionDeptName);
+        }
+
+        try {
+            DeliverConsign deliverConsign1 = deliverConsignService.queryCreditData(order);
+            if (deliverConsign1 != null) {
+                order.setLineOfCredit(deliverConsign1.getLineOfCredit()); //授信额度
+                order.setCreditAvailable(deliverConsign1.getCreditAvailable()); //可用授信额度
+            } else {
+                order.setLineOfCredit(BigDecimal.valueOf(0.00)); //授信额度
+                order.setCreditAvailable(BigDecimal.valueOf(0.00)); //可用授信额度
+            }
+        } catch (Exception e) {
+            logger.info("CRM返回信息：" + e);
+            order.setLineOfCredit(BigDecimal.valueOf(0.00)); //授信额度
+            order.setCreditAvailable(BigDecimal.valueOf(0.00)); //可用授信额度
+        }
+        //end
+
+        return order;
+    }
+
     @Override
     @Transactional(readOnly = true)
     public Order findByIdLang(Integer id, String lang) {
@@ -943,7 +998,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(rollbackFor = Exception.class)
     public Integer updateOrder(AddOrderVo addOrderVo) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        Order order = findByIdLang(addOrderVo.getId(), "zh");
+        Order order = findByIdLangLock(addOrderVo.getId(), "zh");
         if ((order.getOverseasSales() != null && order.getOverseasSales() != 2 && order.getOverseasSales() != 4) && (addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4)) {
             order.setContractNo("");
         } else if ((addOrderVo.getOverseasSales() == 2 || addOrderVo.getOverseasSales() == 4) && order.getSigningCo() != null && !order.getSigningCo().equals(addOrderVo.getSigningCo())) {
