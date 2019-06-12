@@ -1,5 +1,7 @@
 package com.erui.order.v2.service;
 
+import com.erui.comm.pojo.BookingSpaceAuditRequest;
+import com.erui.order.v2.model.Attachment;
 import com.erui.order.v2.model.DeliverConsign;
 import com.erui.order.v2.model.Purch;
 
@@ -71,4 +73,5 @@ public interface DeliverConsignService {
      * @param actId
      */
     void deleteAuditUser(Long deliverConsignId, String actId);
+
 }

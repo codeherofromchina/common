@@ -3,6 +3,8 @@ package com.erui.boss.web.order;
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.pojo.AttachmentVo;
+import com.erui.comm.pojo.BookingSpaceAuditRequest;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.entity.DeliverConsign;
@@ -11,6 +13,9 @@ import com.erui.order.entity.Project;
 import com.erui.order.requestVo.DeliverConsignListCondition;
 import com.erui.order.service.DeliverConsignService;
 import com.erui.order.service.OrderService;
+import com.erui.order.util.BpmUtils;
+import com.erui.order.v2.model.Attachment;
+import com.erui.order.v2.service.AttachmentService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,9 +40,12 @@ public class DeliverConsignController {
 
     @Autowired
     private DeliverConsignService deliverConsignService;
-
+    @Autowired
+    private com.erui.order.v2.service.DeliverConsignService deliverConsignServiceV2;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private AttachmentService attachmentService;
 
     /**
      * 根据ID获取出口通知单
@@ -47,6 +57,64 @@ public class DeliverConsignController {
     public Result<Object> get(@RequestParam(name = "id") Integer id) throws Exception {
         DeliverConsign deliverConsign = deliverConsignService.findById(id);
         return new Result<>(deliverConsign);
+    }
+
+
+    /**
+     * 出口通知单订舱专员审核
+     * @return
+     */
+    @RequestMapping(value = "bookingSpaceAudit", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> bookingSpaceAudit(HttpServletRequest request, BookingSpaceAuditRequest bookingSpaceAuditRequest) throws Exception {
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        Result<Object> result = new Result<>();
+        Integer deliverConsignId = bookingSpaceAuditRequest.getDeliverConsignId();
+        String taskId = bookingSpaceAuditRequest.getTaskId();
+        com.erui.order.v2.model.DeliverConsign deliverConsign = deliverConsignServiceV2.selectById(deliverConsignId);
+        if (deliverConsign == null) {
+            result.setStatus(ResultStatusEnum.PARAM_ERROR);
+            result.setMsg("出口通知单不存在");
+            return result;
+        }
+        if (StringUtils.isBlank(taskId)) {
+            result.setStatus(ResultStatusEnum.PARAM_ERROR);
+            result.setMsg("任务ID不存在");
+            return result;
+        }
+        // 获取当前登录用户ID并比较是否是当前用户审核
+        Object userId = request.getSession().getAttribute("userid");
+        Object realname = request.getSession().getAttribute("realname");
+        // 完善附件信息
+        AttachmentVo attachmentVo = bookingSpaceAuditRequest.getAttachment();
+        Attachment attachment = new Attachment();
+        attachment.setGroup(attachmentVo.getGroup());
+        attachment.setTitle(attachment.getTitle());
+        attachment.setUrl(attachment.getUrl());
+        String intUserId = String.valueOf(userId);// DELIVERCONSIGN
+        if (StringUtils.isNumeric(intUserId)) {
+            attachment.setUserId(Integer.parseInt(intUserId));
+            attachment.setUserName(String.valueOf(realname));
+        }
+        attachment.setFrontDate(attachmentVo.getFrontDate());
+        attachment.setDeleteFlag(false);
+        attachment.setCreateTime(new Date());
+        attachment.setType(attachmentVo.getType());
+        attachment.setCategory("DELIVERCONSIGN"); // 出口通知单类型
+        attachment.setRelObjId(deliverConsign.getId());
+        attachment.setTenant("erui");
+
+        Integer attachmentId = attachmentService.insert(attachment);
+
+        try {
+            Map<String, Object> localVariables = new HashMap<>();
+            BpmUtils.completeTask(taskId, eruiToken, null, localVariables, "");
+        }catch (Exception e) {
+            // 业务流启动失败，删除插入的附件内容
+            e.printStackTrace();
+            attachmentService.deleteById(attachmentId);
+            throw e;
+        }
+        return result;
     }
 
 

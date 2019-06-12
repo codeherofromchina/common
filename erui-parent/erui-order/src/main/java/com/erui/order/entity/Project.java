@@ -948,11 +948,10 @@ public class Project {
     }
 
     public static enum ProjectStatusEnum {
-
         AUDIT("AUDIT", "未执行", 1), SUBMIT("SUBMIT", "未执行", 1), HASMANAGER("HASMANAGER", "有项目经理", 2),
         EXECUTING("EXECUTING", "正常执行", 3), DONE("DONE", "正常完成", 4), DELAYED_EXECUTION("DELAYED_EXECUTION", "延期执行", 5),
         DELAYED_COMPLETE("DELAYED_COMPLETE", "延期完成", 6), UNSHIPPED("UNSHIPPED", "正常待发运", 7),
-        DELAYED_UNSHIPPED("DELAYED_UNSHIPPED", "延期待发运", 8), PAUSE("PAUSE", "项目暂停", 9), CANCEL("CANCEL", "项目取消", 10), ORDERCANCEL("ORDERCANCEL", "订单取消", 11), TURNDOWN("TURNDOWN", "驳回", 12);
+        DELAYED_UNSHIPPED("DELAYED_UNSHIPPED", "延期待发运", 8), PAUSE("PAUSE", "项目暂停", 9), CANCEL("CANCEL", "项目取消", 10), ORDERCANCEL("ORDERCANCEL", "订单取消", 11), TURNDOWN("TURNDOWN", "驳回", 12), CHANGE("CHANGE", "已变更", 13);
         private String code;
         private String msg;
         private Integer num;

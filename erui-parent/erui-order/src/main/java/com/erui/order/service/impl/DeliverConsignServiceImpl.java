@@ -15,7 +15,6 @@ import com.erui.order.event.TasksAddEvent;
 import com.erui.order.requestVo.DeliverConsignListCondition;
 import com.erui.order.service.*;
 import com.erui.order.util.BpmUtils;
-import com.erui.order.util.exception.MyException;
 import com.erui.order.v2.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -168,7 +167,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
         return deliverConsign;
     }
-
 
 
     private DeliverConsign findByIdForUpdate(Integer id) throws Exception {
@@ -422,7 +420,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 deliverConsignBookingSpace.setId(deliverConsign1.getDeliverConsignBookingSpace().getId());
             }
             deliverConsignBookingSpaceDao.saveAndFlush(deliverConsignBookingSpace);
-        }
+        } 
+        
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             try {
                 disposeAdvanceMoney(order, deliverConsign);
@@ -559,7 +558,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             Map<String, Object> initVar = new HashMap<>();
             initVar.put("param_contract", deliverConsign1.getDeliverConsignNo());
-
             initVar.put("task_cm_country", deliverConsign1.getCountry());
             initVar.put("task_rm_area", deliverConsign1.getRegion());
             if (order.getTechnicalId() != null) {

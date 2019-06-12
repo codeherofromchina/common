@@ -345,9 +345,9 @@ public class Order {
     @Column(name = "legal_auditer")
     private String legalAuditer;//法务审核人
     // 流程实例ID
-    @Column(name="process_id")
+    @Column(name = "process_id")
     private String processId;
-    @Column(name="task_id")
+    @Column(name = "task_id")
     private String taskId;
 
 
@@ -760,9 +760,9 @@ public class Order {
                 return "市场询单";
             } else if (getOrderSource() == 3) {
                 return "线下订单";
-            }else if (getOrderSource() == 4) {
-            return "EACP";
-        }
+            } else if (getOrderSource() == 4) {
+                return "EACP";
+            }
         }
         return null;
     }
@@ -1249,7 +1249,6 @@ public class Order {
         this.goodsList = goodsList;
     }
 
-
     public List<OrderPayment> getOrderPayments() {
         return orderPayments;
     }
@@ -1357,7 +1356,7 @@ public class Order {
     }
 
     public static enum StatusEnum {
-        INIT(1, "待确认"), UNEXECUTED(2, "未执行"), EXECUTING(3, "执行中"), DONE(4, "完成");
+        INIT(1, "待确认"), UNEXECUTED(2, "未执行"), EXECUTING(3, "执行中"), DONE(4, "完成"), CHANGE(5, "已变更"), CANCEL(0, "已取消");
 
         public int code;
         public String msg;
@@ -1388,7 +1387,7 @@ public class Order {
     }
 
     public static enum enStatusEnum {
-        INIT(1, "To be confirmed"), UNEXECUTED(2, "Not executed"), EXECUTING(3, "Being executed"), DONE(4, "Finished");
+        INIT(1, "To be confirmed"), UNEXECUTED(2, "Not executed"), EXECUTING(3, "Being executed"), DONE(4, "Finished"),CHANGE(5, "CHANGE"), CANCEL(0, "CANCELED");
 
         public int code;
         public String msg;

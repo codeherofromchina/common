@@ -38,7 +38,7 @@
         FROM erui_buyer.buyer AS buyers
         LEFT JOIN erui_operation.market_area_country AS areasBn on  buyers.country_bn=areasBn.country_bn
         LEFT JOIN erui_operation.market_area AS areasZh  ON areasBn.market_area_bn=areasZh.bn AND areasZh.lang='zh'
-        WHERE buyers.deleted_flag='N' AND buyers.buyer_code IN (SELECT crm_code FROM erui_order.`order` WHERE order_category != 1 AND order_category != 3 AND `status` in (3,4)  AND delete_flag = 0  AND contract_no like 'YRX%' AND order_belongs=1 AND crm_code &lt;&gt; '' AND crm_code IS NOT NULL)
+        WHERE buyers.deleted_flag='N' AND buyers.buyer_code IN (SELECT crm_code FROM erui_order.`order` WHERE order_category != 1 AND order_category != 3 AND `status` in (3,4)  AND delete_flag = 0  AND contract_no like 'YR%' AND order_belongs=1 AND crm_code &lt;&gt; '' AND crm_code IS NOT NULL)
         ) as a
         WHERE level IN ('普通会员','高级会员')   and  level_at BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
         and DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s")
@@ -69,7 +69,7 @@
         (
         SELECT crm_code crmCode , order_belongs
         FROM erui_order.`order`
-        WHERE order_category != 1 AND order_category != 3 AND `status` in (3,4)  AND delete_flag = 0  AND contract_no like 'YRX%' AND crm_code IS NOT NULL AND crm_code &lt;&gt; '' AND order_belongs IS NOT NULL AND order_belongs &lt;&gt; ''
+        WHERE order_category != 1 AND order_category != 3 AND `status` in (3,4)  AND delete_flag = 0  AND contract_no like 'YR%' AND crm_code IS NOT NULL AND crm_code &lt;&gt; '' AND order_belongs IS NOT NULL AND order_belongs &lt;&gt; ''
         GROUP BY crm_code,order_belongs
         ) AS t group by t.crmCode
 

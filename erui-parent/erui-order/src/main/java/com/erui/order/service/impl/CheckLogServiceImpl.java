@@ -422,17 +422,16 @@ public class CheckLogServiceImpl implements CheckLogService {
         put("task_ed", Integer.valueOf(208)); // '董事长审核'
     }};
 
-    private static Map<String, Integer> newCheckLog2oldCheckLogPurchMap = new HashMap<String, Integer>() {{
-        put("task_pu", Integer.valueOf(21)); // '采购经理审核'
-        put("task_pm", Integer.valueOf(22)); // '事业部项目负责人'
-        put("task_la", Integer.valueOf(23)); // '法务审核'
-        put("task_fa", Integer.valueOf(24)); // '财务审核'
-        put("task_sm", Integer.valueOf(25)); // '供应链中心总经理审核'
-        put("task_ceo", Integer.valueOf(26)); // '总裁审核'
-        put("task_ed", Integer.valueOf(27)); // '董事长审核'
+    private static Map<String, Integer> newCheckLog2oldCheckLogPurchMap = new HashMap<String, Integer>(){{
+        put("task_pc",Integer.valueOf(20)); // '完善订单信息'
+        put("task_pu",Integer.valueOf(21)); // '采购经理审核'
+        put("task_pm",Integer.valueOf(22)); // '事业部项目负责人'
+        put("task_la",Integer.valueOf(23)); // '法务审核'
+        put("task_fa",Integer.valueOf(24)); // '财务审核'
+        put("task_sm",Integer.valueOf(25)); // '供应链中心总经理审核'
+        put("task_ceo",Integer.valueOf(26)); // '总裁审核'
+        put("task_ed",Integer.valueOf(27)); // '董事长审核'
     }};
-
-
 
     /**
      * 签约主体 英文转中文
@@ -441,7 +440,7 @@ public class CheckLogServiceImpl implements CheckLogService {
      */
     @Override
     public String getSigningCoCn(String signingCo){
-        String signingCoCn = "";
+        String signingCoCn = signingCo;
         if(signingCo != null){
             switch (signingCo) {
                 case "Erui International Electronic Commerce Co., Ltd.":
