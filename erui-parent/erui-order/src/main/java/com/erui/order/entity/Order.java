@@ -1356,7 +1356,7 @@ public class Order {
     }
 
     public static enum StatusEnum {
-        INIT(1, "待确认"), UNEXECUTED(2, "未执行"), EXECUTING(3, "执行中"), DONE(4, "完成"), CHANGE(5, "已变更"), CANCEL(0, "取消");
+        INIT(1, "待确认"), UNEXECUTED(2, "未执行"), EXECUTING(3, "执行中"), DONE(4, "完成"), CHANGE(5, "已变更"), CANCEL(0, "已取消");
 
         public int code;
         public String msg;
