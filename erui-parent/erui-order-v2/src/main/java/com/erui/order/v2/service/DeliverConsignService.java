@@ -1,5 +1,7 @@
 package com.erui.order.v2.service;
 
+import com.erui.comm.pojo.BookingSpaceAuditRequest;
+import com.erui.order.v2.model.Attachment;
 import com.erui.order.v2.model.DeliverConsign;
 import com.erui.order.v2.model.Purch;
 
@@ -23,11 +25,11 @@ public interface DeliverConsignService {
     /**
      * 更新出口通知单审核进度进行中
      *
-     * @param processInstanceId
+     * @param processId
      * @param auditingProcess
      * @param rejected    是否是驳回
      */
-    void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId, boolean rejected);
+    void updateAuditProcessDoing(String processId, String auditingProcess, String taskId, boolean rejected);
 
     /**
      * 业务流实例执行结束更新
@@ -35,6 +37,7 @@ public interface DeliverConsignService {
      */
     void updateProcessCompleted(String processInstanceId);
 
+    DeliverConsign findByProcessInstanceId(String processInstanceId);
     /**
      * 通过id查找出口通知单信息
      * @param id
@@ -70,4 +73,5 @@ public interface DeliverConsignService {
      * @param actId
      */
     void deleteAuditUser(Long deliverConsignId, String actId);
+
 }

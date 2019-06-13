@@ -3,10 +3,12 @@ package com.erui.order.v2.service.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.pojo.BookingSpaceAuditRequest;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
+import com.erui.order.v2.dao.AttachmentMapper;
 import com.erui.order.v2.dao.DeliverConsignGoodsMapper;
 import com.erui.order.v2.dao.DeliverConsignMapper;
 import com.erui.order.v2.dao.OrderMapper;
@@ -50,6 +52,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Autowired
     private ProjectService projectService;
     @Autowired
+    private AttachmentMapper attachmentMapper;
+    @Autowired
     private BacklogService backlogService;
     @Value("#{orderV2Prop[MEMBER_LIST]}")
     private String memberList;  //查询人员信息调用接口
@@ -72,7 +76,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         DeliverConsignExample.Criteria criteria = example.createCriteria();
         criteria.andProcessIdEqualTo(processId);
         List<DeliverConsign> deliverConsigns = deliverConsignMapper.selectByExample(example);
-        if (deliverConsigns != null || deliverConsigns.size() > 0) {
+        if (deliverConsigns != null && deliverConsigns.size() > 0) {
             return deliverConsigns.get(0);
         }
         return null;
@@ -161,9 +165,10 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     }
 
     @Override
-    public void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId, boolean rejected) {
+    public void updateAuditProcessDoing(String processId, String auditingProcess, String taskId, boolean rejected) {
         // 查询出口通知单
-        DeliverConsign deliverConsign = findDeliverConsignByProcessId(processInstanceId);
+//        DeliverConsign deliverConsign = deliverConsignMapper.selectByPrimaryKey(Math.toIntExact(deliverConsignId));
+        DeliverConsign deliverConsign = findDeliverConsignByProcessId(processId);
         if (deliverConsign == null) {
             return;
         }
@@ -202,7 +207,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
      * @param processInstanceId
      * @return
      */
-    private DeliverConsign findByProcessInstanceId(String processInstanceId) {
+    public DeliverConsign findByProcessInstanceId(String processInstanceId) {
         DeliverConsignExample example = new DeliverConsignExample();
         example.createCriteria().andProcessIdEqualTo(processInstanceId);
 
@@ -604,6 +609,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         selectiveDeliverConsign.setAuditingUser(StringUtils.join(userNames, ","));
         deliverConsignMapper.updateByPrimaryKeySelective(selectiveDeliverConsign);
     }
+
+
 
     /**
      * 根据订单中crm编码，查询授信信息

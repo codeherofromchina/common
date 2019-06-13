@@ -19,7 +19,8 @@ import com.erui.order.requestVo.PurchParam;
 import com.erui.order.service.*;
 
 import com.erui.order.util.BpmUtils;
-
+import com.erui.order.v2.model.User;
+import com.erui.order.v2.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -33,9 +34,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.LockModeType;
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
 import java.util.*;
@@ -45,6 +49,7 @@ import java.util.stream.Collectors;
  * Created by wangxiaodan on 2017/12/11.
  */
 @Service
+@Transactional
 public class PurchServiceImpl implements PurchService {
     private static Logger logger = LoggerFactory.getLogger(DeliverDetailServiceImpl.class);
     @Autowired
@@ -75,6 +80,8 @@ public class PurchServiceImpl implements PurchService {
     private BackLogService backLogService;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private UserService userService;
     @Autowired
     private CheckLogService checkLogService;
     @Value("#{orderProp[MEMBER_INFORMATION]}")
@@ -107,16 +114,37 @@ public class PurchServiceImpl implements PurchService {
         return null;
     }
 
+
+    private Purch findBaseInfoLock(Integer id) {
+        if (id != null && id > 0) {
+            Purch puch = purchDao.findById(id);
+            puch.getPurchPaymentList().size(); /// 获取合同结算类型信息
+            List<Attachment> attachments = attachmentDao.findByRelObjIdAndCategory(puch.getId(), Attachment.AttachmentCategory.PURCH.getCode());
+            if (attachments != null && attachments.size() > 0) {
+                puch.setAttachments(attachments);
+                puch.getAttachments().size(); // 获取采购的附件信息
+            }
+            List<PurchGoods> purchGoodsList = puch.getPurchGoodsList();
+            if (purchGoodsList.size() > 0) {
+                for (PurchGoods purchGoods : purchGoodsList) {
+                    purchGoods.getGoods().setPurchGoods(null);
+                }
+            }
+            return puch;
+        }
+        return null;
+    }
+
     @Override
     @Transactional(readOnly = true)
     public List<Purch> findByPurchNo(String purchNo) {
         if (purchNo != null) {
             List<Purch> puchList = purchDao.findByPurchNo(purchNo);
-            if (puchList != null && puchList.size() > 0) {
+           /* if (puchList != null && puchList.size() > 0) {
                 for (Purch purch : puchList) {
                     purch.setPurchGoodsList(null);
                 }
-            }
+            }*/
             return puchList;
         }
         return null;
@@ -218,7 +246,6 @@ public class PurchServiceImpl implements PurchService {
         if (order == null) {
             throw new Exception(String.format("%s%s%s", "不存在的订单", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Nonexistent order"));
         }
-
         List<Map<String, Object>> result = new ArrayList<>();
         List<Purch> list = purchDao.findAll(new Specification<Purch>() {
             @Override
@@ -717,7 +744,6 @@ public class PurchServiceImpl implements PurchService {
 
         return page;
     }
-
     /**
      * 填充导出采购合同模板
      *
@@ -733,7 +759,13 @@ public class PurchServiceImpl implements PurchService {
             // 采购为空、采购状态未进行、采购未审核都不能导出
             throw new Exception("采购状态未进行或采购未审核错误");
         }
-        List<CheckLog> checkLogList = checkLogService.findCheckLogsByPurchId(purchId);
+
+        List<CheckLog> checkLogList = null;
+        if (StringUtils.isBlank(purch.getProcessId())) {
+            checkLogList = checkLogService.findCheckLogsByPurchId(purchId);
+        } else {
+            checkLogList = checkLogService.findAdapterListByProcessId(purch.getProcessId(), 2);
+        }
         List<Project> projects = purch.getProjects();
         StringBuffer businessUnitNames = new StringBuffer(); // 执行事业部
         Set<String> businessUnitNameSet = new HashSet<>();
@@ -742,7 +774,7 @@ public class PurchServiceImpl implements PurchService {
         for (Project project : projects) {
             Order order = project.getOrder();
             businessUnitNameSet.add(project.getBusinessUnitName());
-            signingComs.append(order.getSigningCo()).append("、");
+            signingComs.append(checkLogService.getSigningCoCn(order.getSigningCo())).append("、");
             contractNos.append(order.getContractNo()).append("、");
         }
         businessUnitNames.append(StringUtils.join(businessUnitNameSet.toArray(new String[businessUnitNameSet.size()]), "、"));
@@ -854,18 +886,29 @@ public class PurchServiceImpl implements PurchService {
         row.getCell(1).setCellValue(priceMode); // 定价方式
         row.getCell(3).setCellValue(saveMode); // 节约方式
 
-        /*row = sheet.getRow(13);
-        Integer payType = purch.getPayType();
+        row = sheet.getRow(13);
+        Integer payType = 0;
+        if(purch.getPurchPaymentList() != null && purch.getPurchPaymentList().size()>0)
+            payType = purch.getPurchPaymentList().get(0).getType();
         switch (payType) {
             case 1:
-                row.getCell(1).setCellValue("货到验收合格后付款"); // 付款方式
+                row.getCell(1).setCellValue("预付"); // 付款方式
                 break;
             case 2:
-                row.getCell(1).setCellValue("款到发货"); // 付款方式
+                row.getCell(1).setCellValue("进度"); // 付款方式
+                break;
+            case 3:
+                row.getCell(1).setCellValue("提货前"); // 付款方式
+                break;
+            case 4:
+                row.getCell(1).setCellValue("提货后"); // 付款方式
+                break;
+            case 5:
+                row.getCell(1).setCellValue("质保金"); // 付款方式
                 break;
             default:
-                row.getCell(1).setCellValue("其他"); // 付款方式
-        }*/
+                row.getCell(1).setCellValue("其它");  // 付款方式
+        }
         Date arraivalDate = purch.getPurChgDate();
         if (arraivalDate == null) {
             arraivalDate = purch.getArrivalDate();
@@ -995,14 +1038,15 @@ public class PurchServiceImpl implements PurchService {
             if (pgList.size() == 0) {
                 throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
             }
-            purch.setPurchGoodsList(pgList);
+//            purch.setPurchGoodsList(pgList);
         }
         // 处理商品信息
         List<PurchGoods> purchGoodsList = new ArrayList<>();
         Set<Project> projectSet = new HashSet<>();
+        List<Long> businessUids = new ArrayList<>();
         for (PurchGoods purchGoods : purch.getPurchGoodsList()) {
             // 获取要采购的商品
-            Goods goods = goodsDao.findOne(purchGoods.getgId());
+            Goods goods = goodsDao.findById(purchGoods.getgId());
             //获取采购合同商品
             PurchContractGoods purchContractGoods = purchContractGoodsDao.findOne(purchGoods.getPcgId());
             if (goods == null || goods.getExchanged()) {
@@ -1022,6 +1066,9 @@ public class PurchServiceImpl implements PurchService {
             }
             if (project.getPurchDone()) {
                 throw new Exception(String.format("%s%s%s", "项目采购已完成，不能再次采购", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project procurement has been completed and can not be repurchased"));
+            }
+            if (project.getBusinessUid() != null) {
+                businessUids.add(project.getBusinessUid().longValue());
             }
             projectSet.add(project);
             PurchGoods son = handleAddNewPurchGoods(project, purch, goods, purchGoods, purchContractGoods);
@@ -1084,9 +1131,29 @@ public class PurchServiceImpl implements PurchService {
                 task_la_check = "Y";
             }
             bpmInitVar.put("task_la_check", task_la_check); // 标准版本
+            List<String> businessUserNos = userService.findUserNosByIds(businessUids);
+            if (businessUserNos.size() == 1) {
+                bpmInitVar.put("assignee_pm", businessUserNos.get(0));  // 设置项目负责人为项目中的项目负责人
+            } else if (businessUserNos.size() > 1){
+                bpmInitVar.put("candidate_users_pm", StringUtils.join(businessUserNos,","));  // 设置项目负责人为项目中的项目负责人
+            } else {
+                throw new Exception("没有项目负责人");
+            }
             JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
             save.setProcessId(processResp.getString("instanceId"));
-            save.setAuditingProcess("task_pu,task_pm"); // 第一个节点通知失败，写固定前两个并行的节点
+
+            User user = null;
+            if (businessUserNos.size() == 1) {
+                user = userService.findUserNoByUserNo(businessUserNos.get(0));
+            }
+            if (user == null){
+                save.setAuditingUser(",");
+                save.setAuditingUserId(",");
+            } else {
+                save.setAuditingUser("," + user.getId());
+                save.setAuditingUserId("," + user.getName());
+            }
+            save.setAuditingProcess("task_pu,task_pm");
             save.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
         }
         if (save.getStatus() == 2) {
@@ -1131,10 +1198,10 @@ public class PurchServiceImpl implements PurchService {
      * @return
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class,isolation = Isolation.REPEATABLE_READ)
     public boolean update(Purch purch) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        Purch dbPurch = findBaseInfo(purch.getId());
+        Purch dbPurch = findBaseInfoLock(purch.getId());
         // 之前的采购必须不能为空且未提交状态
         if (purch.getPurchContractId() == null) {
             // 之前的采购必须不能为空且未提交状态
@@ -1182,7 +1249,7 @@ public class PurchServiceImpl implements PurchService {
                 if (pgList.size() == 0) {
                     throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
                 }
-                purch.setPurchGoodsList(pgList);
+//                purch.setPurchGoodsList(pgList);
             }
             // 处理商品
             List<PurchGoods> purchGoodsList = new ArrayList<>(); // 声明最终采购商品容器
@@ -1473,7 +1540,7 @@ public class PurchServiceImpl implements PurchService {
                 if (pgList.size() == 0) {
                     throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
                 }
-                purch.setPurchGoodsList(pgList);
+//                purch.setPurchGoodsList(pgList);
             }
             // 处理商品
             List<PurchGoods> purchGoodsList = new ArrayList<>(); // 声明最终采购商品容器
@@ -1482,6 +1549,7 @@ public class PurchServiceImpl implements PurchService {
             Map<Integer, PurchGoods> dbPurchGoodsMap = dbPurch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(PurchGoods::getId, vo -> vo));
             Set<Integer> existId = new HashSet<>();
             Set<Integer> existPurchContractId = new HashSet<>();
+            List<Long> businessUids = new ArrayList<>(); // 事业部负责人列表
             // 处理参数中的采购商品信息
             for (PurchGoods pg : purch.getPurchGoodsList()) {
                 Integer pgId = pg.getId();
@@ -1507,6 +1575,9 @@ public class PurchServiceImpl implements PurchService {
                     }
                     if (project.getPurchDone()) {
                         throw new Exception(String.format("%s%s%s", "项目采购已完成，不能再次采购", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Project procurement has been completed and can not be repurchased"));
+                    }
+                    if (project.getBusinessUid() != null) {
+                        businessUids.add(project.getBusinessUid().longValue()); // 添加项目负责人到集合中
                     }
                     projectSet.add(project);
                     // 查看是否存在替换商品
@@ -1577,7 +1648,9 @@ public class PurchServiceImpl implements PurchService {
                     //采购合同
                     existPurchContractId.add(cId);
                     Project project = purchGoods.getProject();
-
+                    if (project.getBusinessUid() != null) {
+                        businessUids.add(project.getBusinessUid().longValue()); // 添加项目负责人到集合中
+                    }
                     boolean hasSon = false;
                     if (purchGoods.getExchanged()) {
                         // 是替换商品，查看父商品是否存在
@@ -1718,8 +1791,9 @@ public class PurchServiceImpl implements PurchService {
        /* if (dbPurch.getProjects().size() > 0 && dbPurch.getProjects().get(0).getOrderCategory().equals(6) && purch.getStatus() > 1) {
             dbPurch.setStatus(3);
         }*/
-
-
+            dbPurch.setAuditingUser(",");
+            dbPurch.setAuditingUserId(",");
+            dbPurch.setAuditingProcess("task_pu,task_pm");
             Purch save = purchDao.save(dbPurch);
             // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
             //save.setAttachmentList(save.getAttachmentList());
@@ -1731,26 +1805,81 @@ public class PurchServiceImpl implements PurchService {
             attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, dbPurch.getId(), Attachment.AttachmentCategory.PURCH.getCode());
 
             if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
-                String taskId = purch.getTaskId();
-                if (StringUtils.isBlank(taskId)) {
-                    // 启动采购合同订单流程实例（purchase_order）
-                    Map<String, Object> bpmInitVar = new HashMap<>();
-                    bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
-                    bpmInitVar.put("param_contract", purch.getPurchNo()); // 采购合同号
-                    bpmInitVar.put("task_la_check", StringUtils.equals("3", purch.getContractVersion()) ? "Y" : "N"); // 标准版本
-                    JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
-                    save.setProcessId(processResp.getString("instanceId"));
+//                if (StringUtils.isNotBlank(dbPurch.getAudiRemark()) && StringUtils.isBlank(dbPurch.getProcessId())) {
+                if(false){
+                    // 老审核流程
+                    dbPurch.setAuditingProcess("21,22");
+                    dbPurch.setAuditingStatus(1);
+                    dbPurch.setAuditingUserId(String.format("%d,%d", purch.getPurchAuditerId(), purch.getBusinessAuditerId()));
+                     //审批流日志
+                    CheckLog checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
+                    checkLogService.insert(checkLog_i);
+                    if (save.getAuditingUserId() != null) {
+                        for (String user : save.getAuditingUserId().split(",")) {
+                            sendNewDingtalk(save, user, false, true);
+                        }
+                    }
+                    auditBackLogHandle(save, false, save.getAuditingUserId(), "", false);
                 } else {
+                    String taskId = purch.getTaskId();
+                    // 采购合同订单流程实例变量（purchase_order）
+                    Map<String, Object> bpmInitVar = new HashMap<>();
+                    List<String> businessUserNos = userService.findUserNosByIds(businessUids);
+                    if (businessUserNos.size() == 1) {
+                        bpmInitVar.put("assignee_pm", businessUserNos.get(0));  // 设置项目负责人为项目中的项目负责人
+                    } else if (businessUserNos.size() > 1){
+                        bpmInitVar.put("candidate_users_pm", StringUtils.join(businessUserNos,","));  // 设置项目负责人为项目中的项目负责人
+                    } else {
+                        throw new Exception("没有项目负责人");
+                    }
+                    bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
+                    String task_la_check ;
+                    if (StringUtils.equals("3", purch.getContractVersion())) {
+                        task_la_check = "Y";
+                    } else {
+                        task_la_check = "N";
+                        bpmInitVar.put("task_la_audit_status", "APPROVED");
+                    }
+                    bpmInitVar.put("task_la_check", task_la_check); // 标准版本
 
-                    // 完善订单任务调用
-                    Map<String, Object> localVariables = new HashMap<>();
-                    localVariables.put("audit_status", "APPROVED");
-                    localVariables.put("order_amount", save.getTotalPrice().doubleValue()); // 总采购订单金额
-                    localVariables.put("task_la_check", StringUtils.equals("3", save.getContractVersion()) ? "Y" : "N"); // 标准版本
-                    BpmUtils.completeTask(taskId, eruiToken, null, localVariables, "同意");
+                    if (StringUtils.isBlank(taskId)) {
+                        // 启动采购合同订单流程实例（purchase_order）
+                        bpmInitVar.put("param_contract", purch.getPurchNo()); // 采购合同号
+                        JSONObject processResp = BpmUtils.startProcessInstanceByKey("purchase_order", null, eruiToken, "purch:" + purch.getId(), bpmInitVar);
+                        dbPurch.setProcessId(processResp.getString("instanceId"));
+                    } else {
+                        // 完善订单任务调用
+                        bpmInitVar.put("audit_status", "APPROVED");
+                        BpmUtils.completeTask(taskId, eruiToken, null, bpmInitVar, "同意");
+                    }
+                    User user = null;
+                    if (businessUserNos.size() == 1) {
+                        user = userService.findUserNoByUserNo(businessUserNos.get(0));
+                    }
+                    if (user == null){
+                        dbPurch.setAuditingUser(",");
+                        dbPurch.setAuditingUserId(",");
+                    } else {
+                        dbPurch.setAuditingUser("," + user.getId());
+                        dbPurch.setAuditingUserId("," + user.getName());
+                    }
+                    dbPurch.setAuditingProcess("task_pu,task_pm");
+                    dbPurch.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
+
+
+                    // 删除老的待办，如果要是驳回，会存在老待办，但是现在要启动新的审核流程
+                    // 删除上一个待办 TODO 待没有老审核流程可删除
+                    try {
+                        BackLog backLog2 = new BackLog();
+                        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCH_REJECT.getNum());    //功能访问路径标识
+                        backLog2.setHostId(purch.getId());
+                        backLogService.updateBackLogByDelYn(backLog2);
+                        backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.PURCH_AUDIT.getNum());    //功能访问路径标识
+                        backLogService.updateBackLogByDelYn(backLog2);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
-                save.setAuditingProcess("task_pu,task_pm"); // 第一个节点通知失败，写固定前两个并行的节点
-                save.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
             }
             if (save.getStatus() == 2) {
                 List<Project> projects = save.getProjects();

@@ -49,7 +49,7 @@ public class PurchServiceImpl implements PurchService {
         PurchExample.Criteria criteria = example.createCriteria();
         criteria.andProcessIdEqualTo(processId);
         List<Purch> purchs = purchMapper.selectByExample(example);
-        if (purchs != null || purchs.size() > 0) {
+        if (purchs != null && purchs.size() > 0) {
             return purchs.get(0);
         }
         return null;
@@ -138,9 +138,10 @@ public class PurchServiceImpl implements PurchService {
     }
 
     @Override
-    public void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId, boolean rejected) {
+    public void updateAuditProcessDoing(String processId, String auditingProcess, String taskId, boolean rejected) {
         // 查询采购
-        Purch purch = findPurchByProcessId(processInstanceId);
+//        Purch purch =  purchMapper.selectByPrimaryKey(Math.toIntExact(purchId));
+        Purch purch =  findPurchByProcessId(processId);
         if (purch == null) {
             return;
         }

@@ -3,9 +3,11 @@ package com.erui.order.dao;
 import com.erui.order.entity.DeliverConsign;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import javax.persistence.LockModeType;
 import java.io.Serializable;
 import java.util.List;
 
@@ -19,6 +21,9 @@ public interface DeliverConsignDao extends JpaRepository<DeliverConsign, Seriali
     List<DeliverConsign> findByIdInAndStatus(Integer[] deliverNoticeNos, Integer s);
 
     List<DeliverConsign> findByIdIn(Integer[] arr);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    DeliverConsign findById(Integer id);
 
     @Query(value = "SELECT deliver_consign_no FROM deliver_consign ORDER BY id DESC LIMIT 1",nativeQuery=true)
     String findLaseDeliverConsignNo();

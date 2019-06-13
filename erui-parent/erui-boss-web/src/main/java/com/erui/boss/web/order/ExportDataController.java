@@ -354,6 +354,8 @@ public class ExportDataController {
      */
     @RequestMapping(value = "/exportOrderContract")
     public ModelAndView exportOrderContract(HttpServletResponse response, HttpServletRequest request) {
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
         Map<String, String> params = getParameters(request);
         Integer id = null;
         if (params.containsKey("id") && params.get("id") != null) {
@@ -484,6 +486,9 @@ public class ExportDataController {
      */
     @RequestMapping(value = "/exportPurchContract", method = RequestMethod.GET)
     public void exportPurchContract(HttpServletRequest request, HttpServletResponse response) {
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
+
         String id = request.getParameter("id");
         if (StringUtils.isBlank(id) || !StringUtils.isNumeric(id)) {
             LOGGER.error("参数不正确 {}", id);

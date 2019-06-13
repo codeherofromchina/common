@@ -119,9 +119,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId, boolean rejected) {
+    public void updateAuditProcessDoing(String processId, String auditingProcess, String taskId, boolean rejected) {
         // 查询订单
-        Order order = findOrderByProcessId(processInstanceId);
+//        Order order = orderMapper.selectByPrimaryKey(Math.toIntExact(orderId));
+        Order order = findOrderByProcessId(processId);
         if (order == null) {
             return;
         }

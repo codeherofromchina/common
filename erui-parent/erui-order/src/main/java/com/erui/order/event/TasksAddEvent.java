@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
  * 增加待办事件
  * Created by wangxiaodan on 2019/1/22.
  */
-public class TasksAddEvent extends AsyncBaseEvent {
+public class TasksAddEvent extends BaseEvent {
     private static final Logger LOGGER = LoggerFactory.getLogger(TasksAddEvent.class);
     private final BackLogService backLogService;
     private final BackLog.ProjectStatusEnum backEnum;

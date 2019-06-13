@@ -104,6 +104,21 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
 
+    private Project findByIdForLock(Integer id) {
+        Project project = projectDao.findById(id);
+        if (project != null) {
+            project.getOrder();
+        }
+        List<Attachment> orderAttachment = attachmentDao.findByRelObjIdAndCategory(id, Attachment.AttachmentCategory.PROJECT.getCode());
+        if (orderAttachment != null && orderAttachment.size() > 0) {
+            project.setAttachmentList(orderAttachment);
+        }
+        project.getAttachmentList().size();
+        return project;
+    }
+
+
+
     @Override
     @Transactional(readOnly = true)
     public List<Project> findByIds(List<Integer> ids) {
@@ -134,11 +149,12 @@ public class ProjectServiceImpl implements ProjectService {
         return null;
     }
 
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateProject(Project project, Integer userIdP) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        Project projectUpdate = findById(project.getId());
+        Project projectUpdate = findByIdForLock(project.getId());
         Order order = projectUpdate.getOrder();
         Project.ProjectStatusEnum nowProjectStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         Project.ProjectStatusEnum paramProjectStatusEnum = Project.ProjectStatusEnum.fromCode(project.getProjectStatus());
@@ -151,8 +167,17 @@ public class ProjectServiceImpl implements ProjectService {
             List<Attachment> attachmentList = project.getAttachmentList();
             Map<Integer, Attachment> dbAttahmentsMap = projectUpdate.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
             attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, projectUpdate.getId(), Attachment.AttachmentCategory.PROJECT.getCode());
+
             project.copyProjectDescTo(projectUpdate);
-            updateOrderGoods(order, project);
+
+            if (StringUtils.isBlank(projectUpdate.getProcessId())) {
+                // 老流程
+                //现货的情况直接完成 ，删除 “办理项目/驳回”  待办提示
+                BackLog backLog = new BackLog();
+                backLog.setFunctionExplainId(BackLog.ProjectStatusEnum.TRANSACTIONORDER.getNum());    //功能访问路径标识
+                backLog.setHostId(projectUpdate.getId());
+                backLogService.updateBackLogByDelYn(backLog);
+            }
         } else {
             // 项目一旦执行，则只能修改项目的状态，且状态必须是执行后的状态
             if (nowProjectStatusEnum.getNum() >= Project.ProjectStatusEnum.EXECUTING.getNum()) {
@@ -178,6 +203,27 @@ public class ProjectServiceImpl implements ProjectService {
                 } else {
                     // 正常提交项目
                     project.copyProjectDescTo(projectUpdate);
+                    if (StringUtils.isBlank(projectUpdate.getProcessId())) {
+                        // 老审核流程
+                        Integer auditingLevel = project.getAuditingLevel();
+                        Integer orderCategory = order.getOrderCategory();
+                        if (orderCategory != null && orderCategory == 1) { // 预投
+                            auditingLevel = 4; // 四级审核
+                        } else if (orderCategory != null && orderCategory == 3) { // 试用
+                            auditingLevel = 2; // 二级审核
+                        } else if (auditingLevel == null || (auditingLevel < 0 || auditingLevel > 3)) {
+                            // 既不是预投。又不是试用，则需要检查参数
+                            throw new MyException(String.format("%s%s%s", "参数错误，审批等级参数错误", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Parameter error, approval level parameter error."));
+                        }
+                        projectUpdate.setBuVpAuditer(project.getBuVpAuditer());
+                        projectUpdate.setBuVpAuditerId(project.getBuVpAuditerId());
+//                        projectUpdate.setCeo(project.getCeo());
+//                        projectUpdate.setCeoId(project.getCeoId());
+//                        projectUpdate.setChairman(project.getChairman());
+//                        projectUpdate.setChairmanId(project.getChairmanId());
+                        projectUpdate.setAuditingLevel(auditingLevel);
+
+                    }
                 }
                 //修改商品信息
                 updateOrderGoods(order, project);
@@ -186,7 +232,7 @@ public class ProjectServiceImpl implements ProjectService {
                 Map<Integer, Attachment> dbAttahmentsMap = projectUpdate.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
                 attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, projectUpdate.getId(), Attachment.AttachmentCategory.PROJECT.getCode());
 
-                if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum) && StringUtils.isNotBlank(projectUpdate.getProcessId())) {
+                if (Project.ProjectStatusEnum.AUDIT.equals(paramProjectStatusEnum)) {
                     // 现在这里是重点，现在的流程已经没有项目经理了，提交审核只能跑到这里来
                     if (StringUtils.isNotBlank(projectUpdate.getProcessId())) {
                         // 完成项目的任务
@@ -196,38 +242,6 @@ public class ProjectServiceImpl implements ProjectService {
                         BpmUtils.completeTask(project.getTaskId(), eruiToken, null, localVariables, "同意");
                         // 设置下一流程进度，主要是因为当前项目操作中，异步回调此项目设置失败，再这里直接设置了 , 现货订单有区别/预投订单也有区别 TODO
                         projectUpdate.setAuditingStatus(2); // 审核中
-                        switch (order.getOrderCategory()) {
-                            case 1:
-                            case 4:
-                                // 预投订单/现货订单
-                                projectUpdate.setAuditingProcess("task_gm");
-                                projectUpdate.setAuditingUser("");
-                                projectUpdate.setAuditingUserId("");
-                                break;
-                            case 3:
-                                projectUpdate.setAuditingProcess("task_pc,task_lg,task_pu");
-                                projectUpdate.setAuditingUser(",,");
-                                projectUpdate.setAuditingUserId(",,");
-                            case 6:
-                                // 国内订单
-                                projectUpdate.setAuditingProcess("task_pu");
-                                projectUpdate.setAuditingUser("");
-                                projectUpdate.setAuditingUserId("");
-                                break;
-                            default:
-                                Integer overseasSales = order.getOverseasSales();
-                                if (overseasSales != null && overseasSales == 3) {
-                                    // 海外销售类型 为3 海外销（当地采购 走现货审核流程
-                                    projectUpdate.setAuditingProcess("task_gm");
-                                    projectUpdate.setAuditingUser("");
-                                    projectUpdate.setAuditingUserId("");
-                                } else {
-                                    projectUpdate.setAuditingProcess("task_pc,task_lg,task_pu");
-                                    projectUpdate.setAuditingUser(",,");
-                                    projectUpdate.setAuditingUserId(",,");
-                                }
-                        }
-
                         // 设置审核人信息
                         String audiRemark = projectUpdate.getAudiRemark();
                         if (StringUtils.isBlank(audiRemark)) {
@@ -430,7 +444,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateProjectQualityInspectType(Project project) throws Exception {
-        Project projectUpdate = findById(project.getId());
+        Project projectUpdate = findByIdForLock(project.getId());
         projectUpdate.setQualityInspectType(project.getQualityInspectType().trim());
         if (project.getQualityUid() != null) {
             projectUpdate.setQualityUid(project.getQualityUid());
@@ -446,13 +460,12 @@ public class ProjectServiceImpl implements ProjectService {
             Map<String, Object> localVariables = new HashMap<>();
             localVariables.put("audit_status", "APPROVED");
             BpmUtils.completeTask(taskId, eruitoken, null, localVariables, "同意");
-
             // 设置审核进度和审核人字段格式
             String auditingProcess = projectUpdate.getAuditingProcess();
             String auditingUserId = projectUpdate.getAuditingUserId();
             String auditingUserName = projectUpdate.getAuditingUser();
             if (StringUtils.equals(auditingProcess, "task_pc")) {
-                auditingProcess = "task_gm";
+                auditingProcess = "";
                 auditingUserId = "";
                 auditingUserName = "";
             } else if (StringUtils.isNotBlank(auditingProcess)) {
