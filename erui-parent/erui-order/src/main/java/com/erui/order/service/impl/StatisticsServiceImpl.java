@@ -13,6 +13,7 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.model.*;
+import com.erui.order.service.CheckLogService;
 import com.erui.order.service.StatisticsService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -54,7 +55,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Autowired
     private OrderDao orderDao;
     @Autowired
-    private PurchDao purchDao;
+    private CheckLogService checkLogService;
     @Autowired
     private IogisticsDataDao iogisticsDataDao;
 
@@ -564,8 +565,10 @@ public class StatisticsServiceImpl implements StatisticsService {
     public HSSFWorkbook generateProjectStatisticsExcel(Map<String, String> condition) {
         List<ProjectStatistics> projectStatistics = findProjectStatistics(condition);
 
-        projectStatistics.stream().forEach(vo -> vo.setGoodsList(null));
-
+        projectStatistics.stream().forEach(vo -> {
+            vo.setGoodsList(null);
+            vo.setExecCoName(checkLogService.getSigningCoCn(vo.getExecCoName()));
+        });
         String[] header = new String[]{"项目创建日期", "项目开始日期", "销售合同号", "订单类别", "海外销类型", "询单号", "项目号", "合同标的", "海外销售合同号", "物流报价单号",
                 "产品分类", "执行分公司", "事业部", "所属地区", "CRM客户代码", "客户类型", "项目金额（美元）",
                 "收款方式", "回款时间", "回款金额", "初步利润率%", "授信情况", "执行单约定交付日期",
