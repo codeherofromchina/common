@@ -376,6 +376,7 @@ public class CheckLogServiceImpl implements CheckLogService {
                     tmp.setJoinId(joinId);
                     result.add(tmp);
                 }
+                Collections.reverse(result);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
