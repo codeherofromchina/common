@@ -88,8 +88,8 @@ public class DeliverConsignController {
         AttachmentVo attachmentVo = bookingSpaceAuditRequest.getAttachment();
         Attachment attachment = new Attachment();
         attachment.setGroup(attachmentVo.getGroup());
-        attachment.setTitle(attachment.getTitle());
-        attachment.setUrl(attachment.getUrl());
+        attachment.setTitle(attachmentVo.getTitle());
+        attachment.setUrl(attachmentVo.getUrl());
         String intUserId = String.valueOf(userId);// DELIVERCONSIGN
         if (StringUtils.isNumeric(intUserId)) {
             attachment.setUserId(Integer.parseInt(intUserId));
