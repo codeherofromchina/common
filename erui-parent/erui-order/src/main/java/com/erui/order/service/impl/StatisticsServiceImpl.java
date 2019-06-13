@@ -31,6 +31,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
+import javax.validation.constraints.Null;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.Collator;
@@ -638,6 +639,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                     projectGoods.setLeavePortTime(g.getLeavePortTime()); // 24、货物发运时间
                     projectGoods.setArrivalPortTime(g.getArrivalPortTime()); // 25、货物到达时间
                     projectGoods.setAccomplishDate(g.getAccomplishDate()); // 26、客户接收时间
+                    projectGoods.setCurrencyBnReceivableAccountRemaining(null); // 27、应收账款余额（美元）
 
                     projectGoodsStatistics.add(projectGoods);
 
