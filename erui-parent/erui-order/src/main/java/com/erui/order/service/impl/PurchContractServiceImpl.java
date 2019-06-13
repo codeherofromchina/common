@@ -280,7 +280,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum);
                 //采购合同保存时回写商品 供应商和品牌
                 goods.setSupplier(purchContract.getSupplierName());
-                goods.setBrand(purchContractGoods.getBrand());
+                goods.setBrand(pg.getBrand());
                 goodsList.add(goods);
 
                 goodsDao.save(goods);
