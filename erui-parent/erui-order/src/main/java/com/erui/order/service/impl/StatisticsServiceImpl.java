@@ -558,6 +558,91 @@ public class StatisticsServiceImpl implements StatisticsService {
         return dataList;
     }
 
+
+    // TODO
+    @Transactional
+    public List<ProjectStatistics> findProjectStatisticsExport(Map<String, String> condition) {
+        List<Project> pageList = projectDao.findAll(specificationCondition(condition), new Sort(Sort.Direction.DESC, "id"));
+
+        List<ProjectStatistics> dataList = new ArrayList<>();
+        List<Integer> orderIds = new ArrayList<>();
+        // 查询地区的中英文对应列表
+        Map<String, String> bnMapZhRegion = this.findBnMapZhRegion();
+        for (Project project : pageList) {
+            Order order = project.getOrder();
+            if (order != null) {
+                ProjectStatistics projectStatistics = new ProjectStatistics(project, order);
+                projectStatistics.setRegionZh(bnMapZhRegion.get(projectStatistics.getRegion()));
+                Integer purchReqCreate = project.getPurchReqCreate();//'是否已经创建采购申请单 1：未创建  2：已创建 3:已创建并提交'
+                if (purchReqCreate != null && purchReqCreate == 3) {
+                    if (order.getGoodsList().size() > 0) {
+                        List<Goods> goodsList = order.getGoodsList();
+                        if (goodsList.size() == 1 && goodsList.get(0).getProType() != null) {
+                            projectStatistics.setProCate(goodsList.get(0).getProType());
+                        } else {
+                            List<String> proCateList = goodsList.stream().map(Goods::getProType).collect(Collectors.toList());
+                            Set<String> setproCate = new HashSet<>(proCateList);
+                            if (setproCate.size() == proCateList.size()) {
+                                projectStatistics.setProCate(goodsList.get(0).getProType());
+                            } else {
+                                int count = 0;
+                                for (String proCate : setproCate) {
+                                    if (proCate != null) {
+                                        int frequency = Collections.frequency(proCateList, proCate);
+                                        if (frequency > count) {
+                                            count = frequency;
+                                            projectStatistics.setProCate(proCate);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                orderIds.add(order.getId());
+                dataList.add(projectStatistics);
+            }
+        }
+        // 查询所有订单的回款总金额信息
+        if (dataList.size() > 0) {
+            List<Object> orderAccountList = statisticsDao.findOrderAccount(orderIds);
+            Map<Integer, Object[]> orderAccountMap = orderAccountList.parallelStream().collect(Collectors.toMap(vo -> {
+                Object[] objArr = (Object[]) vo;
+                return (Integer) objArr[0];
+            }, vo -> {
+                Object[] objArr = (Object[]) vo;
+                return objArr;
+            }));
+            for (ProjectStatistics projectStatistics : dataList) {
+                Integer orderId = projectStatistics.getOrderId();
+                Object[] objArr = orderAccountMap.get(orderId);
+                if (objArr != null) {
+                    projectStatistics.setPaymentDate((Date) objArr[2]); //回款时间
+                    BigDecimal money = (BigDecimal) objArr[1];//回款金额
+                    projectStatistics.setMoney(money);
+                    projectStatistics.setAcquireId((String) objArr[3]); //员工姓名
+                    projectStatistics.setAccountCount((BigInteger) objArr[4]);  //收款记录条数
+                    String currencyBn = (String) objArr[5];  //货币类型
+                    BigDecimal exchangeRate = (BigDecimal) objArr[6];//利率
+                    BigDecimal discount = (BigDecimal) objArr[7];//其他扣款金额
+                    if (discount != null) {
+                        money = money.add(discount);   //回款金额 加上 其他扣款金额
+                    }
+                    if (objArr[1] != null) {    //是否有回款金额
+                        if (currencyBn != "USD") {    //是否是美元
+                            projectStatistics.setCurrencyBnMoney(new DecimalFormat("###,##0.00").format(money.multiply(exchangeRate))); //回款金额
+                        } else {
+                            projectStatistics.setCurrencyBnMoney(new DecimalFormat("###,##0.00").format(money)); //回款金额
+                        }
+                    }
+                    projectStatistics.setCurrencyBnMoney(projectStatistics.getCurrencyBnMoney() == null ? "0" : projectStatistics.getCurrencyBnMoney());
+
+                }
+            }
+        }
+        return dataList;
+    }
+
     //项目执行统计导出
     @Override
     @Transactional(readOnly = true)
@@ -585,7 +670,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     //项目商品详情统计导出
     @Override
     public HSSFWorkbook generateProjectDescStatisticsExcel(Map<String, String> condition) {
-        List<ProjectStatistics> projectStatistics = findProjectStatistics(condition);
+        List<ProjectStatistics> projectStatistics = findProjectStatisticsExport(condition);
         List<ProjectGoodsStatistics> projectGoodsStatistics = new ArrayList<>();
         int count = 1;
         for (ProjectStatistics p : projectStatistics) {

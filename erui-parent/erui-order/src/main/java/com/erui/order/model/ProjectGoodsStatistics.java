@@ -137,8 +137,6 @@ public class ProjectGoodsStatistics {
     // 物流延期时间（天）   TODO 待完善
     //项目状态
     private String projectStatus;
-    //流程进度
-    private String processProgress;
     // 原因类型  TODO
     // 原因描述  TODO
 
@@ -150,7 +148,90 @@ public class ProjectGoodsStatistics {
     private Date createTime;
     //订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单
     private String orderCategory;
-    //订单商品信息
+
+    /**
+     * 项目执行统计模板导出：增加如下字段：总计增加27个字段
+     */
+    // 1、流程进度
+    private String processProgress;
+
+    // 2、物流成本总计 IogisticsData物流表 物流费用
+    private BigDecimal totalLogisticsCost;
+
+    // 3、要求采购到货日期 goods中的"合同约定到货日期arrival_date"
+    private Date arrivalDate;
+
+    // 4、采购申请生成日期 goods中的"采购申请生成日期purch_requisition_date"
+    private String purchRequisitionDate;
+
+    // 5、采购合同号 goods中的"采购合同号"
+    private String purchNo;
+
+    // 6、采购合同签订日期 goods中的"合同签订日期signing_date"
+    private String signingDate;
+
+    // 7、采购要求交货时间 goods中的"采购要求交货时间shipping_date"
+    private Date shippingDate;
+
+    // 8、供应商名称 goods中的"供应商名称supplier_name"
+    private String supplierName;
+
+    // 9、采购单价 goods中的"采购单价purchase_price"
+    private BigDecimal purchasePrice;
+
+    // 10、采购总金额goods中"采购总金额purch_total_price"
+    private BigDecimal PurchTotalPrice;
+
+    // 11、采购实际到货日期 goods中采购实际到货日期arrivaled_date
+    private Date arrivaledDate;
+
+    // 12、采购经办人 goods中的"采购经办人agent_name"
+    private String purchAgentName;
+
+    // 13、报检日期 goods中的入库质检的检验日期
+    private Date checkDate;
+
+    // 14、检验完成日期 InspectReport入库质检的检验完成日期
+    private Date doneDate;
+
+    // 15、检验人 InspectReport入库质检的检验人
+    private String checkUserName;
+
+    // 16、入库日期 Instock入库中的入库日期
+    private Date instockDate;
+
+    // 17、出库检验日期 DeliverDetail出库质检 checkDate
+    private Date deliverDetailDate;
+
+    // 18、出库日期 DeliverDetail出库质检出库日期
+    private Date leaveDate;
+
+    // 19、仓库经办人 DeliverDetail出库中的仓库经办人
+    private String wareHousemanName;
+
+    // 20、物流费用金额 IogisticsData物流表 物流费用
+    private BigDecimal logisticsCost;
+
+    // 21、物流经办人 IogisticsData物流表 物流经办人
+    private String logisticsUserName;
+
+    // 22、市场要求订舱日期 DeliverConsign 市场要求订舱日期
+    private Date bookingDate;
+
+    // 23、物流订舱日期 IogisticsData物流表 订舱时间
+    private Date bookingTime;
+
+    // 24、货物发运时间 IogisticsData物流表 实际离港时间
+    private Date leavePortTime;
+
+    // 25、货物到达时间 IogisticsData物流表 预计抵达时间
+    private Date arrivalPortTime;
+
+    // 26、客户接收时间 IogisticsData物流表 实际完成时间
+    private Date accomplishDate;
+
+    // 27、应收账款余额（美元） order表中的
+    private String currencyBnReceivableAccountRemaining;
 
     public BigDecimal getProfit() {
         return profit;
@@ -573,6 +654,206 @@ public class ProjectGoodsStatistics {
 
     public void setOrderCategory(String orderCategory) {
         this.orderCategory = orderCategory;
+    }
+
+    public BigDecimal getTotalLogisticsCost() {
+        return totalLogisticsCost;
+    }
+
+    public void setTotalLogisticsCost(BigDecimal totalLogisticsCost) {
+        this.totalLogisticsCost = totalLogisticsCost;
+    }
+
+    public Date getArrivalDate() {
+        return arrivalDate;
+    }
+
+    public void setArrivalDate(Date arrivalDate) {
+        this.arrivalDate = arrivalDate;
+    }
+
+    public String getPurchNo() {
+        return purchNo;
+    }
+
+    public void setPurchNo(String purchNo) {
+        this.purchNo = purchNo;
+    }
+
+    public String getSigningDate() {
+        return signingDate;
+    }
+
+    public void setSigningDate(String signingDate) {
+        this.signingDate = signingDate;
+    }
+
+    public Date getShippingDate() {
+        return shippingDate;
+    }
+
+    public void setShippingDate(Date shippingDate) {
+        this.shippingDate = shippingDate;
+    }
+
+    public String getSupplierName() {
+        return supplierName;
+    }
+
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
+    }
+
+    public BigDecimal getPurchasePrice() {
+        return purchasePrice;
+    }
+
+    public void setPurchasePrice(BigDecimal purchasePrice) {
+        this.purchasePrice = purchasePrice;
+    }
+
+    public BigDecimal getPurchTotalPrice() {
+        return PurchTotalPrice;
+    }
+
+    public void setPurchTotalPrice(BigDecimal purchTotalPrice) {
+        PurchTotalPrice = purchTotalPrice;
+    }
+
+    public Date getArrivaledDate() {
+        return arrivaledDate;
+    }
+
+    public void setArrivaledDate(Date arrivaledDate) {
+        this.arrivaledDate = arrivaledDate;
+    }
+
+    public String getPurchAgentName() {
+        return purchAgentName;
+    }
+
+    public void setPurchAgentName(String purchAgentName) {
+        this.purchAgentName = purchAgentName;
+    }
+
+    public Date getCheckDate() {
+        return checkDate;
+    }
+
+    public void setCheckDate(Date checkDate) {
+        this.checkDate = checkDate;
+    }
+
+    public Date getDoneDate() {
+        return doneDate;
+    }
+
+    public void setDoneDate(Date doneDate) {
+        this.doneDate = doneDate;
+    }
+
+    public String getCheckUserName() {
+        return checkUserName;
+    }
+
+    public void setCheckUserName(String checkUserName) {
+        this.checkUserName = checkUserName;
+    }
+
+    public Date getInstockDate() {
+        return instockDate;
+    }
+
+    public void setInstockDate(Date instockDate) {
+        this.instockDate = instockDate;
+    }
+
+    public Date getDeliverDetailDate() {
+        return deliverDetailDate;
+    }
+
+    public void setDeliverDetailDate(Date deliverDetailDate) {
+        this.deliverDetailDate = deliverDetailDate;
+    }
+
+    public Date getLeaveDate() {
+        return leaveDate;
+    }
+
+    public void setLeaveDate(Date leaveDate) {
+        this.leaveDate = leaveDate;
+    }
+
+    public String getWareHousemanName() {
+        return wareHousemanName;
+    }
+
+    public void setWareHousemanName(String wareHousemanName) {
+        this.wareHousemanName = wareHousemanName;
+    }
+
+    public BigDecimal getLogisticsCost() {
+        return logisticsCost;
+    }
+
+    public void setLogisticsCost(BigDecimal logisticsCost) {
+        this.logisticsCost = logisticsCost;
+    }
+
+    public String getLogisticsUserName() {
+        return logisticsUserName;
+    }
+
+    public void setLogisticsUserName(String logisticsUserName) {
+        this.logisticsUserName = logisticsUserName;
+    }
+
+    public Date getBookingDate() {
+        return bookingDate;
+    }
+
+    public void setBookingDate(Date bookingDate) {
+        this.bookingDate = bookingDate;
+    }
+
+    public Date getBookingTime() {
+        return bookingTime;
+    }
+
+    public void setBookingTime(Date bookingTime) {
+        this.bookingTime = bookingTime;
+    }
+
+    public Date getLeavePortTime() {
+        return leavePortTime;
+    }
+
+    public void setLeavePortTime(Date leavePortTime) {
+        this.leavePortTime = leavePortTime;
+    }
+
+    public Date getArrivalPortTime() {
+        return arrivalPortTime;
+    }
+
+    public void setArrivalPortTime(Date arrivalPortTime) {
+        this.arrivalPortTime = arrivalPortTime;
+    }
+
+    public Date getAccomplishDate() {
+        return accomplishDate;
+    }
+
+    public void setAccomplishDate(Date accomplishDate) {
+        this.accomplishDate = accomplishDate;
+    }
+
+    public String getCurrencyBnReceivableAccountRemaining() {
+        return currencyBnReceivableAccountRemaining;
+    }
+
+    public void setCurrencyBnReceivableAccountRemaining(String currencyBnReceivableAccountRemaining) {
+        this.currencyBnReceivableAccountRemaining = currencyBnReceivableAccountRemaining;
     }
 }
 
