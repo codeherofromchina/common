@@ -242,6 +242,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                 purchContractGoods.setPurchasePrice(pg.getPurchasePrice()); // 采购单价
                 purchContractGoods.setPurchaseTotalPrice(pg.getPurchaseTotalPrice()); //  采购总金额
                 purchContractGoods.setPurchaseRemark(pg.getPurchaseRemark()); // 采购说明
+                purchContractGoods.setBrand(pg.getBrand());//品牌
                 // 计算含税价格和不含税单价以及总价款
                 String currencyBn = purchContract.getCurrencyBn();
                 if (purchContractGoods.getPurchaseNum() > 0) {
