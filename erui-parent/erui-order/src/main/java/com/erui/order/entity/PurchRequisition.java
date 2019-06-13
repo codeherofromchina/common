@@ -73,6 +73,9 @@ public class PurchRequisition {
     @Column(name = "update_time")
     private Date updateTime;    //更新时间
 
+    @Column(name = "create_time")
+    private Date createTime;    //创建时间
+
     /**
      * 采购状态 1：未进行  2：采购中  3：采购完成
      */
@@ -287,6 +290,14 @@ public class PurchRequisition {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
     public enum StatusEnum {

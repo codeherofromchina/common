@@ -74,4 +74,19 @@ public interface CheckLogService {
      * @return
      */
     List<CheckLog> findCheckLogsByPurchId(int purchId);
+
+
+    /**
+     * 查询新BPM业务流日志并适配成现有平台日志形式
+     * @param processId
+     * @param type 1 订单  2 采购订单
+     * @return
+     */
+    List<CheckLog> findAdapterListByProcessId(String processId, Integer type);
+    /**
+     * 签约主体 英文转中文
+     *
+     * @param signingCo 签约主体
+     */
+    String getSigningCoCn(String signingCo);
 }

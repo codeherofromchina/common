@@ -1,13 +1,26 @@
 package com.erui.order.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.erui.comm.ThreadLocalUtil;
 import com.erui.order.dao.CheckLogDao;
+import com.erui.order.dao.OrderDao;
 import com.erui.order.entity.CheckLog;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
 import com.erui.order.service.CheckLogService;
 import com.erui.order.service.OrderService;
+import com.erui.order.v2.model.DeliverConsign;
+import com.erui.order.v2.model.Purch;
+import com.erui.order.v2.service.DeliverConsignService;
+import com.erui.order.v2.service.PurchService;
+import com.erui.order.util.BpmUtils;
 import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -31,11 +44,19 @@ import java.util.stream.Collectors;
  * @modified By
  */
 @Service
+@Transactional
 public class CheckLogServiceImpl implements CheckLogService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CheckLogServiceImpl.class);
     @Autowired
     private CheckLogDao checkLogDao;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private com.erui.order.v2.service.OrderService orderService2;
+    @Autowired
+    private PurchService purchService;
+    @Autowired
+    private DeliverConsignService deliverConsignService;
 
     /**
      * 查找最近的一个审核记录
@@ -319,5 +340,132 @@ public class CheckLogServiceImpl implements CheckLogService {
     @Override
     public List<CheckLog> findCheckLogsByPurchId(int purchId) {
         return checkLogDao.findByJoinIdAndCategoryOrderByCreateTime(purchId, "PURCH");
+    }
+
+    @Override
+    public List<CheckLog> findAdapterListByProcessId(String processId, Integer type) {
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        List<CheckLog> result = null;
+        if (StringUtils.isBlank(eruiToken)) {
+            return result;
+        }
+        try {
+            com.erui.order.v2.model.Order order2 = orderService2.findOrderByProcessId(processId);
+            Integer orderId = null;
+            Integer joinId = null;
+            if (order2 != null) {
+                orderId = order2.getId();
+                joinId = orderId;
+            }
+            Purch purch = purchService.findPurchByProcessId(processId);
+            if (purch != null) {
+                joinId = purch.getId();
+            }
+            DeliverConsign deliverConsign = deliverConsignService.findByProcessInstanceId(processId);
+            if (deliverConsign != null) {
+                joinId = deliverConsign.getId();
+            }
+            // 查询业务流中的审核日志信息
+            JSONObject jsonObject = BpmUtils.processLogs(processId, eruiToken, null);
+            JSONArray data = jsonObject.getJSONArray("instanceLogs");
+            if (data != null && data.size() > 0) {
+                result = new ArrayList<>();
+                for (int n = 0; n < data.size(); ++n) {
+                    CheckLog tmp = coverBpmLog2CheckLog(data.getJSONObject(n), type);
+                    tmp.setOrderId(orderId);
+                    tmp.setJoinId(joinId);
+                    result.add(tmp);
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOGGER.error("调用BPM业务流数据审核日志失败processId:{},eruiToken:{}", processId, eruiToken);
+        }
+        return result;
+    }
+
+    private static CheckLog coverBpmLog2CheckLog(JSONObject bpmLog, Integer type) {
+        CheckLog checkLog = new CheckLog();
+        checkLog.setCreateTime(bpmLog.getDate("createTime"));
+        Integer auditProcess = null;
+        switch (type) {
+            case 1: // 订单
+                auditProcess = newCheckLog2oldCheckLogOrderMap.get(bpmLog.getString("taskDefKey"));
+                break;
+            case 2:// 采购订单
+                auditProcess = newCheckLog2oldCheckLogPurchMap.get(bpmLog.getString("taskDefKey"));
+                break;
+        }
+        checkLog.setAuditingProcess(auditProcess);
+        if (auditProcess != null) {
+            checkLog.setType(auditProcess / 100);
+        }
+        checkLog.setAuditingUserName(bpmLog.getString("userName"));
+        checkLog.setOperation(StringUtils.equalsIgnoreCase("APPROVED", bpmLog.getString("approvalResult")) ? "2" : "-1");
+        return checkLog;
+    }
+
+    private static Map<String, Integer> newCheckLog2oldCheckLogOrderMap = new HashMap<String, Integer>() {{
+        put("task_mm", Integer.valueOf(100)); // '完善订单信息'
+        put("task_cm", Integer.valueOf(101)); // '国家负责人审核'
+        put("task_rm", Integer.valueOf(102)); // '地区总经理审核'
+        put("task_vp", Integer.valueOf(103)); // '分管领导审核'
+        put("task_fn", Integer.valueOf(104)); // '融资负责人审核'
+        put("task_la", Integer.valueOf(105)); // '法务负责人审核'
+        put("task_fa", Integer.valueOf(106)); // '结算负责人审核'
+        put("task_pm", Integer.valueOf(201)); // '事业部项目负责人审核'
+        put("task_lg", Integer.valueOf(202)); // '物流经办人审核'
+        put("task_pu", Integer.valueOf(204)); // '采购经办人审核'
+        put("task_pc", Integer.valueOf(205)); // '品控经办人审核'
+        put("task_gm", Integer.valueOf(206)); // '事业部总经理审核'
+        put("task_ceo", Integer.valueOf(207)); // '总裁审核'
+        put("task_ed", Integer.valueOf(208)); // '董事长审核'
+    }};
+
+    private static Map<String, Integer> newCheckLog2oldCheckLogPurchMap = new HashMap<String, Integer>(){{
+        put("task_pc",Integer.valueOf(20)); // '完善订单信息'
+        put("task_pu",Integer.valueOf(21)); // '采购经理审核'
+        put("task_pm",Integer.valueOf(22)); // '事业部项目负责人'
+        put("task_la",Integer.valueOf(23)); // '法务审核'
+        put("task_fa",Integer.valueOf(24)); // '财务审核'
+        put("task_sm",Integer.valueOf(25)); // '供应链中心总经理审核'
+        put("task_ceo",Integer.valueOf(26)); // '总裁审核'
+        put("task_ed",Integer.valueOf(27)); // '董事长审核'
+    }};
+
+    /**
+     * 签约主体 英文转中文
+     *
+     * @param signingCo 签约主体
+     */
+    @Override
+    public String getSigningCoCn(String signingCo){
+        String signingCoCn = signingCo;
+        if(signingCo != null){
+            switch (signingCo) {
+                case "Erui International Electronic Commerce Co., Ltd.":
+                    signingCoCn = "易瑞国际电子商务有限公司";
+                    break;
+                case "Erui International USA, LLC":
+                    signingCoCn = "易瑞国际（美国）有限公司";
+                    break;
+                case "Erui International (Canada) Co., Ltd.":
+                    signingCoCn = "易瑞国际（加拿大）有限公司";
+                    break;
+                case "Erui Intemational Electronic Commerce (HK) Co., Lirnited":
+                    signingCoCn = "易瑞國際電子商務（香港）有限公司";
+                    break;
+                case "PT ERUI INTERNATIONAL INDONESIA":
+                    signingCoCn = "易瑞国际印尼有限公司";
+                    break;
+                case "Erui Intemational Electronic Commerce (Peru) S.A.C":
+                    signingCoCn = "易瑞国际电子商务（秘鲁）有限公司";
+                    break;
+                case "Domestic Sales Department":
+                    signingCoCn = "国内销售部";
+                    break;
+            }
+        }
+        return signingCoCn;
     }
 }

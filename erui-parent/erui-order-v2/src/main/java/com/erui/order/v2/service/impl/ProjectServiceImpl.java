@@ -124,9 +124,10 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     @Override
-    public void updateAuditProcessDoing(String processInstanceId, String auditingProcess, String taskId, boolean rejected) {
+    public void updateAuditProcessDoing(String processId, String auditingProcess, String taskId, boolean rejected) {
         // 查询项目
-        Project project = findProjectByProcessId(processInstanceId);
+//        Project project = findProjectByOrderId(Math.toIntExact(orderId));
+        Project project = findProjectByProcessId(processId);
         if (project == null) {
             return;
         }
