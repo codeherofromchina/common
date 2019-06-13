@@ -303,7 +303,11 @@ public class PurchContractServiceImpl implements PurchContractService {
                 goodsDao.delete(deleteGoods);
             }
         }
-
+        if (purchContract.getPurchContractSimple() != null) {
+            dbPurchContract.setShippingDate(purchContract.getPurchContractSimple().getShippingDate());
+        }else if (purchContract.getPurchContractStandard() != null) {
+            dbPurchContract.setShippingDate(purchContract.getPurchContractStandard().getDeliveryDate());
+        }
         PurchContract save = purchContractDao.save(dbPurchContract);
         // 添加简易合同信息
         if (purchContract.getPurchContractSimple() != null) {
@@ -396,6 +400,11 @@ public class PurchContractServiceImpl implements PurchContractService {
             throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
         }
         purchContract.setPurchContractGoodsList(purchContractGoodsList);
+        if (purchContract.getPurchContractSimple() != null) {
+            purchContract.setShippingDate(purchContract.getPurchContractSimple().getShippingDate());
+        }else if (purchContract.getPurchContractStandard() != null) {
+            purchContract.setShippingDate(purchContract.getPurchContractStandard().getDeliveryDate());
+        }
         PurchContract save = purchContractDao.save(purchContract);
         // 添加简易合同信息
         if (purchContract.getPurchContractSimple() != null) {
