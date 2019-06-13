@@ -162,7 +162,6 @@ public class StatisticsServiceImpl implements StatisticsService {
         return list;
     }
 
-
     @Override
     public HSSFWorkbook generateSaleStatisticsExcel(SaleStatistics condition, Set<String> countries) {
         List<SaleStatistics> saleStatistics = findSaleStatistics(condition, countries);
