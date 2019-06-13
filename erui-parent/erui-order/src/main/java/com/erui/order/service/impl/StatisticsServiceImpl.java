@@ -563,12 +563,11 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Transactional(readOnly = true)
     public HSSFWorkbook generateProjectStatisticsExcel(Map<String, String> condition) {
         List<ProjectStatistics> projectStatistics = findProjectStatistics(condition);
-        if(projectStatistics != null && projectStatistics.size() > 0)
-        for (ProjectStatistics p : projectStatistics) {
-            p.setGoodsList(null);
-            p.setExecCoName(checkLogService.getSigningCoCn(p.getExecCoName()));
-        }
 
+        projectStatistics.stream().forEach(vo -> {
+            vo.setGoodsList(null);
+            vo.setExecCoName(checkLogService.getSigningCoCn(vo.getExecCoName()));
+        });
         String[] header = new String[]{"项目创建日期", "项目开始日期", "销售合同号", "订单类别", "海外销类型", "询单号", "项目号", "合同标的", "海外销售合同号", "物流报价单号",
                 "产品分类", "执行分公司", "事业部", "所属地区", "CRM客户代码", "客户类型", "项目金额（美元）",
                 "收款方式", "回款时间", "回款金额", "初步利润率%", "授信情况", "执行单约定交付日期",
@@ -592,6 +591,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         List<ProjectGoodsStatistics> projectGoodsStatistics = new ArrayList<>();
         int count = 1;
         for (ProjectStatistics p : projectStatistics) {
+            p.setExecCoName(checkLogService.getSigningCoCn(p.getExecCoName()));
             ProjectGoodsStatistics projectGood01 = copyProjectDescTo(p);
             projectGood01.setId(count);
             projectGood01.setBusinessUnitName(p.getBusinessUnitName());
