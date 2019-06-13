@@ -162,13 +162,13 @@ public class ProjectGoodsStatistics {
     private Date arrivalDate;
 
     // 4、采购申请生成日期 goods中的"采购申请生成日期purch_requisition_date"
-    private String purchRequisitionDate;
+    private Date purchRequisitionDate;
 
     // 5、采购合同号 goods中的"采购合同号"
     private String purchNo;
 
     // 6、采购合同签订日期 goods中的"合同签订日期signing_date"
-    private String signingDate;
+    private Date signingDate;
 
     // 7、采购要求交货时间 goods中的"采购要求交货时间shipping_date"
     private Date shippingDate;
@@ -188,50 +188,50 @@ public class ProjectGoodsStatistics {
     // 12、采购经办人 goods中的"采购经办人agent_name"
     private String purchAgentName;
 
-    // 13、报检日期 goods中的入库质检的检验日期
+    // 13、报检日期 goods中的入库质检的检验日期check_date
     private Date checkDate;
 
-    // 14、检验完成日期 InspectReport入库质检的检验完成日期
+    // 14、检验完成日期 goods中的入库质检的检验完成日期check_done_date
     private Date doneDate;
 
-    // 15、检验人 InspectReport入库质检的检验人
+    // 15、检验人 goods中的入库质检的检验人check_user_name
     private String checkUserName;
 
-    // 16、入库日期 Instock入库中的入库日期
+    // 16、入库日期 goods中的入库中的入库日期instock_date
     private Date instockDate;
 
-    // 17、出库检验日期 DeliverDetail出库质检 checkDate
+    // 17、出库检验日期 goods中的出库质检 deliver_detail_date
     private Date deliverDetailDate;
 
-    // 18、出库日期 DeliverDetail出库质检出库日期
+    // 18、出库日期 goods中的出库质检出库日期leave_date
     private Date leaveDate;
 
-    // 19、仓库经办人 DeliverDetail出库中的仓库经办人
+    // 19、仓库经办人 goods中的出库中的仓库经办人ware_houseman_name
     private String wareHousemanName;
 
-    // 20、物流费用金额 IogisticsData物流表 物流费用
+    // 20、物流费用金额 IogisticsData物流表 goods中物流费用
     private BigDecimal logisticsCost;
 
-    // 21、物流经办人 IogisticsData物流表 物流经办人
+    // 21、物流经办人 IogisticsData物流表 goods中物流经办人
     private String logisticsUserName;
 
-    // 22、市场要求订舱日期 DeliverConsign 市场要求订舱日期
+    // 22、市场要求订舱日期 DeliverConsign 市场要求订舱日期 goods中booking_date
     private Date bookingDate;
 
-    // 23、物流订舱日期 IogisticsData物流表 订舱时间
+    // 23、物流订舱日期 IogisticsData物流表 订舱时间 goods中booking_time
     private Date bookingTime;
 
-    // 24、货物发运时间 IogisticsData物流表 实际离港时间
+    // 24、货物发运时间 IogisticsData物流表 实际离港时间 goods中leave_port_time
     private Date leavePortTime;
 
-    // 25、货物到达时间 IogisticsData物流表 预计抵达时间
+    // 25、货物到达时间 IogisticsData物流表 预计抵达时间 goods中arrival_port_time
     private Date arrivalPortTime;
 
-    // 26、客户接收时间 IogisticsData物流表 实际完成时间
+    // 26、客户接收时间 IogisticsData物流表 实际完成时间 goods中accomplish_date
     private Date accomplishDate;
 
     // 27、应收账款余额（美元） order表中的
-    private String currencyBnReceivableAccountRemaining;
+    private BigDecimal currencyBnReceivableAccountRemaining;
 
     public BigDecimal getProfit() {
         return profit;
@@ -680,14 +680,6 @@ public class ProjectGoodsStatistics {
         this.purchNo = purchNo;
     }
 
-    public String getSigningDate() {
-        return signingDate;
-    }
-
-    public void setSigningDate(String signingDate) {
-        this.signingDate = signingDate;
-    }
-
     public Date getShippingDate() {
         return shippingDate;
     }
@@ -848,12 +840,28 @@ public class ProjectGoodsStatistics {
         this.accomplishDate = accomplishDate;
     }
 
-    public String getCurrencyBnReceivableAccountRemaining() {
+    public BigDecimal getCurrencyBnReceivableAccountRemaining() {
         return currencyBnReceivableAccountRemaining;
     }
 
-    public void setCurrencyBnReceivableAccountRemaining(String currencyBnReceivableAccountRemaining) {
+    public void setCurrencyBnReceivableAccountRemaining(BigDecimal currencyBnReceivableAccountRemaining) {
         this.currencyBnReceivableAccountRemaining = currencyBnReceivableAccountRemaining;
+    }
+
+    public Date getPurchRequisitionDate() {
+        return purchRequisitionDate;
+    }
+
+    public void setPurchRequisitionDate(Date purchRequisitionDate) {
+        this.purchRequisitionDate = purchRequisitionDate;
+    }
+
+    public Date getSigningDate() {
+        return signingDate;
+    }
+
+    public void setSigningDate(Date signingDate) {
+        this.signingDate = signingDate;
     }
 }
 

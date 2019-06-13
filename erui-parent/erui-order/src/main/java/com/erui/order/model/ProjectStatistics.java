@@ -44,6 +44,7 @@ public class ProjectStatistics {
         this.profitPercent = project.getProfitPercent();
         this.profit = project.getProfit();
         this.grantType = order.getGrantType();
+        this.currencyBnReceivableAccountRemaining = order.getReceivableAccountRemaining();
         if (project.getDeliveryDate() != null) {
             // this.deliveryDate = DateUtil.format(DateUtil.SHORT_FORMAT_STR, project.getDeliveryDate());
             this.deliveryDate = project.getDeliveryDate();
@@ -159,6 +160,8 @@ public class ProjectStatistics {
     private Integer orderCategory;
     //订单商品
     private List<Goods> goodsList = new ArrayList<>();
+    // 27、应收账款余额（美元） order表中的
+    private BigDecimal currencyBnReceivableAccountRemaining;
 
     public BigDecimal getProfit() {
         return profit;
@@ -407,6 +410,13 @@ public class ProjectStatistics {
         return null;
     }
 
+    public BigDecimal getCurrencyBnReceivableAccountRemaining() {
+        return currencyBnReceivableAccountRemaining;
+    }
+
+    public void setCurrencyBnReceivableAccountRemaining(BigDecimal currencyBnReceivableAccountRemaining) {
+        this.currencyBnReceivableAccountRemaining = currencyBnReceivableAccountRemaining;
+    }
 
     public Integer getOrderType() {
         return orderType;

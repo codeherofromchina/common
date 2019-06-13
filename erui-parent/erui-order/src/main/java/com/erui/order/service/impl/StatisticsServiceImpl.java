@@ -558,91 +558,6 @@ public class StatisticsServiceImpl implements StatisticsService {
         return dataList;
     }
 
-
-    // TODO
-    @Transactional
-    public List<ProjectStatistics> findProjectStatisticsExport(Map<String, String> condition) {
-        List<Project> pageList = projectDao.findAll(specificationCondition(condition), new Sort(Sort.Direction.DESC, "id"));
-
-        List<ProjectStatistics> dataList = new ArrayList<>();
-        List<Integer> orderIds = new ArrayList<>();
-        // 查询地区的中英文对应列表
-        Map<String, String> bnMapZhRegion = this.findBnMapZhRegion();
-        for (Project project : pageList) {
-            Order order = project.getOrder();
-            if (order != null) {
-                ProjectStatistics projectStatistics = new ProjectStatistics(project, order);
-                projectStatistics.setRegionZh(bnMapZhRegion.get(projectStatistics.getRegion()));
-                Integer purchReqCreate = project.getPurchReqCreate();//'是否已经创建采购申请单 1：未创建  2：已创建 3:已创建并提交'
-                if (purchReqCreate != null && purchReqCreate == 3) {
-                    if (order.getGoodsList().size() > 0) {
-                        List<Goods> goodsList = order.getGoodsList();
-                        if (goodsList.size() == 1 && goodsList.get(0).getProType() != null) {
-                            projectStatistics.setProCate(goodsList.get(0).getProType());
-                        } else {
-                            List<String> proCateList = goodsList.stream().map(Goods::getProType).collect(Collectors.toList());
-                            Set<String> setproCate = new HashSet<>(proCateList);
-                            if (setproCate.size() == proCateList.size()) {
-                                projectStatistics.setProCate(goodsList.get(0).getProType());
-                            } else {
-                                int count = 0;
-                                for (String proCate : setproCate) {
-                                    if (proCate != null) {
-                                        int frequency = Collections.frequency(proCateList, proCate);
-                                        if (frequency > count) {
-                                            count = frequency;
-                                            projectStatistics.setProCate(proCate);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                orderIds.add(order.getId());
-                dataList.add(projectStatistics);
-            }
-        }
-        // 查询所有订单的回款总金额信息
-        if (dataList.size() > 0) {
-            List<Object> orderAccountList = statisticsDao.findOrderAccount(orderIds);
-            Map<Integer, Object[]> orderAccountMap = orderAccountList.parallelStream().collect(Collectors.toMap(vo -> {
-                Object[] objArr = (Object[]) vo;
-                return (Integer) objArr[0];
-            }, vo -> {
-                Object[] objArr = (Object[]) vo;
-                return objArr;
-            }));
-            for (ProjectStatistics projectStatistics : dataList) {
-                Integer orderId = projectStatistics.getOrderId();
-                Object[] objArr = orderAccountMap.get(orderId);
-                if (objArr != null) {
-                    projectStatistics.setPaymentDate((Date) objArr[2]); //回款时间
-                    BigDecimal money = (BigDecimal) objArr[1];//回款金额
-                    projectStatistics.setMoney(money);
-                    projectStatistics.setAcquireId((String) objArr[3]); //员工姓名
-                    projectStatistics.setAccountCount((BigInteger) objArr[4]);  //收款记录条数
-                    String currencyBn = (String) objArr[5];  //货币类型
-                    BigDecimal exchangeRate = (BigDecimal) objArr[6];//利率
-                    BigDecimal discount = (BigDecimal) objArr[7];//其他扣款金额
-                    if (discount != null) {
-                        money = money.add(discount);   //回款金额 加上 其他扣款金额
-                    }
-                    if (objArr[1] != null) {    //是否有回款金额
-                        if (currencyBn != "USD") {    //是否是美元
-                            projectStatistics.setCurrencyBnMoney(new DecimalFormat("###,##0.00").format(money.multiply(exchangeRate))); //回款金额
-                        } else {
-                            projectStatistics.setCurrencyBnMoney(new DecimalFormat("###,##0.00").format(money)); //回款金额
-                        }
-                    }
-                    projectStatistics.setCurrencyBnMoney(projectStatistics.getCurrencyBnMoney() == null ? "0" : projectStatistics.getCurrencyBnMoney());
-
-                }
-            }
-        }
-        return dataList;
-    }
-
     //项目执行统计导出
     @Override
     @Transactional(readOnly = true)
@@ -670,7 +585,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     //项目商品详情统计导出
     @Override
     public HSSFWorkbook generateProjectDescStatisticsExcel(Map<String, String> condition) {
-        List<ProjectStatistics> projectStatistics = findProjectStatisticsExport(condition);
+        List<ProjectStatistics> projectStatistics = findProjectStatistics(condition);
         List<ProjectGoodsStatistics> projectGoodsStatistics = new ArrayList<>();
         int count = 1;
         for (ProjectStatistics p : projectStatistics) {
@@ -683,6 +598,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             projectGood01.setProjectName(p.getProjectName());
             projectGood01.setTotalPrice(p.getTotalPrice());
             projectGood01.setProfit(p.getProfit());
+            projectGood01.setLogisticsCost(p.getGoodsList() == null || p.getGoodsList().size() == 0 ? null : p.getGoodsList().get(0).getLogisticsCost());
             projectGoodsStatistics.add(projectGood01);
             count++;
             if (p.getGoodsList() != null) {
@@ -699,6 +615,30 @@ public class StatisticsServiceImpl implements StatisticsService {
                     projectGoods.setTotalPrice(g.getPrice());
                     projectGoods.setCurrencyBn(p.getCurrencyBn());
                     projectGoods.setProCate(g.getMeteName());
+                    projectGoods.setArrivalDate(g.getArrivalDate()); // 3、要求采购到货日期
+                    projectGoods.setPurchRequisitionDate(g.getPurchRequisitionDate()); // 4、采购申请生成日期
+                    projectGoods.setPurchNo(g.getPurchContractNo()); // 5、采购合同号
+                    projectGoods.setSigningDate(g.getSigningDate()); // 6、采购合同签订日期
+                    projectGoods.setShippingDate(g.getShippingDate()); // 7、采购要求交货时间
+                    projectGoods.setSupplierName(g.getSupplierName()); // 8、供应商名称
+                    projectGoods.setPurchasePrice(g.getPurchasePrice()); // 9、采购单价
+                    projectGoods.setPurchTotalPrice(g.getPurchTotalPrice()); // 10、采购总金额
+                    projectGoods.setArrivaledDate(g.getArrivaledDate()); // 11、采购实际到货日期
+                    projectGoods.setPurchAgentName(g.getAgentName()); // 12、采购经办人
+                    projectGoods.setCheckDate(g.getCheckDate()); // 13、报检日期
+                    projectGoods.setDoneDate(g.getCheckDoneDate()); // 14、检验完成日期
+                    projectGoods.setCheckUserName(g.getCheckUserName()); // 15、检验人
+                    projectGoods.setInstockDate(g.getInstockDate()); // 16、入库日期
+                    projectGoods.setDeliverDetailDate(g.getDeliverDetailDate()); // 17、出库检验日期
+                    projectGoods.setLeaveDate(g.getLeaveDate()); // 18、出库日期
+                    projectGoods.setWareHousemanName(g.getWareHousemanName()); // 19、仓库经办人
+                    projectGoods.setLogisticsUserName(g.getLogisticsUserName()); // 21、物流经办人
+                    projectGoods.setBookingDate(g.getBookingDate()); // 22、市场要求订舱日期
+                    projectGoods.setBookingTime(g.getBookingTime()); // 23、物流订舱日期
+                    projectGoods.setLeavePortTime(g.getLeavePortTime()); // 24、货物发运时间
+                    projectGoods.setArrivalPortTime(g.getArrivalPortTime()); // 25、货物到达时间
+                    projectGoods.setAccomplishDate(g.getAccomplishDate()); // 26、客户接收时间
+
                     projectGoodsStatistics.add(projectGoods);
 
                 }
@@ -709,18 +649,29 @@ public class StatisticsServiceImpl implements StatisticsService {
                 "是否通过代理商获取", "代理商代码", "PO号", "合同标的", "海外销售合同号", "物流报价单号", "产品分类", "执行分公司", "事业部", "国家",
                 "所属地区", "CRM客户代码", "客户类型", "品名中文", "品名外文", "规格", "数量", "单位", "项目金额", "币种",
                 "收款方式", "回款时间", "回款金额", "初步利润率%", "利润额", "授信情况", "执行单约定交付日期",
-                "要求采购到货日期", "执行单变更后日期", /*"分销部(获取人所在分类销售)", "市场经办人",*/ "获取人", "商务技术经办人", "贸易术语",
-                "项目状态"/*, "流程进度"*/};
+                "要求采购到货日期", "执行单变更后日期", /*"分销部(获取人所在分类销售)", "市场经办人",*/ "获取人", "商务技术经办人", "贸易术语","项目状态",
+                "流程进度","物流成本总计","要求采购到货日期","采购申请生成日期","采购合同号","采购合同签订日期","采购要求交货时间","供应商名称","采购单价","采购总金额",
+                "采购实际到货日期","采购经办人","报检日期","检验完成日期","检验人","入库日期","出库检验日期","出库日期","仓库经办人","物流费用金额",
+                "物流经办人","市场要求订舱日期","物流订舱日期","货物发运时间","货物到达时间","客户接收时间","应收账款余额（美元）"};
         String[] keys = new String[]{"id", "createTime", "startDate", "contractNo", "orderCategory", "overseasSales", "inquiryNo", "projectNo",// "nonReson",
                 "agent", "agentNo", "poNo", "projectName", "contractNoOs", "logiQuoteNo", "proCate", "execCoName", "businessUnitName", "country",
                 "regionZh", "crmCode", "customerType", "nameZh", "nameEn", "model", "contractGoodsNum", "unit", "totalPrice", "currencyBn",
                 "paymentModeBnName", "paymentDate", "currencyBnMoney", "profitPercent", "profit", "grantType", "deliveryDate",
-                "requirePurchaseDate", "exeChgDate", /*"distributionDeptName", "agentName",*/ "acquireId", "businessName", "tradeTerms",
-                "projectStatus"/*, "processProgress"*/};
+                "requirePurchaseDate", "exeChgDate", /*"distributionDeptName", "agentName",*/ "acquireId", "businessName", "tradeTerms","projectStatus",
+                "processProgress", "totalLogisticsCost", "arrivalDate", "purchRequisitionDate", "purchNo", "signingDate", "shippingDate", "supplierName", "purchasePrice", "PurchTotalPrice",
+                "arrivaledDate", "purchAgentName", "checkDate", "doneDate", "checkUserName", "instockDate", "deliverDetailDate", "leaveDate", "wareHousemanName", "logisticsCost",
+                "logisticsUserName", "bookingDate", "bookingTime", "leavePortTime", "arrivalPortTime", "accomplishDate", "currencyBnReceivableAccountRemaining"};
         BuildExcel buildExcel = new BuildExcelImpl();
         Object objArr = JSON.toJSON(projectGoodsStatistics);
         HSSFWorkbook workbook = buildExcel.buildExcel((List) objArr, header, keys, "项目商品信息统计");
         return workbook;
+    }
+
+    private String converNull(String str){
+        if(str == null) {
+            str="";
+        }
+        return str;
     }
 
     private ProjectGoodsStatistics copyProjectDescTo(ProjectStatistics proStatistics) {
@@ -758,7 +709,8 @@ public class StatisticsServiceImpl implements StatisticsService {
         projectGoods.setBusinessName(proStatistics.getBusinessName());
         projectGoods.setTradeTerms(proStatistics.getTradeTerms());
         projectGoods.setProjectStatus(proStatistics.getProjectStatusName());
-        //projectGoods.setProcessProgress(proStatistics.getProcessProgressName());
+        projectGoods.setProcessProgress(proStatistics.getProcessProgressName());
+        projectGoods.setCurrencyBnReceivableAccountRemaining(proStatistics.getCurrencyBnReceivableAccountRemaining());
         return projectGoods;
     }
 
