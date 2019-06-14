@@ -2,6 +2,8 @@ package com.erui.boss.web.order;
 
 import com.erui.boss.web.util.Result;
 import com.erui.boss.web.util.ResultStatusEnum;
+import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.order.entity.PurchContract;
 import com.erui.order.service.PurchContractService;
 import org.apache.commons.lang3.StringUtils;
@@ -70,13 +72,16 @@ public class PurchContractController {
      */
     @RequestMapping(value = "save", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> save(HttpServletRequest request, @RequestBody PurchContract purchContract) {
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
         // 获取当前用户ID
         Object userId = request.getSession().getAttribute("userid");
         // 获取当前用户Name
         Object userName = request.getSession().getAttribute("realname");
-        if(userId != null && userId.toString().length() > 0) purchContract.setCreateUserId(Integer.parseInt(userId.toString()));
-        if(userName != null) purchContract.setCreateUserName(userName.toString());
-        if(purchContract.getVersion() == null) purchContract.setVersion(201904);
+        if (userId != null && userId.toString().length() > 0)
+            purchContract.setCreateUserId(Integer.parseInt(userId.toString()));
+        if (userName != null) purchContract.setCreateUserName(userName.toString());
+        if (purchContract.getVersion() == null) purchContract.setVersion(201904);
         boolean continueFlag = true;
         String errorMsg = null;
         // 状态检查
@@ -136,10 +141,10 @@ public class PurchContractController {
     public Result<Object> purchAbleList(HttpServletRequest request, @RequestBody Map<String, String> params) {
         // 获取当前用户ID
         Object userid = request.getSession().getAttribute("userid");
-        String purchContractNo = StringUtils.isNotEmpty(params.get("purchContractNo"))? params.get("purchContractNo"):null;
-        Integer supplierId = StringUtils.isNotEmpty(params.get("supplierId"))? Integer.parseInt(params.get("supplierId")):null;
-        String supplierName = StringUtils.isNotEmpty(params.get("supplierName"))? params.get("supplierName"):null;
-        Integer type = StringUtils.isNotEmpty(params.get("type"))? Integer.parseInt(params.get("type")):null;
+        String purchContractNo = StringUtils.isNotEmpty(params.get("purchContractNo")) ? params.get("purchContractNo") : null;
+        Integer supplierId = StringUtils.isNotEmpty(params.get("supplierId")) ? Integer.parseInt(params.get("supplierId")) : null;
+        String supplierName = StringUtils.isNotEmpty(params.get("supplierName")) ? params.get("supplierName") : null;
+        Integer type = StringUtils.isNotEmpty(params.get("type")) ? Integer.parseInt(params.get("type")) : null;
         // 初始化页码信息
         int pageNum = 1;
         int pageSize = 10;

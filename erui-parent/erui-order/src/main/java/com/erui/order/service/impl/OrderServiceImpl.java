@@ -1112,7 +1112,7 @@ public class OrderServiceImpl implements OrderService {
         }
         if (addOrderVo.getStatus() == Order.StatusEnum.UNEXECUTED.getCode()) {
 //            if (StringUtils.isNotBlank(orderUpdate.getAudiRemark()) && StringUtils.isBlank(orderUpdate.getProcessId())) {
-            if(false){
+            if (false) {
                 // 老审核流程
                 //如果是国内订单 没有国家负责人 根据是否融资审核进行审核流程
                 if (addOrderVo.getOrderCategory() == 6) {
@@ -1178,8 +1178,8 @@ public class OrderServiceImpl implements OrderService {
                     String task_fn_check = "N";
                     if (addOrderVo.getFinancing() != null && addOrderVo.getFinancing() == 1) {
                         task_fn_check = "Y";
-                    }else {
-                    	bpmInitVar.put("task_fn_audit_status", "APPROVED");
+                    } else {
+                        bpmInitVar.put("task_fn_audit_status", "APPROVED");
                     }
                     bpmInitVar.put("task_fn_check", task_fn_check);
                     if (StringUtils.isNotBlank(techicalUserNo)) {
@@ -1255,7 +1255,7 @@ public class OrderServiceImpl implements OrderService {
                         backLogService.updateBackLogByDelYn(backLog2);
                         backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.ORDER_AUDIT2.getNum());  //功能访问路径标识
                         backLogService.updateBackLogByDelYn(backLog2);
-                    }catch (Exception ex) {
+                    } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                 } else {
@@ -1264,8 +1264,8 @@ public class OrderServiceImpl implements OrderService {
                     String task_fn_check = "N";
                     if (orderUpdate.getFinancing() != null && orderUpdate.getFinancing() == 1) {
                         task_fn_check = "Y";
-                    }else {
-                    	bpmVar.put("task_fn_audit_status", "APPROVED");
+                    } else {
+                        bpmVar.put("task_fn_audit_status", "APPROVED");
                     }
 
                     bpmVar.put("task_fn_check", task_fn_check);
@@ -1357,7 +1357,7 @@ public class OrderServiceImpl implements OrderService {
                 logger.info("CRM返回信息：" + s);
             }
 //            if (StringUtils.isNotBlank(orderUpdate.getAudiRemark()) && StringUtils.isBlank(orderUpdate.getProcessId())) {
-            if(false){
+            if (false) {
                 // 老流程
                 //项目提交的时候判断是否有驳回的信息  如果有删除  “驳回订单” 待办提示
                 BackLog backLog = new BackLog();
@@ -1413,6 +1413,9 @@ public class OrderServiceImpl implements OrderService {
             goods.setOutstockNum(0);
             goods.setDepartment(pGoods.getDepartment());
             goods.setPrice(pGoods.getPrice());
+            goods.setTplNo(pGoods.getTplNo());
+            goods.setTplName(pGoods.getTplName());
+            goods.setAttrs(pGoods.getAttrs());
             goodsList.add(goods);
         }
         //order.setGoodsList(goodsList);
@@ -1535,6 +1538,9 @@ public class OrderServiceImpl implements OrderService {
             goods.setExchanged(false);
             goods.setDepartment(pGoods.getDepartment());
             goods.setPrice(pGoods.getPrice());
+            goods.setTplNo(pGoods.getTplNo());
+            goods.setTplName(pGoods.getTplName());
+            goods.setAttrs(pGoods.getAttrs());
             goods.setOrder(order);
             goodsList.add(goods);
         }
@@ -3346,7 +3352,7 @@ public class OrderServiceImpl implements OrderService {
             Map<String, CheckLog> map = new LinkedMap<>();
             if (resultCheckLogs != null && resultCheckLogs.size() > 0) {
                 for (CheckLog cLog : resultCheckLogs) {
-                    if(cLog.getAuditingProcess() == 101){
+                    if (cLog.getAuditingProcess() == 101) {
                         orderDec.setCountryLeader(cLog.getAuditingUserName());
                     }
                     if (map.containsKey(cLog.getAuditingProcess() + "_" + cLog.getType())) {

@@ -356,7 +356,6 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
                         backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.LOGISTICSDATA.getNum());    //功能访问路径标识
                         backLog2.setHostId(iogisticsData.getId());
                         backLogService.updateBackLogByDelYn(backLog2);
-
                     }
                 }
 

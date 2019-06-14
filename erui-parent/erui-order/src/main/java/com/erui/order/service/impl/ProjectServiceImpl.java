@@ -14,6 +14,7 @@ import com.erui.order.entity.Order;
 import com.erui.order.event.OrderProgressEvent;
 import com.erui.order.event.PurchDoneCheckEvent;
 import com.erui.order.event.TasksAddEvent;
+import com.erui.order.requestVo.PGoods;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.*;
 import com.erui.order.util.BpmUtils;
@@ -62,7 +63,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private BackLogService backLogService;
     @Autowired
-    private BackLogDao backLogDao;
+    private GoodsDao goodsDao;
     @Autowired
     private StatisticsService statisticsService;
     @Autowired
@@ -224,6 +225,8 @@ public class ProjectServiceImpl implements ProjectService {
 
                     }
                 }
+                //修改商品信息
+                updateOrderGoods(order, project);
                 // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
                 List<Attachment> attachmentList = project.getAttachmentList();
                 Map<Integer, Attachment> dbAttahmentsMap = projectUpdate.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
@@ -350,6 +353,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return true;
     }
+
     //给EACP返回商品有效信息
     private List<Goods> eacpGoods(Order order) {
         List<Goods> goods = new ArrayList<>();
@@ -371,6 +375,64 @@ public class ProjectServiceImpl implements ProjectService {
             goods.add(goods1);
         }
         return goods;
+    }
+
+    /**
+     * 修改项目的商品
+     *
+     * @param project
+     * @return
+     */
+    private void updateOrderGoods(Order order, Project project) {
+        List<Goods> pGoodsList = project.getGoodsList();
+        Goods goods = null;
+        List<Goods> goodsList = new ArrayList<>();
+        Map<Integer, Goods> dbGoodsMap = order.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
+        Set<String> skuRepeatSet = new HashSet<>();
+        for (Goods pGoods : pGoodsList) {
+            if (pGoods.getId() == null) {
+                goods = new Goods();
+                goods.setOrder(order);
+                goods.setProject(project);
+            } else {
+                goods = dbGoodsMap.remove(pGoods.getId());
+                if (goods == null) {
+                    throw new MyException("不存在的商品标识&&Non-existent product identifier");
+                }
+            }
+            String sku = pGoods.getSku();
+            if (StringUtils.isNotBlank(sku) && !skuRepeatSet.add(sku)) {
+                // 已经存在的sku，返回错误
+                throw new MyException("同一sku不可以重复添加&&The same sku can not be added repeatedly");
+            }
+            goods.setSku(sku);
+            goods.setContractNo(order.getContractNo());
+            goods.setMeteType(pGoods.getMeteType());
+            goods.setMeteName(pGoods.getMeteName());
+            goods.setNameEn(pGoods.getNameEn());
+            goods.setNameZh(pGoods.getNameZh());
+            goods.setContractGoodsNum(pGoods.getContractGoodsNum());
+            goods.setUnit(pGoods.getUnit());
+            goods.setModel(pGoods.getModel());
+            goods.setClientDesc(pGoods.getClientDesc());
+            goods.setBrand(pGoods.getBrand());
+            goods.setPurchasedNum(0);
+            goods.setPrePurchsedNum(0);
+            goods.setInspectNum(0);
+            goods.setInstockNum(0);
+            goods.setOutstockApplyNum(0);
+            goods.setExchanged(false);
+            goods.setOutstockNum(0);
+            goods.setDepartment(pGoods.getDepartment());
+            goods.setPrice(pGoods.getPrice());
+            //添加属性模板 相关信息
+            goods.setTplNo(pGoods.getTplNo());
+            goods.setTplName(pGoods.getTplName());
+            goods.setAttrs(pGoods.getAttrs());
+            goodsList.add(goods);
+        }
+        goodsDao.delete(dbGoodsMap.values());
+        goodsDao.save(goodsList);
     }
 
     /**
