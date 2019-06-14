@@ -360,7 +360,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 String taskId = deliverConsign.getTaskId();
                 if (StringUtils.isBlank(taskId)) {
                     Map<String, Object> initVar = new HashMap<>();
-                    initVar.put("param_contract", deliverConsign1.getDeliverConsignNo());
+                    initVar.put("param_contract", order.getContractNo());
                     initVar.put("task_cm_country", deliverConsign1.getCountry());
                     initVar.put("task_rm_area", deliverConsign1.getRegion());
                     if (order.getTechnicalId() != null) {
@@ -557,7 +557,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         DeliverConsign deliverConsign1 = deliverConsignDao.save(deliverConsignAdd);
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             Map<String, Object> initVar = new HashMap<>();
-            initVar.put("param_contract", deliverConsign1.getDeliverConsignNo());
+            initVar.put("param_contract", order.getContractNo());
             initVar.put("task_cm_country", deliverConsign1.getCountry());
             initVar.put("task_rm_area", deliverConsign1.getRegion());
             if (order.getTechnicalId() != null) {
