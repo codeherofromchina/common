@@ -570,7 +570,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             } else {
                 throw new Exception("没有项目负责人错误");
             }
-
             // 启动业务流流程实例
             JSONObject processResp = BpmUtils.startProcessInstanceByKey("booking_order", null, eruitoken, "deliver_consign:" + deliverConsign1.getId(), initVar);
             // 设置订单和业务流标示关联
