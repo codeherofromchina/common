@@ -236,7 +236,19 @@ public class Project {
      * 质量检验类型
      */
     @Column(name = "quality_inspect_type")
-    private String qualityInspectType;
+    private String qualityInspectType;                //  'ceo审核人',
+
+    @Column(name = "total_logistics_cost")
+    @JsonIgnore
+    private BigDecimal totalLogisticsCost;        //物流成本总计
+
+    public BigDecimal getTotalLogisticsCost() {
+        return totalLogisticsCost;
+    }
+
+    public void setTotalLogisticsCost(BigDecimal totalLogisticsCost) {
+        this.totalLogisticsCost = totalLogisticsCost;
+    }
 
     public String getQualityInspectType() {
         return qualityInspectType;

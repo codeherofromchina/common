@@ -45,6 +45,7 @@ public class ProjectStatistics {
         this.profit = project.getProfit();
         this.grantType = order.getGrantType();
         this.currencyBnReceivableAccountRemaining = order.getReceivableAccountRemaining();
+        this.totalLogisticsCost = project.getTotalLogisticsCost();
         if (project.getDeliveryDate() != null) {
             // this.deliveryDate = DateUtil.format(DateUtil.SHORT_FORMAT_STR, project.getDeliveryDate());
             this.deliveryDate = project.getDeliveryDate();
@@ -162,6 +163,17 @@ public class ProjectStatistics {
     private List<Goods> goodsList = new ArrayList<>();
     // 27、应收账款余额（美元） order表中的
     private BigDecimal currencyBnReceivableAccountRemaining;
+
+    // 2、物流成本总计 IogisticsData物流表 物流费用
+    private BigDecimal totalLogisticsCost;
+
+    public BigDecimal getTotalLogisticsCost() {
+        return totalLogisticsCost;
+    }
+
+    public void setTotalLogisticsCost(BigDecimal totalLogisticsCost) {
+        this.totalLogisticsCost = totalLogisticsCost;
+    }
 
     public BigDecimal getProfit() {
         return profit;
