@@ -1415,6 +1415,7 @@ public class OrderServiceImpl implements OrderService {
             goods.setPrice(pGoods.getPrice());
             goods.setTplNo(pGoods.getTplNo());
             goods.setTplName(pGoods.getTplName());
+            goods.setAttrs(pGoods.getAttrs());
             goodsList.add(goods);
         }
         //order.setGoodsList(goodsList);
@@ -1539,6 +1540,7 @@ public class OrderServiceImpl implements OrderService {
             goods.setPrice(pGoods.getPrice());
             goods.setTplNo(pGoods.getTplNo());
             goods.setTplName(pGoods.getTplName());
+            goods.setAttrs(pGoods.getAttrs());
             goods.setOrder(order);
             goodsList.add(goods);
         }
