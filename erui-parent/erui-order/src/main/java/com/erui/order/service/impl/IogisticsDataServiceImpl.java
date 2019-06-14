@@ -310,23 +310,31 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
 
                     //下发订舱时间
                     if (iogisticsData.getBookingTime() != null) {
-                        goods.setBookingTime(iogisticsData.getBookingTime());//订舱日期
+                        if(goods.getBookingTime() == null) goods.setBookingTime(iogisticsData.getBookingTime());//订舱日期
                     }
                     //船期或航班
                     if (iogisticsData.getSailingDate() != null) {
-                        goods.setSailingDate(iogisticsData.getSailingDate());//船期或航班
+                        if(goods.getSailingDate() == null) goods.setSailingDate(iogisticsData.getSailingDate());//船期或航班
                     }
                     //报关放行时间
                     if (iogisticsData.getCustomsClearance() != null) {
-                        goods.setCustomsClearance(iogisticsData.getCustomsClearance());//报关放行时间
+                        if(goods.getCustomsClearance() == null) goods.setCustomsClearance(iogisticsData.getCustomsClearance());//报关放行时间
                     }
                     //实际离港时间
                     if (iogisticsData.getLeavePortTime() != null) {
-                        goods.setLeavePortTime(iogisticsData.getLeavePortTime());//实际离港时间
+                        if(goods.getLeavePortTime() == null) goods.setLeavePortTime(iogisticsData.getLeavePortTime());//实际离港时间
                     }
                     //预计抵达时间
                     if (iogisticsData.getArrivalPortTime() != null) {
-                        goods.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
+                        if(goods.getArrivalPortTime() == null) goods.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
+                    }
+                    //物流经办人
+                    if (iogisticsData.getLogisticsUserName() != null) {
+                        if(goods.getLogisticsUserName() == null) goods.setLogisticsUserName(iogisticsData.getLogisticsUserName());//物流经办人
+                    }
+                    //物流费用
+                    if (iogisticsData.getLogisticsCost() != null) {
+                        if(goods.getLogisticsCost() == null) goods.setLogisticsCost(iogisticsData.getLogisticsCost());//物流费用
                     }
 
                     if (iogisticsData.getLeaveFactory() != null) {
