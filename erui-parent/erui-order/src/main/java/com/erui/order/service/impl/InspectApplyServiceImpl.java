@@ -725,7 +725,9 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 // 设置采购商品的已合格数量
                 purchGoods.setInspectNum(purchGoods.getPurchaseNum());
                 purchGoods.setPreInspectNum(purchGoods.getPurchaseNum());
-
+                Goods goods = applyGoods.getGoods();
+                goods.setCheckUserName(report.getCheckUserName());
+                goodsDao.save(goods);
                 if (isAllQRL1) purchGoods.setGoodNum(purchGoods.getPurchaseNum());
                 purchGoodsDao.save(purchGoods);
             }
