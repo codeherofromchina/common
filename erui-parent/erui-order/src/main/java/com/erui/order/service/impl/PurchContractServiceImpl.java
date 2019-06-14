@@ -120,16 +120,17 @@ public class PurchContractServiceImpl implements PurchContractService {
         final Date now = new Date();
         // 设置基本信息
         dbPurchContract.setBaseInfo(purchContract);
-
         if (dbPurchContract.getPurchContractSimple() != null) { // 简易合同
             purchContract.getPurchContractSimple().setId(dbPurchContract.getPurchContractSimple().getId());
             purchContract.getPurchContractSimple().setUpdateTime(now);
             dbPurchContract.setPurchContractSimple(purchContract.getPurchContractSimple());
+            dbPurchContract.setShippingDate(purchContract.getPurchContractSimple().getShippingDate());
         }
         if (dbPurchContract.getPurchContractStandard() != null) {//标准合同
             purchContract.getPurchContractStandard().setId(dbPurchContract.getPurchContractStandard().getId());
             purchContract.getPurchContractStandard().setUpdateTime(now);
             dbPurchContract.setPurchContractStandard(purchContract.getPurchContractStandard());
+            dbPurchContract.setShippingDate(purchContract.getPurchContractStandard().getDeliveryDate());
         }
         if (dbPurchContract.getPurchContractSignatoriesList() != null && purchContract.getPurchContractSignatoriesList() != null) {//合同双方信息
             for (PurchContractSignatories dbpcs : dbPurchContract.getPurchContractSignatoriesList()) {
@@ -199,6 +200,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                 }
                 Integer intPurchaseNum = pg.getPurchaseNum();
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
+                goods.setShippingDate(dbPurchContract.getShippingDate());
                 goodsDao.save(goods);
             } else if (dbPurchContractGoodsMap.containsKey(pgId)) {
                 // 编辑原来的采购商品
@@ -265,6 +267,7 @@ public class PurchContractServiceImpl implements PurchContractService {
 
                 }
                 goods.setPrePurchsedNum(goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum);
+                goods.setShippingDate(dbPurchContract.getShippingDate());
                 goodsDao.save(goods);
             } else {
                 throw new Exception(String.format("%s%s%s", "不存在的采购商品信息", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Non existent procurement of commodity information"));
@@ -289,11 +292,13 @@ public class PurchContractServiceImpl implements PurchContractService {
                     // 是替换后的商品，则将此商品删除，并增加父商品的合同数量
                     Goods parentOne = goodsDao.findOne(one.getParentId());
                     parentOne.setContractGoodsNum(parentOne.getContractGoodsNum() + purchaseNum);
+                    parentOne.setShippingDate(dbPurchContract.getShippingDate());
                     goodsDao.save(parentOne);
                     //goodsDao.delete(one);
                     deleteGoods.add(one);
                 } else {
                     one.setPrePurchsedNum(one.getPrePurchsedNum() - purchaseNum);
+                    one.setShippingDate(dbPurchContract.getShippingDate());
                     goodsDao.save(one);
                 }
             }
@@ -302,11 +307,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                 // 后删除商品
                 goodsDao.delete(deleteGoods);
             }
-        }
-        if (purchContract.getPurchContractSimple() != null) {
-            dbPurchContract.setShippingDate(purchContract.getPurchContractSimple().getShippingDate());
-        }else if (purchContract.getPurchContractStandard() != null) {
-            dbPurchContract.setShippingDate(purchContract.getPurchContractStandard().getDeliveryDate());
         }
         PurchContract save = purchContractDao.save(dbPurchContract);
         // 添加简易合同信息
@@ -347,6 +347,11 @@ public class PurchContractServiceImpl implements PurchContractService {
         purchContract.setPurchContractNo(StringUtil.genPurchNo(lastedByPurchNo));
         purchContract.setSigningDate(NewDateUtil.getDate(purchContract.getSigningDate()));
         purchContract.setCreateTime(now);
+        if (purchContract.getPurchContractSimple() != null) {
+            purchContract.setShippingDate(purchContract.getPurchContractSimple().getShippingDate());
+        }else if (purchContract.getPurchContractStandard() != null) {
+            purchContract.setShippingDate(purchContract.getPurchContractStandard().getDeliveryDate());
+        }
         // 处理采购合同双方信息
         for (PurchContractSignatories purchContractSignatories : purchContract.getPurchContractSignatoriesList()) {
             purchContractSignatories.setCreateTime(now);
@@ -393,6 +398,7 @@ public class PurchContractServiceImpl implements PurchContractService {
             // 增加预采购数量
             goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
             // 直接更新商品，放置循环中存在多次修改同一个商品错误
+            goods.setShippingDate(purchContract.getShippingDate());
             goodsDao.save(goods);
 
         }
@@ -400,11 +406,6 @@ public class PurchContractServiceImpl implements PurchContractService {
             throw new Exception(String.format("%s%s%s", "必须存在要采购的商品", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "There must be goods to be purchased"));
         }
         purchContract.setPurchContractGoodsList(purchContractGoodsList);
-        if (purchContract.getPurchContractSimple() != null) {
-            purchContract.setShippingDate(purchContract.getPurchContractSimple().getShippingDate());
-        }else if (purchContract.getPurchContractStandard() != null) {
-            purchContract.setShippingDate(purchContract.getPurchContractStandard().getDeliveryDate());
-        }
         PurchContract save = purchContractDao.save(purchContract);
         // 添加简易合同信息
         if (purchContract.getPurchContractSimple() != null) {

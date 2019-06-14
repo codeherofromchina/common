@@ -220,6 +220,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             goods.setCheckType(dcGoods.getCheckType());
             goods.setCertificate(dcGoods.getCertificate());
             goods.setRequirePurchaseDate(dcGoods.getRequirePurchaseDate());
+            goods.setPurchRequisitionDate(new Date());
             goods.setTechAudit(dcGoods.getTechAudit());
             goods.setTechRequire(dcGoods.getTechRequire());
             goods.setProjectNo(prt.getProjectNo());
@@ -337,6 +338,7 @@ public class PurchRequisitionServiceImpl implements PurchRequisitionService {
             goods.setCheckType(dcGoods.getCheckType());
             goods.setCertificate(dcGoods.getCertificate());
             goods.setRequirePurchaseDate(dcGoods.getRequirePurchaseDate());
+            goods.setPurchRequisitionDate(new Date());
             goods.setTechAudit(dcGoods.getTechAudit());
             goods.setTechRequire(dcGoods.getTechRequire());
             goods.setProjectNo(purchRequisitionAdd.getProjectNo());

@@ -253,10 +253,10 @@ public class Goods {
     @JsonIgnore
     private BigDecimal purchTotalPrice;
 
-    //采购实际到货日期
-    @Column(name = "arrivaled_date")
-    @JsonIgnore
-    private Date arrivaledDate;
+//    //采购实际到货日期
+//    @Column(name = "arrivaled_date")
+//    @JsonIgnore
+//    private Date arrivaledDate;
 
     //采购经办人姓名
     @Column(name = "agent_name")
@@ -971,14 +971,6 @@ public class Goods {
 
     public void setPurchTotalPrice(BigDecimal purchTotalPrice) {
         this.purchTotalPrice = purchTotalPrice;
-    }
-
-    public Date getArrivaledDate() {
-        return arrivaledDate;
-    }
-
-    public void setArrivaledDate(Date arrivaledDate) {
-        this.arrivaledDate = arrivaledDate;
     }
 
     public String getAgentName() {

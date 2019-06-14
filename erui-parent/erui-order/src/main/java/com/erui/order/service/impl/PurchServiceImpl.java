@@ -1081,9 +1081,11 @@ public class PurchServiceImpl implements PurchService {
                 purchGoodsList.add(son);
             }
             int intPurchaseNum = purchGoods.getPurchaseNum();
+            BigDecimal totalPrice = goods.getPurchTotalPrice() == null?BigDecimal.ZERO:goods.getPurchTotalPrice();
             if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                 // 如果是提交则设置商品的已采购数量并更新
                 goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
+                goods.setPurchTotalPrice(totalPrice.add(purchGoods.getTotalPrice()));
                 //提交时更新采购合同已采购数量
                 purchContractGoods.setPurchasedNum(purchContractGoods.getPurchasedNum() + intPurchaseNum);
                 // 完善商品的项目执行跟踪信息
@@ -1099,6 +1101,18 @@ public class PurchServiceImpl implements PurchService {
             purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + intPurchaseNum);
             // 直接更新商品，放置循环中存在多次修改同一个商品错误
             purchContractGoodsDao.save(purchContractGoods);
+            if(goods.getPurchContractNo() == null){
+                goods.setPurchContractNo(purch.getPurchNo());
+            }
+            if(goods.getSupplierName() == null){
+                goods.setSupplierName(purch.getSupplierName());
+            }
+            if(goods.getAgentName() == null){
+                goods.setAgentName(purch.getAgentName());
+            }
+            if(goods.getPurchasePrice() == null){
+                goods.setPurchasePrice(purchGoods.getPurchasePrice());
+            }
             goodsDao.save(goods);
         }
         if (purchGoodsList.size() == 0) {
@@ -1294,6 +1308,15 @@ public class PurchServiceImpl implements PurchService {
                         }
                     }
                     goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
+                    if(goods.getPurchContractNo() == null){
+                        goods.setPurchContractNo(purch.getPurchNo());
+                    }
+                    if(goods.getSupplierName() == null){
+                        goods.setSupplierName(purch.getSupplierName());
+                    }
+                    if(goods.getAgentName() == null){
+                        goods.setAgentName(purch.getAgentName());
+                    }
                     goodsDao.save(goods);
                 } else if (dbPurchGoodsMap.containsKey(pgId)) {
                     Integer paramPurchaseNum = pg.getPurchaseNum();
@@ -1406,6 +1429,15 @@ public class PurchServiceImpl implements PurchService {
                     }
 
                     goods.setPrePurchsedNum(goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum);
+                    if(goods.getPurchContractNo() == null){
+                        goods.setPurchContractNo(purch.getPurchNo());
+                    }
+                    if(goods.getSupplierName() == null){
+                        goods.setSupplierName(purch.getSupplierName());
+                    }
+                    if(goods.getAgentName() == null){
+                        goods.setAgentName(purch.getAgentName());
+                    }
                     goodsDao.save(goods);
                 } else {
                     throw new Exception(String.format("%s%s%s", "不存在的采购商品信息", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Non existent procurement of commodity information"));
@@ -1432,11 +1464,29 @@ public class PurchServiceImpl implements PurchService {
                         // 是替换后的商品，则将此商品删除，并增加父商品的合同数量
                         Goods parentOne = goodsDao.findOne(one.getParentId());
                         parentOne.setContractGoodsNum(parentOne.getContractGoodsNum() + purchaseNum);
+                        if(parentOne.getPurchContractNo() == null){
+                            parentOne.setPurchContractNo(purch.getPurchNo());
+                        }
+                        if(parentOne.getSupplierName() == null){
+                            parentOne.setSupplierName(purch.getSupplierName());
+                        }
+                        if(parentOne.getAgentName() == null){
+                            parentOne.setAgentName(purch.getAgentName());
+                        }
                         goodsDao.save(parentOne);
                         //goodsDao.delete(one);
                         deleteGoods.add(one);
                     } else {
                         one.setPrePurchsedNum(one.getPrePurchsedNum() - purchaseNum);
+                        if(one.getPurchContractNo() == null){
+                            one.setPurchContractNo(purch.getPurchNo());
+                        }
+                        if(one.getSupplierName() == null){
+                            one.setSupplierName(purch.getSupplierName());
+                        }
+                        if(one.getAgentName() == null){
+                            one.setAgentName(purch.getAgentName());
+                        }
                         goodsDao.save(one);
                     }
                 }
@@ -1605,6 +1655,15 @@ public class PurchServiceImpl implements PurchService {
                     //goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
                     purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + intPurchaseNum);
                     purchContractGoodsDao.save(purchContractGoods);
+                    if(goods.getPurchContractNo() == null){
+                        goods.setPurchContractNo(purch.getPurchNo());
+                    }
+                    if(goods.getSupplierName() == null){
+                        goods.setSupplierName(purch.getSupplierName());
+                    }
+                    if(goods.getAgentName() == null){
+                        goods.setAgentName(purch.getAgentName());
+                    }
                     goodsDao.save(goods);
                 } else if (dbPurchGoodsMap.containsKey(pgId)) {
                     Integer paramPurchaseNum = pg.getPurchaseNum();
@@ -1742,6 +1801,15 @@ public class PurchServiceImpl implements PurchService {
                         purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
                     }
                     purchContractGoodsDao.save(purchContractGoods);
+                    if(goods.getPurchContractNo() == null){
+                        goods.setPurchContractNo(purch.getPurchNo());
+                    }
+                    if(goods.getSupplierName() == null){
+                        goods.setSupplierName(purch.getSupplierName());
+                    }
+                    if(goods.getAgentName() == null){
+                        goods.setAgentName(purch.getAgentName());
+                    }
                     goodsDao.save(goods);
                 } else {
                     throw new Exception(String.format("%s%s%s", "不存在的采购商品信息", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Non existent procurement of commodity information"));
@@ -1774,11 +1842,29 @@ public class PurchServiceImpl implements PurchService {
                         // 是替换后的商品，则将此商品删除，并增加父商品的合同数量
                         Goods parentOne = goodsDao.findOne(one.getParentId());
                         parentOne.setContractGoodsNum(parentOne.getContractGoodsNum() + purchaseNum);
+                        if(parentOne.getPurchContractNo() == null){
+                            parentOne.setPurchContractNo(purch.getPurchNo());
+                        }
+                        if(parentOne.getSupplierName() == null){
+                            parentOne.setSupplierName(purch.getSupplierName());
+                        }
+                        if(parentOne.getAgentName() == null){
+                            parentOne.setAgentName(purch.getAgentName());
+                        }
                         goodsDao.save(parentOne);
                         //goodsDao.delete(one);
                         deleteGoods.add(one);
                     } else {
                         one.setPrePurchsedNum(one.getPrePurchsedNum() - purchaseNum);
+                        if(one.getPurchContractNo() == null){
+                            one.setPurchContractNo(purch.getPurchNo());
+                        }
+                        if(one.getSupplierName() == null){
+                            one.setSupplierName(purch.getSupplierName());
+                        }
+                        if(one.getAgentName() == null){
+                            one.setAgentName(purch.getAgentName());
+                        }
                         goodsDao.save(one);
                     }
                 }
@@ -2085,6 +2171,15 @@ public class PurchServiceImpl implements PurchService {
         sonGoods.setInstockNum(0);
         sonGoods.setOutstockApplyNum(0);
         sonGoods.setOutstockNum(0);
+        if(sonGoods.getPurchContractNo() == null){
+            sonGoods.setPurchContractNo(purch.getPurchNo());
+        }
+        if(sonGoods.getSupplierName() == null){
+            sonGoods.setSupplierName(purch.getSupplierName());
+        }
+        if(sonGoods.getAgentName() == null){
+            sonGoods.setAgentName(purch.getAgentName());
+        }
         sonGoods = goodsDao.save(sonGoods);
 
         // 处理替换后的采购信息
