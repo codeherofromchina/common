@@ -600,6 +600,16 @@ public class StatisticsServiceImpl implements StatisticsService {
             projectGood01.setTotalPrice(p.getTotalPrice());
             projectGood01.setProfit(p.getProfit());
             projectGood01.setLogisticsCost(p.getGoodsList() == null || p.getGoodsList().size() == 0 ? null : p.getGoodsList().get(0).getLogisticsCost());
+            BigDecimal purchTotalPrice = BigDecimal.ZERO; // 采购总金额
+            if (p.getGoodsList() != null) {
+                List<Goods> goodsList = p.getGoodsList();
+                for (Goods g : goodsList) {
+                    purchTotalPrice = purchTotalPrice.add(g.getPurchTotalPrice()==null?BigDecimal.ZERO:g.getPurchTotalPrice());
+                }
+            }
+            if(purchTotalPrice.compareTo(BigDecimal.ZERO) == 1){
+                projectGood01.setPurchTotalPrice(purchTotalPrice);
+            }
             projectGoodsStatistics.add(projectGood01);
             count++;
             if (p.getGoodsList() != null) {
@@ -660,7 +670,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 "regionZh", "crmCode", "customerType", "nameZh", "nameEn", "model", "contractGoodsNum", "unit", "totalPrice", "currencyBn",
                 "paymentModeBnName", "paymentDate", "currencyBnMoney", "profitPercent", "profit", "grantType", "deliveryDate",
                 "requirePurchaseDate", "exeChgDate", /*"distributionDeptName", "agentName",*/ "acquireId", "businessName", "tradeTerms","projectStatus",
-                "processProgress", "totalLogisticsCost", "arrivalDate", "purchRequisitionDate", "purchNo", "signingDate", "shippingDate", "supplierName", "purchasePrice", "PurchTotalPrice",
+                "processProgress", "totalLogisticsCost", "arrivalDate", "purchRequisitionDate", "purchNo", "signingDate", "shippingDate", "supplierName", "purchasePrice", "purchTotalPrice",
                 "arrivaledDate", "purchAgentName", "checkDate", "doneDate", "checkUserName", "instockDate", "deliverDetailDate", "leaveDate", "wareHousemanName", "logisticsCost",
                 "logisticsUserName", "bookingDate", "bookingTime", "leavePortTime", "arrivalPortTime", "accomplishDate", "currencyBnReceivableAccountRemaining"};
         BuildExcel buildExcel = new BuildExcelImpl();
