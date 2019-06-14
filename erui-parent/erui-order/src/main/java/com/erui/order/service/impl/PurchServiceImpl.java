@@ -1081,10 +1081,10 @@ public class PurchServiceImpl implements PurchService {
                 purchGoodsList.add(son);
             }
             int intPurchaseNum = purchGoods.getPurchaseNum();
-            BigDecimal totalPrice = goods.getPurchTotalPrice() == null?BigDecimal.ZERO:goods.getPurchTotalPrice();
             if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                 // 如果是提交则设置商品的已采购数量并更新
                 goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
+                BigDecimal totalPrice = goods.getPurchTotalPrice() == null?BigDecimal.ZERO:goods.getPurchTotalPrice();
                 goods.setPurchTotalPrice(totalPrice.add(purchGoods.getTotalPrice()));
                 //提交时更新采购合同已采购数量
                 purchContractGoods.setPurchasedNum(purchContractGoods.getPurchasedNum() + intPurchaseNum);
@@ -1317,6 +1317,9 @@ public class PurchServiceImpl implements PurchService {
                     if(goods.getAgentName() == null){
                         goods.setAgentName(purch.getAgentName());
                     }
+                    if(goods.getPurchasePrice() == null){
+                        goods.setPurchasePrice(pg.getPurchasePrice());
+                    }
                     goodsDao.save(goods);
                 } else if (dbPurchGoodsMap.containsKey(pgId)) {
                     Integer paramPurchaseNum = pg.getPurchaseNum();
@@ -1411,6 +1414,8 @@ public class PurchServiceImpl implements PurchService {
                     // 提交则修改商品的已采购数量
                     if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                         goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
+                        BigDecimal totalPrice = goods.getPurchTotalPrice() == null?BigDecimal.ZERO:goods.getPurchTotalPrice();
+                        goods.setPurchTotalPrice(totalPrice.add(purchGoods.getTotalPrice()));
                         // 设置商品的项目跟踪信息
                         setGoodsTraceData(goods, purch);
                         if (!goods.getOrder().getOrderCategory().equals(6)) {
@@ -1437,6 +1442,9 @@ public class PurchServiceImpl implements PurchService {
                     }
                     if(goods.getAgentName() == null){
                         goods.setAgentName(purch.getAgentName());
+                    }
+                    if(goods.getPurchasePrice() == null){
+                        goods.setPurchasePrice(purchGoods.getPurchasePrice());
                     }
                     goodsDao.save(goods);
                 } else {
@@ -1473,6 +1481,9 @@ public class PurchServiceImpl implements PurchService {
                         if(parentOne.getAgentName() == null){
                             parentOne.setAgentName(purch.getAgentName());
                         }
+                        if(parentOne.getPurchasePrice() == null){
+                            parentOne.setPurchasePrice(pg.getPurchasePrice());
+                        }
                         goodsDao.save(parentOne);
                         //goodsDao.delete(one);
                         deleteGoods.add(one);
@@ -1486,6 +1497,9 @@ public class PurchServiceImpl implements PurchService {
                         }
                         if(one.getAgentName() == null){
                             one.setAgentName(purch.getAgentName());
+                        }
+                        if(one.getPurchasePrice() == null){
+                            one.setPurchasePrice(pg.getPurchasePrice());
                         }
                         goodsDao.save(one);
                     }
@@ -1642,6 +1656,8 @@ public class PurchServiceImpl implements PurchService {
                     Integer intPurchaseNum = pg.getPurchaseNum();
                     // 更新商品的采购数量和预采购数量
                     if (purch.getStatus() == Purch.StatusEnum.BEING.getCode() && (purch.getAuditingStatus() == 0 || purch.getAuditingStatus() == null)) {
+                        BigDecimal totalPrice = goods.getPurchTotalPrice() == null?BigDecimal.ZERO:goods.getPurchTotalPrice();
+                        goods.setPurchTotalPrice(totalPrice.add(pg.getTotalPrice()));
                         // 更新采购合同已预采购数量
                         purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + intPurchaseNum);
                         // 更新已采购数量
@@ -1663,6 +1679,9 @@ public class PurchServiceImpl implements PurchService {
                     }
                     if(goods.getAgentName() == null){
                         goods.setAgentName(purch.getAgentName());
+                    }
+                    if(goods.getPurchasePrice() == null){
+                        goods.setPurchasePrice(pg.getPurchasePrice());
                     }
                     goodsDao.save(goods);
                 } else if (dbPurchGoodsMap.containsKey(pgId)) {
@@ -1772,6 +1791,8 @@ public class PurchServiceImpl implements PurchService {
                     // 提交则修改商品的已采购数量
                     if (purch.getStatus() == Purch.StatusEnum.BEING.getCode() && (dbPurch.getAuditingStatus() == 0 || dbPurch.getAuditingStatus() == null)) {
                         goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
+                        BigDecimal totalPrice = goods.getPurchTotalPrice() == null?BigDecimal.ZERO:goods.getPurchTotalPrice();
+                        goods.setPurchTotalPrice(totalPrice.add(pg.getTotalPrice()));
                         // 设置采购合同预采购商品数量
                         purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
                         // 设置采购已采购商品数量
@@ -1784,6 +1805,8 @@ public class PurchServiceImpl implements PurchService {
                         purchContract.setStatus(3);
                     } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode() && dbPurch.getAuditingStatus() == 3) {
                         goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum - oldPurchaseNum);
+                        BigDecimal totalPrice = goods.getPurchTotalPrice() == null?BigDecimal.ZERO:goods.getPurchTotalPrice();
+                        goods.setPurchTotalPrice(totalPrice.add(pg.getTotalPrice()).subtract(purchGoods.getTotalPrice()));
                         //设置采购合同预采购商品数量
                         purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
                         //设置采购已采购商品数量
@@ -1809,6 +1832,9 @@ public class PurchServiceImpl implements PurchService {
                     }
                     if(goods.getAgentName() == null){
                         goods.setAgentName(purch.getAgentName());
+                    }
+                    if(goods.getPurchasePrice() == null){
+                        goods.setPurchasePrice(purchGoods.getPurchasePrice());
                     }
                     goodsDao.save(goods);
                 } else {
@@ -1851,6 +1877,9 @@ public class PurchServiceImpl implements PurchService {
                         if(parentOne.getAgentName() == null){
                             parentOne.setAgentName(purch.getAgentName());
                         }
+                        if(parentOne.getPurchasePrice() == null){
+                            parentOne.setPurchasePrice(pg.getPurchasePrice());
+                        }
                         goodsDao.save(parentOne);
                         //goodsDao.delete(one);
                         deleteGoods.add(one);
@@ -1864,6 +1893,9 @@ public class PurchServiceImpl implements PurchService {
                         }
                         if(one.getAgentName() == null){
                             one.setAgentName(purch.getAgentName());
+                        }
+                        if(one.getPurchasePrice() == null){
+                            one.setPurchasePrice(pg.getPurchasePrice());
                         }
                         goodsDao.save(one);
                     }
@@ -2161,6 +2193,8 @@ public class PurchServiceImpl implements PurchService {
         if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
             // 如果是提交则设置商品的已采购数量并更新
             sonGoods.setPurchasedNum(purchaseNum);
+            BigDecimal totalPrice = sonGoods.getPurchTotalPrice() == null?BigDecimal.ZERO:sonGoods.getPurchTotalPrice();
+            sonGoods.setPurchTotalPrice(totalPrice.add(son.getTotalPrice()));
             // 完善商品的项目执行跟踪信息
             setGoodsTraceData(sonGoods, purch);
         } else {
@@ -2179,6 +2213,9 @@ public class PurchServiceImpl implements PurchService {
         }
         if(sonGoods.getAgentName() == null){
             sonGoods.setAgentName(purch.getAgentName());
+        }
+        if(sonGoods.getPurchasePrice() == null){
+            sonGoods.setPurchasePrice(son.getPurchasePrice());
         }
         sonGoods = goodsDao.save(sonGoods);
 
