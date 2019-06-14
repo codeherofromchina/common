@@ -604,6 +604,12 @@ public class StatisticsServiceImpl implements StatisticsService {
             projectGood01.setTotalPrice(p.getTotalPrice());
             projectGood01.setProfit(p.getProfit());
             projectGood01.setLogisticsCost(p.getGoodsList() == null || p.getGoodsList().size() == 0 ? null : p.getGoodsList().get(0).getLogisticsCost());
+            if(p.getTotalLogisticsCost() == null){
+                projectGood01.setTotalLogisticsCost(projectGood01.getLogisticsCost());
+            }else{
+                projectGood01.setTotalLogisticsCost(p.getTotalLogisticsCost());
+            }
+
             BigDecimal purchTotalPrice = BigDecimal.ZERO; // 采购总金额
             if (p.getGoodsList() != null) {
                 List<Goods> goodsList = p.getGoodsList();

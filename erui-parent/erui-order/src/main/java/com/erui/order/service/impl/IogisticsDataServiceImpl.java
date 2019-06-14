@@ -295,6 +295,7 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
         }
 
         List<Iogistics> iogisticsList = one.getIogistics(); //获取出库分单信息
+        Integer projectId = 0;
         for (Iogistics iogistics : iogisticsList) {
             List<DeliverConsignGoods> deliverConsignGoodsList = iogistics.getDeliverDetail().getDeliverConsignGoodsList();  //获取出口发货商品信息
             for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList) {
@@ -335,6 +336,14 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
                     //物流费用
                     if (iogisticsData.getLogisticsCost() != null) {
                         if(goods.getLogisticsCost() == null) goods.setLogisticsCost(iogisticsData.getLogisticsCost());//物流费用
+                        if(!projectId.equals(goods.getProject().getId())){
+                            if(goods.getProject().getTotalLogisticsCost() == null){
+                                goods.getProject().setTotalLogisticsCost(iogisticsData.getLogisticsCost());
+                            }else{
+                                goods.getProject().setTotalLogisticsCost(goods.getProject().getTotalLogisticsCost().add(iogisticsData.getLogisticsCost()));
+                            }
+                        }
+                        projectId = goods.getProject().getId();
                     }
 
                     if (iogisticsData.getLeaveFactory() != null) {
