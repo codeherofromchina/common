@@ -65,7 +65,7 @@ public class DeliverConsignController {
      * @return
      */
     @RequestMapping(value = "bookingSpaceAudit", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> bookingSpaceAudit(HttpServletRequest request, BookingSpaceAuditRequest bookingSpaceAuditRequest) throws Exception {
+    public Result<Object> bookingSpaceAudit(HttpServletRequest request,@RequestBody BookingSpaceAuditRequest bookingSpaceAuditRequest) throws Exception {
         String eruiToken = CookiesUtil.getEruiToken(request);
         Result<Object> result = new Result<>();
         Integer deliverConsignId = bookingSpaceAuditRequest.getDeliverConsignId();
