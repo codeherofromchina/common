@@ -59,7 +59,6 @@ public class DeliverConsignController {
         return new Result<>(deliverConsign);
     }
 
-
     /**
      * 出口通知单订舱专员审核
      * @return
