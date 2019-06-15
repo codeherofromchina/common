@@ -3,6 +3,7 @@ package com.erui.order.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.persistence.Column;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
@@ -149,14 +150,21 @@ public class ProjectGoodsStatistics {
     //订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单
     private String orderCategory;
 
+
     /**
-     * 项目执行统计模板导出：增加如下字段：总计增加27个字段
+     * 项目执行统计模板导出：增加如下字段：总计增加29个字段
      */
+
+    // 采购成本-国内 取项目中的
+    private BigDecimal purchasingCostsD;
+    // 采购成本-国外 取项目中的
+    private BigDecimal purchasingCostsF;
+
     // 1、流程进度
     private String processProgress;
 
-    // 2、物流成本总计 IogisticsData物流表 物流费用
-    private BigDecimal totalLogisticsCost;
+    // 2、物流成本总计 项目表中的项目成本总计
+    private BigDecimal projectCost;
 
     // 3、要求采购到货日期 goods中的"合同约定到货日期arrival_date"
     private Date arrivalDate;
@@ -656,12 +664,12 @@ public class ProjectGoodsStatistics {
         this.orderCategory = orderCategory;
     }
 
-    public BigDecimal getTotalLogisticsCost() {
-        return totalLogisticsCost;
+    public BigDecimal getProjectCost() {
+        return projectCost;
     }
 
-    public void setTotalLogisticsCost(BigDecimal totalLogisticsCost) {
-        this.totalLogisticsCost = totalLogisticsCost;
+    public void setProjectCost(BigDecimal projectCost) {
+        this.projectCost = projectCost;
     }
 
     public Date getArrivalDate() {
@@ -862,6 +870,22 @@ public class ProjectGoodsStatistics {
 
     public void setSigningDate(Date signingDate) {
         this.signingDate = signingDate;
+    }
+
+    public BigDecimal getPurchasingCostsD() {
+        return purchasingCostsD;
+    }
+
+    public void setPurchasingCostsD(BigDecimal purchasingCostsD) {
+        this.purchasingCostsD = purchasingCostsD;
+    }
+
+    public BigDecimal getPurchasingCostsF() {
+        return purchasingCostsF;
+    }
+
+    public void setPurchasingCostsF(BigDecimal purchasingCostsF) {
+        this.purchasingCostsF = purchasingCostsF;
     }
 }
 
