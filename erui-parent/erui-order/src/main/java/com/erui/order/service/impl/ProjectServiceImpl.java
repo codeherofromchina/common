@@ -118,7 +118,6 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
 
-
     @Override
     @Transactional(readOnly = true)
     public List<Project> findByIds(List<Integer> ids) {
@@ -154,7 +153,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public boolean updateProject(Project project, Integer userIdP) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        Project projectUpdate = findByIdForLock(project.getId());
+        Project projectUpdate = findById(project.getId());
         Order order = projectUpdate.getOrder();
         Project.ProjectStatusEnum nowProjectStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         Project.ProjectStatusEnum paramProjectStatusEnum = Project.ProjectStatusEnum.fromCode(project.getProjectStatus());
@@ -226,7 +225,7 @@ public class ProjectServiceImpl implements ProjectService {
                     }
                 }
                 //修改商品信息
-                updateOrderGoods(order, project);
+                projectUpdate.setGoodsList(updateOrderGoods(projectUpdate, project));
                 // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
                 List<Attachment> attachmentList = project.getAttachmentList();
                 Map<Integer, Attachment> dbAttahmentsMap = projectUpdate.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
@@ -383,16 +382,16 @@ public class ProjectServiceImpl implements ProjectService {
      * @param project
      * @return
      */
-    private void updateOrderGoods(Order order, Project project) {
+    private List<Goods> updateOrderGoods(Project oldProject, Project project) {
         List<Goods> pGoodsList = project.getGoodsList();
         Goods goods = null;
         List<Goods> goodsList = new ArrayList<>();
-        Map<Integer, Goods> dbGoodsMap = order.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
+        Map<Integer, Goods> dbGoodsMap = oldProject.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
         Set<String> skuRepeatSet = new HashSet<>();
         for (Goods pGoods : pGoodsList) {
             if (pGoods.getId() == null) {
                 goods = new Goods();
-                goods.setOrder(order);
+                goods.setOrder(oldProject.getOrder());
                 goods.setProject(project);
             } else {
                 goods = dbGoodsMap.remove(pGoods.getId());
@@ -406,7 +405,7 @@ public class ProjectServiceImpl implements ProjectService {
                 throw new MyException("同一sku不可以重复添加&&The same sku can not be added repeatedly");
             }
             goods.setSku(sku);
-            goods.setContractNo(order.getContractNo());
+            goods.setContractNo(oldProject.getContractNo());
             goods.setMeteType(pGoods.getMeteType());
             goods.setMeteName(pGoods.getMeteName());
             goods.setNameEn(pGoods.getNameEn());
@@ -432,7 +431,7 @@ public class ProjectServiceImpl implements ProjectService {
             goodsList.add(goods);
         }
         goodsDao.delete(dbGoodsMap.values());
-        goodsDao.save(goodsList);
+        return goodsList;
     }
 
     /**

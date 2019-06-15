@@ -148,7 +148,7 @@ public class Project {
     //流程进度
     @Column(name = "process_progress")
     private String processProgress;
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     @OrderBy("id asc")
     private List<Goods> goodsList = new ArrayList<>();
