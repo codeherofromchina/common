@@ -599,12 +599,10 @@ public class StatisticsServiceImpl implements StatisticsService {
             projectGood01.setProjectName(p.getProjectName());
             projectGood01.setTotalPrice(p.getTotalPrice());
             projectGood01.setProfit(p.getProfit());
-            projectGood01.setLogisticsCost(p.getGoodsList() == null || p.getGoodsList().size() == 0 ? null : p.getGoodsList().get(0).getLogisticsCost());
-            if(p.getTotalLogisticsCost() == null){
-                projectGood01.setTotalLogisticsCost(projectGood01.getLogisticsCost());
-            }else{
-                projectGood01.setTotalLogisticsCost(p.getTotalLogisticsCost());
-            }
+            projectGood01.setLogisticsCost(p.getTotalLogisticsCost());
+            projectGood01.setPurchasingCostsD(p.getPurchasingCostsD());
+            projectGood01.setPurchasingCostsF(p.getPurchasingCostsF());
+            projectGood01.setProjectCost(projectGood01.getProjectCost());
 
             BigDecimal purchTotalPrice = BigDecimal.ZERO; // 采购总金额
             if (p.getGoodsList() != null) {
@@ -668,7 +666,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                 "所属地区", "CRM客户代码", "客户类型", "品名中文", "品名外文", "规格", "数量", "单位", "项目金额", "币种",
                 "收款方式", "回款时间", "回款金额", "初步利润率%", "利润额", "授信情况", "执行单约定交付日期",
                 "要求采购到货日期", "执行单变更后日期", /*"分销部(获取人所在分类销售)", "市场经办人",*/ "获取人", "商务技术经办人", "贸易术语","项目状态",
-                "流程进度","物流成本总计","要求采购到货日期","采购申请生成日期","采购合同号","采购合同签订日期","采购要求交货时间","供应商名称","采购单价","采购总金额",
+                "流程进度","物流成本总计","采购成本国内","采购成本国外","要求采购到货日期","采购申请生成日期","采购合同号","采购合同签订日期",
+                "采购要求交货时间","供应商名称","采购单价","采购总金额",
                 "采购实际到货日期","采购经办人","报检日期","检验完成日期","检验人","入库日期","出库检验日期","出库日期","仓库经办人","物流费用金额",
                 "物流经办人","市场要求订舱日期","物流订舱日期","货物发运时间","货物到达时间","客户接收时间","应收账款余额（美元）"};
         String[] keys = new String[]{"id", "createTime", "startDate", "contractNo", "orderCategory", "overseasSales", "inquiryNo", "projectNo",// "nonReson",
@@ -676,7 +675,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                 "regionZh", "crmCode", "customerType", "nameZh", "nameEn", "model", "contractGoodsNum", "unit", "totalPrice", "currencyBn",
                 "paymentModeBnName", "paymentDate", "currencyBnMoney", "profitPercent", "profit", "grantType", "deliveryDate",
                 "requirePurchaseDate", "exeChgDate", /*"distributionDeptName", "agentName",*/ "acquireId", "businessName", "tradeTerms","projectStatus",
-                "processProgress", "totalLogisticsCost", "arrivalDate", "purchRequisitionDate", "purchNo", "signingDate", "shippingDate", "supplierName", "purchasePrice", "purchTotalPrice",
+                "processProgress", "totalLogisticsCost", "purchasingCostsD", "purchasingCostsF", "arrivalDate", "purchRequisitionDate", "purchNo", "signingDate",
+                "shippingDate", "supplierName", "purchasePrice", "purchTotalPrice",
                 "arrivaledDate", "purchAgentName", "checkDate", "doneDate", "checkUserName", "instockDate", "deliverDetailDate", "leaveDate", "wareHousemanName", "logisticsCost",
                 "logisticsUserName", "bookingDate", "bookingTime", "leavePortTime", "arrivalPortTime", "accomplishDate", "currencyBnReceivableAccountRemaining"};
         BuildExcel buildExcel = new BuildExcelImpl();
