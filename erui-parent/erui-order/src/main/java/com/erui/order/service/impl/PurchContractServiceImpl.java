@@ -461,7 +461,7 @@ public class PurchContractServiceImpl implements PurchContractService {
     public List<Goods> getGoodSku(List<Goods> goodsList) {
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         List<Object> skus = new ArrayList<>();
-        List<Object> attrs = new ArrayList<>();
+        ;
         JSONObject params = new JSONObject();
         for (Goods gd : goodsList) {
             JSONObject gjson = new JSONObject();
@@ -477,7 +477,7 @@ public class PurchContractServiceImpl implements PurchContractService {
             gjson.put("meteType", gd.getMeteType());
             gjson.put("tplNo", gd.getTplNo());
             gjson.put("attrs", attrsJson);
-            skus.add(attrs);
+            skus.add(gjson);
         }
         params.put("type", "O");
         params.put("source", "ORDE");
@@ -490,7 +490,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         JSONArray datas = parseData.getJSONArray("data");
         if (datas.size() > 0) {
             for (int i = 0; i < datas.size(); i++) {
-                JSONObject goodJson = JSONObject.parseObject(datas.getString(i));
+                JSONObject goodJson = datas.getJSONObject(i);
                 for (Goods gd : goodsList) {
                     gd.setSku(goodJson.getString("sku"));
                 }

@@ -59,13 +59,12 @@ public class DeliverConsignController {
         return new Result<>(deliverConsign);
     }
 
-
     /**
      * 出口通知单订舱专员审核
      * @return
      */
     @RequestMapping(value = "bookingSpaceAudit", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> bookingSpaceAudit(HttpServletRequest request, BookingSpaceAuditRequest bookingSpaceAuditRequest) throws Exception {
+    public Result<Object> bookingSpaceAudit(HttpServletRequest request, @RequestBody BookingSpaceAuditRequest bookingSpaceAuditRequest) throws Exception {
         String eruiToken = CookiesUtil.getEruiToken(request);
         Result<Object> result = new Result<>();
         Integer deliverConsignId = bookingSpaceAuditRequest.getDeliverConsignId();
