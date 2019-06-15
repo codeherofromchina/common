@@ -3,7 +3,6 @@ package com.erui.order.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.persistence.Column;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
@@ -105,6 +104,7 @@ public class ProjectGoodsStatistics {
     // 收款方式
     private String paymentModeBn;
     // 回款时间
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date paymentDate;   //回款时间
     // 回款金额（美元）
     private BigDecimal money;   //回款金额
@@ -119,6 +119,7 @@ public class ProjectGoodsStatistics {
     //授信情况
     private String grantType;
     //执行单约定交付日期
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private String deliveryDate;
     //要求采购到货日期
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
@@ -146,6 +147,7 @@ public class ProjectGoodsStatistics {
     //货币类型
     private String currencyBn;
     //项目创建时间
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date createTime;
     //订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单
     private String orderCategory;
@@ -166,20 +168,22 @@ public class ProjectGoodsStatistics {
     // 2、物流成本总计 项目表中的项目成本总计
     private BigDecimal projectCost;
 
-    // 3、要求采购到货日期 goods中的"合同约定到货日期arrival_date"
-    private Date arrivalDate;
+    // 3、要求采购到货日期 requirePurchaseDate
 
     // 4、采购申请生成日期 goods中的"采购申请生成日期purch_requisition_date"
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date purchRequisitionDate;
 
     // 5、采购合同号 goods中的"采购合同号"
     private String purchNo;
 
     // 6、采购合同签订日期 goods中的"合同签订日期signing_date"
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date signingDate;
 
-    // 7、采购要求交货时间 goods中的"采购要求交货时间shipping_date"
-    private Date shippingDate;
+    // 7、采购要求交货时间 goods中的"采购要求交货时间arrivalDate"
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date arrivalDate;
 
     // 8、供应商名称 goods中的"供应商名称supplier_name"
     private String supplierName;
@@ -191,12 +195,14 @@ public class ProjectGoodsStatistics {
     private BigDecimal PurchTotalPrice;
 
     // 11、采购实际到货日期 goods中采购实际到货日期arrivaled_date
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date arrivaledDate;
 
     // 12、采购经办人 goods中的"采购经办人agent_name"
     private String purchAgentName;
 
     // 13、报检日期 goods中的入库质检的检验日期check_date
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date checkDate;
 
     // 14、检验完成日期 goods中的入库质检的检验完成日期check_done_date
@@ -206,12 +212,15 @@ public class ProjectGoodsStatistics {
     private String checkUserName;
 
     // 16、入库日期 goods中的入库中的入库日期instock_date
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date instockDate;
 
     // 17、出库检验日期 goods中的出库质检 deliver_detail_date
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date deliverDetailDate;
 
     // 18、出库日期 goods中的出库质检出库日期leave_date
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date leaveDate;
 
     // 19、仓库经办人 goods中的出库中的仓库经办人ware_houseman_name
@@ -224,18 +233,23 @@ public class ProjectGoodsStatistics {
     private String logisticsUserName;
 
     // 22、市场要求订舱日期 DeliverConsign 市场要求订舱日期 goods中booking_date
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date bookingDate;
 
     // 23、物流订舱日期 IogisticsData物流表 订舱时间 goods中booking_time
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date bookingTime;
 
     // 24、货物发运时间 IogisticsData物流表 实际离港时间 goods中leave_port_time
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date leavePortTime;
 
     // 25、货物到达时间 IogisticsData物流表 预计抵达时间 goods中arrival_port_time
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date arrivalPortTime;
 
     // 26、客户接收时间 IogisticsData物流表 实际完成时间 goods中accomplish_date
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date accomplishDate;
 
     // 27、应收账款余额（美元） order表中的
@@ -686,14 +700,6 @@ public class ProjectGoodsStatistics {
 
     public void setPurchNo(String purchNo) {
         this.purchNo = purchNo;
-    }
-
-    public Date getShippingDate() {
-        return shippingDate;
-    }
-
-    public void setShippingDate(Date shippingDate) {
-        this.shippingDate = shippingDate;
     }
 
     public String getSupplierName() {

@@ -238,11 +238,6 @@ public class Goods {
 
     private String supplier;//供应商
 
-    //采购要求交货时间
-    @Column(name = "shipping_date")
-    @JsonIgnore
-    private Date shippingDate;
-
     //采购申请生成日期
     @Column(name = "purch_requisition_date")
     @JsonIgnore
@@ -977,14 +972,6 @@ public class Goods {
 
     public void setPurchGoods(List<PurchGoods> purchGoods) {
         this.purchGoods = purchGoods;
-    }
-
-    public Date getShippingDate() {
-        return shippingDate;
-    }
-
-    public void setShippingDate(Date shippingDate) {
-        this.shippingDate = shippingDate;
     }
 
     public Date getPurchRequisitionDate() {

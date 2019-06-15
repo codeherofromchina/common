@@ -187,13 +187,6 @@ public class PurchContract {
     @Column(name = "create_time")
     private Date createTime;
 
-    /**
-     * 采购要求交货时间
-     */
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
-    @Column(name = "shipping_date")
-    private Date shippingDate;
-
     // 分页信息参数
     @Transient
     private int page = 1; // 默认从1开始
@@ -490,14 +483,6 @@ public class PurchContract {
         this.agreedArrivalDate = agreedArrivalDate;
     }
 
-    public Date getShippingDate() {
-        return shippingDate;
-    }
-
-    public void setShippingDate(Date shippingDate) {
-        this.shippingDate = shippingDate;
-    }
-
     public void setBaseInfo(PurchContract purchContract) {
         this.setStatus(purchContract.getStatus()); // 状态
         this.setSigningDate(NewDateUtil.getDate(purchContract.getSigningDate())); //采购合同签订日期
@@ -514,6 +499,5 @@ public class PurchContract {
         this.setCountry(purchContract.getCountry()); // 国家
         this.setRegion(purchContract.getRegion()); // 所属地区
         this.setVersion(purchContract.getVersion()); // 合同版本
-        this.setShippingDate(purchContract.getShippingDate()); // 采购要求交货时间
     }
 }

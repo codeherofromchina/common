@@ -634,11 +634,10 @@ public class StatisticsServiceImpl implements StatisticsService {
                     projectGoods.setTotalPrice(g.getPrice());
                     projectGoods.setCurrencyBn(p.getCurrencyBn());
                     projectGoods.setProCate(g.getMeteName());
-                    projectGoods.setArrivalDate(g.getArrivalDate()); // 3、要求采购到货日期
                     projectGoods.setPurchRequisitionDate(g.getPurchRequisitionDate()); // 4、采购申请生成日期
                     projectGoods.setPurchNo(g.getPurchContractNo()); // 5、采购合同号
                     projectGoods.setSigningDate(g.getSigningDate()); // 6、采购合同签订日期
-                    projectGoods.setShippingDate(g.getShippingDate()); // 7、采购要求交货时间
+                    projectGoods.setArrivalDate(g.getArrivalDate()); // 6、采购合同签订日期
                     projectGoods.setSupplierName(g.getSupplierName()); // 8、供应商名称
                     projectGoods.setPurchasePrice(g.getPurchasePrice()); // 9、采购单价
                     projectGoods.setPurchTotalPrice(g.getPurchTotalPrice()); // 10、采购总金额
@@ -680,7 +679,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 "paymentModeBnName", "paymentDate", "currencyBnMoney", "profitPercent", "profit", "grantType", "deliveryDate",
                 "exeChgDate", /*"distributionDeptName", "agentName",*/ "acquireId", "businessName", "tradeTerms","projectStatus",
                 "processProgress", "totalLogisticsCost", "purchasingCostsD", "purchasingCostsF", "requirePurchaseDate", "purchRequisitionDate", "purchNo", "signingDate",
-                "shippingDate", "supplierName", "purchasePrice", "purchTotalPrice",
+                "arrivalDate", "supplierName", "purchasePrice", "purchTotalPrice",
                 "arrivaledDate", "purchAgentName", "checkDate", "doneDate", "checkUserName", "instockDate", "deliverDetailDate", "leaveDate", "wareHousemanName", "logisticsCost",
                 "logisticsUserName", "bookingDate", "bookingTime", "leavePortTime", "arrivalPortTime", "accomplishDate", "currencyBnReceivableAccountRemaining"};
         BuildExcel buildExcel = new BuildExcelImpl();
