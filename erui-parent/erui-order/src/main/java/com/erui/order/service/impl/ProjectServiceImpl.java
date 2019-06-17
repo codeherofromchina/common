@@ -80,8 +80,6 @@ public class ProjectServiceImpl implements ProjectService {
     private String dingSendSms;  //发钉钉通知接口
     @Value("#{orderProp[SEND_SMS]}")
     private String sendSms;  //发短信接口
-    @Value("#{orderProp[ORDER_EACP]}")
-    private String orderEacp; //给提供eacp数据
 
     @Autowired
     private AttachmentDao attachmentDao;
@@ -116,7 +114,6 @@ public class ProjectServiceImpl implements ProjectService {
         project.getAttachmentList().size();
         return project;
     }
-
 
 
     @Override
@@ -154,7 +151,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public boolean updateProject(Project project, Integer userIdP) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        Project projectUpdate = findByIdForLock(project.getId());
+        Project projectUpdate = findById(project.getId());
         Order order = projectUpdate.getOrder();
         Project.ProjectStatusEnum nowProjectStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         Project.ProjectStatusEnum paramProjectStatusEnum = Project.ProjectStatusEnum.fromCode(project.getProjectStatus());
@@ -226,7 +223,7 @@ public class ProjectServiceImpl implements ProjectService {
                     }
                 }
                 //修改商品信息
-                updateOrderGoods(order, project);
+                projectUpdate.setGoodsList(updateOrderGoods(projectUpdate, project));
                 // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
                 List<Attachment> attachmentList = project.getAttachmentList();
                 Map<Integer, Attachment> dbAttahmentsMap = projectUpdate.getAttachmentList().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
@@ -324,28 +321,6 @@ public class ProjectServiceImpl implements ProjectService {
         }
         projectUpdate.setUpdateTime(new Date());
         Project project1 = projectDao.save(projectUpdate);
-        if (projectUpdate.getOrder() != null && projectUpdate.getOrder().getOrderSource() == 4 && "EXECUTING".equals(projectUpdate.getProjectStatus())) {
-            if (StringUtils.isNotBlank(eruiToken)) {
-                //String jsonParam = "{\"orderId\":\"" + order.getId() + "\"}";
-                Map<String, Object> jsonMap = new HashMap<>();
-                jsonMap.put("orderId", order.getId());
-                jsonMap.put("orderStatus", "EXECUTING");
-                jsonMap.put("toCountry", order.getToCountry());
-                jsonMap.put("toPort", order.getToPort());
-                jsonMap.put("toPlace", order.getToPlace());
-                jsonMap.put("tradeTerms", order.getTradeTerms());
-                jsonMap.put("transportType", order.getTransportType());
-                jsonMap.put("totalPriceUsd", order.getTotalPriceUsd());
-                jsonMap.put("currencyBn", order.getCurrencyBn());
-                jsonMap.put("paymentModeBn", order.getPaymentModeBn());
-                jsonMap.put("goodDesc", eacpGoods(order));
-                Map<String, String> header = new HashMap<>();
-                header.put(CookiesUtil.TOKEN_NAME, eruiToken);
-                header.put("Content-Type", "application/json");
-                header.put("accept", "*/*");
-                HttpRequest.sendPost(orderEacp, JSONObject.toJSONString(jsonMap), header);
-            }
-        }
         //项目管理：办理项目的时候，如果指定了项目经理，需要短信通知
         if (Project.ProjectStatusEnum.HASMANAGER.getCode().equals(project1.getProjectStatus())) {
             Integer managerUid = project1.getManagerUid();      //交付配送中心项目经理ID
@@ -354,28 +329,7 @@ public class ProjectServiceImpl implements ProjectService {
         return true;
     }
 
-    //给EACP返回商品有效信息
-    private List<Goods> eacpGoods(Order order) {
-        List<Goods> goods = new ArrayList<>();
-        for (Goods g : order.getGoodsList()) {
-            Goods goods1 = new Goods();
-            goods1.setId(g.getId());
-            goods1.setSku(g.getSku());
-            goods1.setNameEn(g.getNameEn());
-            goods1.setNameZh(g.getNameZh());
-            goods1.setPrice(g.getPrice());
-            goods1.setDepartment(g.getDepartment());
-            goods1.setContractGoodsNum(g.getContractGoodsNum());
-            goods1.setUnit(g.getUnit());
-            goods1.setBrand(g.getBrand());
-            goods1.setModel(g.getModel());
-            goods1.setClientDesc(g.getClientDesc());
-            goods1.setMeteType(g.getMeteType());
-            goods1.setMeteName(g.getMeteName());
-            goods.add(goods1);
-        }
-        return goods;
-    }
+
 
     /**
      * 修改项目的商品
@@ -383,16 +337,16 @@ public class ProjectServiceImpl implements ProjectService {
      * @param project
      * @return
      */
-    private void updateOrderGoods(Order order, Project project) {
+    private List<Goods> updateOrderGoods(Project oldProject, Project project) {
         List<Goods> pGoodsList = project.getGoodsList();
         Goods goods = null;
         List<Goods> goodsList = new ArrayList<>();
-        Map<Integer, Goods> dbGoodsMap = order.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
+        Map<Integer, Goods> dbGoodsMap = oldProject.getGoodsList().parallelStream().collect(Collectors.toMap(Goods::getId, vo -> vo));
         Set<String> skuRepeatSet = new HashSet<>();
         for (Goods pGoods : pGoodsList) {
             if (pGoods.getId() == null) {
                 goods = new Goods();
-                goods.setOrder(order);
+                goods.setOrder(oldProject.getOrder());
                 goods.setProject(project);
             } else {
                 goods = dbGoodsMap.remove(pGoods.getId());
@@ -406,7 +360,7 @@ public class ProjectServiceImpl implements ProjectService {
                 throw new MyException("同一sku不可以重复添加&&The same sku can not be added repeatedly");
             }
             goods.setSku(sku);
-            goods.setContractNo(order.getContractNo());
+            goods.setContractNo(oldProject.getContractNo());
             goods.setMeteType(pGoods.getMeteType());
             goods.setMeteName(pGoods.getMeteName());
             goods.setNameEn(pGoods.getNameEn());
@@ -432,7 +386,7 @@ public class ProjectServiceImpl implements ProjectService {
             goodsList.add(goods);
         }
         goodsDao.delete(dbGoodsMap.values());
-        goodsDao.save(goodsList);
+        return goodsList;
     }
 
     /**
