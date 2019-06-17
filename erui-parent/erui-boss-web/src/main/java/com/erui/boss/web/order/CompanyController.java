@@ -32,7 +32,6 @@ public class CompanyController {
         return new Result<>(company);
 
     }
-
     /**
      * 查询所有分公司
      *
