@@ -252,13 +252,13 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <package.environment>production</package.environment>
+                <package.environment>dev</package.environment>
             </properties>
             <dependencies>
                 <dependency>
                     <groupId>com.erui</groupId>
-                    <artifactId>erui-beta-sso-client</artifactId>
-                    <version>2.0</version>
+                    <artifactId>erui-sso-client-dev</artifactId>
+                    <version>2.1</version>
                 </dependency>
             </dependencies>
         </profile>
