@@ -4,11 +4,13 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.erui.comm.NewDateUtil;
 import com.erui.comm.ThreadLocalUtil;
+import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.constant.Constant;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.comm.util.http.HttpRequest;
 import com.erui.order.dao.*;
 import com.erui.order.entity.*;
+import com.erui.order.entity.Order;
 import com.erui.order.service.AttachmentService;
 import com.erui.order.service.PurchContractService;
 import com.erui.order.util.WordUploadUtil;
@@ -67,6 +69,8 @@ public class PurchContractServiceImpl implements PurchContractService {
     private PurchDao purchDao;
     @Value("#{orderProp[GET_SKU]}")
     private String getSku;  //获取sku编码
+    @Value("#{orderProp[ORDER_EACP]}")
+    private String orderEacp; //给提供eacp数据
 
     @Override
     @Transactional(readOnly = true)
@@ -180,6 +184,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         // 数据库现在的采购商品信息
         Map<Integer, PurchContractGoods> dbPurchContractGoodsMap = dbPurchContract.getPurchContractGoodsList().parallelStream().collect(Collectors.toMap(PurchContractGoods::getId, vo -> vo));
         Set<Integer> existId = new HashSet<>();
+        Order order = null;
         // 处理参数中的采购商品信息
         for (PurchContractGoods pg : purchContract.getPurchContractGoodsList()) {
             Integer pgId = pg.getId();
@@ -190,6 +195,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                     throw new Exception(String.format("%s%s%s", "商品不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Goods do not exist"));
                 }
                 Project project = goods.getProject();
+                order = goods.getOrder();
                 // 必须是已创建采购申请单并未完成采购的项目
                 if (Project.PurchReqCreateEnum.valueOfCode(project.getPurchReqCreate()) != Project.PurchReqCreateEnum.SUBMITED) {
                     throw new Exception(String.format("%s%s%s", "项目必须提交采购申请", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The project must submit a purchase application"));
@@ -211,7 +217,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                 goods.setSupplier(purchContract.getSupplierName());
                 goods.setBrand(pg.getBrand());
                 goodsList.add(goods);
-
                 goodsDao.save(goods);
             } else if (dbPurchContractGoodsMap.containsKey(pgId)) {
                 // 编辑原来的采购商品
@@ -338,7 +343,18 @@ public class PurchContractServiceImpl implements PurchContractService {
         }
         //校验商品sku回写销售订单商品sku
         if (purchContract.getStatus() == PurchContract.StatusEnum.BEING.getCode() && getGoodSku(goodsList) != null) {
-            goodsDao.save(getGoodSku(goodsList));
+            List<Goods> goodSkus = getGoodSku(goodsList);
+            goodsDao.save(goodSkus);
+            boolean send = true;
+            for (Goods goods : goodSkus) {
+                if (goods.getPrePurchsedNum() < goods.getContractGoodsNum()) {
+                    send = false;
+                }
+            }
+            if (send && order != null) {
+                //订单商品合同数量全部生成采购合同时给eacp发送订单商品数据
+                sendEacp(order, goodSkus);
+            }
         }
         // 处理附件信息 attachmentList 库里存在附件列表 dbAttahmentsMap前端传来参数附件列表
         List<Attachment> attachmentList = new ArrayList<>();
@@ -386,6 +402,7 @@ public class PurchContractServiceImpl implements PurchContractService {
         // 处理商品信息
         Set<Project> projectSet = new HashSet<>();
         List<Goods> goodsList = new ArrayList<>();
+        Order order = null;
         for (PurchContractGoods purchContractGoods : purchContract.getPurchContractGoodsList()) {
             // 获取要采购的商品
             Goods goods = goodsDao.findOne(purchContractGoods.getgId());
@@ -394,6 +411,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                 throw new Exception(String.format("%s%s%s", "商品不存在", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Goods do not exist"));
             }
             Project project = goods.getProject();
+            order = goods.getOrder();
             // 必须是已创建采购申请单并未完成采购的项目
             if (Project.PurchReqCreateEnum.valueOfCode(project.getPurchReqCreate()) != Project.PurchReqCreateEnum.SUBMITED) {
                 throw new Exception(String.format("%s%s%s", "项目必须提交采购申请", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "The project must submit a purchase application"));
@@ -440,7 +458,18 @@ public class PurchContractServiceImpl implements PurchContractService {
         }
         //校验商品sku回写销售订单商品sku
         if (purchContract.getStatus() == PurchContract.StatusEnum.BEING.getCode() && getGoodSku(goodsList) != null) {
-            goodsDao.save(getGoodSku(goodsList));
+            List<Goods> goodSkus = getGoodSku(goodsList);
+            goodsDao.save(goodSkus);
+            boolean send = true;
+            for (Goods goods : goodSkus) {
+                if (goods.getPrePurchsedNum() < goods.getContractGoodsNum()) {
+                    send = false;
+                }
+            }
+            if (send && order != null) {
+                //订单商品合同数量全部生成采购合同时给eacp发送订单商品数据
+                sendEacp(order, goodSkus);
+            }
         }
         // 添加附件
         if (purchContract.getAttachments() != null && purchContract.getAttachments().size() > 0) {
@@ -449,11 +478,59 @@ public class PurchContractServiceImpl implements PurchContractService {
         return true;
     }
 
+    //返回给eacp数据
+    private void sendEacp(Order order, List<Goods> goodsList) {
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        if (StringUtils.isNotBlank(eruiToken)) {
+            //String jsonParam = "{\"orderId\":\"" + order.getId() + "\"}";
+            Map<String, Object> jsonMap = new HashMap<>();
+            jsonMap.put("orderId", order.getId());
+            jsonMap.put("orderStatus", "EXECUTING");
+            jsonMap.put("toCountry", order.getToCountry());
+            jsonMap.put("toPort", order.getToPort());
+            jsonMap.put("toPlace", order.getToPlace());
+            jsonMap.put("tradeTerms", order.getTradeTerms());
+            jsonMap.put("transportType", order.getTransportType());
+            jsonMap.put("totalPriceUsd", order.getTotalPriceUsd());
+            jsonMap.put("currencyBn", order.getCurrencyBn());
+            jsonMap.put("paymentModeBn", order.getPaymentModeBn());
+            jsonMap.put("goodDesc", goodsList);
+            Map<String, String> header = new HashMap<>();
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+            HttpRequest.sendPost(orderEacp, JSONObject.toJSONString(jsonMap), header);
+        }
+    }
+
+   /* //给EACP返回商品有效信息
+    private List<Goods> eacpGoods(List<Goods> goodsList) {
+        List<Goods> goods = new ArrayList<>();
+        for (Goods g : goodsList) {
+            Goods goods1 = new Goods();
+            goods1.setId(g.getId());
+            goods1.setSku(g.getSku());
+            goods1.setNameEn(g.getNameEn());
+            goods1.setNameZh(g.getNameZh());
+            goods1.setPrice(g.getPrice());
+            goods1.setDepartment(g.getDepartment());
+            goods1.setContractGoodsNum(g.getContractGoodsNum());
+            goods1.setUnit(g.getUnit());
+            goods1.setBrand(g.getBrand());
+            goods1.setModel(g.getModel());
+            goods1.setClientDesc(g.getClientDesc());
+            goods1.setMeteType(g.getMeteType());
+            goods1.setMeteName(g.getMeteName());
+            goods.add(goods1);
+        }
+        return goods;
+    }*/
+
     //验证获取sku
     public List<Goods> getGoodSku(List<Goods> goodsList) {
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         List<Object> skus = new ArrayList<>();
-        ;
+
         JSONObject params = new JSONObject();
         for (Goods gd : goodsList) {
             JSONObject gjson = new JSONObject();
