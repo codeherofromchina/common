@@ -63,6 +63,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     private OrderMapper orderMapper;
     @Value("#{orderProp[CREDIT_EXTENSION]}")
     private String creditExtension;  //授信服务器地址
+    @Value("#{orderProp[SET_INSPECT]}")
+    private String setInspect; //EACP生成报检单
 
 
     /**
@@ -517,7 +519,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         BigDecimal lineOfCredit1 = deliverConsignByCreditData.getLineOfCredit().divide(exchangeRate, 2, BigDecimal.ROUND_HALF_DOWN);    //授信额度
                         BigDecimal subtract2 = lineOfCredit1.subtract(creditAvailable1);   // 所欠授信额度
                         BigDecimal subtract3 = multiply; //可以返还的授信额度
-                        if(subtract2.subtract(multiply).compareTo(BigDecimal.valueOf(0)) == -1){ // 所欠授信额度小于可以返还的授信额度
+                        if (subtract2.subtract(multiply).compareTo(BigDecimal.valueOf(0)) == -1) { // 所欠授信额度小于可以返还的授信额度
                             subtract3 = subtract2; // 返还所欠授信额度
                         }
                         try {
@@ -550,8 +552,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         // 处理审核人到审核进度的相应索引上
         String[] split = auditingProcess.split(",");
-        String[] userIds ;
-        String[] userNames ;
+        String[] userIds;
+        String[] userNames;
         if (StringUtils.isNotBlank(auditingUserId)) {
             userIds = StringUtils.splitPreserveAllTokens(auditingUserId, ",");
             userNames = StringUtils.splitPreserveAllTokens(auditingUser, ",");
@@ -559,7 +561,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             userIds = new String[split.length];
             userNames = new String[split.length];
         }
-        for (int i=0; i< split.length; ++i) {
+        for (int i = 0; i < split.length; ++i) {
             if (StringUtils.equals(split[i], actId) && userIds.length > i) {
                 userIds[i] = String.valueOf(userId);
                 if (userNames.length > i) {
@@ -595,7 +597,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             // 数据正常的情况下是一一对应的，所以大小是相等的
             return;
         }
-        for (int i=0; i< split.length; ++i) {
+        for (int i = 0; i < split.length; ++i) {
             if (StringUtils.equals(split[i], actId)) {
                 userIds[i] = "";
                 userNames[i] = "";
@@ -610,6 +612,40 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         deliverConsignMapper.updateByPrimaryKeySelective(selectiveDeliverConsign);
     }
 
+    @Override
+    public void setInspectData(String processInstanceId) {
+        String eruiToken = (String) ThreadLocalUtil.getObject();
+        // 订舱审核结束后动作
+        DeliverConsign deliverConsign = findByProcessInstanceId(processInstanceId);
+        if (deliverConsign == null) {
+            return;
+        }
+        Integer orderId = deliverConsign.getOrderId();
+        Order order = orderService.findOrderById(orderId);
+        List<Goods> goodsList = goodsService.findGoodsByOrderId(orderId);
+        //返回给eacp数据
+        if (StringUtils.isNotBlank(eruiToken)) {
+            //String jsonParam = "{\"orderId\":\"" + order.getId() + "\"}";
+            Map<String, Object> jsonMap = new HashMap<>();
+            jsonMap.put("orderId", order.getId());
+            jsonMap.put("orderStatus", "EXECUTING");
+            jsonMap.put("toCountry", order.getToCountry());
+            jsonMap.put("toPort", order.getToPort());
+            jsonMap.put("toPlace", order.getToPlace());
+            jsonMap.put("tradeTerms", order.getTradeTerms());
+            jsonMap.put("transportType", order.getTransportType());
+            jsonMap.put("totalPriceUsd", order.getTotalPriceUsd());
+            jsonMap.put("currencyBn", order.getCurrencyBn());
+            jsonMap.put("paymentModeBn", order.getPaymentModeBn());
+            jsonMap.put("goodDesc", goodsList);
+            Map<String, String> header = new HashMap<>();
+            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
+            header.put("Content-Type", "application/json");
+            header.put("accept", "*/*");
+            HttpRequest.sendPost(setInspect, JSONObject.toJSONString(jsonMap), header);
+        }
+
+    }
 
 
     /**
