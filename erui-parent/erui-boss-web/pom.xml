@@ -196,7 +196,7 @@
         <repository>
             <id>nexus-releases</id>
             <name>Nexus Releases Repository</name>
-            <url>http://172.18.19.140:8081/nexus/repository/3dpp/</url>
+            <url>http://172.18.19.146:8081/nexus/repository/3dpp/</url>
         </repository>
     </repositories>
 
