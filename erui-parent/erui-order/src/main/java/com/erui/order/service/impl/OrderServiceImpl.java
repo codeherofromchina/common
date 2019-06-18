@@ -1221,7 +1221,8 @@ public class OrderServiceImpl implements OrderService {
                             break;
                         default:
                             Integer overseasSales = addOrderVo.getOverseasSales();
-                            if (overseasSales != null && overseasSales == 3) {
+//                            if (overseasSales != null && overseasSales == 3) {
+                            if(false) {
                                 // 海外销售类型 为3 海外销（当地采购 走现货审核流程
                                 processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
                                 orderUpdate.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
@@ -1607,7 +1608,8 @@ public class OrderServiceImpl implements OrderService {
                     break;
                 default:
                     Integer overseasSales = addOrderVo.getOverseasSales();
-                    if (overseasSales != null && overseasSales == 3) {
+//                    if (overseasSales != null && overseasSales == 3) {
+                    if (false) {
                         // 海外销售类型 为3 海外销（当地采购 走现货审核流程
                         processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
                         order1.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
