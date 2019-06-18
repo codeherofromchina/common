@@ -625,7 +625,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         List<Goods> goodsList = goodsService.findGoodsByOrderId(orderId);
         //返回给eacp数据
         if (StringUtils.isNotBlank(eruiToken)) {
-            //String jsonParam = "{\"orderId\":\"" + order.getId() + "\"}";
             Map<String, Object> jsonMap = new HashMap<>();
             jsonMap.put("orderId", order.getId());
             jsonMap.put("orderStatus", "EXECUTING");
