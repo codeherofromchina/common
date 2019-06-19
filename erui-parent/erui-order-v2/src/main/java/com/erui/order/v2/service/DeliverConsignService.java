@@ -74,4 +74,5 @@ public interface DeliverConsignService {
      */
     void deleteAuditUser(Long deliverConsignId, String actId);
 
+    void setInspectData(String processInstanceId);
 }

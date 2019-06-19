@@ -123,7 +123,9 @@ public class BpmNotifyController {
      * @param params
      */
     @RequestMapping(value = "taskCompleted", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result taskCompleted(@RequestBody Map<String, String> params) {
+    public Result taskCompleted(@RequestBody Map<String, String> params, HttpServletRequest request) {
+        String eruiToken = CookiesUtil.getEruiToken(request);
+        ThreadLocalUtil.setObject(eruiToken);
         // 验证安全性，// 如果秘钥不正确，返回失败
         if (!validate(params.get("key"))) {
             return new Result<>(ResultStatusEnum.FAIL);
@@ -145,6 +147,8 @@ public class BpmNotifyController {
         } else if (businessKey.startsWith("deliver_consign:")) {
             // 订舱审核流程
             deliverConsignService.updateAuditProcessDone(processInstanceId, taskDefinitionKey, assignee);
+            //调取EACP 出口通知单和审核完成时生产到货报检单
+            deliverConsignService.setInspectData(processInstanceId);
         } else if (businessKey.startsWith("purch:")) {
             // 采购审核流程
             purchService.updateAuditProcessDone(processInstanceId, taskDefinitionKey, assignee);
