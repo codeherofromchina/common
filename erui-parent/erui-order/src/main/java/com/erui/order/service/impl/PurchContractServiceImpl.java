@@ -527,7 +527,7 @@ public class PurchContractServiceImpl implements PurchContractService {
     }*/
 
     //验证获取sku
-    public List<Goods> getGoodSku(List<Goods> goodsList) {
+    public List<Goods> getGoodSku(List<Goods> goodsList) throws Exception {
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         List<Object> skus = new ArrayList<>();
 
@@ -556,14 +556,16 @@ public class PurchContractServiceImpl implements PurchContractService {
         header.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
         String resData = HttpRequest.sendPost(getSku, params.toJSONString(), header);
         JSONObject parseData = JSONObject.parseObject(resData);
-        JSONArray datas = parseData.getJSONArray("data");
-        if (datas.size() > 0) {
-            for (int i = 0; i < datas.size(); i++) {
-                JSONObject goodJson = datas.getJSONObject(i);
-                for (Goods gd : goodsList) {
-                    gd.setSku(goodJson.getString("sku"));
+        if (parseData.containsKey("data")) {
+            JSONArray datas = parseData.getJSONArray("data");
+            if (datas.size() > 0) {
+                for (int i = 0; i < datas.size(); i++) {
+                    JSONObject goodJson = datas.getJSONObject(i);
+                    goodsList.get(i).setSku(goodJson.getString("sku"));
                 }
             }
+        } else {
+            throw new Exception(String.format("%s%s%s", "生成sku失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "sku error"));
         }
         return goodsList;
     }
