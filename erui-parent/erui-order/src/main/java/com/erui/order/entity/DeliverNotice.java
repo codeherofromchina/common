@@ -493,4 +493,47 @@ public class DeliverNotice {
     public void setDeliverConsignNo(String deliverConsignNo) {
         this.deliverConsignNo = deliverConsignNo;
     }
+
+    /**
+     * 看货通知单状态枚举
+     * 状态 1:未编辑 2：保存/草稿 3:已提交 4:完成
+     */
+    public static enum StatusEnum {
+        READY(1, "未编辑"), BEING(2, "保存/草稿"), SUBMIT(3, "已提交"), DONE(4, "已完成");
+
+        private int code;
+        private String msg;
+
+        private StatusEnum(int code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+
+        /**
+         * 通过code码获取采购状态信息
+         *
+         * @param code
+         * @return
+         */
+        public static DeliverNotice.StatusEnum fromCode(Integer code) {
+            if (code != null) {
+                int code02 = code; // 拆箱一次
+                for (DeliverNotice.StatusEnum s : DeliverNotice.StatusEnum.values()) {
+                    if (code02 == s.code) {
+                        return s;
+                    }
+                }
+            }
+            return null;
+        }
+
+    }
 }

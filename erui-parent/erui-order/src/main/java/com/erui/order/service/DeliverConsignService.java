@@ -31,15 +31,6 @@ public interface DeliverConsignService {
      */
     List<DeliverConsign> querExitInformMessage(Integer[] deliverNoticeId) throws Exception;
 
-
-    /**
-     * 看货通知管理   查询出口发货通知单
-     *
-     * @return
-     */
-    Page<DeliverConsign> queryExitAdvice(DeliverNotice deliverNotice);
-
-
     /**
      * 修改出口发货通知单
      *

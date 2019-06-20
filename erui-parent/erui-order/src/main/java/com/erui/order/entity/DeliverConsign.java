@@ -407,6 +407,11 @@ public class DeliverConsign {
     @Column(name = "process_id")
     private String processId;
 
+    /**
+     * 看货通知单状态 0未创建 1已创建
+     */
+    @Column(name = "deliver_notice_status")
+    private Integer deliverNoticeStatus;
 
     @Column(name = "task_id")
     private String taskId;
@@ -1024,5 +1029,13 @@ public class DeliverConsign {
 
     public void setOperationSpecialist(String operationSpecialist) {
         this.operationSpecialist = operationSpecialist;
+    }
+
+    public Integer getDeliverNoticeStatus() {
+        return deliverNoticeStatus;
+    }
+
+    public void setDeliverNoticeStatus(Integer deliverNoticeStatus) {
+        this.deliverNoticeStatus = deliverNoticeStatus;
     }
 }
