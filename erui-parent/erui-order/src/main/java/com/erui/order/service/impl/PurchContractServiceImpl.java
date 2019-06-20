@@ -530,7 +530,6 @@ public class PurchContractServiceImpl implements PurchContractService {
     public List<Goods> getGoodSku(List<Goods> goodsList) throws Exception {
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         List<Object> skus = new ArrayList<>();
-
         JSONObject params = new JSONObject();
         for (Goods gd : goodsList) {
             JSONObject gjson = new JSONObject();
