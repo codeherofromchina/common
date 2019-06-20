@@ -239,6 +239,71 @@ public class Goods {
 
     private String supplier;//供应商
 
+    //采购申请生成日期
+    @Column(name = "purch_requisition_date")
+    @JsonIgnore
+    private Date purchRequisitionDate;
+
+    //采购合同号
+    @Column(name = "purch_contract_no")
+    @JsonIgnore
+    private String purchContractNo;
+
+    //供应商名称
+    @Column(name = "supplier_name")
+    @JsonIgnore
+    private String supplierName;
+
+    //采购单价
+    @Column(name = "purchase_price")
+    @JsonIgnore
+    private BigDecimal purchasePrice;
+
+    //采购总金额
+    @Column(name = "purch_total_price")
+    @JsonIgnore
+    private BigDecimal purchTotalPrice;
+
+//    //采购实际到货日期
+//    @Column(name = "arrivaled_date")
+//    @JsonIgnore
+//    private Date arrivaledDate;
+
+    //采购经办人姓名
+    @Column(name = "agent_name")
+    @JsonIgnore
+    private String agentName;
+
+    //质检检验人姓名
+    @Column(name = "check_user_name")
+    @JsonIgnore
+    private String checkUserName;
+
+    //出库检验日期
+    @Column(name = "deliver_detail_date")
+    @JsonIgnore
+    private Date deliverDetailDate;
+
+    //仓库经办人姓名
+    @Column(name = "ware_houseman_name")
+    @JsonIgnore
+    private String wareHousemanName;
+
+    //物流费用
+    @Column(name = "logistics_cost")
+    @JsonIgnore
+    private BigDecimal logisticsCost;
+
+    //物流经办人
+    @Column(name = "logistics_user_name")
+    @JsonIgnore
+    private String logisticsUserName;
+
+    //市场要求订舱日期
+    @Column(name = "booking_date")
+    @JsonIgnore
+    private Date bookingDate;
+
     // 务必没有修改PurchGoods权限的能力
     @OneToMany(mappedBy = "goods", fetch = FetchType.LAZY)
     @JsonIgnore
@@ -908,5 +973,101 @@ public class Goods {
 
     public void setPurchGoods(List<PurchGoods> purchGoods) {
         this.purchGoods = purchGoods;
+    }
+
+    public Date getPurchRequisitionDate() {
+        return purchRequisitionDate;
+    }
+
+    public void setPurchRequisitionDate(Date purchRequisitionDate) {
+        this.purchRequisitionDate = purchRequisitionDate;
+    }
+
+    public String getPurchContractNo() {
+        return purchContractNo;
+    }
+
+    public void setPurchContractNo(String purchContractNo) {
+        this.purchContractNo = purchContractNo;
+    }
+
+    public String getSupplierName() {
+        return supplierName;
+    }
+
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
+    }
+
+    public BigDecimal getPurchasePrice() {
+        return purchasePrice;
+    }
+
+    public void setPurchasePrice(BigDecimal purchasePrice) {
+        this.purchasePrice = purchasePrice;
+    }
+
+    public BigDecimal getPurchTotalPrice() {
+        return purchTotalPrice;
+    }
+
+    public void setPurchTotalPrice(BigDecimal purchTotalPrice) {
+        this.purchTotalPrice = purchTotalPrice;
+    }
+
+    public String getAgentName() {
+        return agentName;
+    }
+
+    public void setAgentName(String agentName) {
+        this.agentName = agentName;
+    }
+
+    public String getCheckUserName() {
+        return checkUserName;
+    }
+
+    public void setCheckUserName(String checkUserName) {
+        this.checkUserName = checkUserName;
+    }
+
+    public Date getDeliverDetailDate() {
+        return deliverDetailDate;
+    }
+
+    public void setDeliverDetailDate(Date deliverDetailDate) {
+        this.deliverDetailDate = deliverDetailDate;
+    }
+
+    public String getWareHousemanName() {
+        return wareHousemanName;
+    }
+
+    public void setWareHousemanName(String wareHousemanName) {
+        this.wareHousemanName = wareHousemanName;
+    }
+
+    public BigDecimal getLogisticsCost() {
+        return logisticsCost;
+    }
+
+    public void setLogisticsCost(BigDecimal logisticsCost) {
+        this.logisticsCost = logisticsCost;
+    }
+
+    public String getLogisticsUserName() {
+        return logisticsUserName;
+    }
+
+    public void setLogisticsUserName(String logisticsUserName) {
+        this.logisticsUserName = logisticsUserName;
+    }
+
+    public Date getBookingDate() {
+        return bookingDate;
+    }
+
+    public void setBookingDate(Date bookingDate) {
+        this.bookingDate = bookingDate;
     }
 }

@@ -131,7 +131,6 @@ public class PurchContractServiceImpl implements PurchContractService {
         final Date now = new Date();
         // 设置基本信息
         dbPurchContract.setBaseInfo(purchContract);
-
         if (dbPurchContract.getPurchContractSimple() != null) { // 简易合同
             purchContract.getPurchContractSimple().setId(dbPurchContract.getPurchContractSimple().getId());
             purchContract.getPurchContractSimple().setUpdateTime(now);
@@ -288,7 +287,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                 goods.setSupplier(purchContract.getSupplierName());
                 goods.setBrand(pg.getBrand());
                 goodsList.add(goods);
-
                 goodsDao.save(goods);
             } else {
                 throw new Exception(String.format("%s%s%s", "不存在的采购商品信息", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Non existent procurement of commodity information"));
@@ -327,7 +325,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                 goodsDao.delete(deleteGoods);
             }
         }
-
         PurchContract save = purchContractDao.save(dbPurchContract);
         // 添加简易合同信息
         if (purchContract.getPurchContractSimple() != null) {

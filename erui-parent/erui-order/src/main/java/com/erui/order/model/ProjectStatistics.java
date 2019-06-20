@@ -44,6 +44,8 @@ public class ProjectStatistics {
         this.profitPercent = project.getProfitPercent();
         this.profit = project.getProfit();
         this.grantType = order.getGrantType();
+        this.currencyBnReceivableAccountRemaining = order.getReceivableAccountRemaining();
+        this.projectCost = project.getProjectProfit().getProjectCost();
         if (project.getDeliveryDate() != null) {
             // this.deliveryDate = DateUtil.format(DateUtil.SHORT_FORMAT_STR, project.getDeliveryDate());
             this.deliveryDate = project.getDeliveryDate();
@@ -61,6 +63,9 @@ public class ProjectStatistics {
         this.orderCategory = order.getOrderCategory();
         this.goodsList = order.getGoodsList();
         this.sendDeptId = project.getSendDeptId();
+        this.purchasingCostsD = project.getProjectProfit().getPurchasingCostsD();
+        this.purchasingCostsF = project.getProjectProfit().getPurchasingCostsF();
+        this.totalLogisticsCost = project.getTotalLogisticsCost();
     }
 
     //订单ID
@@ -159,6 +164,49 @@ public class ProjectStatistics {
     private Integer orderCategory;
     //订单商品
     private List<Goods> goodsList = new ArrayList<>();
+    // 27、应收账款余额（美元） order表中的
+    private BigDecimal currencyBnReceivableAccountRemaining;
+
+    // 2、物流成本总计 项目表中的项目成本总计
+    private BigDecimal projectCost;
+    // 采购成本-国内 取项目中的
+    private BigDecimal purchasingCostsD;
+    // 采购成本-国外 取项目中的
+    private BigDecimal purchasingCostsF;
+    //物流成本总计
+    private BigDecimal totalLogisticsCost;
+
+    public BigDecimal getTotalLogisticsCost() {
+        return totalLogisticsCost;
+    }
+
+    public void setTotalLogisticsCost(BigDecimal totalLogisticsCost) {
+        this.totalLogisticsCost = totalLogisticsCost;
+    }
+
+    public BigDecimal getPurchasingCostsD() {
+        return purchasingCostsD;
+    }
+
+    public void setPurchasingCostsD(BigDecimal purchasingCostsD) {
+        this.purchasingCostsD = purchasingCostsD;
+    }
+
+    public BigDecimal getPurchasingCostsF() {
+        return purchasingCostsF;
+    }
+
+    public void setPurchasingCostsF(BigDecimal purchasingCostsF) {
+        this.purchasingCostsF = purchasingCostsF;
+    }
+
+    public BigDecimal getProjectCost() {
+        return projectCost;
+    }
+
+    public void setProjectCost(BigDecimal projectCost) {
+        this.projectCost = projectCost;
+    }
 
     public BigDecimal getProfit() {
         return profit;
@@ -407,6 +455,13 @@ public class ProjectStatistics {
         return null;
     }
 
+    public BigDecimal getCurrencyBnReceivableAccountRemaining() {
+        return currencyBnReceivableAccountRemaining;
+    }
+
+    public void setCurrencyBnReceivableAccountRemaining(BigDecimal currencyBnReceivableAccountRemaining) {
+        this.currencyBnReceivableAccountRemaining = currencyBnReceivableAccountRemaining;
+    }
 
     public Integer getOrderType() {
         return orderType;

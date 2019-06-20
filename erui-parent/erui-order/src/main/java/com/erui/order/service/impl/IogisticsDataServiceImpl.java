@@ -295,6 +295,7 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
         }
 
         List<Iogistics> iogisticsList = one.getIogistics(); //获取出库分单信息
+        Integer projectId = 0;
         for (Iogistics iogistics : iogisticsList) {
             List<DeliverConsignGoods> deliverConsignGoodsList = iogistics.getDeliverDetail().getDeliverConsignGoodsList();  //获取出口发货商品信息
             for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsList) {
@@ -310,23 +311,39 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
 
                     //下发订舱时间
                     if (iogisticsData.getBookingTime() != null) {
-                        goods.setBookingTime(iogisticsData.getBookingTime());//订舱日期
+                        if(goods.getBookingTime() == null) goods.setBookingTime(iogisticsData.getBookingTime());//订舱日期
                     }
                     //船期或航班
                     if (iogisticsData.getSailingDate() != null) {
-                        goods.setSailingDate(iogisticsData.getSailingDate());//船期或航班
+                        if(goods.getSailingDate() == null) goods.setSailingDate(iogisticsData.getSailingDate());//船期或航班
                     }
                     //报关放行时间
                     if (iogisticsData.getCustomsClearance() != null) {
-                        goods.setCustomsClearance(iogisticsData.getCustomsClearance());//报关放行时间
+                        if(goods.getCustomsClearance() == null) goods.setCustomsClearance(iogisticsData.getCustomsClearance());//报关放行时间
                     }
                     //实际离港时间
                     if (iogisticsData.getLeavePortTime() != null) {
-                        goods.setLeavePortTime(iogisticsData.getLeavePortTime());//实际离港时间
+                        if(goods.getLeavePortTime() == null) goods.setLeavePortTime(iogisticsData.getLeavePortTime());//实际离港时间
                     }
                     //预计抵达时间
                     if (iogisticsData.getArrivalPortTime() != null) {
-                        goods.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
+                        if(goods.getArrivalPortTime() == null) goods.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
+                    }
+                    //物流经办人
+                    if (iogisticsData.getLogisticsUserName() != null) {
+                        if(goods.getLogisticsUserName() == null) goods.setLogisticsUserName(iogisticsData.getLogisticsUserName());//物流经办人
+                    }
+                    //物流费用
+                    if (iogisticsData.getLogisticsCost() != null) {
+                        if(goods.getLogisticsCost() == null) goods.setLogisticsCost(iogisticsData.getLogisticsCost());//物流费用
+                        if(!projectId.equals(goods.getProject().getId())){
+                            if(goods.getProject().getTotalLogisticsCost() == null){
+                                goods.getProject().setTotalLogisticsCost(iogisticsData.getLogisticsCost());
+                            }else{
+                                goods.getProject().setTotalLogisticsCost(goods.getProject().getTotalLogisticsCost().add(iogisticsData.getLogisticsCost()));
+                            }
+                        }
+                        projectId = goods.getProject().getId();
                     }
 
                     if (iogisticsData.getLeaveFactory() != null) {

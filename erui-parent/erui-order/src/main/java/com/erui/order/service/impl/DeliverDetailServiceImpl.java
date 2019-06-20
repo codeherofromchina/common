@@ -936,27 +936,31 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             //下发订舱时间
             if (deliverDetail.getBookingTime() != null) {
                 one.setBookingTime(deliverDetail.getBookingTime());//下发订舱时间
-                goods.setBookingTime(deliverDetail.getBookingTime());//订舱日期
+                if(goods.getBookingTime() == null) goods.setBookingTime(deliverDetail.getBookingTime());//订舱日期
             }
             //船期或航班
             if (deliverDetail.getSailingDate() != null) {
                 one.setSailingDate(deliverDetail.getSailingDate());//船期或航班
-                goods.setSailingDate(deliverDetail.getSailingDate());//船期或航班
+                if(goods.getSailingDate() == null) goods.setSailingDate(deliverDetail.getSailingDate());//船期或航班
             }
             //报关放行时间
             if (deliverDetail.getCustomsClearance() != null) {
                 one.setCustomsClearance(deliverDetail.getCustomsClearance());//报关放行时间
-                goods.setCustomsClearance(deliverDetail.getCustomsClearance());//报关放行时间
+                if(goods.getCustomsClearance() == null) goods.setCustomsClearance(deliverDetail.getCustomsClearance());//报关放行时间
             }
             //实际离港时间
             if (deliverDetail.getLeavePortTime() != null) {
                 one.setLeavePortTime(deliverDetail.getLeavePortTime());//实际离港时间
-                goods.setLeavePortTime(deliverDetail.getLeavePortTime());//实际离港时间
+                if(goods.getLeavePortTime() == null) goods.setLeavePortTime(deliverDetail.getLeavePortTime());//实际离港时间
             }
             //预计抵达时间
             if (deliverDetail.getArrivalPortTime() != null) {
                 one.setArrivalPortTime(deliverDetail.getArrivalPortTime());//预计抵达时间
-                goods.setArrivalPortTime(deliverDetail.getArrivalPortTime());//预计抵达时间
+                if(goods.getArrivalPortTime() == null) goods.setArrivalPortTime(deliverDetail.getArrivalPortTime());//预计抵达时间
+            }
+            //物流经办人
+            if (deliverDetail.getLogisticsUserName() != null) {
+                if(goods.getLogisticsUserName() == null) goods.setLogisticsUserName(deliverDetail.getLogisticsUserName());//物流经办人
             }
             if (deliverDetail.getStatus() == 6 && deliverDetail.getLeaveFactory() != null) {
                 //已发运
@@ -1342,6 +1346,9 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                     Goods goods = deliverConsignGoods.getGoods();
                     Goods one1 = goodsDao.findOne(goods.getId());
                     one1.setReleaseDate(deliverDetail.getReleaseDate());//推送   放行日期    到商品表
+                    one1.setBookingDate(deliverConsignGoods.getDeliverConsign().getBookingDate());
+                    one1.setWareHousemanName(deliverDetail.getWareHousemanName());
+                    one1.setDeliverDetailDate(deliverDetail.getCheckDate());
                     goodsDao.save(one1);
                     //出库质检
                     applicationContext.publishEvent(new OrderProgressEvent(goods.getOrder(), 7, eruiToken));

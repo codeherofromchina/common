@@ -104,6 +104,7 @@ public class ProjectGoodsStatistics {
     // 收款方式
     private String paymentModeBn;
     // 回款时间
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date paymentDate;   //回款时间
     // 回款金额（美元）
     private BigDecimal money;   //回款金额
@@ -118,6 +119,7 @@ public class ProjectGoodsStatistics {
     //授信情况
     private String grantType;
     //执行单约定交付日期
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private String deliveryDate;
     //要求采购到货日期
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
@@ -137,8 +139,6 @@ public class ProjectGoodsStatistics {
     // 物流延期时间（天）   TODO 待完善
     //项目状态
     private String projectStatus;
-    //流程进度
-    private String processProgress;
     // 原因类型  TODO
     // 原因描述  TODO
 
@@ -147,10 +147,113 @@ public class ProjectGoodsStatistics {
     //货币类型
     private String currencyBn;
     //项目创建时间
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date createTime;
     //订单类别 1预投 2 售后回 3 试用 4 现货（出库） 5 订单
     private String orderCategory;
-    //订单商品信息
+
+
+    /**
+     * 项目执行统计模板导出：增加如下字段：总计增加29个字段
+     */
+
+    // 采购成本-国内 取项目中的
+    private BigDecimal purchasingCostsD;
+    // 采购成本-国外 取项目中的
+    private BigDecimal purchasingCostsF;
+
+    // 1、流程进度
+    private String processProgress;
+
+    // 2、物流成本总计 项目表中的项目成本总计
+    private BigDecimal projectCost;
+
+    // 3、要求采购到货日期 requirePurchaseDate
+
+    // 4、采购申请生成日期 goods中的"采购申请生成日期purch_requisition_date"
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date purchRequisitionDate;
+
+    // 5、采购合同号 goods中的"采购合同号"
+    private String purchNo;
+
+    // 6、采购合同签订日期 goods中的"合同签订日期signing_date"
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date signingDate;
+
+    // 7、采购要求交货时间 goods中的"采购要求交货时间arrivalDate"
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date arrivalDate;
+
+    // 8、供应商名称 goods中的"供应商名称supplier_name"
+    private String supplierName;
+
+    // 9、采购单价 goods中的"采购单价purchase_price"
+    private BigDecimal purchasePrice;
+
+    // 10、采购总金额goods中"采购总金额purch_total_price"
+    private BigDecimal PurchTotalPrice;
+
+    // 11、采购实际到货日期 goods中采购实际到货日期arrivaled_date
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date arrivaledDate;
+
+    // 12、采购经办人 goods中的"采购经办人agent_name"
+    private String purchAgentName;
+
+    // 13、报检日期 goods中的入库质检的检验日期check_date
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date checkDate;
+
+    // 14、检验完成日期 goods中的入库质检的检验完成日期check_done_date
+    private Date doneDate;
+
+    // 15、检验人 goods中的入库质检的检验人check_user_name
+    private String checkUserName;
+
+    // 16、入库日期 goods中的入库中的入库日期instock_date
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date instockDate;
+
+    // 17、出库检验日期 goods中的出库质检 deliver_detail_date
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date deliverDetailDate;
+
+    // 18、出库日期 goods中的出库质检出库日期leave_date
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date leaveDate;
+
+    // 19、仓库经办人 goods中的出库中的仓库经办人ware_houseman_name
+    private String wareHousemanName;
+
+    // 20、物流费用金额 IogisticsData物流表 goods中物流费用
+    private BigDecimal logisticsCost;
+
+    // 21、物流经办人 IogisticsData物流表 goods中物流经办人
+    private String logisticsUserName;
+
+    // 22、市场要求订舱日期 DeliverConsign 市场要求订舱日期 goods中booking_date
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date bookingDate;
+
+    // 23、物流订舱日期 IogisticsData物流表 订舱时间 goods中booking_time
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date bookingTime;
+
+    // 24、货物发运时间 IogisticsData物流表 实际离港时间 goods中leave_port_time
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date leavePortTime;
+
+    // 25、货物到达时间 IogisticsData物流表 预计抵达时间 goods中arrival_port_time
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date arrivalPortTime;
+
+    // 26、客户接收时间 IogisticsData物流表 实际完成时间 goods中accomplish_date
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date accomplishDate;
+
+    // 27、应收账款余额（美元） order表中的
+    private BigDecimal currencyBnReceivableAccountRemaining;
 
     public BigDecimal getProfit() {
         return profit;
@@ -573,6 +676,222 @@ public class ProjectGoodsStatistics {
 
     public void setOrderCategory(String orderCategory) {
         this.orderCategory = orderCategory;
+    }
+
+    public BigDecimal getProjectCost() {
+        return projectCost;
+    }
+
+    public void setProjectCost(BigDecimal projectCost) {
+        this.projectCost = projectCost;
+    }
+
+    public Date getArrivalDate() {
+        return arrivalDate;
+    }
+
+    public void setArrivalDate(Date arrivalDate) {
+        this.arrivalDate = arrivalDate;
+    }
+
+    public String getPurchNo() {
+        return purchNo;
+    }
+
+    public void setPurchNo(String purchNo) {
+        this.purchNo = purchNo;
+    }
+
+    public String getSupplierName() {
+        return supplierName;
+    }
+
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
+    }
+
+    public BigDecimal getPurchasePrice() {
+        return purchasePrice;
+    }
+
+    public void setPurchasePrice(BigDecimal purchasePrice) {
+        this.purchasePrice = purchasePrice;
+    }
+
+    public BigDecimal getPurchTotalPrice() {
+        return PurchTotalPrice;
+    }
+
+    public void setPurchTotalPrice(BigDecimal purchTotalPrice) {
+        PurchTotalPrice = purchTotalPrice;
+    }
+
+    public Date getArrivaledDate() {
+        return arrivaledDate;
+    }
+
+    public void setArrivaledDate(Date arrivaledDate) {
+        this.arrivaledDate = arrivaledDate;
+    }
+
+    public String getPurchAgentName() {
+        return purchAgentName;
+    }
+
+    public void setPurchAgentName(String purchAgentName) {
+        this.purchAgentName = purchAgentName;
+    }
+
+    public Date getCheckDate() {
+        return checkDate;
+    }
+
+    public void setCheckDate(Date checkDate) {
+        this.checkDate = checkDate;
+    }
+
+    public Date getDoneDate() {
+        return doneDate;
+    }
+
+    public void setDoneDate(Date doneDate) {
+        this.doneDate = doneDate;
+    }
+
+    public String getCheckUserName() {
+        return checkUserName;
+    }
+
+    public void setCheckUserName(String checkUserName) {
+        this.checkUserName = checkUserName;
+    }
+
+    public Date getInstockDate() {
+        return instockDate;
+    }
+
+    public void setInstockDate(Date instockDate) {
+        this.instockDate = instockDate;
+    }
+
+    public Date getDeliverDetailDate() {
+        return deliverDetailDate;
+    }
+
+    public void setDeliverDetailDate(Date deliverDetailDate) {
+        this.deliverDetailDate = deliverDetailDate;
+    }
+
+    public Date getLeaveDate() {
+        return leaveDate;
+    }
+
+    public void setLeaveDate(Date leaveDate) {
+        this.leaveDate = leaveDate;
+    }
+
+    public String getWareHousemanName() {
+        return wareHousemanName;
+    }
+
+    public void setWareHousemanName(String wareHousemanName) {
+        this.wareHousemanName = wareHousemanName;
+    }
+
+    public BigDecimal getLogisticsCost() {
+        return logisticsCost;
+    }
+
+    public void setLogisticsCost(BigDecimal logisticsCost) {
+        this.logisticsCost = logisticsCost;
+    }
+
+    public String getLogisticsUserName() {
+        return logisticsUserName;
+    }
+
+    public void setLogisticsUserName(String logisticsUserName) {
+        this.logisticsUserName = logisticsUserName;
+    }
+
+    public Date getBookingDate() {
+        return bookingDate;
+    }
+
+    public void setBookingDate(Date bookingDate) {
+        this.bookingDate = bookingDate;
+    }
+
+    public Date getBookingTime() {
+        return bookingTime;
+    }
+
+    public void setBookingTime(Date bookingTime) {
+        this.bookingTime = bookingTime;
+    }
+
+    public Date getLeavePortTime() {
+        return leavePortTime;
+    }
+
+    public void setLeavePortTime(Date leavePortTime) {
+        this.leavePortTime = leavePortTime;
+    }
+
+    public Date getArrivalPortTime() {
+        return arrivalPortTime;
+    }
+
+    public void setArrivalPortTime(Date arrivalPortTime) {
+        this.arrivalPortTime = arrivalPortTime;
+    }
+
+    public Date getAccomplishDate() {
+        return accomplishDate;
+    }
+
+    public void setAccomplishDate(Date accomplishDate) {
+        this.accomplishDate = accomplishDate;
+    }
+
+    public BigDecimal getCurrencyBnReceivableAccountRemaining() {
+        return currencyBnReceivableAccountRemaining;
+    }
+
+    public void setCurrencyBnReceivableAccountRemaining(BigDecimal currencyBnReceivableAccountRemaining) {
+        this.currencyBnReceivableAccountRemaining = currencyBnReceivableAccountRemaining;
+    }
+
+    public Date getPurchRequisitionDate() {
+        return purchRequisitionDate;
+    }
+
+    public void setPurchRequisitionDate(Date purchRequisitionDate) {
+        this.purchRequisitionDate = purchRequisitionDate;
+    }
+
+    public Date getSigningDate() {
+        return signingDate;
+    }
+
+    public void setSigningDate(Date signingDate) {
+        this.signingDate = signingDate;
+    }
+
+    public BigDecimal getPurchasingCostsD() {
+        return purchasingCostsD;
+    }
+
+    public void setPurchasingCostsD(BigDecimal purchasingCostsD) {
+        this.purchasingCostsD = purchasingCostsD;
+    }
+
+    public BigDecimal getPurchasingCostsF() {
+        return purchasingCostsF;
+    }
+
+    public void setPurchasingCostsF(BigDecimal purchasingCostsF) {
+        this.purchasingCostsF = purchasingCostsF;
     }
 }
 
