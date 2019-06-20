@@ -24,7 +24,7 @@ import java.util.*;
  * Created by wangxiaodan on 2017/12/11.
  */
 @RestController
-@RequestMapping(value = "/order/logisticsManage")
+@RequestMapping(value = "/order/deliverNotice")
 public class DeliverNoticeController {
 
     private final static Logger logger = LoggerFactory.getLogger(OrderController.class);
@@ -37,11 +37,11 @@ public class DeliverNoticeController {
 
 
     /**
-     * 看货通知管理
+     * 看货通知管理列表
      * @param condition
      * @return
      */
-    @RequestMapping(value = "lookMoneyInformManage")
+    @RequestMapping(value = "list")
     public Result<Object> lookMoneyInformManage(@RequestBody DeliverNotice condition) {
         int page = condition.getPage();
         if (page < 1) {
@@ -163,7 +163,7 @@ public class DeliverNoticeController {
                     result.setMsg("下单日期不能为空");
                     return result;
                 }
-                else if(StringUtil.isBlank(deliverNotice.getDeliverConsignIds())|| StringUtils.equals(deliverNotice.getDeliverConsignIds(), "")){
+                else if(deliverNotice.getDeliverConsignId() == null){
                     result.setCode(ResultStatusEnum.FAIL.getCode());
                     result.setMsg("出口通知单不能为空");
                     return result;
