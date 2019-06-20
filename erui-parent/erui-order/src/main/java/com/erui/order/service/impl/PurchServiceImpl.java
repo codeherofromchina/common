@@ -1084,7 +1084,7 @@ public class PurchServiceImpl implements PurchService {
                 // 如果是提交则设置商品的已采购数量并更新
                 goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
                 BigDecimal totalPrice = goods.getPurchTotalPrice() == null?BigDecimal.ZERO:goods.getPurchTotalPrice();
-                goods.setPurchTotalPrice(totalPrice.add(purchGoods.getTotalPrice()));
+                goods.setPurchTotalPrice(totalPrice.add(purchGoods.getPurchaseTotalPrice()));
                 //提交时更新采购合同已采购数量
                 purchContractGoods.setPurchasedNum(purchContractGoods.getPurchasedNum() + intPurchaseNum);
                 // 完善商品的项目执行跟踪信息
@@ -1414,7 +1414,7 @@ public class PurchServiceImpl implements PurchService {
                     if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                         goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
                         BigDecimal totalPrice = goods.getPurchTotalPrice() == null?BigDecimal.ZERO:goods.getPurchTotalPrice();
-                        goods.setPurchTotalPrice(totalPrice.add(purchGoods.getTotalPrice()));
+                        goods.setPurchTotalPrice(totalPrice.add(purchGoods.getPurchaseTotalPrice()));
                         // 设置商品的项目跟踪信息
                         setGoodsTraceData(goods, purch);
                         if (!goods.getOrder().getOrderCategory().equals(6)) {
@@ -1656,7 +1656,7 @@ public class PurchServiceImpl implements PurchService {
                     // 更新商品的采购数量和预采购数量
                     if (purch.getStatus() == Purch.StatusEnum.BEING.getCode() && (purch.getAuditingStatus() == 0 || purch.getAuditingStatus() == null)) {
                         BigDecimal totalPrice = goods.getPurchTotalPrice() == null?BigDecimal.ZERO:goods.getPurchTotalPrice();
-                        goods.setPurchTotalPrice(totalPrice.add(pg.getTotalPrice()));
+                        goods.setPurchTotalPrice(totalPrice.add(pg.getPurchaseTotalPrice()));
                         // 更新采购合同已预采购数量
                         purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + intPurchaseNum);
                         // 更新已采购数量
@@ -1791,7 +1791,7 @@ public class PurchServiceImpl implements PurchService {
                     if (purch.getStatus() == Purch.StatusEnum.BEING.getCode() && (dbPurch.getAuditingStatus() == 0 || dbPurch.getAuditingStatus() == null)) {
                         goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
                         BigDecimal totalPrice = goods.getPurchTotalPrice() == null?BigDecimal.ZERO:goods.getPurchTotalPrice();
-                        goods.setPurchTotalPrice(totalPrice.add(pg.getTotalPrice()));
+                        goods.setPurchTotalPrice(totalPrice.add(pg.getPurchaseTotalPrice()));
                         // 设置采购合同预采购商品数量
                         purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
                         // 设置采购已采购商品数量
@@ -2193,7 +2193,7 @@ public class PurchServiceImpl implements PurchService {
             // 如果是提交则设置商品的已采购数量并更新
             sonGoods.setPurchasedNum(purchaseNum);
             BigDecimal totalPrice = sonGoods.getPurchTotalPrice() == null?BigDecimal.ZERO:sonGoods.getPurchTotalPrice();
-            sonGoods.setPurchTotalPrice(totalPrice.add(son.getTotalPrice()));
+            sonGoods.setPurchTotalPrice(totalPrice.add(son.getPurchaseTotalPrice()));
             // 完善商品的项目执行跟踪信息
             setGoodsTraceData(sonGoods, purch);
         } else {
