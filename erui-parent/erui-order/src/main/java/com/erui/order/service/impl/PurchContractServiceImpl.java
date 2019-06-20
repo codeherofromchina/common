@@ -636,7 +636,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                     if (agentId != null) {
                         list.add(cb.equal(root.get("agentId").as(Integer.class), agentId));
                     }
-
                     // 根据采购状态过滤条件
                     Predicate status01 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.BEING.getCode());
                     Predicate status02 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.EXECUTED.getCode());
