@@ -524,10 +524,9 @@ public class PurchContractServiceImpl implements PurchContractService {
     }*/
 
     //验证获取sku
-    public List<Goods> getGoodSku(List<Goods> goodsList) {
+    public List<Goods> getGoodSku(List<Goods> goodsList) throws Exception {
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         List<Object> skus = new ArrayList<>();
-
         JSONObject params = new JSONObject();
         for (Goods gd : goodsList) {
             JSONObject gjson = new JSONObject();
@@ -553,14 +552,16 @@ public class PurchContractServiceImpl implements PurchContractService {
         header.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
         String resData = HttpRequest.sendPost(getSku, params.toJSONString(), header);
         JSONObject parseData = JSONObject.parseObject(resData);
-        JSONArray datas = parseData.getJSONArray("data");
-        if (datas.size() > 0) {
-            for (int i = 0; i < datas.size(); i++) {
-                JSONObject goodJson = datas.getJSONObject(i);
-                for (Goods gd : goodsList) {
-                    gd.setSku(goodJson.getString("sku"));
+        if (parseData.containsKey("data")) {
+            JSONArray datas = parseData.getJSONArray("data");
+            if (datas.size() > 0) {
+                for (int i = 0; i < datas.size(); i++) {
+                    JSONObject goodJson = datas.getJSONObject(i);
+                    goodsList.get(i).setSku(goodJson.getString("sku"));
                 }
             }
+        } else {
+            throw new Exception(String.format("%s%s%s", "生成sku失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "sku error"));
         }
         return goodsList;
     }
@@ -592,7 +593,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                         purchContractGoods.setgId(purchContractGoods.getGoods().getId());
                         purchContractGoods.setPcId(purchContract.getId());
                         purchContractGoods.setPcgId(purchContractGoods.getId());
-
                     }
                     List<String> projectIdList = new ArrayList<>(projectIdSet);
                     purchContract.setProjectId(StringUtils.join(projectIdList, ","));
@@ -636,7 +636,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                     if (agentId != null) {
                         list.add(cb.equal(root.get("agentId").as(Integer.class), agentId));
                     }
-
                     // 根据采购状态过滤条件
                     Predicate status01 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.BEING.getCode());
                     Predicate status02 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.EXECUTED.getCode());
