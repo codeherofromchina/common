@@ -1805,7 +1805,7 @@ public class PurchServiceImpl implements PurchService {
                     } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode() && dbPurch.getAuditingStatus() == 3) {
                         goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum - oldPurchaseNum);
                         BigDecimal totalPrice = goods.getPurchTotalPrice() == null?BigDecimal.ZERO:goods.getPurchTotalPrice();
-                        goods.setPurchTotalPrice(totalPrice.add(pg.getTotalPrice()).subtract(purchGoods.getTotalPrice()));
+                        goods.setPurchTotalPrice(totalPrice.add(pg.getPurchaseTotalPrice()).subtract(purchGoods.getPurchaseTotalPrice()));
                         //设置采购合同预采购商品数量
                         purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
                         //设置采购已采购商品数量
