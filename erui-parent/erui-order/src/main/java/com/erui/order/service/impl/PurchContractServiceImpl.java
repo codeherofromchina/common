@@ -593,7 +593,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                         purchContractGoods.setgId(purchContractGoods.getGoods().getId());
                         purchContractGoods.setPcId(purchContract.getId());
                         purchContractGoods.setPcgId(purchContractGoods.getId());
-
                     }
                     List<String> projectIdList = new ArrayList<>(projectIdSet);
                     purchContract.setProjectId(StringUtils.join(projectIdList, ","));
