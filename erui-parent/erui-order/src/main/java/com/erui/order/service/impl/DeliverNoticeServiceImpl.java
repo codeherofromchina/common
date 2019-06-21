@@ -99,7 +99,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     list.add(cb.like(root.get("contractNo").as(String.class), "%" + condition.getContractNo() + "%"));
                 }
                 // 根据出口发货通知单号查询
-                if (StringUtil.isNotBlank(condition.getContractNo())) {
+                if (StringUtil.isNotBlank(condition.getDeliverConsignNo())) {
                     list.add(cb.like(root.get("deliverConsignNo").as(String.class), "%" + condition.getDeliverConsignNo() + "%"));
                 }
                 // 根据下单人查询
@@ -115,8 +115,10 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
                     list.add(cb.like(root.get("crmCodeOrName").as(String.class), "%" + condition.getCrmCodeOrName() + "%"));
                 }
                 // 根据看货状态查询
-                if (condition.getSenderId() != null) {
-                    list.add(cb.equal(root.get("status").as(Integer.class), condition.getStatus()));
+                if (condition.getHandleStatus() != null && condition.getHandleStatus() != 0) {
+                    list.add(cb.equal(root.get("handleStatus").as(Integer.class), condition.getHandleStatus()));
+                } else {
+                    list.add(cb.gt(root.get("status").as(Integer.class), DeliverNotice.StatusEnum.SAVE.getCode()));
                 }
                 Predicate[] predicates = new Predicate[list.size()];
                 predicates = list.toArray(predicates);
@@ -135,9 +137,6 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
         DeliverConsign one = null; //出库通知单
         one = deliverConsignDao.findOne(deliverNotice.getDeliverConsignId());
-        //改变出口单状态
-        one.setDeliverNoticeStatus(1);
-        deliverConsignDao.saveAndFlush(one);
 
         //看货通知单
         String deliverNoticeNo = createDeliverNoticeNo();
@@ -150,11 +149,21 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         deliverNotice.setCrmCodeOrName(one.getCrmCodeOrName());
         deliverNotice.setDeptName(one.getDeptName());
 
+        if (deliverNotice.getStatus() == DeliverNotice.StatusEnum.SUBMIT.getCode()) {
+            deliverNotice.setHandleStatus(1); // 未处理
+        } else {
+            deliverNotice.setHandleStatus(0);
+        }
+
         DeliverNotice deliverNotice1 = deliverNoticeDao.saveAndFlush(deliverNotice);
         if (deliverNotice.getAttachmentSet() != null && deliverNotice.getAttachmentSet().size() > 0) {
             List<Attachment> attachmentList = new ArrayList<>(deliverNotice.getAttachmentSet());
             attachmentService.addAttachments(attachmentList, deliverNotice1.getId(), Attachment.AttachmentCategory.DELIVERNOTICE.getCode());
         }
+        //改变出口单状态
+        one.setDeliverNoticeStatus(deliverNotice.getStatus());
+        deliverConsignDao.saveAndFlush(one);
+
         return true;
     }
 
@@ -221,15 +230,26 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             }
             one.setStatus(deliverNotice.getStatus());
 
-            deliverNoticeDao.saveAndFlush(one);
+            if (deliverNotice.getStatus() == DeliverNotice.StatusEnum.DONE.getCode()) {
+                one.setHandleStatus(2); // 已处理
+            }
+
+            DeliverNotice save = deliverNoticeDao.saveAndFlush(one);
             // 附件处理
             List<Attachment> attachmentList = new ArrayList<>(deliverNotice.getAttachmentSet());
             if (attachmentList != null && attachmentList.size() > 0) {
                 Map<Integer, Attachment> dbAttahmentsMap = one.getAttachmentSet().parallelStream().collect(Collectors.toMap(Attachment::getId, vo -> vo));
-                attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, one.getId(), Attachment.AttachmentCategory.INSTOCKQUALITY.getCode());
+                attachmentService.updateAttachments(attachmentList, dbAttahmentsMap, one.getId(), Attachment.AttachmentCategory.DELIVERNOTICE.getCode());
             }
+
+            // 出库通知单
+            DeliverConsign deliverConsign = save.getDeliverConsign();
+            // 改变出口单状态
+            deliverConsign.setDeliverNoticeStatus(deliverNotice.getStatus());
+            deliverConsignDao.saveAndFlush(deliverConsign);
+
             // 推送出库信息
-            if (one.getStatus() == DeliverNotice.StatusEnum.SUBMIT.getCode()) {
+            if (one.getStatus() == DeliverNotice.StatusEnum.DONE.getCode()) {
                 pushOutStock(one.getDeliverConsign(), one);
             }
             return true;
@@ -401,12 +421,13 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         if (attachments != null && attachments.size() > 0) {
             deliverNotice.setAttachmentSet(attachments.stream().collect(Collectors.toSet()));
         }
+        deliverNotice.setDeliverConsignGoodsSet(deliverNotice.getDeliverConsign().getDeliverConsignGoodsSet());
         return deliverNotice;
     }
 
 
     /**
-     * //生成产品放行单
+     * 生成产品放行单
      *
      * @return
      */
@@ -433,7 +454,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
     }
 
     /**
-     * //生成看货通知单
+     * 生成看货通知单
      *
      * @return
      */

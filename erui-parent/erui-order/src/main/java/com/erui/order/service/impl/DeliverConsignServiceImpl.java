@@ -31,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -61,10 +60,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     private AttachmentService attachmentService;
     @Autowired
     private AttachmentDao attachmentDao;
-
-    @Autowired
-    private DeliverDetailDao deliverDetailDao;
-
     @Autowired
     ProjectDao projectDao;
 
@@ -109,6 +104,12 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             List<Attachment> attachments = attachmentDao.findByRelObjIdAndCategory(deliverConsign.getId(), Attachment.AttachmentCategory.DELIVERCONSIGN.getCode());
             deliverConsign.setAttachmentSet(attachments);
             deliverConsign.getAttachmentSet().size();
+
+            if(deliverConsign.getDeliverNoticeStatus() == DeliverNotice.StatusEnum.DONE.getCode()){
+                List<Attachment> attachmentNotices = attachmentDao.findByRelObjIdAndCategory(deliverConsign.getDeliverNotice().getId(), Attachment.AttachmentCategory.DELIVERNOTICE.getCode());
+                deliverConsign.setAttachmentNotice(attachmentNotices);
+                deliverConsign.getAttachmentNotice().size();
+            }
         }
         Order order = deliverConsign.getOrder();
         BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(1) : order.getExchangeRate();
@@ -750,31 +751,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         return page;
 
-    }
-
-    /**
-     * \//生成产品放行单
-     *
-     * @return
-     */
-
-    public String createDeliverDetailNo() {
-        SimpleDateFormat simpleDateFormats = new SimpleDateFormat("yyyy");
-        //查询最近插入的产品放行单
-        String deliverDetailNo = deliverDetailDao.findDeliverDetailNo();
-        if (deliverDetailNo == null) {
-            String formats = simpleDateFormats.format(new Date());  //当前年份
-            return formats + String.format("%04d", 1);     //第一个
-        } else {
-            String substring = deliverDetailNo.substring(0, 4); //获取到产品放行单的年份
-            String formats = simpleDateFormats.format(new Date());  //当前年份
-            if (substring.equals(formats)) {   //判断年份
-                String substring1 = deliverDetailNo.substring(4);
-                return formats + String.format("%04d", (Integer.parseInt(substring1) + 1));//最大的数值上加1
-            } else {
-                return formats + String.format("%04d", 1);     //第一个
-            }
-        }
     }
 
     //  出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)

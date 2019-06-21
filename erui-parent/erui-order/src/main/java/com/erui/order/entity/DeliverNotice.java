@@ -20,6 +20,7 @@ public class DeliverNotice {
      * 物流-出库单详情
      */
     @OneToOne(mappedBy = "deliverNotice", fetch = FetchType.LAZY)
+    @JsonIgnore
     private DeliverDetail deliverDetail;
 
     /**
@@ -47,6 +48,12 @@ public class DeliverNotice {
      */
     @Column(name = "deliver_consign_no")
     private String deliverConsignNo;
+
+    /**
+     * 出口通知单商品
+     */
+    @Transient
+    private List<DeliverConsignGoods> deliverConsignGoodsSet = new ArrayList<>();
 
     /**
      * 下单人
@@ -182,9 +189,15 @@ public class DeliverNotice {
     private String createUserName;
 
     /**
-     * 1:报存  2：提交
+     * 看货通知单状态 1:保存看货通知 2：提交看货通知 3:保存箱单 4:提交箱单/已完成
      */
     private Integer status;
+
+    /**
+     * 看货状态 1:未处理  2：已处理
+     */
+    @Column(name = "handle_status")
+    private Integer handleStatus;
 
     /**
      * 更新时间
@@ -496,10 +509,11 @@ public class DeliverNotice {
 
     /**
      * 看货通知单状态枚举
-     * 状态 1:未编辑 2：保存/草稿 3:已提交 4:完成
+     * 状态 1:保存看货通知 2：提交看货通知 3:保存箱单 4:提交箱单/已完成
      */
     public static enum StatusEnum {
-        READY(1, "未编辑"), BEING(2, "保存/草稿"), SUBMIT(3, "已提交"), DONE(4, "已完成");
+        SAVE(1, "保存看货通知"), SUBMIT(2, "提交看货通知"), BEING(3, "保存箱单"), DONE(4, "提交箱单/已完成"),
+        UNTREATED(1, "未处理"), PROCESSED(2, "已处理");
 
         private int code;
         private String msg;
@@ -535,5 +549,21 @@ public class DeliverNotice {
             return null;
         }
 
+    }
+
+    public Integer getHandleStatus() {
+        return handleStatus;
+    }
+
+    public void setHandleStatus(Integer handleStatus) {
+        this.handleStatus = handleStatus;
+    }
+
+    public List<DeliverConsignGoods> getDeliverConsignGoodsSet() {
+        return deliverConsignGoodsSet;
+    }
+
+    public void setDeliverConsignGoodsSet(List<DeliverConsignGoods> deliverConsignGoodsSet) {
+        this.deliverConsignGoodsSet = deliverConsignGoodsSet;
     }
 }
