@@ -85,24 +85,27 @@ public class DeliverConsignController {
         Object realname = request.getSession().getAttribute("realname");
         // 完善附件信息
         AttachmentVo attachmentVo = bookingSpaceAuditRequest.getAttachment();
-        Attachment attachment = new Attachment();
-        attachment.setGroup(attachmentVo.getGroup());
-        attachment.setTitle(attachmentVo.getTitle());
-        attachment.setUrl(attachmentVo.getUrl());
-        String intUserId = String.valueOf(userId);// DELIVERCONSIGN
-        if (StringUtils.isNumeric(intUserId)) {
-            attachment.setUserId(Integer.parseInt(intUserId));
-            attachment.setUserName(String.valueOf(realname));
-        }
-        attachment.setFrontDate(attachmentVo.getFrontDate());
-        attachment.setDeleteFlag(false);
-        attachment.setCreateTime(new Date());
-        attachment.setType(attachmentVo.getType());
-        attachment.setCategory("DELIVERCONSIGN"); // 出口通知单类型
-        attachment.setRelObjId(deliverConsign.getId());
-        attachment.setTenant("erui");
+        Integer attachmentId = null;
+        if (attachmentVo == null) {
+            Attachment attachment = new Attachment();
+            attachment.setGroup(attachmentVo.getGroup());
+            attachment.setTitle(attachmentVo.getTitle());
+            attachment.setUrl(attachmentVo.getUrl());
+            String intUserId = String.valueOf(userId);// DELIVERCONSIGN
+            if (StringUtils.isNumeric(intUserId)) {
+                attachment.setUserId(Integer.parseInt(intUserId));
+                attachment.setUserName(String.valueOf(realname));
+            }
+            attachment.setFrontDate(attachmentVo.getFrontDate());
+            attachment.setDeleteFlag(false);
+            attachment.setCreateTime(new Date());
+            attachment.setType(attachmentVo.getType());
+            attachment.setCategory("DELIVERCONSIGN"); // 出口通知单类型
+            attachment.setRelObjId(deliverConsign.getId());
+            attachment.setTenant("erui");
 
-        Integer attachmentId = attachmentService.insert(attachment);
+            attachmentId = attachmentService.insert(attachment);
+        }
 
         try {
             Map<String, Object> localVariables = new HashMap<>();
@@ -110,7 +113,9 @@ public class DeliverConsignController {
         }catch (Exception e) {
             // 业务流启动失败，删除插入的附件内容
             e.printStackTrace();
-            attachmentService.deleteById(attachmentId);
+            if (attachmentId != null) {
+                attachmentService.deleteById(attachmentId);
+            }
             throw e;
         }
         return result;
