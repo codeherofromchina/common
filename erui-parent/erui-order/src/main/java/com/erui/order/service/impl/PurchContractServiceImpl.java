@@ -222,7 +222,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                 PurchContractGoods purchContractGoods = dbPurchContractGoodsMap.remove(pgId);
                 existId.add(pgId);
                 Project project = purchContractGoods.getProject();
-
+                order = project.getOrder();
                 boolean hasSon = false;
                 if (purchContractGoods.getExchanged()) {
                     // 是替换商品，查看父商品是否存在
@@ -348,7 +348,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                     send = false;
                 }
             }
-            if (send && order != null) {
+            if (send && order != null && order.getOrderSource() == 4) {
                 //订单商品合同数量全部生成采购合同时给eacp发送订单商品数据
                 sendEacp(order, goodSkus);
             }
@@ -463,7 +463,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                     send = false;
                 }
             }
-            if (send && order != null) {
+            if (send && order != null && order.getOrderSource() == 4) {
                 //订单商品合同数量全部生成采购合同时给eacp发送订单商品数据
                 sendEacp(order, goodSkus);
             }
