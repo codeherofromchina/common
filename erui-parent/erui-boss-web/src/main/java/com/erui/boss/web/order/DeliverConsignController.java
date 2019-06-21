@@ -60,6 +60,27 @@ public class DeliverConsignController {
     }
 
     /**
+     * 获取尺重附件信息
+     * @param request
+     * @param params
+     * @return
+     */
+    @RequestMapping(value = "chiZhongAttachment", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> chiZhongAttachment(HttpServletRequest request, @RequestBody Map<String,Integer> params) {
+        Integer deliverConsignId = params.get("deliverConsignId");
+        List<Attachment> attachments = attachmentService.selectAttachmentByCategoryAndGroupAndRelObjId("DELIVERCONSIGN","ruler",deliverConsignId);
+
+        Result<Object> result = new Result<>();
+        if (attachments == null || attachments.size() == 0) {
+            result.setStatus(ResultStatusEnum.NULL_DATA);
+        } else {
+            result.setData(attachments.get(0));
+        }
+        return result;
+    }
+
+
+    /**
      * 出口通知单订舱专员审核
      * @return
      */
@@ -83,11 +104,32 @@ public class DeliverConsignController {
         // 获取当前登录用户ID并比较是否是当前用户审核
         Object userId = request.getSession().getAttribute("userid");
         Object realname = request.getSession().getAttribute("realname");
+        List<Attachment> attachments = attachmentService.selectAttachmentByCategoryAndGroupAndRelObjId("DELIVERCONSIGN","ruler",deliverConsignId);
+        Attachment attachment = null;
+        if (attachments != null && attachments.size() > 0) {
+            attachment = attachments.get(0);
+        }
         // 完善附件信息
         AttachmentVo attachmentVo = bookingSpaceAuditRequest.getAttachment();
         Integer attachmentId = null;
-        if (attachmentVo == null) {
-            Attachment attachment = new Attachment();
+        if (attachment != null) {
+            // 更新
+            if (attachmentVo != null) {
+                attachment.setTitle(attachmentVo.getTitle());
+                attachment.setUrl(attachmentVo.getUrl());
+                String intUserId = String.valueOf(userId);// DELIVERCONSIGN
+                if (StringUtils.isNumeric(intUserId)) {
+                    attachment.setUserId(Integer.parseInt(intUserId));
+                    attachment.setUserName(String.valueOf(realname));
+                }
+                attachment.setFrontDate(attachmentVo.getFrontDate());
+                attachment.setDeleteFlag(false);
+                attachment.setType(attachmentVo.getType());
+                attachmentService.update(attachment);
+            }
+        } else if (attachmentVo != null) {
+            // 新增
+            attachment = new Attachment();
             attachment.setGroup(attachmentVo.getGroup());
             attachment.setTitle(attachmentVo.getTitle());
             attachment.setUrl(attachmentVo.getUrl());
@@ -105,19 +147,24 @@ public class DeliverConsignController {
             attachment.setTenant("erui");
 
             attachmentId = attachmentService.insert(attachment);
+        } else {
+            // 错误
+            result.setStatus(ResultStatusEnum.PARAM_ERROR);
+            result.setMsg("尺重附件为必须参数");
+            return result;
         }
 
-        try {
-            Map<String, Object> localVariables = new HashMap<>();
-            BpmUtils.completeTask(taskId, eruiToken, null, localVariables, "");
-        }catch (Exception e) {
-            // 业务流启动失败，删除插入的附件内容
-            e.printStackTrace();
-            if (attachmentId != null) {
-                attachmentService.deleteById(attachmentId);
-            }
-            throw e;
-        }
+//        try {
+//            Map<String, Object> localVariables = new HashMap<>();
+//            BpmUtils.completeTask(taskId, eruiToken, null, localVariables, "");
+//        }catch (Exception e) {
+//            // 业务流启动失败，删除插入的附件内容
+//            e.printStackTrace();
+//            if (attachmentId != null) {
+//                attachmentService.deleteById(attachmentId);
+//            }
+//            throw e;
+//        }
         return result;
     }
 
