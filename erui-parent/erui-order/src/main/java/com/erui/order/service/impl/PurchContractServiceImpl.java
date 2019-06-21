@@ -500,29 +500,6 @@ public class PurchContractServiceImpl implements PurchContractService {
         }
     }
 
-   /* //给EACP返回商品有效信息
-    private List<Goods> eacpGoods(List<Goods> goodsList) {
-        List<Goods> goods = new ArrayList<>();
-        for (Goods g : goodsList) {
-            Goods goods1 = new Goods();
-            goods1.setId(g.getId());
-            goods1.setSku(g.getSku());
-            goods1.setNameEn(g.getNameEn());
-            goods1.setNameZh(g.getNameZh());
-            goods1.setPrice(g.getPrice());
-            goods1.setDepartment(g.getDepartment());
-            goods1.setContractGoodsNum(g.getContractGoodsNum());
-            goods1.setUnit(g.getUnit());
-            goods1.setBrand(g.getBrand());
-            goods1.setModel(g.getModel());
-            goods1.setClientDesc(g.getClientDesc());
-            goods1.setMeteType(g.getMeteType());
-            goods1.setMeteName(g.getMeteName());
-            goods.add(goods1);
-        }
-        return goods;
-    }*/
-
     //验证获取sku
     public List<Goods> getGoodSku(List<Goods> goodsList) throws Exception {
         final String eruiToken = (String) ThreadLocalUtil.getObject();
