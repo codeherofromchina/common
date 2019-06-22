@@ -488,4 +488,25 @@
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t3.`name`
     </select>
+    
+    <!-- 按事业部获取订单的总金额 -->
+    <select id="orderTotalPriceByOrg" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        IFNULL(t3.`name`, '其他') AS `name`,
+        SUM(t1.total_price_usd) AS totalPriceUsd,
+        (TIMESTAMPDIFF(DAY,#{startTime},#{endTime}) + 1) as dayNum
+        FROM
+        erui_order.`order` AS t1
+        LEFT JOIN
+        erui_sys.`group` t3 ON t1.business_unit_id = t3.id 
+        AND t3.deleted_flag = 'N',
+        erui_order.`project` AS t2
+        WHERE
+        t1.id = t2.order_id AND t1.`status` in (3,4) AND t1.delete_flag = 0
+        AND t1.order_category != 1 AND t1.order_category != 3
+        AND t1.contract_no like 'YR%'
+        AND t1.order_category != 1 AND t1.order_category != 3
+        AND t2.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY t3.`name`
+    </select>
 </mapper>

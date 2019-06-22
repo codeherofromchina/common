@@ -46,6 +46,7 @@ public interface SalesmanNumsService {
      * @return
      *  {countryName:{salesManNum:n,dayNum:x}}
      */
+    @Deprecated
     Map<String, Map<String,Object>> manTotalNumByCountry(Map<String,Object> params);
 
     /**
@@ -55,5 +56,6 @@ public interface SalesmanNumsService {
      * @return
      *  {areaName:{salesManNum:n,dayNum:x}}
      */
+    @Deprecated
     Map<String, Map<String,Object>> manTotalNumByArea(Map<String, Object> params);
 }
