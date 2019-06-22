@@ -1189,23 +1189,24 @@ public class OrderServiceImpl implements OrderService {
                     JSONObject processResp = null;
                     switch (addOrderVo.getOrderCategory()) {
                         case 1:
+                        case 3:
                             // 预投订单
                             processResp = BpmUtils.startProcessInstanceByKey("stocking_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
                             orderUpdate.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
                             orderUpdate.setAuditingUserId("");
                             break;
-                        case 3:
-                            // 试用订单
-                            processResp = BpmUtils.startProcessInstanceByKey("sample_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
-                            orderUpdate.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
-                            orderUpdate.setAuditingUserId("");
-                            break;
-                        case 4:
-                            // 现货订单
-                            processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
-                            orderUpdate.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
-                            orderUpdate.setAuditingUserId("");
-                            break;
+//                        case 3:
+//                            // 试用订单 // 修改和预投流程一样，增加到董事长的审核节点
+//                            processResp = BpmUtils.startProcessInstanceByKey("sample_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+//                            orderUpdate.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
+//                            orderUpdate.setAuditingUserId("");
+//                            break;
+//                        case 4:
+//                            // 现货订单 // 按照金额正常订单走
+//                            processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
+//                            orderUpdate.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
+//                            orderUpdate.setAuditingUserId("");
+//                            break;
                         case 6:
                             // 国内订单
                             // 国内订单需要传递订单的人民币金额
@@ -1582,20 +1583,21 @@ public class OrderServiceImpl implements OrderService {
             bpmInitVar.put("task_pm_department", order1.getBusinessUnitId());
             switch (addOrderVo.getOrderCategory()) {
                 case 1:
+                case 3:
                     // 预投订单
                     processResp = BpmUtils.startProcessInstanceByKey("stocking_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
                     order1.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
                     break;
-                case 3:
-                    // 试用订单
-                    processResp = BpmUtils.startProcessInstanceByKey("sample_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
-                    order1.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
-                    break;
-                case 4:
-                    // 现货订单
-                    processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
-                    order1.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
-                    break;
+//                case 3:
+//                    // 试用订单 // 修改和预投流程一样，增加到董事长的审核节点
+//                    processResp = BpmUtils.startProcessInstanceByKey("sample_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+//                    order1.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
+//                    break;
+//                case 4:
+//                    // 现货订单  // 按照金额走正常订单流程
+//                    processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + order1.getId(), bpmInitVar);
+//                    order1.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
+//                    break;
                 case 6:
                     // 国内订单
                     bpmInitVar.put("order_amount", addOrderVo.getTotalPrice().doubleValue());
