@@ -325,4 +325,46 @@
     start_prescription <![CDATA[ <= ]]> #{endTime}
     AND end_prescription >= #{startTime}
   </select>
+  
+  <!-- 按地区分组，查找给定时间段内的各个地区销售人员平均数量 -->
+  <select id="avgManNumInMonthByArea" parameterType="java.util.Map" resultType="java.util.Map">
+	    SELECT
+			area_name AS `name`,
+			AVG( num ) AS avgNum
+		FROM
+			erui_report.salesman_nums 
+		WHERE
+			start_prescription BETWEEN #{startTime}  AND #{startTime} 
+			AND area_name IS NOT NULL 
+		GROUP BY
+			area_name
+  </select>
+  
+  <!-- 按国家分组，查找给定时间段内的各个国家销售人员平均数量 -->
+  <select id="avgManNumInMonthByCountry" parameterType="java.util.Map" resultType="java.util.Map">
+	    SELECT
+			country_name AS `name`,
+			AVG( num ) AS avgNum
+		FROM
+			erui_report.salesman_nums 
+		WHERE
+			start_prescription BETWEEN #{startTime}  AND #{startTime} 
+			AND country_name IS NOT NULL 
+		GROUP BY
+			country_name
+  </select>
+  
+  <!-- 按事业部分组，查找给定时间段内的各个事业部销售人员平均数量 -->
+  <select id="avgManNumInMonthByOrg" parameterType="java.util.Map" resultType="java.util.Map">
+	    SELECT
+			org_name AS `name`,
+			AVG( num ) AS avgNum
+		FROM
+			erui_report.salesman_org_nums 
+		WHERE
+			start_prescription BETWEEN #{startTime}  AND #{startTime} 
+			AND org_name IS NOT NULL 
+		GROUP BY
+			org_name
+  </select>
 </mapper>

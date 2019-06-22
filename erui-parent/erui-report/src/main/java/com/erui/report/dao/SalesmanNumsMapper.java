@@ -35,5 +35,39 @@ public interface SalesmanNumsMapper {
      * @param params
      * @return
      */
+    @Deprecated
     List<Map<String,Object>> selectNumsWhereTime(Map<String, Object> params);
+    
+    /**
+     * 按地区分组，查找给定时间段内的各个地区销售人员平均数量
+     * @param params
+     *        {startTime:'',endTime:''}
+     *        日期格式要处理成 yyyy-MM-01；无论日期是几号，都处理成1号。 
+     *        例如：页面选择日期段 从2019-05-20到2019-10-15，要将日期处理成从2019-05-01到2019-10-01 
+     * @return
+     *  [{name:地区名称,avgNum:销售人员平均人数}]
+     */
+    List<Map<String,Object>> avgManNumInMonthByArea(Map<String, Object> params);
+    
+    /**
+     * 按国家分组，查找给定时间段内的各个国家销售人员平均数量
+     * @param params
+     *        {startTime:'',endTime:''}
+     *        日期格式要处理成 yyyy-MM-01；无论日期是几号，都处理成1号。 
+     *        例如：页面选择日期段 从2019-05-20到2019-10-15，要将日期处理成从2019-05-01到2019-10-01 
+     * @return
+     *  [{name:国家名称,avgNum:销售人员平均人数}]
+     */
+    List<Map<String,Object>> avgManNumInMonthByCountry(Map<String, Object> params);
+    
+    /**
+     * 按事业部分组，查找给定时间段内的各个事业部销售人员平均数量
+     * @param params
+     *        {startTime:'',endTime:''}
+     *        日期格式要处理成 yyyy-MM-01；无论日期是几号，都处理成1号。 
+     *        例如：页面选择日期段 从2019-05-20到2019-10-15，要将日期处理成从2019-05-01到2019-10-01 
+     * @return
+     *  [{name:事业部名称,avgNum:销售人员平均人数}]
+     */
+    List<Map<String,Object>> avgManNumInMonthByOrg(Map<String, Object> params);
 }

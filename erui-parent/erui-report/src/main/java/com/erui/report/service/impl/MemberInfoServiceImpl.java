@@ -4,6 +4,7 @@ import com.erui.comm.util.excel.BuildExcel;
 import com.erui.comm.util.excel.BuildExcelImpl;
 import com.erui.comm.util.excel.ExcelCustomStyle;
 import com.erui.report.dao.MemberInfoStatisticsMapper;
+import com.erui.report.dao.SalesmanNumsMapper;
 import com.erui.report.service.MemberInfoService;
 import com.erui.report.service.SalesmanNumsService;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +26,8 @@ public class MemberInfoServiceImpl implements MemberInfoService {
     private MemberInfoStatisticsMapper memberInfoStatisticsMapper;
     @Autowired
     private SalesmanNumsService salesmanNumsService;
+    @Autowired
+    private SalesmanNumsMapper salesmanNumsMapper;
 
     /**
      * 按照地区统计会员等级
@@ -573,14 +576,26 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         return workbook;
     }
 
+//    @Override
+//    public Map<String, List<Object>> efficiencyByArea(Map<String, Object> params) {
+//        // 获取数据
+//        List<Map<String, Object>> orderTotalPriceList = memberInfoStatisticsMapper.orderTotalPriceByArea(params);
+//        Map<String, Map<String, Object>> totalNumMap = salesmanNumsService.manTotalNumByArea(params);
+//        boolean ascFlag = "1".equals(String.valueOf(params.get("sort")));
+//        // 处理数据
+//        Map<String, List<Object>> resultMap = _handleEfficiencyData(orderTotalPriceList, totalNumMap, ascFlag);
+//        return resultMap;
+//    }
+    
     @Override
     public Map<String, List<Object>> efficiencyByArea(Map<String, Object> params) {
-        // 获取数据
+        // 获取各个区域的总销售额数据
         List<Map<String, Object>> orderTotalPriceList = memberInfoStatisticsMapper.orderTotalPriceByArea(params);
-        Map<String, Map<String, Object>> totalNumMap = salesmanNumsService.manTotalNumByArea(params);
+        // 获取各个区域的平均销售人员
+        List<Map<String, Object>> avgManNumInMonthByAreaList = salesmanNumsMapper.avgManNumInMonthByArea(_changeDateToFirstDay(params));
         boolean ascFlag = "1".equals(String.valueOf(params.get("sort")));
         // 处理数据
-        Map<String, List<Object>> resultMap = _handleEfficiencyData(orderTotalPriceList, totalNumMap, ascFlag);
+        Map<String, List<Object>> resultMap = _handleEfficiencyData(orderTotalPriceList, avgManNumInMonthByAreaList, ascFlag);
         return resultMap;
     }
 
@@ -610,14 +625,26 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         return workbook;
     }
 
+//    @Override
+//    public Map<String, List<Object>> efficiencyByCountry(Map<String, Object> params) {
+//        // 获取数据
+//        List<Map<String, Object>> orderTotalPriceList = memberInfoStatisticsMapper.orderTotalPriceByCountry(params);
+//        Map<String, Map<String, Object>> totalNumMap = salesmanNumsService.manTotalNumByCountry(params);
+//        boolean ascFlag = "1".equals(String.valueOf(params.get("sort")));
+//        // 处理数据
+//        Map<String, List<Object>> resultMap = _handleEfficiencyData(orderTotalPriceList, totalNumMap, ascFlag);
+//        return resultMap;
+//    }
+    
     @Override
     public Map<String, List<Object>> efficiencyByCountry(Map<String, Object> params) {
-        // 获取数据
+        // 获取各个国家的总销售额数据
         List<Map<String, Object>> orderTotalPriceList = memberInfoStatisticsMapper.orderTotalPriceByCountry(params);
-        Map<String, Map<String, Object>> totalNumMap = salesmanNumsService.manTotalNumByCountry(params);
+        // 获取各个国家的平均销售人员
+        List<Map<String, Object>> avgManNumInMonthByAreaList = salesmanNumsMapper.avgManNumInMonthByCountry(_changeDateToFirstDay(params));
         boolean ascFlag = "1".equals(String.valueOf(params.get("sort")));
         // 处理数据
-        Map<String, List<Object>> resultMap = _handleEfficiencyData(orderTotalPriceList, totalNumMap, ascFlag);
+        Map<String, List<Object>> resultMap = _handleEfficiencyData(orderTotalPriceList, avgManNumInMonthByAreaList, ascFlag);
         return resultMap;
     }
 
@@ -739,59 +766,153 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         return result;
     }
 
+//    /**
+//     * 处理人均效能统计数据
+//     *
+//     * @param orderTotalPriceList
+//     * @param totalNumMap
+//     * @param ascFlag             true:升序  false:降序
+//     * @return
+//     */
+//    private Map<String, List<Object>> _handleEfficiencyData(List<Map<String, Object>> orderTotalPriceList, Map<String, Map<String, Object>> totalNumMap, boolean ascFlag) {
+//        Set<String> areaNameList = new HashSet<>();
+//        areaNameList.addAll(totalNumMap.keySet());
+//
+//        Map<String, Map<String, Object>> orderTotalPriceMap = orderTotalPriceList.stream().collect(Collectors.toMap(vo -> {
+//            String name = (String) vo.get("name");
+//            areaNameList.add(name);
+//            return name;
+//        }, vo -> vo));
+//
+//        int totalNum = 0;
+//        BigDecimal totalData = BigDecimal.ZERO;
+//        BigDecimal tenThousand = new BigDecimal(10000); // 单位是美元，通过除以10000转换为万美元
+//        List<Object[]> list = new ArrayList<>();
+//        for (String areaName : areaNameList) {
+//            Map<String, Object> numMap = totalNumMap.get(areaName);
+//            Map<String, Object> priceMap = orderTotalPriceMap.get(areaName);
+//            int n = 0;
+//            Object[] objArr = new Object[2];
+//            objArr[0] = areaName;
+//            if (numMap != null && priceMap != null) {
+//                Integer numDayNum = (Integer) numMap.get("dayNum");
+//                BigDecimal salesManNum = (BigDecimal) numMap.get("salesManNum");
+//                Long priceDayNum = (Long) priceMap.get("dayNum");
+//                BigDecimal totalPriceUsd = (BigDecimal) priceMap.get("totalPriceUsd");
+//                if (salesManNum != null && salesManNum.compareTo(BigDecimal.ZERO) > 0) {
+//                    BigDecimal perTotalPrice = totalPriceUsd.divide(new BigDecimal(priceDayNum), 2, BigDecimal.ROUND_DOWN);
+//                    BigDecimal perNum = salesManNum.divide(new BigDecimal(numDayNum), 2, BigDecimal.ROUND_DOWN);
+//                    BigDecimal nengXiao = perTotalPrice.divide(perNum, 0, BigDecimal.ROUND_DOWN).divide(tenThousand, 2, BigDecimal.ROUND_DOWN);
+//                    objArr[1] = nengXiao;
+//                    if (!nengXiao.equals(BigDecimal.ZERO)) {
+//                        // 求平均能效的中介值，0的不算其中
+//                        totalNum++;
+//                        totalData = totalData.add(nengXiao);
+//                    }
+//                } else {
+//                    objArr[1] = BigDecimal.ZERO; // 销售人员为0，能效为0%
+//                }
+//            } else {
+//                objArr[1] = BigDecimal.ZERO; // 如果计划销售人员数量为空或完成金额为空，则效能为0%
+//            }
+//            list.add(objArr);
+//        }
+//
+//        list.sort(new Comparator<Object[]>() {
+//            @Override
+//            public int compare(Object[] o1, Object[] o2) {
+//                BigDecimal bd01 = (BigDecimal) o1[1];
+//                BigDecimal bd02 = (BigDecimal) o2[1];
+//                if (ascFlag) {
+//                    return bd01.compareTo(bd02);
+//                } else {
+//                    return -bd01.compareTo(bd02);
+//                }
+//            }
+//        });
+//
+//        List<Object> nameList = new ArrayList<>();
+//        List<Object> dataList = new ArrayList<>();
+//        list.stream().forEach(vo -> {
+//            nameList.add((String) vo[0]);
+//            dataList.add((BigDecimal) vo[1]);
+//        });
+////        nameList.add("平均");
+////        dataList.add(totalNum == 0 ? BigDecimal.ZERO : totalData.divide(new BigDecimal(totalNum), 2, BigDecimal.ROUND_DOWN));
+//        Map<String, List<Object>> result = new HashMap<>();
+//        result.put("nameList", nameList);
+//        result.put("dataList", dataList);
+//
+//        return result;
+//    }
+
     /**
      * 处理人均效能统计数据
      *
-     * @param orderTotalPriceList
-     * @param totalNumMap
+     * @param orderTotalPriceList 总销售额集合
+     * @param avgManNumInMonthByAreaList 平均销售人数集合
      * @param ascFlag             true:升序  false:降序
      * @return
      */
-    private Map<String, List<Object>> _handleEfficiencyData(List<Map<String, Object>> orderTotalPriceList, Map<String, Map<String, Object>> totalNumMap, boolean ascFlag) {
-        Set<String> areaNameList = new HashSet<>();
-        areaNameList.addAll(totalNumMap.keySet());
+    private Map<String, List<Object>> _handleEfficiencyData(List<Map<String, Object>> orderTotalPriceList, List<Map<String, Object>> avgManNumInMonthByAreaList, boolean ascFlag) {
+        // 名称集合
+    	Set<String> nameList = new HashSet<>();
 
+    	// 遍历总销售额集合，将名称放到名称列表中，并将集合转换成 名称为key，元素为value的map
         Map<String, Map<String, Object>> orderTotalPriceMap = orderTotalPriceList.stream().collect(Collectors.toMap(vo -> {
             String name = (String) vo.get("name");
-            areaNameList.add(name);
+            nameList.add(name);
+            return name;
+        }, vo -> vo));
+        
+        // 遍历平均销售人数集合，将名称放到名称列表中，并将集合转换成 名称为key，元素为value的map
+        Map<String, Map<String, Object>> avgManNumInMonthByAreaMap = avgManNumInMonthByAreaList.stream().collect(Collectors.toMap(vo -> {
+            String name = (String) vo.get("name");
+            nameList.add(name);
             return name;
         }, vo -> vo));
 
-        int totalNum = 0;
-        BigDecimal totalData = BigDecimal.ZERO;
-        BigDecimal tenThousand = new BigDecimal(10000); // 单位是美元，通过除以10000转换为万美元
-        List<Object[]> list = new ArrayList<>();
-        for (String areaName : areaNameList) {
-            Map<String, Object> numMap = totalNumMap.get(areaName);
-            Map<String, Object> priceMap = orderTotalPriceMap.get(areaName);
+        // 单位是美元，通过除以10000转换为万美元
+        BigDecimal tenThousand = new BigDecimal(10000); 
+        // 名称 效能 结果集合
+        List<Object[]> nameAndEfficacyList = new ArrayList<>();
+        // 遍历名称集合，计算效能，并封装到结合集合中
+        for (String name : nameList) {
+            // 获取该名称下的销售总额
+        	Map<String, Object> priceMap = orderTotalPriceMap.get(name);
+        	// 获取该名称下的平均销售人员数量
+            Map<String, Object> avgManNumMap = avgManNumInMonthByAreaMap.get(name);
+            
             int n = 0;
+            // 名称 效能 数组，作为结果集的元素
             Object[] objArr = new Object[2];
-            objArr[0] = areaName;
-            if (numMap != null && priceMap != null) {
-                Integer numDayNum = (Integer) numMap.get("dayNum");
-                BigDecimal salesManNum = (BigDecimal) numMap.get("salesManNum");
-                Long priceDayNum = (Long) priceMap.get("dayNum");
-                BigDecimal totalPriceUsd = (BigDecimal) priceMap.get("totalPriceUsd");
-                if (salesManNum != null && salesManNum.compareTo(BigDecimal.ZERO) > 0) {
-                    BigDecimal perTotalPrice = totalPriceUsd.divide(new BigDecimal(priceDayNum), 2, BigDecimal.ROUND_DOWN);
-                    BigDecimal perNum = salesManNum.divide(new BigDecimal(numDayNum), 2, BigDecimal.ROUND_DOWN);
-                    BigDecimal nengXiao = perTotalPrice.divide(perNum, 0, BigDecimal.ROUND_DOWN).divide(tenThousand, 2, BigDecimal.ROUND_DOWN);
-                    objArr[1] = nengXiao;
-                    if (!nengXiao.equals(BigDecimal.ZERO)) {
-                        // 求平均能效的中介值，0的不算其中
-                        totalNum++;
-                        totalData = totalData.add(nengXiao);
-                    }
+            // 数组第一个元素 为 名称
+            objArr[0] = name;
+            // 计算数组第二个元素  效能
+            // 如果有销售总额和平均销售人数，则进行计算效能，否则效能为0
+            if (priceMap != null && avgManNumMap != null) {
+                // 获取平均销售人数
+            	BigDecimal avgNum = (BigDecimal) avgManNumMap.get("avgNum");
+                // 获取销售总额
+            	BigDecimal totalPriceUsd = (BigDecimal) priceMap.get("totalPriceUsd");
+                // 如果平均销售人数大于零，则进行计算效能，否则效能为0
+            	if (avgNum != null && avgNum.compareTo(BigDecimal.ZERO) > 0) {
+                    // 能效（万美元） = 销售总额（万美元）/平均销售人数
+            		BigDecimal efficacy = totalPriceUsd.divide(tenThousand).divide(avgNum,2, BigDecimal.ROUND_DOWN);
+                    objArr[1] = efficacy;
                 } else {
-                    objArr[1] = BigDecimal.ZERO; // 销售人员为0，能效为0%
+                	// 销售人员为0，能效为0 
+                    objArr[1] = BigDecimal.ZERO; 
                 }
             } else {
-                objArr[1] = BigDecimal.ZERO; // 如果计划销售人员数量为空或完成金额为空，则效能为0%
+            	// 如果 销售总额为空或平均销售人数为空，则效能为0 
+                objArr[1] = BigDecimal.ZERO; 
             }
-            list.add(objArr);
+            nameAndEfficacyList.add(objArr);
         }
 
-        list.sort(new Comparator<Object[]>() {
+        // 名称 效能 结果集合 按效能排序
+        nameAndEfficacyList.sort(new Comparator<Object[]>() {
             @Override
             public int compare(Object[] o1, Object[] o2) {
                 BigDecimal bd01 = (BigDecimal) o1[1];
@@ -803,20 +924,42 @@ public class MemberInfoServiceImpl implements MemberInfoService {
                 }
             }
         });
-
-        List<Object> nameList = new ArrayList<>();
-        List<Object> dataList = new ArrayList<>();
-        list.stream().forEach(vo -> {
-            nameList.add((String) vo[0]);
-            dataList.add((BigDecimal) vo[1]);
+        // 排序后的名称集合
+        List<Object> nameSortedList = new ArrayList<>();
+        // 排序后的效能集合
+        List<Object> efficacySortedList = new ArrayList<>();
+        nameAndEfficacyList.stream().forEach(vo -> {
+        	nameSortedList.add((String) vo[0]);
+        	efficacySortedList.add((BigDecimal) vo[1]);
         });
-//        nameList.add("平均");
-//        dataList.add(totalNum == 0 ? BigDecimal.ZERO : totalData.divide(new BigDecimal(totalNum), 2, BigDecimal.ROUND_DOWN));
         Map<String, List<Object>> result = new HashMap<>();
-        result.put("nameList", nameList);
-        result.put("dataList", dataList);
+        result.put("nameList", nameSortedList);
+        result.put("dataList", efficacySortedList);
 
         return result;
     }
-
+    
+    /**
+     * 将开始时间 和 结束时间 的日期格式转换成yyyy-MM-01
+     * @param params
+     * @return
+     */
+    private Map<String, Object>  _changeDateToFirstDay(Map<String, Object> params) {
+    	Map<String, Object> res  = new HashMap<String, Object>();
+    	// 获取日期，并处理日期格式
+        String startTime = (String) params.get("startTime");
+        String endTime = (String) params.get("endTime");
+        
+        // 转换
+        String[] startSplit = startTime.split("-");
+        startTime = startSplit[0]+"-"+startSplit[1]+"-01";
+        String[] endSplit = endTime.split("-");
+        endTime = endSplit[0]+"-"+endSplit[1]+"-01";
+        
+        // 封装
+        res.put("startTime", startTime);
+        res.put("endTime", endTime);
+        
+        return res;
+    }
 }

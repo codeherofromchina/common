@@ -124,4 +124,12 @@ public interface MemberInfoStatisticsMapper {
      * @return
      */
     List<Map<String, Object>> orderTotalPriceByCountry(Map<String, Object> params);
+    
+    /**
+     * 按事业部获取订单的总金额
+     *
+     * @param params
+     * @return
+     */
+    List<Map<String, Object>> orderTotalPriceByOrg(Map<String, Object> params);
 }
