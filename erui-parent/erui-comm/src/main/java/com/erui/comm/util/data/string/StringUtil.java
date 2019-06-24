@@ -614,21 +614,39 @@ public class StringUtil {
         return true;
     }
 
-    public static String genInsepctApplyNo(String oldInspectApplyNo) {
-            String prefix = "ERJ" + DateUtil.format("yyyy", new Date());
-            String beginNumStr = "0001";
-            if (StringUtils.isNotBlank(oldInspectApplyNo) && oldInspectApplyNo.length() == 11 &&
-                    (oldInspectApplyNo.substring(0, 7).compareTo(prefix) >= 0 )) {
-                String seq = oldInspectApplyNo.substring(3);
-                long seqLong = Long.parseLong(seq);
+    // 生成NCR号 20190321001
+    public static String genNCR(String oldNCR) {
+        String prefix = DateUtil.format("yyyyMMdd", new Date());
+        String beginNumStr = "001";
+        if (StringUtils.isNotBlank(oldNCR) && oldNCR.length() == 11 &&
+                (oldNCR.substring(0, 8).compareTo(prefix) >= 0)) {
+            String seq = oldNCR;
+            long seqLong = Long.parseLong(seq);
+            seqLong += 1;
+            // 末尾从0001开始 TODO 月份可能提前跑到13，产品确认一天易瑞类100%不会超过99单
+            if (seqLong % 1000 == 0) {
                 seqLong += 1;
-                // 末尾从0001开始
-                if (seqLong % 10000 == 0) {
-                    seqLong += 1;
-                }
-                return "ERJ" + String.valueOf(seqLong);
             }
-            return prefix + beginNumStr;
+            return String.valueOf(seqLong);
+        }
+        return prefix + beginNumStr;
+    }
+
+    public static String genInsepctApplyNo(String oldInspectApplyNo) {
+        String prefix = "ERJ" + DateUtil.format("yyyy", new Date());
+        String beginNumStr = "0001";
+        if (StringUtils.isNotBlank(oldInspectApplyNo) && oldInspectApplyNo.length() == 11 &&
+                (oldInspectApplyNo.substring(0, 7).compareTo(prefix) >= 0)) {
+            String seq = oldInspectApplyNo.substring(3);
+            long seqLong = Long.parseLong(seq);
+            seqLong += 1;
+            // 末尾从0001开始
+            if (seqLong % 10000 == 0) {
+                seqLong += 1;
+            }
+            return "ERJ" + String.valueOf(seqLong);
+        }
+        return prefix + beginNumStr;
 
     }
 
@@ -637,7 +655,7 @@ public class StringUtil {
         String prefix = "YRX" + DateUtil.format("yyyyMMdd", new Date());
         String beginNumStr = "01";
         if (StringUtils.isNotBlank(oldContractNo) && oldContractNo.length() == 13 &&
-                (oldContractNo.substring(0, 11).compareTo(prefix) >= 0 )) {
+                (oldContractNo.substring(0, 11).compareTo(prefix) >= 0)) {
             String seq = oldContractNo.substring(3);
             long seqLong = Long.parseLong(seq);
             seqLong += 1;
@@ -649,12 +667,13 @@ public class StringUtil {
         }
         return prefix + beginNumStr;
     }
+
     // 生成易瑞销售合同
     public static String genContractNo02(String oldContractNo) {
         String prefix = "YRHWX" + DateUtil.format("yyyyMMdd", new Date());
         String beginNumStr = "01";
         if (StringUtils.isNotBlank(oldContractNo) && oldContractNo.length() == 15 &&
-                (oldContractNo.substring(0, 13).compareTo(prefix) >= 0 )) {
+                (oldContractNo.substring(0, 13).compareTo(prefix) >= 0)) {
             String seq = oldContractNo.substring(5);
             long seqLong = Long.parseLong(seq);
             seqLong += 1;
@@ -666,12 +685,13 @@ public class StringUtil {
         }
         return prefix + beginNumStr;
     }
+
     // 生成
     public static String genDeliverConsignNo(String oldDeliverConsignNo) {
         String prefix = "CKFH" + DateUtil.format("yyyyMM", new Date());
         String beginNumStr = "0001";
         if (StringUtils.isNotBlank(oldDeliverConsignNo) && oldDeliverConsignNo.length() == 14 &&
-                (oldDeliverConsignNo.substring(0, 10).compareTo(prefix) >= 0 )) {
+                (oldDeliverConsignNo.substring(0, 10).compareTo(prefix) >= 0)) {
             String seq = oldDeliverConsignNo.substring(4);
             long seqLong = Long.parseLong(seq);
             seqLong += 1;
@@ -679,16 +699,17 @@ public class StringUtil {
             if (seqLong % 10000 == 0) {
                 seqLong += 1;
             }
-            return "CKFH" + String.valueOf(seqLong);
+            return "CKFH" + seqLong;
         }
         return prefix + beginNumStr;
     }
+
     // 生成采购合同号
     public static String genPurchNo(String oldPurch) {
         String prefix = "YRC" + DateUtil.format("yyyy", new Date());
         String beginNumStr = "00001";
         if (StringUtils.isNotBlank(oldPurch) && oldPurch.length() == 12 &&
-                (oldPurch.substring(0, 7).compareTo(prefix) >= 0 )) {
+                (oldPurch.substring(0, 7).compareTo(prefix) >= 0)) {
             String seq = oldPurch.substring(3);
             long seqLong = Long.parseLong(seq);
             seqLong += 1;
@@ -788,5 +809,8 @@ public class StringUtil {
         }
     }
 
+    public static void main(String[] args) {
+        System.out.println("dncnslcnacl女厕所里打错了删除了你" + genNCR("20190624001"));
+    }
 
 }
