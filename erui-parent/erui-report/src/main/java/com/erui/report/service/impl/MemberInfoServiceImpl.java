@@ -686,6 +686,45 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         return workbook;
     }
 
+    @Override
+    public Map<String, List<Object>> efficiencyByOrg(Map<String, Object> params) {
+        // 获取各个事业部的总销售额数据
+        List<Map<String, Object>> orderTotalPriceList = memberInfoStatisticsMapper.orderTotalPriceByOrg(params);
+        // 获取各个事业部的平均销售人员
+        List<Map<String, Object>> avgManNumInMonthByAreaList = salesmanNumsMapper.avgManNumInMonthByOrg(_changeDateToFirstDay(params));
+        boolean ascFlag = "1".equals(String.valueOf(params.get("sort")));
+        // 处理数据
+        Map<String, List<Object>> resultMap = _handleEfficiencyData(orderTotalPriceList, avgManNumInMonthByAreaList, ascFlag);
+        return resultMap;
+    }
+
+    @Override
+    public HSSFWorkbook exportEfficiencyByOrg(Map<String, Object> params) {
+        Map<String, List<Object>> map = efficiencyByOrg(params);
+        List<Object> headerList = map.get("nameList");
+        List<Object> row01 = map.get("dataList");
+
+        headerList.add(0, "");
+        row01.add(0, "万美元");
+
+        // 填充数据
+        List<Object[]> rowList = new ArrayList<>();
+        rowList.add(row01.toArray());
+
+        // 生成excel并返回
+        BuildExcel buildExcel = new BuildExcelImpl();
+        HSSFWorkbook workbook = buildExcel.buildExcel(rowList, headerList.toArray(new String[headerList.size()]), null,
+                "人均效能统计-事业部统计");
+        // 设置样式
+        ExcelCustomStyle.setHeadStyle(workbook, 0, 0);
+        ExcelCustomStyle.setContextStyle(workbook, 0, 1, -1);
+        // 如果要加入标题
+        ExcelCustomStyle.insertRow(workbook, 0, 0, 1);
+        ExcelCustomStyle.insertTitle(workbook, 0, 0, 0, "人均效能统计-事业部统计（" + params.get("startTime") + "-" + params.get("endTime") + "）");
+        return workbook;
+    }
+
+    
     /**
      * 处理会员等级数据
      *
