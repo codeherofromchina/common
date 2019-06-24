@@ -242,6 +242,11 @@ public class Project {
     @Column(name = "total_logistics_cost")
     @JsonIgnore
     private BigDecimal totalLogisticsCost;        //物流成本总计
+    // 流程实例ID
+    @Column(name = "process_id")
+    private String processId;
+    @Column(name = "task_id")
+    private String taskId;
 
     public BigDecimal getTotalLogisticsCost() {
         return totalLogisticsCost;
@@ -258,12 +263,6 @@ public class Project {
     public void setQualityInspectType(String qualityInspectType) {
         this.qualityInspectType = qualityInspectType;
     }
-
-    // 流程实例ID
-    @Column(name = "process_id")
-    private String processId;
-    @Column(name = "task_id")
-    private String taskId;
 
     public String getProcessId() {
         return processId;
