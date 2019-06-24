@@ -476,7 +476,7 @@ public class PurchContractServiceImpl implements PurchContractService {
     }
 
     //返回给eacp数据
-    private void sendEacp(Order order, List<Goods> goodsList) {
+    private void sendEacp(Order order, List<Goods> goodsList) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
         if (StringUtils.isNotBlank(eruiToken)) {
             //String jsonParam = "{\"orderId\":\"" + order.getId() + "\"}";
@@ -496,7 +496,11 @@ public class PurchContractServiceImpl implements PurchContractService {
             header.put(CookiesUtil.TOKEN_NAME, eruiToken);
             header.put("Content-Type", "application/json");
             header.put("accept", "*/*");
-            HttpRequest.sendPost(orderEacp, JSONObject.toJSONString(jsonMap), header);
+            String reponse = HttpRequest.sendPost(orderEacp, JSONObject.toJSONString(jsonMap), header);
+            JSONObject parseData = JSONObject.parseObject(reponse);
+            if (parseData.containsKey("code") && "-1".equals(parseData.getString("code"))) {
+                throw new Exception(String.format("%s%s%s", "生成订舱失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, parseData.getString("message")));
+            }
         }
     }
 
