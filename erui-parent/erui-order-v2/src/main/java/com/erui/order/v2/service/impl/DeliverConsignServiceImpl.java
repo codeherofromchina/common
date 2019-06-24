@@ -627,15 +627,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if (StringUtils.isNotBlank(eruiToken)) {
             Map<String, Object> jsonMap = new HashMap<>();
             jsonMap.put("orderId", order.getId());
-            jsonMap.put("orderStatus", "EXECUTING");
-            jsonMap.put("toCountry", order.getToCountry());
-            jsonMap.put("toPort", order.getToPort());
-            jsonMap.put("toPlace", order.getToPlace());
-            jsonMap.put("tradeTerms", order.getTradeTerms());
-            jsonMap.put("transportType", order.getTransportType());
-            jsonMap.put("totalPriceUsd", order.getTotalPriceUsd());
-            jsonMap.put("currencyBn", order.getCurrencyBn());
-            jsonMap.put("paymentModeBn", order.getPaymentModeBn());
+            jsonMap.put("exportStatus", "OK");
+            jsonMap.put("exportId", deliverConsign.getId());
             jsonMap.put("goodDesc", goodsList);
             Map<String, String> header = new HashMap<>();
             header.put(CookiesUtil.TOKEN_NAME, eruiToken);
