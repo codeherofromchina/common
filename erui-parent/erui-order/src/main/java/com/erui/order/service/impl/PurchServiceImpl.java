@@ -1164,8 +1164,8 @@ public class PurchServiceImpl implements PurchService {
                 save.setAuditingUser(",");
                 save.setAuditingUserId(",");
             } else {
-                save.setAuditingUser("," + user.getId());
-                save.setAuditingUserId("," + user.getName());
+                save.setAuditingUser("," + user.getName());
+                save.setAuditingUserId("," + user.getId());
             }
             save.setAuditingProcess("task_pu,task_pm");
             save.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
@@ -1978,8 +1978,8 @@ public class PurchServiceImpl implements PurchService {
                         dbPurch.setAuditingUser(",");
                         dbPurch.setAuditingUserId(",");
                     } else {
-                        dbPurch.setAuditingUser("," + user.getId());
-                        dbPurch.setAuditingUserId("," + user.getName());
+                        dbPurch.setAuditingUser("," + user.getName());
+                        dbPurch.setAuditingUserId("," + user.getId());
                     }
                     dbPurch.setAuditingProcess("task_pu,task_pm");
                     dbPurch.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
