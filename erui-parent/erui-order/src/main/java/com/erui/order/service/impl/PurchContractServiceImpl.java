@@ -541,7 +541,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                 Predicate status01 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.BEING.getCode());
                 Predicate status02 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.EXECUTED.getCode());
                 list.add(cb.or(status01, status02));
-
                 // 根据商品未采购完成的
                 Join<PurchContract, PurchContractGoods> goodsJoin = root.join("purchContractGoodsList");
                 list.add(cb.lt(goodsJoin.get("prePurchContractNum").as(Integer.class), goodsJoin.get("purchaseNum").as(Integer.class)));
