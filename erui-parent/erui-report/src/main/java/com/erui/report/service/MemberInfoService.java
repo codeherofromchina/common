@@ -169,5 +169,16 @@ public interface MemberInfoService {
 
     //导出人均效能统计 - 国家统计
     HSSFWorkbook exportEfficiencyByCountry(Map<String, Object> params);
+    
+    /**
+     * 人均效能统计 - 事业部统计
+     *
+     * @param params
+     * @return
+     */
+    Map<String, List<Object>> efficiencyByOrg(Map<String, Object> params);
+
+    //导出人均效能统计 - 事业部统计
+    HSSFWorkbook exportEfficiencyByOrg(Map<String, Object> params);
 
 }

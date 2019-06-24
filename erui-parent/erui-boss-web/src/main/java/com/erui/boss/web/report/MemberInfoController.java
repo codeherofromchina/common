@@ -48,6 +48,8 @@ public class MemberInfoController {
             data = memberInfoService.efficiencyByArea(params);
         } else if ("2".equals(type)) { // 人均效能统计 - 国家统计
             data = memberInfoService.efficiencyByCountry(params);
+        } else if ("3".equals(type)) { // 人均效能统计 - 事业部统计
+            data = memberInfoService.efficiencyByOrg(params);
         }
         Result<Object> result = new Result<>();
         if (data == null || data.size() == 0) {
@@ -84,6 +86,8 @@ public class MemberInfoController {
             wb = memberInfoService.exportEfficiencyByArea(params);
         } else if ("2".equals(type)) { // 人均效能统计 - 国家统计
             wb = memberInfoService.exportEfficiencyByCountry(params);
+        } else if ("3".equals(type)) { // 人均效能统计 - 事业部统计
+            wb = memberInfoService.exportEfficiencyByOrg(params);
         }
         if (wb == null) {
             response.setContentType("text/html;charset=UTF-8");
