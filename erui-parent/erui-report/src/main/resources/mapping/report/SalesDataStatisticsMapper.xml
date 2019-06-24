@@ -882,7 +882,7 @@
         SELECT
         tb1.id,
         tb1.buyer_id AS buyer_id,
-        tb2.buyer_no AS buyer_code,
+        tb2.buyer_code AS buyer_code,
         tb3.bn AS area_bn,
         tb3.`name` AS areaName,
         tb4.bn AS country_bn,
