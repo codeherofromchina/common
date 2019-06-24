@@ -537,7 +537,11 @@ public class PurchContractServiceImpl implements PurchContractService {
             if (datas.size() > 0) {
                 for (int i = 0; i < datas.size(); i++) {
                     JSONObject goodJson = datas.getJSONObject(i);
-                    goodsList.get(i).setSku(goodJson.getString("sku"));
+                    if (StringUtils.isNotBlank(goodJson.getString("sku"))) {
+                        goodsList.get(i).setSku(goodJson.getString("sku"));
+                    } else {
+                        throw new Exception(String.format("%s%s%s", "商品缺少sku", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "sku error"));
+                    }
                 }
             }
         } else {
