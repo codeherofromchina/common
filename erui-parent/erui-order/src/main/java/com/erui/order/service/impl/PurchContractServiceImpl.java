@@ -479,7 +479,6 @@ public class PurchContractServiceImpl implements PurchContractService {
     private void sendEacp(Order order, List<Goods> goodsList) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
         if (StringUtils.isNotBlank(eruiToken)) {
-            //String jsonParam = "{\"orderId\":\"" + order.getId() + "\"}";
             Map<String, Object> jsonMap = new HashMap<>();
             jsonMap.put("orderId", order.getId());
             jsonMap.put("orderStatus", "EXECUTING");
