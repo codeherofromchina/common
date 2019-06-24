@@ -636,7 +636,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             header.put("accept", "*/*");
             HttpRequest.sendPost(setInspect, JSONObject.toJSONString(jsonMap), header);
         }
-
     }
 
     /**
