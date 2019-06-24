@@ -45,7 +45,11 @@ public class ProjectStatistics {
         this.profit = project.getProfit();
         this.grantType = order.getGrantType();
         this.currencyBnReceivableAccountRemaining = order.getReceivableAccountRemaining();
-        this.projectCost = project.getProjectProfit().getProjectCost();
+        if (project.getProjectProfit() != null) {
+            this.projectCost = project.getProjectProfit().getProjectCost();
+            this.purchasingCostsD = project.getProjectProfit().getPurchasingCostsD();
+            this.purchasingCostsF = project.getProjectProfit().getPurchasingCostsF();
+        }
         if (project.getDeliveryDate() != null) {
             // this.deliveryDate = DateUtil.format(DateUtil.SHORT_FORMAT_STR, project.getDeliveryDate());
             this.deliveryDate = project.getDeliveryDate();
@@ -63,8 +67,6 @@ public class ProjectStatistics {
         this.orderCategory = order.getOrderCategory();
         this.goodsList = order.getGoodsList();
         this.sendDeptId = project.getSendDeptId();
-        this.purchasingCostsD = project.getProjectProfit().getPurchasingCostsD();
-        this.purchasingCostsF = project.getProjectProfit().getPurchasingCostsF();
         this.totalLogisticsCost = project.getTotalLogisticsCost();
     }
 
