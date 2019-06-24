@@ -519,7 +519,6 @@ public class PurchContractServiceImpl implements PurchContractService {
         } else {
             result = new PageImpl<Map<String, Object>>(new ArrayList<>(), pageRequest, 0);
         }
-
         return result;
     }
 
