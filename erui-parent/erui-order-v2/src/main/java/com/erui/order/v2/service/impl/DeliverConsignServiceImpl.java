@@ -639,7 +639,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     }
 
-
     /**
      * 根据订单中crm编码，查询授信信息
      *
