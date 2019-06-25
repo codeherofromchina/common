@@ -641,7 +641,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                     projectGoods.setSupplierName(g.getSupplierName()); // 8、供应商名称
                     projectGoods.setPurchasePrice(g.getPurchasePrice()); // 9、采购单价
                     projectGoods.setPurchTotalPrice(g.getPurchTotalPrice()); // 10、采购总金额
-                    projectGoods.setArrivaledDate(g.getCheckDate()); // 11、采购实际到货日期 -> 检验日期
+                    projectGoods.setArrivaledDate(g.getInspectDate()); // 11、采购实际到货日期 -> 检验日期
                     projectGoods.setPurchAgentName(g.getAgentName()); // 12、采购经办人
                     projectGoods.setCheckDate(g.getInspectDate()); // 13、报检日期
                     projectGoods.setDoneDate(g.getCheckDoneDate()); // 14、检验完成日期
@@ -652,9 +652,9 @@ public class StatisticsServiceImpl implements StatisticsService {
                     projectGoods.setWareHousemanName(g.getWareHousemanName()); // 19、仓库经办人
                     projectGoods.setLogisticsUserName(g.getLogisticsUserName()); // 21、物流经办人
                     projectGoods.setBookingDate(g.getBookingDate()); // 22、市场要求订舱日期
-                    projectGoods.setBookingTime(g.getBookingTime()); // 23、物流订舱日期
+                    projectGoods.setBookingTime(g.getAccomplishDate()); // 23、物流订舱日期 --> 实际完成时间
                     projectGoods.setLeavePortTime(g.getLeavePortTime()); // 24、货物发运时间
-                    projectGoods.setArrivalPortTime(g.getArrivalPortTime()); // 25、货物到达时间
+                    projectGoods.setArrivalPortTime(g.getArrivalPortTime()); // 25、货物到达时间 -->确认收货的时间
                     projectGoods.setAccomplishDate(g.getAccomplishDate()); // 26、客户接收时间
                     projectGoods.setCurrencyBnReceivableAccountRemaining(null); // 27、应收账款余额（美元）
 
