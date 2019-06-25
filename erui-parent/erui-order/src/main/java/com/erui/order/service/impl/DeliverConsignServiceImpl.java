@@ -31,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -61,13 +60,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     private AttachmentService attachmentService;
     @Autowired
     private AttachmentDao attachmentDao;
-
-    @Autowired
-    private DeliverNoticeDao deliverNoticeDao;
-
-    @Autowired
-    private DeliverDetailDao deliverDetailDao;
-
     @Autowired
     ProjectDao projectDao;
 
@@ -76,9 +68,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     @Autowired
     private StatisticsService statisticsService;
-
-    @Autowired
-    private CheckLogDao checkLogDao;
 
     @Autowired
     private CheckLogService checkLogService;
@@ -115,6 +104,12 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             List<Attachment> attachments = attachmentDao.findByRelObjIdAndCategory(deliverConsign.getId(), Attachment.AttachmentCategory.DELIVERCONSIGN.getCode());
             deliverConsign.setAttachmentSet(attachments);
             deliverConsign.getAttachmentSet().size();
+
+            if(deliverConsign.getDeliverNoticeStatus() == DeliverNotice.StatusEnum.DONE.getCode()){
+                List<Attachment> attachmentNotices = attachmentDao.findByRelObjIdAndCategory(deliverConsign.getDeliverNotice().getId(), Attachment.AttachmentCategory.DELIVERNOTICE.getCode());
+                deliverConsign.setAttachmentNotice(attachmentNotices);
+                deliverConsign.getAttachmentNotice().size();
+            }
         }
         Order order = deliverConsign.getOrder();
         BigDecimal exchangeRate = order.getExchangeRate() == null ? BigDecimal.valueOf(1) : order.getExchangeRate();
@@ -420,8 +415,8 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 deliverConsignBookingSpace.setId(deliverConsign1.getDeliverConsignBookingSpace().getId());
             }
             deliverConsignBookingSpaceDao.saveAndFlush(deliverConsignBookingSpace);
-        } 
-        
+        }
+
         if (deliverConsign1.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
             try {
                 disposeAdvanceMoney(order, deliverConsign);
@@ -430,34 +425,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             }
         }
         return deliverConsign1.getId();
-    }
-
-    private void pushOutStock(DeliverConsign deliverConsign) throws Exception {
-        if (deliverConsign.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode() && deliverConsign.getAuditingStatus() == 4) {
-            Order order = deliverConsign.getOrder();
-            order.setDeliverConsignHas(2);
-            boolean flag = order.getGoodsList().parallelStream().allMatch(vo -> vo.getContractGoodsNum() == vo.getOutstockNum());
-            if (flag) {
-                order.setDeliverConsignC(Boolean.FALSE);
-            }
-            orderDao.save(order);
-            //推送出库信息
-            String deliverDetailNo = createDeliverDetailNo();   //产品放行单号
-            DeliverDetail deliverDetail = pushOutbound(deliverConsign, deliverDetailNo);
-            // 出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
-            Map<String, Object> map = new HashMap<>();
-            map.put("deliverConsignNo", deliverConsign.getDeliverConsignNo());  //出口通知单号
-            map.put("deliverDetailNo", deliverDetailNo);  //产品放行单号
-            map.put("contractNoOs", order.getContractNo());     //销售合同号
-            try {
-                sendSms(map);
-            } catch (Exception e) {
-                throw new Exception(e.getMessage());
-            }
-            //出口发货通知单提交的时候，推送给出库分单员  办理分单
-            addBackLog(order, deliverDetail);
-
-        }
     }
 
     @Override
@@ -784,172 +751,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         return page;
 
-    }
-
-
-    /**
-     * 看货通知管理   查询出口发货通知单
-     *
-     * @return
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Page<DeliverConsign> queryExitAdvice(DeliverNotice deliverNotice) {
-
-        PageRequest request = new PageRequest(deliverNotice.getPage() - 1, deliverNotice.getRows(), Sort.Direction.DESC, "createTime");
-
-        Page<DeliverConsign> page = deliverConsignDao.findAll(new Specification<DeliverConsign>() {
-            @Override
-            public Predicate toPredicate(Root<DeliverConsign> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-                List<Predicate> list = new ArrayList<>();
-                // 根据国家查询
-                String[] country = null;
-                if (StringUtils.isNotBlank(deliverNotice.getCountry())) {
-                    country = deliverNotice.getCountry().split(",");
-                }
-                if (country != null) {
-                    list.add(root.get("country").in(country));
-                }
-
-                //根据下单人（国际物流经办人）      销售合同号    项目号
-                if (deliverNotice.getSenderId() != null || StringUtil.isNotBlank(deliverNotice.getContractNo()) || StringUtil.isNotBlank(deliverNotice.getProjectNo())) {
-                    Join<DeliverConsign, Order> orderRoot = root.join("order");
-                    //根据 销售合同号
-                    if (StringUtil.isNotBlank(deliverNotice.getContractNo())) {
-                        list.add(cb.like(orderRoot.get("contractNo").as(String.class), "%" + deliverNotice.getContractNo() + "%"));
-                    }
-                    Join<Order, Project> projectRoot = orderRoot.join("project");
-                    //根据下单人（国际物流经办人）
-                    if (deliverNotice.getSenderId() != null) {
-                        list.add(cb.equal(projectRoot.get("logisticsUid").as(Integer.class), deliverNotice.getSenderId()));
-                    }
-                    //根据 项目号
-                    if (StringUtil.isNotBlank(deliverNotice.getProjectNo())) {
-                        list.add(cb.like(projectRoot.get("projectNo").as(String.class), "%" + deliverNotice.getProjectNo() + "%"));
-                    }
-                }
-
-                // 根据出口通知单号
-                if (StringUtil.isNotBlank(deliverNotice.getDeliverConsignNo())) {
-                    list.add(cb.like(root.get("deliverConsignNo").as(String.class), "%" + deliverNotice.getDeliverConsignNo() + "%"));
-                }
-                list.add(cb.equal(root.get("status").as(Integer.class), 3));    //已提交
-                list.add(cb.equal(root.get("deliverYn").as(Integer.class), 1)); //未删除
-
-
-                Predicate[] predicates = new Predicate[list.size()];
-                predicates = list.toArray(predicates);
-
-                Predicate result = cb.and(predicates);
-                if (deliverNotice.getId() != null) {
-                    DeliverNotice one = deliverNoticeDao.findOne(deliverNotice.getId());
-                    List<DeliverConsign> deliverConsigns = one.getDeliverConsigns();//查询已选择
-                    Integer[] arr = new Integer[deliverConsigns.size()];    //获取id
-                    int i = 0;
-                    for (DeliverConsign deliverConsign : deliverConsigns) {
-                        arr[i] = (deliverConsign.getId());
-                        i++;
-                    }
-                    return cb.or(result, root.get("id").in(arr));
-                } else {
-                    return result;
-                }
-
-            }
-        }, request);
-
-       /* if (page != null && page.size() > 1) {
-            // 反序排列
-            Collections.reverse(page);
-        }*/
-
-        return page;
-
-    }
-
-
-    /**
-     * 推送出库信息
-     * <p>
-     * 订单V2.0
-     * <p>
-     * 根据出口通知单，推送出库信息
-     */
-
-    public DeliverDetail pushOutbound(DeliverConsign deliverConsign1, String deliverDetailNo) throws Exception {
-
-        // 1:未编辑 2：保存/草稿 3:已提交'        当状态为已提交的时候，推送到出库管理
-        DeliverDetail deliverDetail = new DeliverDetail();
-        deliverDetail.setDeliverConsign(deliverConsign1);    //出库通知单
-        deliverDetail.setDeliverDetailNo(deliverDetailNo);   //产品放行单
-
-        //推送仓库经办人   物流经办人
-        Order order1 = deliverConsign1.getOrder();
-        Project project = order1.getProject();
-        /*if (project.getWarehouseUid() != null) {
-            deliverDetail.setWareHouseman(project.getWarehouseUid());   //仓库经办人id
-        }
-        if (StringUtil.isNotBlank(project.getWarehouseName())) {
-            deliverDetail.setWareHousemanName(project.getWarehouseName());    //仓库经办人名字
-        }
-        if (project.getLogisticsUid() != null) {
-            deliverDetail.setLogisticsUserId(project.getLogisticsUid());         //物流经办人id
-        }
-        if (StringUtil.isNotBlank(project.getLogisticsName())) {
-            deliverDetail.setLogisticsUserName(project.getLogisticsName());   //物流经办人名字
-        }*/
-        if (project.getQualityUid() != null) {
-            deliverDetail.setCheckerUid(project.getQualityUid());    //  检验工程师(品控经办人) ID
-        }
-        if (StringUtil.isNotBlank(project.getQualityName())) {
-            deliverDetail.setCheckerName(project.getQualityName()); //  检验工程师名称(品控经办人名称)
-        }
-
-        deliverDetail.setStatus(DeliverDetail.StatusEnum.SAVED_OUTSTOCK.getStatusCode());
-        deliverDetail.setDeliverConsignGoodsList(new ArrayList<>(deliverConsign1.getDeliverConsignGoodsSet()));
-        deliverDetail.setOutCheck(1); // 是否外检 默认为1
-        try {
-            DeliverDetail deliverDetail1 = deliverDetailDao.saveAndFlush(deliverDetail);
-            return deliverDetail1;
-        } catch (Exception e) {
-            throw new Exception("推送出库信息失败");
-        }
-
-
-        //TODO  项目执行跟踪：推送看货通知时间，订舱人
-          /*  for (Goods goods : order1.getGoodsList()) {
-                Goods one1 = goodsDao.findOne(goods.getId());
-                one1.setSendDate(deliverNotice.getSendDate());//发送看货通知日期
-                one1.setSenderId(deliverNotice.getSenderId());//订舱人id
-                goodsDao.save(one1);
-            }*/
-
-    }
-
-
-    /**
-     * \//生成产品放行单
-     *
-     * @return
-     */
-
-    public String createDeliverDetailNo() {
-        SimpleDateFormat simpleDateFormats = new SimpleDateFormat("yyyy");
-        //查询最近插入的产品放行单
-        String deliverDetailNo = deliverDetailDao.findDeliverDetailNo();
-        if (deliverDetailNo == null) {
-            String formats = simpleDateFormats.format(new Date());  //当前年份
-            return formats + String.format("%04d", 1);     //第一个
-        } else {
-            String substring = deliverDetailNo.substring(0, 4); //获取到产品放行单的年份
-            String formats = simpleDateFormats.format(new Date());  //当前年份
-            if (substring.equals(formats)) {   //判断年份
-                String substring1 = deliverDetailNo.substring(4);
-                return formats + String.format("%04d", (Integer.parseInt(substring1) + 1));//最大的数值上加1
-            } else {
-                return formats + String.format("%04d", 1);     //第一个
-            }
-        }
     }
 
     //  出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
@@ -1312,9 +1113,9 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         auditBackLogHandle(deliverConsign, rejectFlag, auditingUserId_i, auditorId, isComeMore);
         deliverConsignDao.save(deliverConsign);
-        if (deliverConsign.getAuditingStatus() == 4 && deliverConsign.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
-            pushOutStock(deliverConsign);
-        }
+//        if (deliverConsign.getAuditingStatus() == 4 && deliverConsign.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {
+//            pushOutStock(deliverConsign);
+//        }
         if (rejectFlag) { //如果是驳回，需要同步授信额度
             disposeLineOfCredit(deliverConsign.getId());
         }
@@ -1590,65 +1391,4 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         return null;
     }
-
-
-    public void addBackLog(Order order, DeliverDetail deliverDetai) throws Exception {
-
-        //出口发货通知单提交的时候，推送给出库分单员  办理分单
-
-        List<Integer> listAll = new ArrayList<>(); //分单员id
-
-        //获取token
-        String eruiToken = (String) ThreadLocalUtil.getObject();
-        if (StringUtils.isNotBlank(eruiToken)) {
-            Map<String, String> header = new HashMap<>();
-            header.put(CookiesUtil.TOKEN_NAME, eruiToken);
-            header.put("Content-Type", "application/json");
-            header.put("accept", "*/*");
-            try {
-                //获取仓库分单员
-                String jsonParam = "{\"role_no\":\"O019\"}";
-                String s2 = HttpRequest.sendPost(memberList, jsonParam, header);
-                logger.info("人员详情返回信息：" + s2);
-
-                // 获取人员手机号
-                JSONObject jsonObjects = JSONObject.parseObject(s2);
-                Integer codes = jsonObjects.getInteger("code");
-                if (codes == 1) {    //判断请求是否成功
-                    // 获取数据信息
-                    JSONArray data1 = jsonObjects.getJSONArray("data");
-                    for (int i = 0; i < data1.size(); i++) {
-                        JSONObject ob = (JSONObject) data1.get(i);
-                        listAll.add(ob.getInteger("id"));    //获取物流分单员id
-                    }
-                } else {
-                    throw new Exception("出库分单员查询失败");
-                }
-            } catch (Exception e) {
-                throw new Exception("出库分单员查询失败");
-            }
-        }
-
-        if (listAll.size() > 0) {
-            for (Integer in : listAll) { //分单员有几个人推送几条
-                BackLog newBackLog = new BackLog();
-                newBackLog.setFunctionExplainName(BackLog.ProjectStatusEnum.INSTOCKSUBMENUDELIVER.getMsg());  //功能名称
-                newBackLog.setFunctionExplainId(BackLog.ProjectStatusEnum.INSTOCKSUBMENUDELIVER.getNum());    //功能访问路径标识
-                newBackLog.setReturnNo(order.getContractNo());  //返回单号
-                String region = order.getRegion();   //所属地区
-                Map<String, String> bnMapZhRegion = statisticsService.findBnMapZhRegion();
-                String country = order.getCountry();  //国家
-                Map<String, String> bnMapZhCountry = statisticsService.findBnMapZhCountry();
-                newBackLog.setInformTheContent(bnMapZhRegion.get(region) + " | " + bnMapZhCountry.get(country));  //提示内容
-                newBackLog.setHostId(deliverDetai.getId());    //父ID，列表页id
-                newBackLog.setFollowId(1);  // 1：为办理和分单    4：为确认出库
-                newBackLog.setUid(in);   ////经办人id
-                backLogService.addBackLogByDelYn(newBackLog);
-            }
-        }
-
-
-    }
-
-
 }

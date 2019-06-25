@@ -24,7 +24,7 @@ import java.util.*;
  * Created by wangxiaodan on 2017/12/11.
  */
 @RestController
-@RequestMapping(value = "/order/logisticsManage")
+@RequestMapping(value = "/order/deliverNotice")
 public class DeliverNoticeController {
 
     private final static Logger logger = LoggerFactory.getLogger(OrderController.class);
@@ -37,11 +37,11 @@ public class DeliverNoticeController {
 
 
     /**
-     * 看货通知管理
+     * 看货通知管理列表
      * @param condition
      * @return
      */
-    @RequestMapping(value = "lookMoneyInformManage")
+    @RequestMapping(value = "list")
     public Result<Object> lookMoneyInformManage(@RequestBody DeliverNotice condition) {
         int page = condition.getPage();
         if (page < 1) {
@@ -60,6 +60,71 @@ public class DeliverNoticeController {
     }
 
     /**
+     * 看货通知单 保存 or  提交
+     *
+     * @return
+     */
+    @RequestMapping(value = "saveOrAdd", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> exitRequisitionSaveOrAdd(@RequestBody DeliverNotice deliverNotice, HttpServletRequest request) {
+        Result<Object> result = new Result<>();
+        try {
+            String eruiToken = CookiesUtil.getEruiToken(request);
+            ThreadLocalUtil.setObject(eruiToken);
+
+            Object userId = request.getSession().getAttribute("userid");
+            Object userName = request.getSession().getAttribute("realname");
+            deliverNotice.setSenderId(Integer.parseInt(userId.toString())); // 下单人 --> 取当前登录人信息
+            deliverNotice.setSenderName(userName.toString()); // 下单人 --> 取当前登录人信息
+
+            boolean flag = false;
+            if (deliverNotice.getId()!= null) {
+                flag = deliverNoticeService.updateDeliverNotice(deliverNotice);
+            } else {
+                if(deliverNotice.getDeliverConsignId() == null){
+                    result.setCode(ResultStatusEnum.FAIL.getCode());
+                    result.setMsg("出库通知单ID不能为空");
+                    return result;
+                }else{
+                    flag = deliverNoticeService.addDeliverNotice(deliverNotice);
+                }
+            }
+            if (flag) {
+                return new Result<>();
+            }
+        } catch (Exception ex) {
+            logger.error("看货通知单操作失败：{}", deliverNotice, ex);
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setMsg("看货通知单操作失败");
+        }
+        return result;
+    }
+
+    /**
+     *看货通知详情 - 查看
+     *
+     * @param deliverNotice    看货通知单号id
+     * @return
+     */
+    @RequestMapping(value = "detail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> exitRequisitionQuery(@RequestBody DeliverNotice deliverNotice) {
+        if(deliverNotice == null || (deliverNotice.getId() == null && deliverNotice.getDeliverConsignId() == null)){
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+        try {
+            DeliverNotice detailNotice = new DeliverNotice();
+            if(deliverNotice.getId() != null){
+                deliverNoticeService.queryDeliverNoticeDetail(deliverNotice.getId());
+            }else{
+                deliverNoticeService.queryByDeliverConsignId(deliverNotice.getId());
+            }
+            return new Result<>(detailNotice);
+        } catch (Exception e) {
+            return new Result<>(ResultStatusEnum.DATA_NULL);
+        }
+
+    }
+
+    /**
      * 看货通知信息 - 根据出口发货通知单 查询信息
      * @param map  看货通知单号  数组
      * @return
@@ -72,131 +137,14 @@ public class DeliverNoticeController {
             String[] split = deliverNoticeIds.split(",");
             intTemp = new Integer[split.length];
             for (int i = 0; i <split.length; i++) {
-                    intTemp[i] = Integer.parseInt(split[i]);
+                intTemp[i] = Integer.parseInt(split[i]);
             }
         }else{
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         try {
             List<DeliverConsign> list= deliverConsignService.querExitInformMessage(intTemp);
-                Map<String,Object> data = new HashMap<>();
-                List<Goods> goodsList = new ArrayList<>();  //商品信息
-                List<DeliverConsign> deliverConsignNoList = new ArrayList<>();  //出口发货通知单号
-                List<String> tradeTermsList = new ArrayList<>();  //贸易术语
-                List<String> toPlaceList = new ArrayList<>();  //目的地
-                List<String>  transportTypeList = new ArrayList<>();  //运输方式
-                List<Integer>  agentNameList = new ArrayList<>();  //商务技术经办人名字
-                List<String> deliveryDateList = new ArrayList<>();  //执行单约定交付日期
-                List dcAttachmentSetList = new ArrayList<>();  //出口通知单附件
-
-                for (DeliverConsign deliverConsign : list){
-                    DeliverConsign deliverConsignS = new DeliverConsign();
-                    deliverConsignS.setId(deliverConsign.getId());
-                    deliverConsignS.setDeliverConsignNo(deliverConsign.getDeliverConsignNo());
-                    deliverConsignNoList.add(deliverConsignS);
-                    dcAttachmentSetList = deliverConsign.getAttachmentSet();
-                    Order order1 = deliverConsign.getOrder();
-                    tradeTermsList.add(order1.getTradeTerms());
-                    toPlaceList.add(order1.getToPlace());
-                    transportTypeList.add(order1.getTransportType());
-                    agentNameList.add(order1.getTechnicalId());
-                    deliveryDateList.add(new SimpleDateFormat("yyyy-MM-dd").format(order1.getDeliveryDate()));
-                    order1.setAttachmentSet(null);
-                    order1.setGoodsList(null);
-                    order1.setOrderPayments(null);
-                    List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
-                    for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
-                        if(deliverConsignGoods.getSendNum() != 0){
-                            Goods goods = deliverConsignGoods.getGoods();
-                            goods.setSendNum(deliverConsignGoods.getSendNum());
-                            goodsList.add(goods);
-                        }
-                    }
-                }
-                data.put("goodsList",goodsList);//商品信息
-                data.put("deliverConsignNoList",deliverConsignNoList);//出口发货通知单号
-                data.put("tradeTermsList",tradeTermsList);//贸易术语
-                data.put("toPlaceList",toPlaceList);//目的地
-                data.put("transportTypeList",transportTypeList);//运输方式
-                data.put("agentNameList",agentNameList);//商务技术经办人名字
-                data.put("deliveryDateList",deliveryDateList);//执行单约定交付日期
-                data.put("dcAttachmentSetList",dcAttachmentSetList);//出口通知单附件
-
-                return new Result<>(data);
-
-        } catch (Exception e) {
-            logger.error("根据出口发货通知单查询信息 - 异常错误", e.getMessage());
-            return new Result<>(ResultStatusEnum.DATA_NULL).setMsg(e.getMessage());
-        }
-    }
-
-
-
-    /**
-     * 看货通知详情 保存 or  提交
-     *
-     * @return
-     */
-    @RequestMapping(value = "exitRequisitionSaveOrAdd", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> exitRequisitionSaveOrAdd(@RequestBody DeliverNotice deliverNotice, HttpServletRequest request) {
-        Result<Object> result = new Result<>();
-        try {
-            String eruiToken = CookiesUtil.getEruiToken(request);
-            ThreadLocalUtil.setObject(eruiToken);
-
-            boolean flag = false;
-            if (deliverNotice.getId()!= null) {
-                flag = deliverNoticeService.updateexitRequisition(deliverNotice);
-            } else {
-                if(deliverNotice.getSenderId() == null){
-                    result.setCode(ResultStatusEnum.FAIL.getCode());
-                    result.setMsg("下单人id不能为空");
-                    return result;
-                }
-                if(StringUtil.isBlank(deliverNotice.getSenderName())|| StringUtils.equals(deliverNotice.getSenderName(), "")){
-                    result.setCode(ResultStatusEnum.FAIL.getCode());
-                    result.setMsg("下单人名称不能为空");
-                    return result;
-                }
-                 else if(deliverNotice.getSendDate() == null){
-                    result.setCode(ResultStatusEnum.FAIL.getCode());
-                    result.setMsg("下单日期不能为空");
-                    return result;
-                }
-                else if(StringUtil.isBlank(deliverNotice.getDeliverConsignIds())|| StringUtils.equals(deliverNotice.getDeliverConsignIds(), "")){
-                    result.setCode(ResultStatusEnum.FAIL.getCode());
-                    result.setMsg("出口通知单不能为空");
-                    return result;
-                }else{
-                    flag = deliverNoticeService.addexitRequisition(deliverNotice);
-                }
-            }
-            if (flag) {
-                return new Result<>();
-            }
-        } catch (Exception ex) {
-            logger.error("看货通知详情操作失败：{}", deliverNotice, ex);
-            result.setCode(ResultStatusEnum.FAIL.getCode());
-            result.setMsg("看货通知详情操作失败");
-        }
-        return result;
-    }
-
-
-    /**
-     *看货通知详情 - 查看
-     *
-     * @param deliverNotice    看货通知单号id
-     * @return
-     */
-    @RequestMapping(value = "exitRequisitionQuery", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
-    public Result<Object> exitRequisitionQuery(@RequestBody DeliverNotice deliverNotice) {
-        if(deliverNotice == null || deliverNotice.getId() == null){
-            return new Result<>(ResultStatusEnum.DATA_NULL);
-        }
-
-        try {
-            DeliverNotice page = deliverNoticeService.exitRequisitionQuery(deliverNotice.getId());
+            Map<String,Object> data = new HashMap<>();
             List<Goods> goodsList = new ArrayList<>();  //商品信息
             List<DeliverConsign> deliverConsignNoList = new ArrayList<>();  //出口发货通知单号
             List<String> tradeTermsList = new ArrayList<>();  //贸易术语
@@ -206,81 +154,45 @@ public class DeliverNoticeController {
             List<String> deliveryDateList = new ArrayList<>();  //执行单约定交付日期
             List dcAttachmentSetList = new ArrayList<>();  //出口通知单附件
 
-            List<DeliverConsign> deliverConsigns = page.getDeliverConsigns();
-            for (DeliverConsign deliverConsign : deliverConsigns){
-                dcAttachmentSetList = deliverConsign.getAttachmentSet();
+            for (DeliverConsign deliverConsign : list){
                 DeliverConsign deliverConsignS = new DeliverConsign();
                 deliverConsignS.setId(deliverConsign.getId());
                 deliverConsignS.setDeliverConsignNo(deliverConsign.getDeliverConsignNo());
                 deliverConsignNoList.add(deliverConsignS);
+                dcAttachmentSetList = deliverConsign.getAttachmentSet();
+                Order order1 = deliverConsign.getOrder();
+                tradeTermsList.add(order1.getTradeTerms());
+                toPlaceList.add(order1.getToPlace());
+                transportTypeList.add(order1.getTransportType());
+                agentNameList.add(order1.getTechnicalId());
+                deliveryDateList.add(new SimpleDateFormat("yyyy-MM-dd").format(order1.getDeliveryDate()));
+                order1.setAttachmentSet(null);
+                order1.setGoodsList(null);
+                order1.setOrderPayments(null);
                 List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
-                    for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
-                        if(deliverConsignGoods.getSendNum() != 0){
-                            Goods goods = deliverConsignGoods.getGoods();
-                            goods.setSendNum(deliverConsignGoods.getSendNum());
-                            goodsList.add(goods);
-                        }
+                for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
+                    if(deliverConsignGoods.getSendNum() != 0){
+                        Goods goods = deliverConsignGoods.getGoods();
+                        goods.setSendNum(deliverConsignGoods.getSendNum());
+                        goodsList.add(goods);
                     }
-                Order order = deliverConsign.getOrder();
-                tradeTermsList.add( order.getTradeTerms());
-                toPlaceList.add(order.getToPlace());
-                transportTypeList.add(order.getTransportType());
-                agentNameList.add(order.getTechnicalId());
-                deliveryDateList.add(new SimpleDateFormat("yyyy-MM-dd").format(order.getProject().getDeliveryDate()));
+                }
             }
-            Map<String,Object>  map = new HashMap<>();
-            map.put("id",page.getId());  //看货通知单id
-            map.put("senderId", page.getSenderId());//下单人
-            map.put("sendDate", new SimpleDateFormat("yyyy-MM-dd").format(page.getSendDate()));//下单时间
-            map.put("urgency",  page.getUrgency());//紧急程度
-            map.put("numers",page.getNumers());//件数
-            map.put("prepareReq",page.getPrepareReq());//备货要求
-            map.put("packageReq",page.getPackageReq());//包装要求
-            map.put("attachmentSet",page.getAttachmentSet());//看货通知单附件
-            map.put("goodsList",goodsList);//商品信息
-            map.put("deliverConsignNoList",deliverConsignNoList);//出口发货通知单号
-            map.put("tradeTermsList",tradeTermsList);//贸易术语
-            map.put("toPlaceList",toPlaceList);//目的地
-            map.put("transportTypeList",transportTypeList);//运输方式
-            map.put("agentNameList",agentNameList);//商务技术经办人名字
-            map.put("deliveryDateList",deliveryDateList);//执行单约定交付日期
-            map.put("dcAttachmentSetList",dcAttachmentSetList);//出口通知单附件
-            map.put("senderName",page.getSenderName());//下单人名称
+            data.put("goodsList",goodsList);//商品信息
+            data.put("deliverConsignNoList",deliverConsignNoList);//出口发货通知单号
+            data.put("tradeTermsList",tradeTermsList);//贸易术语
+            data.put("toPlaceList",toPlaceList);//目的地
+            data.put("transportTypeList",transportTypeList);//运输方式
+            data.put("agentNameList",agentNameList);//商务技术经办人名字
+            data.put("deliveryDateList",deliveryDateList);//执行单约定交付日期
+            data.put("dcAttachmentSetList",dcAttachmentSetList);//出口通知单附件
 
-        return new Result<>(map);
+            return new Result<>(data);
+
         } catch (Exception e) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+            logger.error("根据出口发货通知单查询信息 - 异常错误", e.getMessage());
+            return new Result<>(ResultStatusEnum.DATA_NULL).setMsg(e.getMessage());
         }
-
     }
-
-    /**
-     * 看货通知管理   查询出口发货通知单
-     * @return
-     */
-    @RequestMapping(value = "queryExitAdvice")
-    public Result<Object> queryExitAdvice(@RequestBody DeliverNotice deliverNotice) {
-        Page<DeliverConsign> list =deliverConsignService.queryExitAdvice(deliverNotice);
-
-        Map<String,Object> map1 = new HashMap<>();
-            List<Map<String,Object>> list1 = new ArrayList<>();
-            for (DeliverConsign deliverConsign :list){
-                Map<String,Object> map = new HashMap<>();
-                deliverConsign.setAttachmentSet(null);
-                deliverConsign.setDeliverConsignGoodsSet(null);
-                map.put("id",deliverConsign.getId());   //出口发货通知单id
-                map.put("deliverConsignNo",deliverConsign.getDeliverConsignNo()); //出口发货通知单号
-                Order order = deliverConsign.getOrder();
-                map.put("contractNo",order.getContractNo());    //销售合同号
-                map.put("projectNo",order.getProject().getProjectNo());  //项目号
-                list1.add(map);
-            }
-            map1.put("rows",list1);
-            map1.put("total",list.getTotalElements());
-            return new Result<>(map1);
-    }
-
-
-
 
 }

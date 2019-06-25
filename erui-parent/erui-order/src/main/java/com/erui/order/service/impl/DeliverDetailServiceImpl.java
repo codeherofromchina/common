@@ -829,17 +829,15 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
             one.setAttachmentList(attachments);
         }
         one.getAttachmentList().size();
-        List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
-        for (DeliverConsign deliverConsign : deliverConsigns) {
-            List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
-            if (deliverConsignGoodsSet.size() > 0) {
-                for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet) {
-                    deliverConsignGoods.getGoods().setPurchGoods(null);
-                }
+        DeliverConsign deliverConsign = one.getDeliverNotice().getDeliverConsign();
+        List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
+        if (deliverConsignGoodsSet.size() > 0) {
+            for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet) {
+                deliverConsignGoods.getGoods().setPurchGoods(null);
             }
-            Order order = deliverConsign.getOrder();
-            order.getGoodsList().size();
         }
+        Order order = deliverConsign.getOrder();
+            order.getGoodsList().size();
 //        if (one.getLogisticsUserId() != null) {
 //            one.setLogisticsUserId(5);
 //        } else {
@@ -1027,17 +1025,15 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
         if (one.getStatus() == 7) {
             one.getDeliverConsignGoodsList().size();
             one.getAttachmentList().size();
-            List<DeliverConsign> deliverConsigns = one.getDeliverNotice().getDeliverConsigns();
-            for (DeliverConsign deliverConsign : deliverConsigns) {
-                List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
-                if (deliverConsignGoodsSet.size() > 0) {
-                    for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet) {
-                        deliverConsignGoods.getGoods().setPurchGoods(null);
-                    }
+            DeliverConsign deliverConsign = one.getDeliverNotice().getDeliverConsign();
+            List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
+            if (deliverConsignGoodsSet.size() > 0) {
+                for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet) {
+                    deliverConsignGoods.getGoods().setPurchGoods(null);
                 }
-                Order order = deliverConsign.getOrder();
-                order.getGoodsList().size();
             }
+            Order order = deliverConsign.getOrder();
+            order.getGoodsList().size();
             return one;
         }
         return null;
