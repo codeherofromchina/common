@@ -180,7 +180,7 @@ public class BpmNotifyController {
             projectService.updateProcessCompleted(processInstanceId);
         } else if (businessKey.startsWith("deliver_consign:")) {
             // 订舱审核流程
-            //deliverConsignService.updateProcessCompleted(processInstanceId);
+            deliverConsignService.updateProcessCompleted(processInstanceId);
             //调取EACP 出口通知单和审核完成时生产到货报检单
             deliverConsignService.setInspectData(processInstanceId);
         } else if (businessKey.startsWith("purch:")) {
