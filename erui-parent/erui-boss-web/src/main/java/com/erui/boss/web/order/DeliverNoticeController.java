@@ -80,24 +80,9 @@ public class DeliverNoticeController {
             if (deliverNotice.getId()!= null) {
                 flag = deliverNoticeService.updateDeliverNotice(deliverNotice);
             } else {
-                if(deliverNotice.getSenderId() == null){
+                if(deliverNotice.getDeliverConsignId() == null){
                     result.setCode(ResultStatusEnum.FAIL.getCode());
-                    result.setMsg("下单人id不能为空");
-                    return result;
-                }
-                if(StringUtil.isBlank(deliverNotice.getSenderName())|| StringUtils.equals(deliverNotice.getSenderName(), "")){
-                    result.setCode(ResultStatusEnum.FAIL.getCode());
-                    result.setMsg("下单人名称不能为空");
-                    return result;
-                }
-                 else if(deliverNotice.getSendDate() == null){
-                    result.setCode(ResultStatusEnum.FAIL.getCode());
-                    result.setMsg("下单日期不能为空");
-                    return result;
-                }
-                else if(deliverNotice.getDeliverConsignId() == null){
-                    result.setCode(ResultStatusEnum.FAIL.getCode());
-                    result.setMsg("出口通知单不能为空");
+                    result.setMsg("出库通知单ID不能为空");
                     return result;
                 }else{
                     flag = deliverNoticeService.addDeliverNotice(deliverNotice);
@@ -122,11 +107,16 @@ public class DeliverNoticeController {
      */
     @RequestMapping(value = "detail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> exitRequisitionQuery(@RequestBody DeliverNotice deliverNotice) {
-        if(deliverNotice == null || deliverNotice.getId() == null){
+        if(deliverNotice == null || (deliverNotice.getId() == null && deliverNotice.getDeliverConsignId() == null)){
             return new Result<>(ResultStatusEnum.DATA_NULL);
         }
         try {
-            DeliverNotice detailNotice = deliverNoticeService.queryDeliverNoticeDetail(deliverNotice.getId());
+            DeliverNotice detailNotice = new DeliverNotice();
+            if(deliverNotice.getId() != null){
+                deliverNoticeService.queryDeliverNoticeDetail(deliverNotice.getId());
+            }else{
+                deliverNoticeService.queryByDeliverConsignId(deliverNotice.getId());
+            }
             return new Result<>(detailNotice);
         } catch (Exception e) {
             return new Result<>(ResultStatusEnum.DATA_NULL);
