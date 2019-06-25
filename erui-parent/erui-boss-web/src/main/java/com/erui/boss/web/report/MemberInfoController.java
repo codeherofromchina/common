@@ -41,7 +41,7 @@ public class MemberInfoController {
         Map<String, List<Object>> data = null;
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
         if (params == null) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+            return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         String type = String.valueOf(params.get("type"));
         if ("1".equals(type)) { // 人均效能统计 - 地区统计
