@@ -508,19 +508,35 @@ public class PurchContractServiceImpl implements PurchContractService {
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         List<Object> skus = new ArrayList<>();
         JSONObject params = new JSONObject();
+        Object attrsJson = "";
         for (Goods gd : goodsList) {
             JSONObject gjson = new JSONObject();
-            Object attrsJson = "";
             if (StringUtils.isNotBlank(gd.getAttrs())) {
                 attrsJson = JSONObject.parse(gd.getAttrs());
             }
             gjson.put("nameZh", gd.getNameZh());
-            gjson.put("department", gd.getDepartment());
+            if (gd.getDepartment() != null) {
+                gjson.put("department", gd.getDepartment());
+            } else {
+                gjson.put("department", "");
+            }
+            if (gd.getMeteType() != null) {
+                gjson.put("meteType", gd.getMeteType());
+            } else {
+                gjson.put("meteType", "");
+            }
+            if (gd.getModel() != null) {
+                gjson.put("model", gd.getModel());
+            } else {
+                gjson.put("model", "");
+            }
+            if (gd.getTplNo() != null) {
+                gjson.put("tplNo", gd.getTplNo());
+            } else {
+                gjson.put("tplNo", "");
+            }
             gjson.put("unit", gd.getUnit());
             gjson.put("brand", gd.getBrand());
-            gjson.put("model", gd.getModel());
-            gjson.put("meteType", gd.getMeteType());
-            gjson.put("tplNo", gd.getTplNo());
             gjson.put("attrs", attrsJson);
             skus.add(gjson);
         }

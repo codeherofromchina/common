@@ -95,6 +95,12 @@ public class Purch {
     @Column(name = "`status`")
     private Integer status;
 
+    /**
+     * 备货中 运输中
+     */
+    @Column(name = "supplier_status")
+    private String supplierStatus;
+
     @Column(name = "create_time")
     @JsonIgnore
     private Date createTime;
@@ -297,6 +303,14 @@ public class Purch {
     @Column(name = "quality_time")
     @JsonIgnore
     private Date qualityTime;
+
+    public String getSupplierStatus() {
+        return supplierStatus;
+    }
+
+    public void setSupplierStatus(String supplierStatus) {
+        this.supplierStatus = supplierStatus;
+    }
 
     public Integer getQualityInspectStatus() {
         return qualityInspectStatus;

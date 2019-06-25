@@ -5,6 +5,7 @@ import com.erui.order.entity.PurchGoods;
 import com.erui.order.requestVo.PurchParam;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -77,5 +78,13 @@ public interface PurchService {
      * @return
      */
     boolean saveQualityInspectType(Purch purch) throws Exception;
+
+    /**
+     * 修改采购状态
+     *
+     * @param
+     * @return
+     */
+    void updatePurchStatus(Integer id, String supplierStatus);
 
 }
