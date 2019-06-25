@@ -42,4 +42,12 @@ public interface DeliverNoticeService {
      * @return
      */
     DeliverNotice queryDeliverNoticeDetail(Integer id);
+
+    /**
+     *  出口通知单id
+     *
+     * @param id
+     * @return
+     */
+    DeliverNotice queryByDeliverConsignId(Integer id);
 }

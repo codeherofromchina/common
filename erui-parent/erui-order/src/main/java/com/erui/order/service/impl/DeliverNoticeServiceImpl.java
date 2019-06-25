@@ -407,6 +407,26 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         return deliverNotice;
     }
 
+    /**
+     *  出口通知单id  查询看货信息
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public DeliverNotice queryByDeliverConsignId(Integer id) {
+        DeliverConsign one = null; //出库通知单
+        one = deliverConsignDao.findOne(id);
+        DeliverNotice deliverNotice = one.getDeliverNotice();
+        List<Attachment> attachments = attachmentService.queryAttachs(deliverNotice.getId(), Attachment.AttachmentCategory.DELIVERNOTICE.getCode());
+        if (attachments != null && attachments.size() > 0) {
+            deliverNotice.setAttachmentSet(attachments.stream().collect(Collectors.toSet()));
+        }
+        deliverNotice.setDeliverConsignGoodsSet(deliverNotice.getDeliverConsign().getDeliverConsignGoodsSet());
+        return deliverNotice;
+    }
+
 
     /**
      * 生成产品放行单
