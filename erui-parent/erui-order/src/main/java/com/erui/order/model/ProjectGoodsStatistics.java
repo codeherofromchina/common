@@ -244,7 +244,7 @@ public class ProjectGoodsStatistics {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date leavePortTime;
 
-    // 25、货物到达时间 IogisticsData物流表 预计抵达时间 goods中arrival_port_time
+    // 25、货物到达时间 订单表中的点击“确认收货”按钮的时间
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date arrivalPortTime;
 

@@ -476,10 +476,9 @@ public class PurchContractServiceImpl implements PurchContractService {
     }
 
     //返回给eacp数据
-    private void sendEacp(Order order, List<Goods> goodsList) {
+    private void sendEacp(Order order, List<Goods> goodsList) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
         if (StringUtils.isNotBlank(eruiToken)) {
-            //String jsonParam = "{\"orderId\":\"" + order.getId() + "\"}";
             Map<String, Object> jsonMap = new HashMap<>();
             jsonMap.put("orderId", order.getId());
             jsonMap.put("orderStatus", "EXECUTING");
@@ -496,7 +495,11 @@ public class PurchContractServiceImpl implements PurchContractService {
             header.put(CookiesUtil.TOKEN_NAME, eruiToken);
             header.put("Content-Type", "application/json");
             header.put("accept", "*/*");
-            HttpRequest.sendPost(orderEacp, JSONObject.toJSONString(jsonMap), header);
+            String reponse = HttpRequest.sendPost(orderEacp, JSONObject.toJSONString(jsonMap), header);
+            JSONObject parseData = JSONObject.parseObject(reponse);
+            if (parseData.containsKey("code") && "-1".equals(parseData.getString("code"))) {
+                throw new Exception(String.format("%s%s%s", "生成订舱失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, parseData.getString("message")));
+            }
         }
     }
 
@@ -534,7 +537,11 @@ public class PurchContractServiceImpl implements PurchContractService {
             if (datas.size() > 0) {
                 for (int i = 0; i < datas.size(); i++) {
                     JSONObject goodJson = datas.getJSONObject(i);
-                    goodsList.get(i).setSku(goodJson.getString("sku"));
+                    if (StringUtils.isNotBlank(goodJson.getString("sku"))) {
+                        goodsList.get(i).setSku(goodJson.getString("sku"));
+                    } else {
+                        throw new Exception(String.format("%s%s%s", "商品缺少sku", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "sku error"));
+                    }
                 }
             }
         } else {
@@ -642,7 +649,6 @@ public class PurchContractServiceImpl implements PurchContractService {
         } else {
             result = new PageImpl<Map<String, Object>>(new ArrayList<>(), pageRequest, 0);
         }
-
         return result;
     }
 
@@ -665,7 +671,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                 Predicate status01 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.BEING.getCode());
                 Predicate status02 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.EXECUTED.getCode());
                 list.add(cb.or(status01, status02));
-
                 // 根据商品未采购完成的
                 Join<PurchContract, PurchContractGoods> goodsJoin = root.join("purchContractGoodsList");
                 list.add(cb.lt(goodsJoin.get("prePurchContractNum").as(Integer.class), goodsJoin.get("purchaseNum").as(Integer.class)));
