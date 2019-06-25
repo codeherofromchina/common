@@ -655,7 +655,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                     projectGoods.setBookingDate(g.getBookingDate()); // 22、市场要求订舱日期
                     projectGoods.setBookingTime(g.getAccomplishDate()); // 23、物流订舱日期 --> 实际完成时间
                     projectGoods.setLeavePortTime(g.getLeavePortTime()); // 24、货物发运时间
-                    projectGoods.setArrivalPortTime(g.getArrivalPortTime()); // 25、货物到达时间 -->确认收货的时间
+//                    projectGoods.setArrivalPortTime(g.getArrivalPortTime()); // 25、货物到达时间 -->确认收货的时间
                     projectGoods.setAccomplishDate(g.getAccomplishDate()); // 26、客户接收时间
                     projectGoods.setCurrencyBnReceivableAccountRemaining(null); // 27、应收账款余额（美元）
 
@@ -733,6 +733,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         projectGoods.setProjectStatus(proStatistics.getProjectStatusName());
         projectGoods.setProcessProgress(proStatistics.getProcessProgressName());
         projectGoods.setCurrencyBnReceivableAccountRemaining(proStatistics.getCurrencyBnReceivableAccountRemaining());
+        projectGoods.setArrivalPortTime(proStatistics.getArrivalPortTime()); // 25、货物到达时间 -->确认收货的时间
         return projectGoods;
     }
 
