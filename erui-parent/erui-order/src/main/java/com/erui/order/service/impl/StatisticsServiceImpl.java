@@ -650,6 +650,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                     projectGoods.setDeliverDetailDate(g.getDeliverDetailDate()); // 17、出库检验日期
                     projectGoods.setLeaveDate(g.getLeaveDate()); // 18、出库日期
                     projectGoods.setWareHousemanName(g.getWareHousemanName()); // 19、仓库经办人
+                    projectGoods.setLogisticsCost(g.getLogisticsCost()); // 20、物流费用金额
                     projectGoods.setLogisticsUserName(g.getLogisticsUserName()); // 21、物流经办人
                     projectGoods.setBookingDate(g.getBookingDate()); // 22、市场要求订舱日期
                     projectGoods.setBookingTime(g.getAccomplishDate()); // 23、物流订舱日期 --> 实际完成时间
