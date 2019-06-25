@@ -605,7 +605,8 @@
             t1.`status` in (3,4) and t1.id = t3.order_id AND t1.order_category != 1 AND t1.order_category != 3
             AND t1.delete_flag = 0
             AND t1.contract_no like 'YR%'
-            <if test="startTime!=null and startTime!=''">
+            AND t3.project_status <![CDATA[ <> ]]> 'CANCEL'
+          <if test="startTime!=null and startTime!=''">
                 AND t3.start_date BETWEEN #{startTime} AND #{endTime}
             </if>
         GROUP BY t2.`name`
@@ -630,6 +631,7 @@
             t1.`status` in (3,4) and t1.id = t2.order_id AND t1.order_category != 1 AND t1.order_category != 3
             AND t1.delete_flag = 0
             AND t1.contract_no like 'YR%'
+            AND t2.project_status <![CDATA[ <> ]]> 'CANCEL'
             <if test="startTime!=null and startTime!=''">
                 AND t2.start_date BETWEEN #{startTime} AND #{endTime}
             </if>
@@ -654,6 +656,7 @@
             t1.`status` in (3,4) and t1.id = t3.order_id AND t1.order_category != 1 AND t1.order_category != 3
             AND t1.delete_flag = 0
             AND t1.contract_no like 'YR%'
+            AND t3.project_status <![CDATA[ <> ]]> 'CANCEL'
             <if test="startTime!=null and startTime!=''">
                 AND t3.start_date BETWEEN #{startTime} AND #{endTime}
             </if>
@@ -766,6 +769,7 @@
         t1.id = t2.order_id AND t1.`status` in (3,4) AND t1.order_category != 1 AND t1.order_category != 3
         AND t1.delete_flag = 0
         AND t1.contract_no like 'YR%'
+        AND t2.project_status <![CDATA[ <> ]]> 'CANCEL'
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t1.business_unit_id
         UNION ALL
@@ -806,6 +810,7 @@
         t1.id = t2.order_id AND t1.`status` in (3,4) AND t1.order_category != 1 AND t1.order_category != 3
         AND t1.delete_flag = 0
         AND t1.contract_no like 'YR%'
+        AND t2.project_status <![CDATA[ <> ]]> 'CANCEL'
         AND t2.start_date BETWEEN #{startTime} AND #{endTime}
         GROUP BY t1.region
         UNION ALL
@@ -846,6 +851,7 @@
             t1.id = t2.order_id AND t1.`status` in (3,4) AND t1.order_category != 1 AND t1.order_category != 3
             AND t1.delete_flag = 0
             AND t1.contract_no like 'YR%'
+            AND t2.project_status <![CDATA[ <> ]]> 'CANCEL'
             AND t2.start_date BETWEEN #{startTime} AND #{endTime}
             GROUP BY t1.country
               UNION ALL
@@ -901,6 +907,7 @@
         t1.id = t2.order_id AND t1.order_category != 1 AND t1.order_category != 3
         AND t1.delete_flag = 0
         AND t1.contract_no like 'YR%'
+        AND t2.project_status <![CDATA[ <> ]]> 'CANCEL'
         AND t1.crm_code = t3.buyer_code
         AND t1.crm_code IS NOT NULL
         AND t1.`status`  in (3,4)
@@ -917,6 +924,7 @@
         tb1.crm_code = tb2.buyer_code AND tb1.order_category != 1 AND tb1.order_category != 3
         AND tb1.delete_flag = 0
         AND tb1.contract_no like 'YR%'
+        AND tb5.project_status <![CDATA[ <> ]]> 'CANCEL'
         AND tb1.`status` in (3,4)
         AND IFNULL(tb1.total_price_usd, 0) = tb2.maxQuotePrice
         AND tb1.id = tb5.order_id
@@ -958,6 +966,7 @@
             t1.`status` in (3,4) AND t1.id = t4.order_id AND t1.order_category != 1 AND t1.order_category != 3
             AND t1.delete_flag = 0
             AND t1.contract_no like 'YR%'
+            AND t4.project_status <![CDATA[ <> ]]> 'CANCEL'
             AND t1.crm_code IS NOT NULL
             AND t1.crm_code = t5.buyer_code
             <if test="startTime!=null and startTime!=''">
@@ -1054,6 +1063,7 @@
                 t1.id = t2.order_id AND t1.`status` in (3,4) AND t1.order_category != 1 AND t1.order_category != 3
                 AND t1.delete_flag = 0
                 AND t1.contract_no like 'YR%'
+                AND t2.project_status <![CDATA[ <> ]]> 'CANCEL'
                     AND t1.business_unit_id IS NOT NULL
                     AND t3.`name` IS NOT NULL
                     AND t2.start_date BETWEEN #{startTime} AND #{endTime}
@@ -1076,6 +1086,7 @@
             t1.id = t2.order_id AND t1.`status` in (3,4) AND t1.order_category != 1 AND t1.order_category != 3
             AND t1.delete_flag = 0
             AND t1.contract_no like 'YR%'
+            AND t2.project_status <![CDATA[ <> ]]> 'CANCEL'
                 AND t1.region IS NOT NULL
                 AND t3.`name` IS NOT NULL
                 AND t2.start_date BETWEEN #{startTime} AND #{endTime}
@@ -1098,6 +1109,7 @@
                 t1.id = t2.order_id AND t1.`status` in (3,4) AND t1.order_category != 1 AND t1.order_category != 3
                 AND t1.delete_flag = 0
                 AND t1.contract_no like 'YR%'
+                AND t2.project_status <![CDATA[ <> ]]> 'CANCEL'
                     AND t1.country IS NOT NULL
                     AND t3.`name` IS NOT NULL
                     AND t2.start_date BETWEEN #{startTime} AND #{endTime}
