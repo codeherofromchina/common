@@ -489,6 +489,8 @@ public class PurchContractServiceImpl implements PurchContractService {
             jsonMap.put("totalPriceUsd", order.getTotalPriceUsd());
             jsonMap.put("currencyBn", order.getCurrencyBn());
             jsonMap.put("paymentModeBn", order.getPaymentModeBn());
+            jsonMap.put("agentId", order.getAgentId());
+            jsonMap.put("agentName", order.getAgentName());
             jsonMap.put("goodDesc", goodsList);
             Map<String, String> header = new HashMap<>();
             header.put(CookiesUtil.TOKEN_NAME, eruiToken);
