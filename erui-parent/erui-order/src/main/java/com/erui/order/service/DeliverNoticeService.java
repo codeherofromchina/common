@@ -21,12 +21,19 @@ public interface DeliverNoticeService {
      */
     Page<DeliverNotice> listByPage(DeliverNotice condition) throws Exception;
 
+    /**
+     * 编辑/保存
+     * @param deliverNotice
+     * @return
+     */
+    boolean updateDeliverNotice(DeliverNotice deliverNotice);
 
-    //编辑/保存
-    boolean updateexitRequisition(DeliverNotice deliverNotice);
-
-    //新增
-    boolean addexitRequisition(DeliverNotice deliverNotice);
+    /**
+     * 新增
+     * @param deliverNotice
+     * @return
+     */
+    boolean addDeliverNotice(DeliverNotice deliverNotice);
 
     /**
      *  看货通知单号id
@@ -34,5 +41,5 @@ public interface DeliverNoticeService {
      * @param id
      * @return
      */
-    DeliverNotice exitRequisitionQuery(Integer id);
+    DeliverNotice queryDeliverNoticeDetail(Integer id);
 }

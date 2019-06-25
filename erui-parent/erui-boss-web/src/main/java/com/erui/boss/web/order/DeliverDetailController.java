@@ -135,8 +135,8 @@ public class DeliverDetailController {
         Map<String, Object> deliverNoticeInfo = new HashMap<>();
         deliverNoticeInfo.put("id", deliverNotice.getId()); // 发货通知单ID
         deliverNoticeInfo.put("tradeTerms", deliverNotice.getTradeTerms()); // 贸易术语
-        deliverNoticeInfo.put("toPlace", deliverNotice.getToPlace()); // 目的港
-        deliverNoticeInfo.put("numers", deliverNotice.getNumers()); // 总包装件数
+        deliverNoticeInfo.put("numbers", deliverNotice.getNumbers()); // 总包装件数
+        deliverNoticeInfo.put("otherReq", deliverNotice.getOtherReq()); // 其他要求
         deliverNoticeInfo.put("packageReq", deliverNotice.getPackageReq()); // 包装要求
         deliverNoticeInfo.put("prepareReq", deliverNotice.getPrepareReq()); // 备货要求
 

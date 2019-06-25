@@ -27,6 +27,13 @@ public class DeliverConsign {
     private Integer oId;
 
     /**
+     * 看货通知单
+     */
+    @OneToOne(mappedBy = "deliverConsign", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private DeliverNotice deliverNotice;
+
+    /**
      * 订单ID
      */
     @ManyToOne
@@ -118,8 +125,16 @@ public class DeliverConsign {
     @JoinTable(name = "deliver_consign_attach",
             joinColumns = @JoinColumn(name = "deliver_consign_id"),
             inverseJoinColumns = @JoinColumn(name = "attach_id"))*/
+    /**
+     * 出口通知单附件
+     */
     @Transient
     private List<Attachment> attachmentSet = new ArrayList<>();
+    /**
+     * 看货通知单附件
+     */
+    @Transient
+    private List<Attachment> attachmentNotice = new ArrayList<>();
     //收款信息
     @JoinColumn(name = "deliver_consign_id")
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -407,6 +422,11 @@ public class DeliverConsign {
     @Column(name = "process_id")
     private String processId;
 
+    /**
+     * 看货通知单状态 0未创建 1已创建
+     */
+    @Column(name = "deliver_notice_status")
+    private Integer deliverNoticeStatus;
 
     @Column(name = "task_id")
     private String taskId;
@@ -1024,5 +1044,29 @@ public class DeliverConsign {
 
     public void setOperationSpecialist(String operationSpecialist) {
         this.operationSpecialist = operationSpecialist;
+    }
+
+    public Integer getDeliverNoticeStatus() {
+        return deliverNoticeStatus;
+    }
+
+    public void setDeliverNoticeStatus(Integer deliverNoticeStatus) {
+        this.deliverNoticeStatus = deliverNoticeStatus;
+    }
+
+    public List<Attachment> getAttachmentNotice() {
+        return attachmentNotice;
+    }
+
+    public void setAttachmentNotice(List<Attachment> attachmentNotice) {
+        this.attachmentNotice = attachmentNotice;
+    }
+
+    public DeliverNotice getDeliverNotice() {
+        return deliverNotice;
+    }
+
+    public void setDeliverNotice(DeliverNotice deliverNotice) {
+        this.deliverNotice = deliverNotice;
     }
 }

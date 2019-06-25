@@ -52,8 +52,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
     @Autowired
     private ProjectService projectService;
     @Autowired
-    private AttachmentMapper attachmentMapper;
-    @Autowired
     private BacklogService backlogService;
     @Value("#{orderV2Prop[MEMBER_LIST]}")
     private String memberList;  //查询人员信息调用接口
@@ -237,33 +235,12 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         orderService.updateById(orderId, order);
 
-        //推送出库信息
-        String deliverDetailNo = createDeliverDetailNo();   //产品放行单号
-        DeliverDetail deliverDetail = pushOutbound(deliverConsign, deliverDetailNo);
-
         // 更新修正后的状态
-        DeliverConsign deliverConsignSelective = new DeliverConsign();
+        com.erui.order.v2.model.DeliverConsign deliverConsignSelective = new com.erui.order.v2.model.DeliverConsign();
         deliverConsignSelective.setId(deliverConsign.getId());
         deliverConsignSelective.setAuditingStatus(4);
         deliverConsignSelective.setAuditingProcess("999"); // 999为审核进度审核完成
         deliverConsignMapper.updateByPrimaryKeySelective(deliverConsignSelective);
-
-        // 出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
-        Map<String, Object> map = new HashMap<>();
-        map.put("deliverConsignNo", deliverConsign.getDeliverConsignNo());  //出口通知单号
-        map.put("deliverDetailNo", deliverDetailNo);  //产品放行单号
-        map.put("contractNoOs", order.getContractNo());     //销售合同号
-        try {
-            sendSms(map);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            //出口发货通知单提交的时候，推送给出库分单员  办理分单
-            addBackLog(order, deliverDetail);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 
