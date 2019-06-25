@@ -350,6 +350,14 @@ public class Order {
     @Column(name = "task_id")
     private String taskId;
 
+    /**
+     * 确认收货日期-->点击“确认收货”按钮的日期
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @Column(name = "confirm_receipt_date")
+    @JsonIgnore
+    private Date confirmReceiptDate;
+
 
     //如果项目审核完成返回前端 值为 1
     @Transient
@@ -1466,6 +1474,14 @@ public class Order {
 
     public void setAdvanceMoney(BigDecimal advanceMoney) {
         this.advanceMoney = advanceMoney;
+    }
+
+    public Date getConfirmReceiptDate() {
+        return confirmReceiptDate;
+    }
+
+    public void setConfirmReceiptDate(Date confirmReceiptDate) {
+        this.confirmReceiptDate = confirmReceiptDate;
     }
 
     public static enum COM {

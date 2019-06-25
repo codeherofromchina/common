@@ -220,7 +220,7 @@ public class DeliverNotice {
     private String tenant;
 
     @Transient
-    private int page = 0;
+    private int page = 1;
     @Transient
     private int rows = 10;
 

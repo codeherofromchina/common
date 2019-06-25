@@ -1829,6 +1829,7 @@ public class OrderServiceImpl implements OrderService {
         Order order1 = orderDao.findOne(order.getId());
         if (order1 != null) {
             order1.setStatus(order.getStatus());
+            order1.setConfirmReceiptDate(new Date());
             Order orderUpdate = orderDao.save(order1);
             addLog(OrderLog.LogTypeEnum.DELIVERYDONE, order1.getId(), null, null, new Date());
             if (Order.fromCode(orderUpdate.getStatus()) == Order.StatusEnum.DONE && orderUpdate.getPayStatus() == 3) {
