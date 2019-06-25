@@ -1040,7 +1040,6 @@ public class PurchContractServiceImpl implements PurchContractService {
             cell = row.getCell(4);
             cell.setCellValue(cell.getStringCellValue().replace("address", formatNullStr(purchContract.getPurchContractSignatoriesList().get(1).getAddress())));
         }
-
         row = sheet.getRow(17);
         // 开户行：
         if (purchContract.getPurchContractSignatoriesList().get(0).getOpeningBank() != null) {
