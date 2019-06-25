@@ -76,8 +76,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, group, title, url, user_id, user_name, front_date, delete_flag, delete_time, 
-    create_time, type, rel_obj_id, category, tenant
+    id, `group`, title, url, user_id, user_name, front_date, delete_flag, delete_time,
+    create_time, `type`, rel_obj_id, category, tenant
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.erui.order.v2.model.AttachmentExample" >
     select
@@ -110,10 +110,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.erui.order.v2.model.Attachment" >
-    insert into attachment (id, group, title, 
+    insert into attachment (id, `group`, title,
       url, user_id, user_name, 
       front_date, delete_flag, delete_time, 
-      create_time, type, rel_obj_id, 
+      create_time, `type`, rel_obj_id,
       category, tenant)
     values (#{id,jdbcType=INTEGER}, #{group,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, 
       #{url,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR}, 
@@ -128,7 +128,7 @@
         id,
       </if>
       <if test="group != null" >
-        group,
+        `group`,
       </if>
       <if test="title != null" >
         title,
@@ -155,7 +155,7 @@
         create_time,
       </if>
       <if test="type != null" >
-        type,
+        `type`,
       </if>
       <if test="relObjId != null" >
         rel_obj_id,
@@ -225,7 +225,7 @@
         id = #{record.id,jdbcType=INTEGER},
       </if>
       <if test="record.group != null" >
-        group = #{record.group,jdbcType=VARCHAR},
+        `group` = #{record.group,jdbcType=VARCHAR},
       </if>
       <if test="record.title != null" >
         title = #{record.title,jdbcType=VARCHAR},
@@ -252,7 +252,7 @@
         create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.type != null" >
-        type = #{record.type,jdbcType=INTEGER},
+        `type` = #{record.type,jdbcType=INTEGER},
       </if>
       <if test="record.relObjId != null" >
         rel_obj_id = #{record.relObjId,jdbcType=INTEGER},
@@ -271,7 +271,7 @@
   <update id="updateByExample" parameterType="map" >
     update attachment
     set id = #{record.id,jdbcType=INTEGER},
-      group = #{record.group,jdbcType=VARCHAR},
+      `group` = #{record.group,jdbcType=VARCHAR},
       title = #{record.title,jdbcType=VARCHAR},
       url = #{record.url,jdbcType=VARCHAR},
       user_id = #{record.userId,jdbcType=INTEGER},
@@ -280,7 +280,7 @@
       delete_flag = #{record.deleteFlag,jdbcType=BIT},
       delete_time = #{record.deleteTime,jdbcType=TIMESTAMP},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      type = #{record.type,jdbcType=INTEGER},
+      `type` = #{record.type,jdbcType=INTEGER},
       rel_obj_id = #{record.relObjId,jdbcType=INTEGER},
       category = #{record.category,jdbcType=VARCHAR},
       tenant = #{record.tenant,jdbcType=VARCHAR}
@@ -292,7 +292,7 @@
     update attachment
     <set >
       <if test="group != null" >
-        group = #{group,jdbcType=VARCHAR},
+        `group` = #{group,jdbcType=VARCHAR},
       </if>
       <if test="title != null" >
         title = #{title,jdbcType=VARCHAR},
@@ -319,7 +319,7 @@
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="type != null" >
-        type = #{type,jdbcType=INTEGER},
+        `type` = #{type,jdbcType=INTEGER},
       </if>
       <if test="relObjId != null" >
         rel_obj_id = #{relObjId,jdbcType=INTEGER},
@@ -335,7 +335,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.erui.order.v2.model.Attachment" >
     update attachment
-    set group = #{group,jdbcType=VARCHAR},
+    set `group` = #{group,jdbcType=VARCHAR},
       title = #{title,jdbcType=VARCHAR},
       url = #{url,jdbcType=VARCHAR},
       user_id = #{userId,jdbcType=INTEGER},
@@ -344,7 +344,7 @@
       delete_flag = #{deleteFlag,jdbcType=BIT},
       delete_time = #{deleteTime,jdbcType=TIMESTAMP},
       create_time = #{createTime,jdbcType=TIMESTAMP},
-      type = #{type,jdbcType=INTEGER},
+      `type` = #{type,jdbcType=INTEGER},
       rel_obj_id = #{relObjId,jdbcType=INTEGER},
       category = #{category,jdbcType=VARCHAR},
       tenant = #{tenant,jdbcType=VARCHAR}

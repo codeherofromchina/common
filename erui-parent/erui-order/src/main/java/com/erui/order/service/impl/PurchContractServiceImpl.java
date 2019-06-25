@@ -222,7 +222,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                 PurchContractGoods purchContractGoods = dbPurchContractGoodsMap.remove(pgId);
                 existId.add(pgId);
                 Project project = purchContractGoods.getProject();
-
+                order = project.getOrder();
                 boolean hasSon = false;
                 if (purchContractGoods.getExchanged()) {
                     // 是替换商品，查看父商品是否存在
@@ -348,7 +348,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                     send = false;
                 }
             }
-            if (send && order != null) {
+            if (send && order != null && order.getOrderSource() == 4) {
                 //订单商品合同数量全部生成采购合同时给eacp发送订单商品数据
                 sendEacp(order, goodSkus);
             }
@@ -463,7 +463,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                     send = false;
                 }
             }
-            if (send && order != null) {
+            if (send && order != null && order.getOrderSource() == 4) {
                 //订单商品合同数量全部生成采购合同时给eacp发送订单商品数据
                 sendEacp(order, goodSkus);
             }
@@ -476,10 +476,9 @@ public class PurchContractServiceImpl implements PurchContractService {
     }
 
     //返回给eacp数据
-    private void sendEacp(Order order, List<Goods> goodsList) {
+    private void sendEacp(Order order, List<Goods> goodsList) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
         if (StringUtils.isNotBlank(eruiToken)) {
-            //String jsonParam = "{\"orderId\":\"" + order.getId() + "\"}";
             Map<String, Object> jsonMap = new HashMap<>();
             jsonMap.put("orderId", order.getId());
             jsonMap.put("orderStatus", "EXECUTING");
@@ -496,38 +495,18 @@ public class PurchContractServiceImpl implements PurchContractService {
             header.put(CookiesUtil.TOKEN_NAME, eruiToken);
             header.put("Content-Type", "application/json");
             header.put("accept", "*/*");
-            HttpRequest.sendPost(orderEacp, JSONObject.toJSONString(jsonMap), header);
+            String reponse = HttpRequest.sendPost(orderEacp, JSONObject.toJSONString(jsonMap), header);
+            JSONObject parseData = JSONObject.parseObject(reponse);
+            if (parseData.containsKey("code") && "-1".equals(parseData.getString("code"))) {
+                throw new Exception(String.format("%s%s%s", "生成订舱失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, parseData.getString("message")));
+            }
         }
     }
 
-   /* //给EACP返回商品有效信息
-    private List<Goods> eacpGoods(List<Goods> goodsList) {
-        List<Goods> goods = new ArrayList<>();
-        for (Goods g : goodsList) {
-            Goods goods1 = new Goods();
-            goods1.setId(g.getId());
-            goods1.setSku(g.getSku());
-            goods1.setNameEn(g.getNameEn());
-            goods1.setNameZh(g.getNameZh());
-            goods1.setPrice(g.getPrice());
-            goods1.setDepartment(g.getDepartment());
-            goods1.setContractGoodsNum(g.getContractGoodsNum());
-            goods1.setUnit(g.getUnit());
-            goods1.setBrand(g.getBrand());
-            goods1.setModel(g.getModel());
-            goods1.setClientDesc(g.getClientDesc());
-            goods1.setMeteType(g.getMeteType());
-            goods1.setMeteName(g.getMeteName());
-            goods.add(goods1);
-        }
-        return goods;
-    }*/
-
     //验证获取sku
-    public List<Goods> getGoodSku(List<Goods> goodsList) {
+    public List<Goods> getGoodSku(List<Goods> goodsList) throws Exception {
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         List<Object> skus = new ArrayList<>();
-
         JSONObject params = new JSONObject();
         for (Goods gd : goodsList) {
             JSONObject gjson = new JSONObject();
@@ -553,14 +532,20 @@ public class PurchContractServiceImpl implements PurchContractService {
         header.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
         String resData = HttpRequest.sendPost(getSku, params.toJSONString(), header);
         JSONObject parseData = JSONObject.parseObject(resData);
-        JSONArray datas = parseData.getJSONArray("data");
-        if (datas.size() > 0) {
-            for (int i = 0; i < datas.size(); i++) {
-                JSONObject goodJson = datas.getJSONObject(i);
-                for (Goods gd : goodsList) {
-                    gd.setSku(goodJson.getString("sku"));
+        if (parseData.containsKey("data")) {
+            JSONArray datas = parseData.getJSONArray("data");
+            if (datas.size() > 0) {
+                for (int i = 0; i < datas.size(); i++) {
+                    JSONObject goodJson = datas.getJSONObject(i);
+                    if (StringUtils.isNotBlank(goodJson.getString("sku"))) {
+                        goodsList.get(i).setSku(goodJson.getString("sku"));
+                    } else {
+                        throw new Exception(String.format("%s%s%s", "商品缺少sku", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "sku error"));
+                    }
                 }
             }
+        } else {
+            throw new Exception(String.format("%s%s%s", "生成sku失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "sku error"));
         }
         return goodsList;
     }
@@ -592,7 +577,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                         purchContractGoods.setgId(purchContractGoods.getGoods().getId());
                         purchContractGoods.setPcId(purchContract.getId());
                         purchContractGoods.setPcgId(purchContractGoods.getId());
-
                     }
                     List<String> projectIdList = new ArrayList<>(projectIdSet);
                     purchContract.setProjectId(StringUtils.join(projectIdList, ","));
@@ -636,7 +620,6 @@ public class PurchContractServiceImpl implements PurchContractService {
                     if (agentId != null) {
                         list.add(cb.equal(root.get("agentId").as(Integer.class), agentId));
                     }
-
                     // 根据采购状态过滤条件
                     Predicate status01 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.BEING.getCode());
                     Predicate status02 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.EXECUTED.getCode());

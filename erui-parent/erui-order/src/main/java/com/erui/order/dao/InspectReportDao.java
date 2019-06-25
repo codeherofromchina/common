@@ -5,6 +5,7 @@ import com.erui.order.entity.InspectReport;
 import com.erui.order.entity.Purch;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 import java.io.Serializable;
 import java.util.List;
@@ -21,4 +22,11 @@ public interface InspectReportDao extends JpaRepository<InspectReport, Serializa
      * @return
      */
     List<InspectReport> findByInspectApplyIdInOrderByIdAsc(List<Integer> inspectApplyIds);
+    /**
+     * 查询最新ncr编号
+     * @param
+     * @return
+     */
+    @Query(value = "SELECT ncr_no FROM inspect_report ORDER BY id DESC LIMIT 1",nativeQuery=true)
+    String findLaseNcrNo();
 }

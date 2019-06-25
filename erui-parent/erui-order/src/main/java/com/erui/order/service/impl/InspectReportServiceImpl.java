@@ -298,7 +298,6 @@ public class InspectReportServiceImpl implements InspectReportService {
         dbInspectReport.setCheckUserName(inspectReport.getCheckUserName());
         dbInspectReport.setCheckDeptId(inspectReport.getCheckDeptId());
         dbInspectReport.setCheckDeptName(inspectReport.getCheckDeptName());
-        dbInspectReport.setNcrNo(inspectReport.getNcrNo());
         dbInspectReport.setCheckDate(inspectReport.getCheckDate());
         dbInspectReport.setDoneDate(inspectReport.getDoneDate());
         dbInspectReport.setLastDoneDate(inspectReport.getDoneDate());
@@ -335,7 +334,13 @@ public class InspectReportServiceImpl implements InspectReportService {
 
             Integer samples = paramApplyGoods.getSamples();
             Integer unqualified = paramApplyGoods.getUnqualified();
-            if (samples == null || (samples <= 0 && (purchGoods.getQualityInspectType() == null || !"QRL1".equals(purchGoods.getQualityInspectType().trim()))) ) {
+            //如果有不合格数量时自动生成ncr编号
+            if (applyGoods.getUnqualified() > 0) {
+                // 根据数据库中最后的发货通知单单号重新自动生成
+                String oldNcrNo = inspectReportDao.findLaseNcrNo();
+                dbInspectReport.setNcrNo(StringUtil.genNCR(oldNcrNo));
+            }
+            if (samples == null || (samples <= 0 && (purchGoods.getQualityInspectType() == null || !"QRL1".equals(purchGoods.getQualityInspectType().trim())))) {
                 throw new Exception(String.format("%s%s%s", "抽样数错误【SKU:" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Sampling error [SKU:" + goods.getSku() + "]"));
 
             }
@@ -355,7 +360,7 @@ public class InspectReportServiceImpl implements InspectReportService {
             }
             applyGoods.setUnqualifiedDesc(paramApplyGoods.getUnqualifiedDesc());
             // 如果有不合格商品，则必须有不合格类型
-            if (!hegeFlag && (paramApplyGoods.getUnqualifiedType() == null || paramApplyGoods.getUnqualifiedType() == 0)&& unqualified > 0) {
+            if (!hegeFlag && (paramApplyGoods.getUnqualifiedType() == null || paramApplyGoods.getUnqualifiedType() == 0) && unqualified > 0) {
                 throw new Exception(String.format("%s%s%s", "商品(SKU:" + goods.getSku() + ")的不合格类型不能为空", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unqualified Types of Unqualified Commodities (SKU:" + goods.getSku() + ") can not be empty"));
             }
             applyGoods.setUnqualifiedType(paramApplyGoods.getUnqualifiedType());

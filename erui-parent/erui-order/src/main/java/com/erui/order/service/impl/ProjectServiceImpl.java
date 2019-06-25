@@ -12,9 +12,7 @@ import com.erui.order.dao.*;
 import com.erui.order.entity.*;
 import com.erui.order.entity.Order;
 import com.erui.order.event.OrderProgressEvent;
-import com.erui.order.event.PurchDoneCheckEvent;
 import com.erui.order.event.TasksAddEvent;
-import com.erui.order.requestVo.PGoods;
 import com.erui.order.requestVo.ProjectListCondition;
 import com.erui.order.service.*;
 import com.erui.order.util.BpmUtils;
@@ -35,8 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.*;
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -151,7 +147,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public boolean updateProject(Project project, Integer userIdP) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
-        Project projectUpdate = findById(project.getId());
+        Project projectUpdate = findByIdForLock(project.getId());
         Order order = projectUpdate.getOrder();
         Project.ProjectStatusEnum nowProjectStatusEnum = Project.ProjectStatusEnum.fromCode(projectUpdate.getProjectStatus());
         Project.ProjectStatusEnum paramProjectStatusEnum = Project.ProjectStatusEnum.fromCode(project.getProjectStatus());
