@@ -78,25 +78,23 @@ public class DeliverDetailwController {
             List<String> toPortList = new ArrayList<>();    //目的港
             List<String> toPlaceList = new ArrayList<>();    //目的地
             List<Goods> goodsList = new ArrayList<>();    //商品信息
-            List<DeliverConsign> deliverConsigns = deliverDetail.getDeliverNotice().getDeliverConsigns();
-            for (DeliverConsign deliverConsign : deliverConsigns){
-                Order order = deliverConsign.getOrder();
-                tradeTermsList.add(order.getTradeTerms());
-                fromPlaceList.add(order.getFromPlace());
-                fromPortList.add(order.getFromPort());
-                toCountryList.add(order.getToCountry());
-                toPortList.add(order.getToPort());
-                toPlaceList.add(order.getToPlace());
+            DeliverConsign deliverConsign = deliverDetail.getDeliverNotice().getDeliverConsign();
+            Order order = deliverConsign.getOrder();
+            tradeTermsList.add(order.getTradeTerms());
+            fromPlaceList.add(order.getFromPlace());
+            fromPortList.add(order.getFromPort());
+            toCountryList.add(order.getToCountry());
+            toPortList.add(order.getToPort());
+            toPlaceList.add(order.getToPlace());
 
-                List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
-                for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
-                    Goods goods = deliverConsignGoods.getGoods();
-                    if(deliverConsignGoods.getSendNum() != 0){        //物流跟踪 商品信息 数量不能为0
-                        goods.setRemarks(deliverConsignGoods.getOutboundRemark());     //备注
-                        goods.setPackRequire(deliverDetail.getDeliverNotice().getPackageReq());  //包装要求
-                        goods.setOutstockNum(deliverConsignGoods.getSendNum()); // 数量
-                        goodsList.add(goods);
-                    }
+            List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
+            for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
+                Goods goods = deliverConsignGoods.getGoods();
+                if(deliverConsignGoods.getSendNum() != 0){        //物流跟踪 商品信息 数量不能为0
+                    goods.setRemarks(deliverConsignGoods.getOutboundRemark());     //备注
+                    goods.setPackRequire(deliverDetail.getDeliverNotice().getPackageReq());  //包装要求
+                    goods.setOutstockNum(deliverConsignGoods.getSendNum()); // 数量
+                    goodsList.add(goods);
                 }
             }
             List<Attachment> attachmentList =new ArrayList(deliverDetail.getAttachmentList());  //物流跟踪附件信息
@@ -184,28 +182,26 @@ public class DeliverDetailwController {
                 List<String> toPortList = new ArrayList<>();    //目的港
                 List<String> toPlaceList = new ArrayList<>();    //目的地
                 List<Goods> goodsList = new ArrayList<>();    //商品信息
-                List<DeliverConsign> deliverConsigns = deliverDetail.getDeliverNotice().getDeliverConsigns();
-                for (DeliverConsign deliverConsign : deliverConsigns){
-                    Order order = deliverConsign.getOrder();
-                    tradeTermsList.add(order.getTradeTerms());
-                    fromPlaceList.add(order.getFromPlace());
-                    fromPortList.add(order.getFromPort());
-                    toCountryList.add(order.getToCountry());
-                    toPortList.add(order.getToPort());
-                    toPlaceList.add(order.getToPlace());
+                DeliverConsign deliverConsign = deliverDetail.getDeliverNotice().getDeliverConsign();
+                Order order = deliverConsign.getOrder();
+                tradeTermsList.add(order.getTradeTerms());
+                fromPlaceList.add(order.getFromPlace());
+                fromPortList.add(order.getFromPort());
+                toCountryList.add(order.getToCountry());
+                toPortList.add(order.getToPort());
+                toPlaceList.add(order.getToPlace());
 
-                    List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
-                    for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
-                        Goods goods = deliverConsignGoods.getGoods();
-                        if(deliverConsignGoods.getSendNum() != 0){        //物流跟踪 商品信息 数量不能为0
-                            goods.setRemarks(deliverConsignGoods.getOutboundRemark());     //备注
-                            goods.setPackRequire(deliverDetail.getDeliverNotice().getPackageReq());  //包装要求
-                            goods.setOutstockNum(deliverConsignGoods.getSendNum()); // 数量
-                            goodsList.add(goods);
-                        }
+                List<DeliverConsignGoods> deliverConsignGoodsSet = deliverConsign.getDeliverConsignGoodsSet();
+                for (DeliverConsignGoods deliverConsignGoods : deliverConsignGoodsSet){
+                    Goods goods = deliverConsignGoods.getGoods();
+                    if(deliverConsignGoods.getSendNum() != 0){        //物流跟踪 商品信息 数量不能为0
+                        goods.setRemarks(deliverConsignGoods.getOutboundRemark());     //备注
+                        goods.setPackRequire(deliverDetail.getDeliverNotice().getPackageReq());  //包装要求
+                        goods.setOutstockNum(deliverConsignGoods.getSendNum()); // 数量
+                        goodsList.add(goods);
                     }
-
                 }
+
                 List<Attachment> attachmentList =new ArrayList(deliverDetail.getAttachmentList());  //物流跟踪附件信息
                 Iterator<Attachment> iterator = attachmentList.iterator();
                 while (iterator.hasNext()) {
