@@ -73,8 +73,8 @@ public class DeliverNoticeController {
 
             Object userId = request.getSession().getAttribute("userid");
             Object userName = request.getSession().getAttribute("realname");
-            deliverNotice.setCreateUserId(Integer.parseInt(userId.toString()));
-            deliverNotice.setCreateUserName(userName.toString());
+            deliverNotice.setSenderId(Integer.parseInt(userId.toString())); // 下单人 --> 取当前登录人信息
+            deliverNotice.setSenderName(userName.toString()); // 下单人 --> 取当前登录人信息
 
             boolean flag = false;
             if (deliverNotice.getId()!= null) {

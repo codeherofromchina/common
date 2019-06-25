@@ -146,14 +146,34 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         deliverNotice.setDeliverConsignNo(one.getDeliverConsignNo());
         deliverNotice.setProjectNo(one.getOrder().getGoodsList().get(0).getProjectNo());
         deliverNotice.setContractNo(one.getContractNo());
-        deliverNotice.setCrmCodeOrName(one.getCrmCodeOrName());
-        deliverNotice.setDeptName(one.getDeptName());
+        deliverNotice.setOperationSpecialistId(one.getOperationSpecialistId()); // 单证操作 --> 取操作专员信息
+        deliverNotice.setOperationSpecialist(one.getOperationSpecialist()); // 单证操作 --> 取操作专员信息
+        deliverNotice.setBusinessSketch(one.getBusinessSketch()); // 货名 --> 取订舱中的业务项目简述及中英货物名称
+        deliverNotice.setGoodsDepositPlace(one.getGoodsDepositPlace()); // 货物存放地 --> 取订舱中的货物存放地
+        deliverNotice.setTradeTerms(one.getOrder().getTradeTerms() + " " + one.getOrder().getToCountry() + one.getOrder().getToPlace()); // 贸易术语/目的国/目的地 --> 取订单贸易术语/目的国/目的地
+        int numbers = 0;
+        if(one.getDeliverConsignGoodsSet() != null){
+            for(DeliverConsignGoods dGoods : one.getDeliverConsignGoodsSet()){
+                numbers = dGoods.getSendNum()==null? numbers : numbers + dGoods.getSendNum();
+            }
+        }
+        deliverNotice.setNumbers(numbers); // 产品件数 --> 计算：订舱通知中所有商品的“本次发运数量”之和
+        deliverNotice.setTechnicalUid(one.getOrder().getTechnicalId()); // 事业部项目负责人 --> 调取订单中的事业部项目负责人
+        deliverNotice.setTransportType(one.getOrder().getTransportType()); // 运输方式 --> 取订舱中的运输方式
+        deliverNotice.setArrivalDate(one.getDeliverConsignBookingSpace().getArrivalDate()); // 项目要求交付日期 --> 取订舱中的要求运抵目的地日期
+        deliverNotice.setOrderEmergency(one.getDeliverConsignBookingSpace().getOrderEmergency()); // 紧急程度 --> 取订舱通知中的紧急程度
+
+        deliverNotice.setCrmCodeOrName(one.getCrmCodeOrName()); // 客户代码或名称 --> 取订舱客户代码或名称
+        deliverNotice.setDeptName(one.getDeptName()); // 发货申请部门 --> 取订舱发货申请部门
 
         if (deliverNotice.getStatus() == DeliverNotice.StatusEnum.SUBMIT.getCode()) {
+            deliverNotice.setSendDate(new Date()); // 下单日期 --> 取点击“提交”按钮日期
             deliverNotice.setHandleStatus(1); // 未处理
         } else {
             deliverNotice.setHandleStatus(0);
         }
+
+        deliverNotice.setCreateTime(new Date());
 
         DeliverNotice deliverNotice1 = deliverNoticeDao.saveAndFlush(deliverNotice);
         if (deliverNotice.getAttachmentSet() != null && deliverNotice.getAttachmentSet().size() > 0) {
@@ -177,48 +197,6 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             return false;
         }
         try {
-            if (deliverNotice.getSenderId() != null) {
-                one.setSenderId(deliverNotice.getSenderId());
-            }
-            if (deliverNotice.getSenderName() != null) {
-                one.setSenderName(deliverNotice.getSenderName());
-            }
-            if (StringUtil.isNotBlank(deliverNotice.getSenderName())) {
-                one.setSenderName(deliverNotice.getSenderName());
-            }
-            if (deliverNotice.getOperationSpecialistId() != null) {
-                one.setOperationSpecialistId(deliverNotice.getOperationSpecialistId());
-            }
-            if (StringUtil.isNotBlank(deliverNotice.getOperationSpecialist())) {
-                one.setOperationSpecialist(deliverNotice.getOperationSpecialist());
-            }
-            if (deliverNotice.getSendDate() != null) {
-                one.setSendDate(deliverNotice.getSendDate());
-            }
-            if (StringUtil.isNotBlank(deliverNotice.getBusinessSketch())) {
-                one.setBusinessSketch(deliverNotice.getBusinessSketch());
-            }
-            if (StringUtil.isNotBlank(deliverNotice.getGoodsDepositPlace())) {
-                one.setGoodsDepositPlace(deliverNotice.getGoodsDepositPlace());
-            }
-            if (StringUtil.isNotBlank(deliverNotice.getTradeTerms())) {
-                one.setTradeTerms(deliverNotice.getTradeTerms());
-            }
-            if (deliverNotice.getNumers() != null) {
-                one.setNumers(deliverNotice.getNumers());
-            }
-            if (deliverNotice.getTechnicalUid() != null) {
-                one.setTechnicalUid(deliverNotice.getTechnicalUid());
-            }
-            if (StringUtil.isNotBlank(deliverNotice.getTransportType())) {
-                one.setTransportType(deliverNotice.getTransportType());
-            }
-            if (deliverNotice.getArrivalDate() != null) {
-                one.setArrivalDate(deliverNotice.getArrivalDate());
-            }
-            if (StringUtil.isNotBlank(deliverNotice.getOrderEmergency())) {
-                one.setOrderEmergency(deliverNotice.getOrderEmergency());
-            }
             if (StringUtil.isNotBlank(deliverNotice.getOtherReq())) {
                 one.setOtherReq(deliverNotice.getOtherReq());
             }
@@ -230,9 +208,13 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             }
             one.setStatus(deliverNotice.getStatus());
 
-            if (deliverNotice.getStatus() == DeliverNotice.StatusEnum.DONE.getCode()) {
+            if (deliverNotice.getStatus() == DeliverNotice.StatusEnum.SUBMIT.getCode()) {
+                deliverNotice.setSendDate(new Date()); // 下单日期 --> 取点击“提交”按钮日期
+                deliverNotice.setHandleStatus(1); // 未处理
+            }else if (deliverNotice.getStatus() == DeliverNotice.StatusEnum.DONE.getCode()) {
                 one.setHandleStatus(2); // 已处理
             }
+            deliverNotice.setUpdateTime(new Date());
 
             DeliverNotice save = deliverNoticeDao.saveAndFlush(one);
             // 附件处理

@@ -119,7 +119,7 @@ public class DeliverNotice {
     /**
      * 产品件数(计算：订舱通知中所有商品的“本次发运数量”之和)
      */
-    private Integer numers;
+    private Integer numbers;
 
     /**
      * 事业部项目负责人(订单中商务技术经办人)
@@ -141,10 +141,10 @@ public class DeliverNotice {
     private Date arrivalDate;
 
     /**
-     * 紧急程度 COMMONLY:一般 URGENT:紧急 PARTICULAR:异常紧急
+     * 订单紧急程度 1:一般（成本优先） 2:紧急 3:异常紧急（交期优先）
      */
     @Column(name = "order_emergency")
-    private String orderEmergency;
+    private Integer orderEmergency;
 
     /**
      * 其他要求
@@ -175,18 +175,6 @@ public class DeliverNotice {
      */
     @Column(name = "dept_name")
     private String deptName;
-
-    /**
-     * 创建人ID
-     */
-    @Column(name = "create_user_id")
-    private Integer createUserId;
-
-    /**
-     * 创建人
-     */
-    @Column(name = "create_user_name")
-    private String createUserName;
 
     /**
      * 看货通知单状态 1:保存看货通知 2：提交看货通知 3:保存箱单 4:提交箱单/已完成
@@ -339,14 +327,6 @@ public class DeliverNotice {
         this.tradeTerms = tradeTerms;
     }
 
-    public Integer getNumers() {
-        return numers;
-    }
-
-    public void setNumers(Integer numers) {
-        this.numers = numers;
-    }
-
     public Integer getTechnicalUid() {
         return technicalUid;
     }
@@ -371,11 +351,11 @@ public class DeliverNotice {
         this.arrivalDate = arrivalDate;
     }
 
-    public String getOrderEmergency() {
+    public Integer getOrderEmergency() {
         return orderEmergency;
     }
 
-    public void setOrderEmergency(String orderEmergency) {
+    public void setOrderEmergency(Integer orderEmergency) {
         this.orderEmergency = orderEmergency;
     }
 
@@ -417,22 +397,6 @@ public class DeliverNotice {
 
     public void setDeptName(String deptName) {
         this.deptName = deptName;
-    }
-
-    public Integer getCreateUserId() {
-        return createUserId;
-    }
-
-    public void setCreateUserId(Integer createUserId) {
-        this.createUserId = createUserId;
-    }
-
-    public String getCreateUserName() {
-        return createUserName;
-    }
-
-    public void setCreateUserName(String createUserName) {
-        this.createUserName = createUserName;
     }
 
     public Integer getStatus() {
@@ -565,5 +529,13 @@ public class DeliverNotice {
 
     public void setDeliverConsignGoodsSet(List<DeliverConsignGoods> deliverConsignGoodsSet) {
         this.deliverConsignGoodsSet = deliverConsignGoodsSet;
+    }
+
+    public Integer getNumbers() {
+        return numbers;
+    }
+
+    public void setNumbers(Integer numbers) {
+        this.numbers = numbers;
     }
 }
