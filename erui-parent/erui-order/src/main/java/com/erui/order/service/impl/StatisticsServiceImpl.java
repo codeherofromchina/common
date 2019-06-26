@@ -608,6 +608,31 @@ public class StatisticsServiceImpl implements StatisticsService {
             projectGood01.setPurchasingCostsF(p.getPurchasingCostsF());
             projectGood01.setProjectCost(projectGood01.getProjectCost());
 
+            if (p.getGoodsList() != null) {
+                List<Goods> goodsList = p.getGoodsList();
+                for (Goods g : goodsList) {
+                    projectGood01.setPurchRequisitionDate(setSmallDate(projectGood01.getPurchRequisitionDate(), g.getPurchRequisitionDate())); // 4、采购申请生成日期
+                    projectGood01.setPurchNo(g.getPurchContractNo()); // 5、采购合同号
+                    projectGood01.setSigningDate(setSmallDate(projectGood01.getSigningDate(), g.getSigningDate())); // 6、采购合同签订日期
+                    projectGood01.setArrivalDate(setSmallDate(projectGood01.getArrivalDate(), g.getArrivalDate())); // 6、采购合同签订日期
+                    projectGood01.setSupplierName(g.getSupplierName()); // 8、供应商名称
+                    projectGood01.setArrivaledDate(setSmallDate(projectGood01.getArrivaledDate(), g.getInspectDate())); // 11、采购实际到货日期 -> 检验日期
+                    projectGood01.setPurchAgentName(g.getAgentName()); // 12、采购经办人
+                    projectGood01.setCheckDate(setSmallDate(projectGood01.getCheckDate(), g.getInspectDate())); // 13、报检日期
+                    projectGood01.setDoneDate(setSmallDate(projectGood01.getDoneDate(), g.getCheckDoneDate())); // 14、检验完成日期
+                    projectGood01.setCheckUserName(g.getCheckUserName()); // 15、检验人
+                    projectGood01.setInstockDate(setSmallDate(projectGood01.getInstockDate(), g.getInstockDate())); // 16、入库日期
+                    projectGood01.setDeliverDetailDate(setSmallDate(projectGood01.getDeliverDetailDate(), g.getDeliverDetailDate())); // 17、出库检验日期
+                    projectGood01.setLeaveDate(setSmallDate(projectGood01.getLeaveDate(), g.getLeaveDate())); // 18、出库日期
+                    projectGood01.setWareHousemanName(g.getWareHousemanName()); // 19、仓库经办人
+                    projectGood01.setLogisticsUserName(g.getLogisticsUserName()); // 21、物流经办人
+                    projectGood01.setBookingDate(setSmallDate(projectGood01.getBookingDate(), g.getBookingDate())); // 22、市场要求订舱日期
+                    projectGood01.setBookingTime(setSmallDate(projectGood01.getBookingTime(), g.getSailingDate())); // 23、物流订舱日期 --> 航期或航班
+                    projectGood01.setLeavePortTime(setSmallDate(projectGood01.getLeavePortTime(), g.getLeaveFactory())); // 24、货物发运时间 --> 离厂日期
+                    projectGood01.setArrivalPortTime(setSmallDate(projectGood01.getArrivalPortTime(), g.getAccomplishDate())); // 25、货物到达时间
+                }
+            }
+
             BigDecimal purchTotalPrice = BigDecimal.ZERO; // 采购总金额
             if (p.getGoodsList() != null) {
                 List<Goods> goodsList = p.getGoodsList();
@@ -689,6 +714,46 @@ public class StatisticsServiceImpl implements StatisticsService {
         return workbook;
     }
 
+    /**
+     * 比较两个日期之间的大小
+     *
+     * @param d1
+     * @param d2
+     */
+    private Date setSmallDate(Date d1, Date d2) {
+        if(d1 != null){
+            if(d2 == null){
+                return d1;
+            }else {
+                if(compareDate(d2, d1)){
+                    return d1;
+                }else {
+                    return d2;
+                }
+            }
+        }else{
+            return d2;
+        }
+    }
+    /**
+     * 比较两个日期之间的大小
+     *
+     * @param d1
+     * @param d2
+     * @return 前者大于后者返回true 反之false
+     */
+    private boolean compareDate(Date d1, Date d2) {
+        Calendar c1 = Calendar.getInstance();
+        Calendar c2 = Calendar.getInstance();
+        c1.setTime(d1);
+        c2.setTime(d2);
+
+        int result = c1.compareTo(c2);
+        if (result >= 0)
+            return true;
+        else
+            return false;
+    }
     private String converNull(String str){
         if(str == null) {
             str="";
