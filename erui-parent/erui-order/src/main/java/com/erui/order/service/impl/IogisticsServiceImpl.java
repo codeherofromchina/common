@@ -173,7 +173,7 @@ public class IogisticsServiceImpl implements IogisticsService {
         if (ids.length == 0) {
             throw new Exception(String.format("%s%s%s", "未选择商品信息", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Unselected commodity information"));
         }
-
+        Iogistics logistics = iogisticsDao.findById(new Integer(ids[0]));
 
         //获取经办分单人信息
         String eruiToken = (String) ThreadLocalUtil.getObject();
@@ -188,17 +188,16 @@ public class IogisticsServiceImpl implements IogisticsService {
         iogisticsData.setStatus(5); //物流状态
         iogisticsData.setLogisticsUserId(Integer.parseInt(params.get("logisticsUserId"))); //物流经办人id
         iogisticsData.setLogisticsUserName(params.get("logisticsUserName")); //物流经办人名称
-        if(StringUtil.isBlank(iogisticsData.getSubmenuName())){
+        if (StringUtil.isBlank(iogisticsData.getSubmenuName())) {
             iogisticsData.setSubmenuName(name); //分单员经办人姓名
         }
-        if(iogisticsData.getSubmenuId() == null){
+        if (iogisticsData.getSubmenuId() == null) {
             iogisticsData.setSubmenuId(Integer.parseInt(submenuId));   //入库分单人Id
         }
         IogisticsData save = iogisticsDataDao.save(iogisticsData);  //物流信息
 
-
-
-
+        Date outStockDate = null;//出库日期
+        Date submitDate = null;//订舱提交日期
         String[] arr = new String[ids.length];  //销售合同号对比是否相同
         Set<String> contractNoSet = new HashSet<>();//销售合同号
         Set<String> deliverDetailNoSet = new HashSet<>(); //产品放行单号
@@ -206,8 +205,7 @@ public class IogisticsServiceImpl implements IogisticsService {
         Iogistics iogistics = null; //获取分单信息，获取物流经办人信息
 
 
-
-         Set<String> deliverConsignNoSet = new HashSet<>(); //出口发货通知单号
+        Set<String> deliverConsignNoSet = new HashSet<>(); //出口发货通知单号
 
         int i = 0;
         for (String id : ids) {
@@ -231,11 +229,16 @@ public class IogisticsServiceImpl implements IogisticsService {
             contractNoSet.add(one.getContractNo());//销售合同号
             deliverDetailNoSet.add(one.getDeliverDetailNo()); //产品放行单号
             Date releaseDate = one.getDeliverDetail().getReleaseDate();
+            if (one.getDeliverDetail() != null) {
+                outStockDate = one.getDeliverDetail().getLeaveDate(); //取出库日期
+                if (one.getDeliverDetail().getDeliverConsign() != null) {
+                    submitDate = one.getDeliverDetail().getDeliverConsign().getSubmitTime(); //取最新订舱提交日期
+                }
+            }
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
             if (releaseDate != null) {
                 releaseDateSSet.add(simpleDateFormat.format(releaseDate)); //放行日期
             }
-
             one.setOutYn(1);
             one.setIogisticsData(save);
             Iogistics save1 = iogisticsDao.save(one);
@@ -247,7 +250,6 @@ public class IogisticsServiceImpl implements IogisticsService {
             backLogService.updateBackLogByDelYn(backLog2);
 
         }
-
         String a = arr[0];  //获取随便一个销售合同号
         for (String contractNo : arr) {
             if (!a.equals(contractNo)) {    //判断销售合同号是否相同
@@ -263,7 +265,9 @@ public class IogisticsServiceImpl implements IogisticsService {
         if (releaseDateSSet.size() != 0) {
             save.setReleaseDateS(StringUtils.join(releaseDateSSet, ","));//放行日期 拼接存库
         }
-
+        //设置订舱下发日期和离厂日期
+        save.setBookingTime(submitDate);
+        save.setLeaveFactory(outStockDate);
         IogisticsData save1 = iogisticsDataDao.save(save);
         Map<String, Object> map = new HashMap();
         map.put("contractNo", save.getContractNo());  //销售合同号
@@ -343,13 +347,13 @@ public class IogisticsServiceImpl implements IogisticsService {
                 if (codes == 1) {    //判断请求是否成功
                     // 获取数据信息
                     JSONArray data1 = jsonObjects.getJSONArray("data");
-                    for (int i = 0; i < data1.size(); i++){
-                        JSONObject ob  = (JSONObject)data1.get(i);
+                    for (int i = 0; i < data1.size(); i++) {
+                        JSONObject ob = (JSONObject) data1.get(i);
                         listAll.add(ob.getInteger("id"));    //获取物流分单员id
                     }
                 }
 
-                if(!listAll.contains(map1.get("logisticsUserId"))){     //如果某一个物流分单员和仓库经办人id相同则不用发送短信
+                if (!listAll.contains(map1.get("logisticsUserId"))) {     //如果某一个物流分单员和仓库经办人id相同则不用发送短信
                     // 根据物流经办人id获取人员信息
                     String jsonParam = "{\"id\":\"" + map1.get("logisticsUserId") + "\"}";
                     String s = HttpRequest.sendPost(memberInformation, jsonParam, header);
@@ -359,12 +363,12 @@ public class IogisticsServiceImpl implements IogisticsService {
                     if (code == 1) {
 
                         JSONObject data = jsonObject.getJSONObject("data");
-                        String  mobile = data.getString("mobile");  //获取物流经办人手机号
+                        String mobile = data.getString("mobile");  //获取物流经办人手机号
                         //发送短信
                         Map<String, String> map = new HashMap();
                         map.put("areaCode", "86");
                         map.put("to", "[\"" + mobile + "\"]");
-                        map.put("content", "您好，销售合同号："+map1.get("contractNo")+"，运单号："+map1.get("theAwbNo")+"，物流分单员："+map1.get("submenuName")+"，请及时处理。感谢您对我们的支持与信任！");
+                        map.put("content", "您好，销售合同号：" + map1.get("contractNo") + "，运单号：" + map1.get("theAwbNo") + "，物流分单员：" + map1.get("submenuName") + "，请及时处理。感谢您对我们的支持与信任！");
                         map.put("subType", "0");
                         map.put("groupSending", "0");
                         map.put("useType", "订单");
@@ -374,7 +378,7 @@ public class IogisticsServiceImpl implements IogisticsService {
                 }
 
             } catch (Exception e) {
-                throw new Exception(String.format("%s%s%s","发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL,"Failure to send SMS"));
+                throw new Exception(String.format("%s%s%s", "发送短信失败", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Failure to send SMS"));
             }
 
         }
