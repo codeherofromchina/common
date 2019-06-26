@@ -239,7 +239,6 @@ public class IogisticsServiceImpl implements IogisticsService {
             if (releaseDate != null) {
                 releaseDateSSet.add(simpleDateFormat.format(releaseDate)); //放行日期
             }
-
             one.setOutYn(1);
             one.setIogisticsData(save);
             Iogistics save1 = iogisticsDao.save(one);
