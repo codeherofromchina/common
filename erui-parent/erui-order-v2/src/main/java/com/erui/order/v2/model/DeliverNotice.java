@@ -7,35 +7,51 @@ public class DeliverNotice {
 
     private String deliverNoticeNo;
 
+    private Integer deliverConsignId;
+
+    private String deliverConsignNo;
+
     private Integer senderId;
 
     private String senderName;
 
+    private String projectNo;
+
+    private String contractNo;
+
+    private Integer operationSpecialistId;
+
+    private String operationSpecialist;
+
     private Date sendDate;
+
+    private String businessSketch;
+
+    private String goodsDepositPlace;
 
     private String tradeTerms;
 
-    private String toPlace;
-
-    private String transportTypeBn;
+    private Integer numbers;
 
     private Integer technicalUid;
 
-    private String urgency;
+    private String transportType;
 
-    private Date deliveryDate;
+    private Date arrivalDate;
 
-    private Integer numers;
+    private Integer orderEmergency;
 
-    private Date createTime;
+    private String crmCodeOrName;
 
-    private Integer createUserId;
-
-    private String createUserName;
+    private String deptName;
 
     private Integer status;
 
+    private Integer handleStatus;
+
     private Date updateTime;
+
+    private Date createTime;
 
     private String tenant;
 
@@ -55,6 +71,22 @@ public class DeliverNotice {
         this.deliverNoticeNo = deliverNoticeNo;
     }
 
+    public Integer getDeliverConsignId() {
+        return deliverConsignId;
+    }
+
+    public void setDeliverConsignId(Integer deliverConsignId) {
+        this.deliverConsignId = deliverConsignId;
+    }
+
+    public String getDeliverConsignNo() {
+        return deliverConsignNo;
+    }
+
+    public void setDeliverConsignNo(String deliverConsignNo) {
+        this.deliverConsignNo = deliverConsignNo;
+    }
+
     public Integer getSenderId() {
         return senderId;
     }
@@ -71,12 +103,60 @@ public class DeliverNotice {
         this.senderName = senderName;
     }
 
+    public String getProjectNo() {
+        return projectNo;
+    }
+
+    public void setProjectNo(String projectNo) {
+        this.projectNo = projectNo;
+    }
+
+    public String getContractNo() {
+        return contractNo;
+    }
+
+    public void setContractNo(String contractNo) {
+        this.contractNo = contractNo;
+    }
+
+    public Integer getOperationSpecialistId() {
+        return operationSpecialistId;
+    }
+
+    public void setOperationSpecialistId(Integer operationSpecialistId) {
+        this.operationSpecialistId = operationSpecialistId;
+    }
+
+    public String getOperationSpecialist() {
+        return operationSpecialist;
+    }
+
+    public void setOperationSpecialist(String operationSpecialist) {
+        this.operationSpecialist = operationSpecialist;
+    }
+
     public Date getSendDate() {
         return sendDate;
     }
 
     public void setSendDate(Date sendDate) {
         this.sendDate = sendDate;
+    }
+
+    public String getBusinessSketch() {
+        return businessSketch;
+    }
+
+    public void setBusinessSketch(String businessSketch) {
+        this.businessSketch = businessSketch;
+    }
+
+    public String getGoodsDepositPlace() {
+        return goodsDepositPlace;
+    }
+
+    public void setGoodsDepositPlace(String goodsDepositPlace) {
+        this.goodsDepositPlace = goodsDepositPlace;
     }
 
     public String getTradeTerms() {
@@ -87,20 +167,12 @@ public class DeliverNotice {
         this.tradeTerms = tradeTerms;
     }
 
-    public String getToPlace() {
-        return toPlace;
+    public Integer getNumbers() {
+        return numbers;
     }
 
-    public void setToPlace(String toPlace) {
-        this.toPlace = toPlace;
-    }
-
-    public String getTransportTypeBn() {
-        return transportTypeBn;
-    }
-
-    public void setTransportTypeBn(String transportTypeBn) {
-        this.transportTypeBn = transportTypeBn;
+    public void setNumbers(Integer numbers) {
+        this.numbers = numbers;
     }
 
     public Integer getTechnicalUid() {
@@ -111,52 +183,44 @@ public class DeliverNotice {
         this.technicalUid = technicalUid;
     }
 
-    public String getUrgency() {
-        return urgency;
+    public String getTransportType() {
+        return transportType;
     }
 
-    public void setUrgency(String urgency) {
-        this.urgency = urgency;
+    public void setTransportType(String transportType) {
+        this.transportType = transportType;
     }
 
-    public Date getDeliveryDate() {
-        return deliveryDate;
+    public Date getArrivalDate() {
+        return arrivalDate;
     }
 
-    public void setDeliveryDate(Date deliveryDate) {
-        this.deliveryDate = deliveryDate;
+    public void setArrivalDate(Date arrivalDate) {
+        this.arrivalDate = arrivalDate;
     }
 
-    public Integer getNumers() {
-        return numers;
+    public Integer getOrderEmergency() {
+        return orderEmergency;
     }
 
-    public void setNumers(Integer numers) {
-        this.numers = numers;
+    public void setOrderEmergency(Integer orderEmergency) {
+        this.orderEmergency = orderEmergency;
     }
 
-    public Date getCreateTime() {
-        return createTime;
+    public String getCrmCodeOrName() {
+        return crmCodeOrName;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCrmCodeOrName(String crmCodeOrName) {
+        this.crmCodeOrName = crmCodeOrName;
     }
 
-    public Integer getCreateUserId() {
-        return createUserId;
+    public String getDeptName() {
+        return deptName;
     }
 
-    public void setCreateUserId(Integer createUserId) {
-        this.createUserId = createUserId;
-    }
-
-    public String getCreateUserName() {
-        return createUserName;
-    }
-
-    public void setCreateUserName(String createUserName) {
-        this.createUserName = createUserName;
+    public void setDeptName(String deptName) {
+        this.deptName = deptName;
     }
 
     public Integer getStatus() {
@@ -167,12 +231,28 @@ public class DeliverNotice {
         this.status = status;
     }
 
+    public Integer getHandleStatus() {
+        return handleStatus;
+    }
+
+    public void setHandleStatus(Integer handleStatus) {
+        this.handleStatus = handleStatus;
+    }
+
     public Date getUpdateTime() {
         return updateTime;
     }
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
     public String getTenant() {
