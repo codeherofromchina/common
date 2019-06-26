@@ -35,7 +35,7 @@ public interface PurchService {
      * 业务流实例执行结束更新
      * @param processInstanceId
      */
-    void updateProcessCompleted(String processInstanceId);
+    Integer updateProcessCompleted(String processInstanceId);
 
     /**
      * 唯一标识查找采购
