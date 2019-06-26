@@ -1,5 +1,7 @@
 package com.erui.order.requestVo;
 
+import java.util.Date;
+
 /**
  * Created by GS on 2017/12/14 0014.
  * 订单列表模糊查询条件
@@ -22,12 +24,22 @@ public class DeliverConsignListCondition {
 
     //发货申请部门
     private String deptId;
+    //订舱提交时间
+    private Date submitTime;
 
     // 分页信息参数
     private int page = 1; // 默认从0开始
     private int rows = 20; // 默认每页20条记录
     // 语言 en / zh
     private String lang;
+
+    public Date getSubmitTime() {
+        return submitTime;
+    }
+
+    public void setSubmitTime(Date submitTime) {
+        this.submitTime = submitTime;
+    }
 
     public String getDeliverConsignNo() {
         return deliverConsignNo;

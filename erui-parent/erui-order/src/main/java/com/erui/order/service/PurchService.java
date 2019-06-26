@@ -69,6 +69,13 @@ public interface PurchService {
 
     boolean audit(Integer purchId, String s, String s1, PurchParam purchParam);
 
+    /**
+     * 修改供应商状态
+     * @param purchId
+     * @param status
+     */
+    void updateSupplierStatus(Integer purchId, String status);
+
     void fillTempExcelData(XSSFWorkbook workbook, int purchId) throws Exception;
 
     /**
