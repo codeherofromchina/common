@@ -115,7 +115,7 @@ public class DeliverNoticeController {
             if(deliverNotice.getId() != null){
                 deliverNoticeService.queryDeliverNoticeDetail(deliverNotice.getId());
             }else{
-                deliverNoticeService.queryByDeliverConsignId(deliverNotice.getId());
+                deliverNoticeService.queryByDeliverConsignId(deliverNotice.getDeliverConsignId());
             }
             return new Result<>(detailNotice);
         } catch (Exception e) {
