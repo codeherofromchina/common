@@ -47,6 +47,8 @@ public class BpmNotifyController {
     @Autowired
     private PurchService purchService;
     @Autowired
+    private com.erui.order.service.PurchService purchService2;
+    @Autowired
     private UserService userService;
 
 
@@ -185,7 +187,9 @@ public class BpmNotifyController {
             deliverConsignService.setInspectData(processInstanceId);
         } else if (businessKey.startsWith("purch:")) {
             // 采购审核流程
-            purchService.updateProcessCompleted(processInstanceId);
+            Integer purchId = purchService.updateProcessCompleted(processInstanceId);
+            // 修改供应商状态
+            purchService2.updateSupplierStatus(purchId, "DRAFT");
         }
         return result;
     }

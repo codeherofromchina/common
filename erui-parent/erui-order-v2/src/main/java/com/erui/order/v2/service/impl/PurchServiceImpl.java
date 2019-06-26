@@ -175,11 +175,11 @@ public class PurchServiceImpl implements PurchService {
     }
 
     @Override
-    public void updateProcessCompleted(String processInstanceId) {
+    public Integer updateProcessCompleted(String processInstanceId) {
         // 查询采购
         Purch purch = findPurchByProcessId(processInstanceId);
         if (purch == null) {
-            return;
+            return null;
         }
 
         Purch purchSelective = new Purch();
@@ -195,6 +195,8 @@ public class PurchServiceImpl implements PurchService {
         purchSelective.setAuditingStatus(4); // 设置为审核完成 4：审核完成
         purchSelective.setAuditingProcess("999"); //
         purchMapper.updateByPrimaryKeySelective(purchSelective);
+
+        return purch.getId();
     }
 
 
