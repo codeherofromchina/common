@@ -12,10 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import org.apache.commons.lang3.*;
 
@@ -331,6 +328,28 @@ public class PurchController {
         }
 
         return new Result<>(ResultStatusEnum.FAIL).setMsg(errorMsg);
+    }
+
+    /**
+     * 设置根据商家中心采购订单状态
+     *
+     * @param
+     * @return
+     */
+    @RequestMapping(value = "updatePurchStatus", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> updatePurchStatus(@RequestBody Map<String, String> params) {
+        if (params.containsKey("purchId") && params.containsKey("status")) {
+            String purchId = params.get("purchId");
+            String status = params.get("status");
+            if (purchId != null && StringUtils.isNotBlank(status)) {
+                purchService.updatePurchStatus(Integer.parseInt(purchId), status);
+                return new Result<>();
+            }
+        } else {
+            return new Result<>(ResultStatusEnum.MISS_PARAM_ERROR);
+
+        }
+        return new Result<>(ResultStatusEnum.FAIL).setMsg("失败");
     }
 
 

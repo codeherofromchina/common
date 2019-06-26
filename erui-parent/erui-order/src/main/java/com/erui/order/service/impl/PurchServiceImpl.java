@@ -513,6 +513,7 @@ public class PurchServiceImpl implements PurchService {
             e.printStackTrace();
         }
     }
+
     //修改供应商状态
     public void updateSupplierStatus(Integer purchId, String status) {
 
@@ -744,6 +745,7 @@ public class PurchServiceImpl implements PurchService {
 
         return page;
     }
+
     /**
      * 填充导出采购合同模板
      *
@@ -888,7 +890,7 @@ public class PurchServiceImpl implements PurchService {
 
         row = sheet.getRow(13);
         Integer payType = 0;
-        if(purch.getPurchPaymentList() != null && purch.getPurchPaymentList().size()>0)
+        if (purch.getPurchPaymentList() != null && purch.getPurchPaymentList().size() > 0)
             payType = purch.getPurchPaymentList().get(0).getType();
         switch (payType) {
             case 1:
@@ -1028,10 +1030,10 @@ public class PurchServiceImpl implements PurchService {
             vo.setCreateTime(now);
         });
         // 提交时商品数量为0的商品不保存
-        if(purch.getStatus() == Purch.StatusEnum.BEING.getCode()){
+        if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
             List<PurchGoods> pgList = new ArrayList<>();
             for (PurchGoods pgs : purch.getPurchGoodsList()) {
-                if(pgs.getPurchaseNum() != null && pgs.getPurchaseNum() > 0){
+                if (pgs.getPurchaseNum() != null && pgs.getPurchaseNum() > 0) {
                     pgList.add(pgs);
                 }
             }
@@ -1074,7 +1076,7 @@ public class PurchServiceImpl implements PurchService {
             PurchGoods son = handleAddNewPurchGoods(project, purch, goods, purchGoods, purchContractGoods);
             purchGoods.setPurchContractGoods(purchContractGoods);
             purchGoods.setPurchContract(purchContractGoods.getPurchContract());
-            purchGoods.setQualityInspectType(project.getQualityInspectType()==null?project.getQualityInspectType():project.getQualityInspectType().trim()); // 质检类型默认赋值项目中的
+            purchGoods.setQualityInspectType(project.getQualityInspectType() == null ? project.getQualityInspectType() : project.getQualityInspectType().trim()); // 质检类型默认赋值项目中的
             purchGoodsList.add(purchGoods);
             if (son != null) {
                 purchGoodsList.add(son);
@@ -1083,7 +1085,7 @@ public class PurchServiceImpl implements PurchService {
             if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                 // 如果是提交则设置商品的已采购数量并更新
                 goods.setPurchasedNum(goods.getPurchasedNum() + intPurchaseNum);
-                BigDecimal totalPrice = goods.getPurchTotalPrice() == null?BigDecimal.ZERO:goods.getPurchTotalPrice();
+                BigDecimal totalPrice = goods.getPurchTotalPrice() == null ? BigDecimal.ZERO : goods.getPurchTotalPrice();
                 goods.setPurchTotalPrice(totalPrice.add(purchGoods.getPurchaseTotalPrice()));
                 //提交时更新采购合同已采购数量
                 purchContractGoods.setPurchasedNum(purchContractGoods.getPurchasedNum() + intPurchaseNum);
@@ -1100,16 +1102,16 @@ public class PurchServiceImpl implements PurchService {
             purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + intPurchaseNum);
             // 直接更新商品，放置循环中存在多次修改同一个商品错误
             purchContractGoodsDao.save(purchContractGoods);
-            if(goods.getPurchContractNo() == null){
+            if (goods.getPurchContractNo() == null) {
                 goods.setPurchContractNo(purch.getPurchNo());
             }
-            if(goods.getSupplierName() == null){
+            if (goods.getSupplierName() == null) {
                 goods.setSupplierName(purch.getSupplierName());
             }
-            if(goods.getAgentName() == null){
+            if (goods.getAgentName() == null) {
                 goods.setAgentName(purch.getAgentName());
             }
-            if(goods.getPurchasePrice() == null){
+            if (goods.getPurchasePrice() == null) {
                 goods.setPurchasePrice(purchGoods.getPurchasePrice());
             }
             goodsDao.save(goods);
@@ -1148,8 +1150,8 @@ public class PurchServiceImpl implements PurchService {
             List<String> businessUserNos = userService.findUserNosByIds(businessUids);
             if (businessUserNos.size() == 1) {
                 bpmInitVar.put("assignee_pm", businessUserNos.get(0));  // 设置项目负责人为项目中的项目负责人
-            } else if (businessUserNos.size() > 1){
-                bpmInitVar.put("candidate_users_pm", StringUtils.join(businessUserNos,","));  // 设置项目负责人为项目中的项目负责人
+            } else if (businessUserNos.size() > 1) {
+                bpmInitVar.put("candidate_users_pm", StringUtils.join(businessUserNos, ","));  // 设置项目负责人为项目中的项目负责人
             } else {
                 throw new Exception("没有项目负责人");
             }
@@ -1160,7 +1162,7 @@ public class PurchServiceImpl implements PurchService {
             if (businessUserNos.size() == 1) {
                 user = userService.findUserNoByUserNo(businessUserNos.get(0));
             }
-            if (user == null){
+            if (user == null) {
                 save.setAuditingUser(",");
                 save.setAuditingUserId(",");
             } else {
@@ -1212,7 +1214,7 @@ public class PurchServiceImpl implements PurchService {
      * @return
      */
     @Override
-    @Transactional(rollbackFor = Exception.class,isolation = Isolation.REPEATABLE_READ)
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.REPEATABLE_READ)
     public boolean update(Purch purch) throws Exception {
         String eruiToken = (String) ThreadLocalUtil.getObject();
         Purch dbPurch = findBaseInfoLock(purch.getId());
@@ -1253,10 +1255,10 @@ public class PurchServiceImpl implements PurchService {
                 purchPaymentDao.delete(collect.values());
             }
             // 提交时商品数量为0的商品不保存
-            if(purch.getStatus() == Purch.StatusEnum.BEING.getCode()){
+            if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                 List<PurchGoods> pgList = new ArrayList<>();
                 for (PurchGoods pgs : purch.getPurchGoodsList()) {
-                    if(pgs.getPurchaseNum() != null && pgs.getPurchaseNum() > 0){
+                    if (pgs.getPurchaseNum() != null && pgs.getPurchaseNum() > 0) {
                         pgList.add(pgs);
                     }
                 }
@@ -1307,16 +1309,16 @@ public class PurchServiceImpl implements PurchService {
                         }
                     }
                     goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
-                    if(goods.getPurchContractNo() == null){
+                    if (goods.getPurchContractNo() == null) {
                         goods.setPurchContractNo(purch.getPurchNo());
                     }
-                    if(goods.getSupplierName() == null){
+                    if (goods.getSupplierName() == null) {
                         goods.setSupplierName(purch.getSupplierName());
                     }
-                    if(goods.getAgentName() == null){
+                    if (goods.getAgentName() == null) {
                         goods.setAgentName(purch.getAgentName());
                     }
-                    if(goods.getPurchasePrice() == null){
+                    if (goods.getPurchasePrice() == null) {
                         goods.setPurchasePrice(pg.getPurchasePrice());
                     }
                     goodsDao.save(goods);
@@ -1413,7 +1415,7 @@ public class PurchServiceImpl implements PurchService {
                     // 提交则修改商品的已采购数量
                     if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                         goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
-                        BigDecimal totalPrice = goods.getPurchTotalPrice() == null?BigDecimal.ZERO:goods.getPurchTotalPrice();
+                        BigDecimal totalPrice = goods.getPurchTotalPrice() == null ? BigDecimal.ZERO : goods.getPurchTotalPrice();
                         goods.setPurchTotalPrice(totalPrice.add(purchGoods.getPurchaseTotalPrice()));
                         // 设置商品的项目跟踪信息
                         setGoodsTraceData(goods, purch);
@@ -1433,16 +1435,16 @@ public class PurchServiceImpl implements PurchService {
                     }
 
                     goods.setPrePurchsedNum(goods.getPrePurchsedNum() + purchaseNum - oldPurchaseNum);
-                    if(goods.getPurchContractNo() == null){
+                    if (goods.getPurchContractNo() == null) {
                         goods.setPurchContractNo(purch.getPurchNo());
                     }
-                    if(goods.getSupplierName() == null){
+                    if (goods.getSupplierName() == null) {
                         goods.setSupplierName(purch.getSupplierName());
                     }
-                    if(goods.getAgentName() == null){
+                    if (goods.getAgentName() == null) {
                         goods.setAgentName(purch.getAgentName());
                     }
-                    if(goods.getPurchasePrice() == null){
+                    if (goods.getPurchasePrice() == null) {
                         goods.setPurchasePrice(purchGoods.getPurchasePrice());
                     }
                     goodsDao.save(goods);
@@ -1471,16 +1473,16 @@ public class PurchServiceImpl implements PurchService {
                         // 是替换后的商品，则将此商品删除，并增加父商品的合同数量
                         Goods parentOne = goodsDao.findOne(one.getParentId());
                         parentOne.setContractGoodsNum(parentOne.getContractGoodsNum() + purchaseNum);
-                        if(parentOne.getPurchContractNo() == null){
+                        if (parentOne.getPurchContractNo() == null) {
                             parentOne.setPurchContractNo(purch.getPurchNo());
                         }
-                        if(parentOne.getSupplierName() == null){
+                        if (parentOne.getSupplierName() == null) {
                             parentOne.setSupplierName(purch.getSupplierName());
                         }
-                        if(parentOne.getAgentName() == null){
+                        if (parentOne.getAgentName() == null) {
                             parentOne.setAgentName(purch.getAgentName());
                         }
-                        if(parentOne.getPurchasePrice() == null){
+                        if (parentOne.getPurchasePrice() == null) {
                             parentOne.setPurchasePrice(pg.getPurchasePrice());
                         }
                         goodsDao.save(parentOne);
@@ -1488,16 +1490,16 @@ public class PurchServiceImpl implements PurchService {
                         deleteGoods.add(one);
                     } else {
                         one.setPrePurchsedNum(one.getPrePurchsedNum() - purchaseNum);
-                        if(one.getPurchContractNo() == null){
+                        if (one.getPurchContractNo() == null) {
                             one.setPurchContractNo(purch.getPurchNo());
                         }
-                        if(one.getSupplierName() == null){
+                        if (one.getSupplierName() == null) {
                             one.setSupplierName(purch.getSupplierName());
                         }
-                        if(one.getAgentName() == null){
+                        if (one.getAgentName() == null) {
                             one.setAgentName(purch.getAgentName());
                         }
-                        if(one.getPurchasePrice() == null){
+                        if (one.getPurchasePrice() == null) {
                             one.setPurchasePrice(pg.getPurchasePrice());
                         }
                         goodsDao.save(one);
@@ -1594,10 +1596,10 @@ public class PurchServiceImpl implements PurchService {
                 purchPaymentDao.delete(collect.values());
             }
             // 提交时商品数量为0的商品不保存
-            if(purch.getStatus() == Purch.StatusEnum.BEING.getCode()){
+            if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
                 List<PurchGoods> pgList = new ArrayList<>();
                 for (PurchGoods pgs : purch.getPurchGoodsList()) {
-                    if(pgs.getPurchaseNum() != null && pgs.getPurchaseNum() > 0){
+                    if (pgs.getPurchaseNum() != null && pgs.getPurchaseNum() > 0) {
                         pgList.add(pgs);
                     }
                 }
@@ -1655,7 +1657,7 @@ public class PurchServiceImpl implements PurchService {
                     Integer intPurchaseNum = pg.getPurchaseNum();
                     // 更新商品的采购数量和预采购数量
                     if (purch.getStatus() == Purch.StatusEnum.BEING.getCode() && (purch.getAuditingStatus() == 0 || purch.getAuditingStatus() == null)) {
-                        BigDecimal totalPrice = goods.getPurchTotalPrice() == null?BigDecimal.ZERO:goods.getPurchTotalPrice();
+                        BigDecimal totalPrice = goods.getPurchTotalPrice() == null ? BigDecimal.ZERO : goods.getPurchTotalPrice();
                         goods.setPurchTotalPrice(totalPrice.add(pg.getPurchaseTotalPrice()));
                         // 更新采购合同已预采购数量
                         purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + intPurchaseNum);
@@ -1670,16 +1672,16 @@ public class PurchServiceImpl implements PurchService {
                     //goods.setPrePurchsedNum(goods.getPrePurchsedNum() + intPurchaseNum);
                     purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + intPurchaseNum);
                     purchContractGoodsDao.save(purchContractGoods);
-                    if(goods.getPurchContractNo() == null){
+                    if (goods.getPurchContractNo() == null) {
                         goods.setPurchContractNo(purch.getPurchNo());
                     }
-                    if(goods.getSupplierName() == null){
+                    if (goods.getSupplierName() == null) {
                         goods.setSupplierName(purch.getSupplierName());
                     }
-                    if(goods.getAgentName() == null){
+                    if (goods.getAgentName() == null) {
                         goods.setAgentName(purch.getAgentName());
                     }
-                    if(goods.getPurchasePrice() == null){
+                    if (goods.getPurchasePrice() == null) {
                         goods.setPurchasePrice(pg.getPurchasePrice());
                     }
                     goodsDao.save(goods);
@@ -1790,7 +1792,7 @@ public class PurchServiceImpl implements PurchService {
                     // 提交则修改商品的已采购数量
                     if (purch.getStatus() == Purch.StatusEnum.BEING.getCode() && (dbPurch.getAuditingStatus() == 0 || dbPurch.getAuditingStatus() == null)) {
                         goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum);
-                        BigDecimal totalPrice = goods.getPurchTotalPrice() == null?BigDecimal.ZERO:goods.getPurchTotalPrice();
+                        BigDecimal totalPrice = goods.getPurchTotalPrice() == null ? BigDecimal.ZERO : goods.getPurchTotalPrice();
                         goods.setPurchTotalPrice(totalPrice.add(pg.getPurchaseTotalPrice()));
                         // 设置采购合同预采购商品数量
                         purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
@@ -1804,7 +1806,7 @@ public class PurchServiceImpl implements PurchService {
                         purchContract.setStatus(3);
                     } else if (purch.getStatus() == Purch.StatusEnum.BEING.getCode() && dbPurch.getAuditingStatus() == 3) {
                         goods.setPurchasedNum(goods.getPurchasedNum() + purchaseNum - oldPurchaseNum);
-                        BigDecimal totalPrice = goods.getPurchTotalPrice() == null?BigDecimal.ZERO:goods.getPurchTotalPrice();
+                        BigDecimal totalPrice = goods.getPurchTotalPrice() == null ? BigDecimal.ZERO : goods.getPurchTotalPrice();
                         goods.setPurchTotalPrice(totalPrice.add(pg.getPurchaseTotalPrice()).subtract(purchGoods.getPurchaseTotalPrice()));
                         //设置采购合同预采购商品数量
                         purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
@@ -1823,16 +1825,16 @@ public class PurchServiceImpl implements PurchService {
                         purchContractGoods.setPrePurchContractNum(purchContractGoods.getPrePurchContractNum() + purchaseNum - oldPurchaseNum);
                     }
                     purchContractGoodsDao.save(purchContractGoods);
-                    if(goods.getPurchContractNo() == null){
+                    if (goods.getPurchContractNo() == null) {
                         goods.setPurchContractNo(purch.getPurchNo());
                     }
-                    if(goods.getSupplierName() == null){
+                    if (goods.getSupplierName() == null) {
                         goods.setSupplierName(purch.getSupplierName());
                     }
-                    if(goods.getAgentName() == null){
+                    if (goods.getAgentName() == null) {
                         goods.setAgentName(purch.getAgentName());
                     }
-                    if(goods.getPurchasePrice() == null){
+                    if (goods.getPurchasePrice() == null) {
                         goods.setPurchasePrice(purchGoods.getPurchasePrice());
                     }
                     goodsDao.save(goods);
@@ -1846,9 +1848,9 @@ public class PurchServiceImpl implements PurchService {
 
             }
 
-            for(PurchGoods purchGoods : purchGoodsList){
-                if(purchGoods.getQualityInspectType() == null){
-                    purchGoods.setQualityInspectType(purchGoods.getProject().getQualityInspectType()==null?purchGoods.getProject().getQualityInspectType():purchGoods.getProject().getQualityInspectType().trim()); // 质检类型默认赋值项目中的
+            for (PurchGoods purchGoods : purchGoodsList) {
+                if (purchGoods.getQualityInspectType() == null) {
+                    purchGoods.setQualityInspectType(purchGoods.getProject().getQualityInspectType() == null ? purchGoods.getProject().getQualityInspectType() : purchGoods.getProject().getQualityInspectType().trim()); // 质检类型默认赋值项目中的
                 }
             }
             dbPurch.setPurchGoodsList(purchGoodsList);
@@ -1867,16 +1869,16 @@ public class PurchServiceImpl implements PurchService {
                         // 是替换后的商品，则将此商品删除，并增加父商品的合同数量
                         Goods parentOne = goodsDao.findOne(one.getParentId());
                         parentOne.setContractGoodsNum(parentOne.getContractGoodsNum() + purchaseNum);
-                        if(parentOne.getPurchContractNo() == null){
+                        if (parentOne.getPurchContractNo() == null) {
                             parentOne.setPurchContractNo(purch.getPurchNo());
                         }
-                        if(parentOne.getSupplierName() == null){
+                        if (parentOne.getSupplierName() == null) {
                             parentOne.setSupplierName(purch.getSupplierName());
                         }
-                        if(parentOne.getAgentName() == null){
+                        if (parentOne.getAgentName() == null) {
                             parentOne.setAgentName(purch.getAgentName());
                         }
-                        if(parentOne.getPurchasePrice() == null){
+                        if (parentOne.getPurchasePrice() == null) {
                             parentOne.setPurchasePrice(pg.getPurchasePrice());
                         }
                         goodsDao.save(parentOne);
@@ -1884,16 +1886,16 @@ public class PurchServiceImpl implements PurchService {
                         deleteGoods.add(one);
                     } else {
                         one.setPrePurchsedNum(one.getPrePurchsedNum() - purchaseNum);
-                        if(one.getPurchContractNo() == null){
+                        if (one.getPurchContractNo() == null) {
                             one.setPurchContractNo(purch.getPurchNo());
                         }
-                        if(one.getSupplierName() == null){
+                        if (one.getSupplierName() == null) {
                             one.setSupplierName(purch.getSupplierName());
                         }
-                        if(one.getAgentName() == null){
+                        if (one.getAgentName() == null) {
                             one.setAgentName(purch.getAgentName());
                         }
-                        if(one.getPurchasePrice() == null){
+                        if (one.getPurchasePrice() == null) {
                             one.setPurchasePrice(pg.getPurchasePrice());
                         }
                         goodsDao.save(one);
@@ -1924,12 +1926,12 @@ public class PurchServiceImpl implements PurchService {
 
             if (save.getStatus() == Purch.StatusEnum.BEING.getCode()) {
 //                if (StringUtils.isNotBlank(dbPurch.getAudiRemark()) && StringUtils.isBlank(dbPurch.getProcessId())) {
-                if(false){
+                if (false) {
                     // 老审核流程
                     dbPurch.setAuditingProcess("21,22");
                     dbPurch.setAuditingStatus(1);
                     dbPurch.setAuditingUserId(String.format("%d,%d", purch.getPurchAuditerId(), purch.getBusinessAuditerId()));
-                     //审批流日志
+                    //审批流日志
                     CheckLog checkLog_i = orderService.fullCheckLogInfo(null, CheckLog.checkLogCategory.PURCH.getCode(), save.getId(), 20, save.getCreateUserId(), save.getCreateUserName(), save.getAuditingProcess().toString(), save.getPurchAuditerId().toString(), save.getAuditingReason(), "1", 3);
                     checkLogService.insert(checkLog_i);
                     if (save.getAuditingUserId() != null) {
@@ -1945,13 +1947,13 @@ public class PurchServiceImpl implements PurchService {
                     List<String> businessUserNos = userService.findUserNosByIds(businessUids);
                     if (businessUserNos.size() == 1) {
                         bpmInitVar.put("assignee_pm", businessUserNos.get(0));  // 设置项目负责人为项目中的项目负责人
-                    } else if (businessUserNos.size() > 1){
-                        bpmInitVar.put("candidate_users_pm", StringUtils.join(businessUserNos,","));  // 设置项目负责人为项目中的项目负责人
+                    } else if (businessUserNos.size() > 1) {
+                        bpmInitVar.put("candidate_users_pm", StringUtils.join(businessUserNos, ","));  // 设置项目负责人为项目中的项目负责人
                     } else {
                         throw new Exception("没有项目负责人");
                     }
                     bpmInitVar.put("order_amount", purch.getTotalPrice().doubleValue()); // 总采购订单金额
-                    String task_la_check ;
+                    String task_la_check;
                     if (StringUtils.equals("3", purch.getContractVersion())) {
                         task_la_check = "Y";
                     } else {
@@ -1974,7 +1976,7 @@ public class PurchServiceImpl implements PurchService {
                     if (businessUserNos.size() == 1) {
                         user = userService.findUserNoByUserNo(businessUserNos.get(0));
                     }
-                    if (user == null){
+                    if (user == null) {
                         dbPurch.setAuditingUser(",");
                         dbPurch.setAuditingUserId(",");
                     } else {
@@ -2192,7 +2194,7 @@ public class PurchServiceImpl implements PurchService {
         if (purch.getStatus() == Purch.StatusEnum.BEING.getCode()) {
             // 如果是提交则设置商品的已采购数量并更新
             sonGoods.setPurchasedNum(purchaseNum);
-            BigDecimal totalPrice = sonGoods.getPurchTotalPrice() == null?BigDecimal.ZERO:sonGoods.getPurchTotalPrice();
+            BigDecimal totalPrice = sonGoods.getPurchTotalPrice() == null ? BigDecimal.ZERO : sonGoods.getPurchTotalPrice();
             sonGoods.setPurchTotalPrice(totalPrice.add(son.getPurchaseTotalPrice()));
             // 完善商品的项目执行跟踪信息
             setGoodsTraceData(sonGoods, purch);
@@ -2204,16 +2206,16 @@ public class PurchServiceImpl implements PurchService {
         sonGoods.setInstockNum(0);
         sonGoods.setOutstockApplyNum(0);
         sonGoods.setOutstockNum(0);
-        if(sonGoods.getPurchContractNo() == null){
+        if (sonGoods.getPurchContractNo() == null) {
             sonGoods.setPurchContractNo(purch.getPurchNo());
         }
-        if(sonGoods.getSupplierName() == null){
+        if (sonGoods.getSupplierName() == null) {
             sonGoods.setSupplierName(purch.getSupplierName());
         }
-        if(sonGoods.getAgentName() == null){
+        if (sonGoods.getAgentName() == null) {
             sonGoods.setAgentName(purch.getAgentName());
         }
-        if(sonGoods.getPurchasePrice() == null){
+        if (sonGoods.getPurchasePrice() == null) {
             sonGoods.setPurchasePrice(son.getPurchasePrice());
         }
         sonGoods = goodsDao.save(sonGoods);
@@ -2269,9 +2271,9 @@ public class PurchServiceImpl implements PurchService {
 
         Map<Integer, PurchGoods> purchGoodsListMap = purch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(PurchGoods::getId, vo -> vo));
 
-        List<PurchGoods>dbPurchGoodsList = purchdb.getPurchGoodsList();
-        for(PurchGoods purchGoods : dbPurchGoodsList){
-            purchGoods.setQualityInspectType(purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType() == null?purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType():purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType().trim());
+        List<PurchGoods> dbPurchGoodsList = purchdb.getPurchGoodsList();
+        for (PurchGoods purchGoods : dbPurchGoodsList) {
+            purchGoods.setQualityInspectType(purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType() == null ? purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType() : purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType().trim());
         }
         purchdb.setPurchGoodsList(dbPurchGoodsList);
         purchdb.setQualityTime(new Date());
@@ -2280,6 +2282,13 @@ public class PurchServiceImpl implements PurchService {
         purchdb.setQualityLeaderName(purch.getQualityLeaderName());
         purchDao.save(purchdb);
         return true;
+    }
+
+    @Override
+    public void updatePurchStatus(Integer id, String supplierStatus) {
+        if (id != null && StringUtils.isNotBlank(supplierStatus)) {
+            purchDao.updateSupplierStatus(id, supplierStatus);
+        }
     }
 
 }

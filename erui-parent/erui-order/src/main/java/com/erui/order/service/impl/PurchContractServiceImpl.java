@@ -298,7 +298,6 @@ public class PurchContractServiceImpl implements PurchContractService {
 
         }
         dbPurchContract.setPurchContractGoodsList(purchContractGoodsList);
-
         // 删除不关联的商品信息
         if (dbPurchContractGoodsMap.size() > 0) {
             Collection<PurchContractGoods> values = dbPurchContractGoodsMap.values();
@@ -490,6 +489,8 @@ public class PurchContractServiceImpl implements PurchContractService {
             jsonMap.put("totalPriceUsd", order.getTotalPriceUsd());
             jsonMap.put("currencyBn", order.getCurrencyBn());
             jsonMap.put("paymentModeBn", order.getPaymentModeBn());
+            jsonMap.put("agentId", order.getAgentId());
+            jsonMap.put("agentName", order.getAgentName());
             jsonMap.put("goodDesc", goodsList);
             Map<String, String> header = new HashMap<>();
             header.put(CookiesUtil.TOKEN_NAME, eruiToken);
@@ -508,19 +509,35 @@ public class PurchContractServiceImpl implements PurchContractService {
         final String eruiToken = (String) ThreadLocalUtil.getObject();
         List<Object> skus = new ArrayList<>();
         JSONObject params = new JSONObject();
+        Object attrsJson = "";
         for (Goods gd : goodsList) {
             JSONObject gjson = new JSONObject();
-            Object attrsJson = "";
             if (StringUtils.isNotBlank(gd.getAttrs())) {
                 attrsJson = JSONObject.parse(gd.getAttrs());
             }
             gjson.put("nameZh", gd.getNameZh());
-            gjson.put("department", gd.getDepartment());
+            if (gd.getDepartment() != null) {
+                gjson.put("department", gd.getDepartment());
+            } else {
+                gjson.put("department", "");
+            }
+            if (gd.getMeteType() != null) {
+                gjson.put("meteType", gd.getMeteType());
+            } else {
+                gjson.put("meteType", "");
+            }
+            if (gd.getModel() != null) {
+                gjson.put("model", gd.getModel());
+            } else {
+                gjson.put("model", "");
+            }
+            if (gd.getTplNo() != null) {
+                gjson.put("tplNo", gd.getTplNo());
+            } else {
+                gjson.put("tplNo", "");
+            }
             gjson.put("unit", gd.getUnit());
             gjson.put("brand", gd.getBrand());
-            gjson.put("model", gd.getModel());
-            gjson.put("meteType", gd.getMeteType());
-            gjson.put("tplNo", gd.getTplNo());
             gjson.put("attrs", attrsJson);
             skus.add(gjson);
         }
@@ -671,6 +688,7 @@ public class PurchContractServiceImpl implements PurchContractService {
                 Predicate status01 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.BEING.getCode());
                 Predicate status02 = cb.equal(root.get("status").as(Integer.class), PurchContract.StatusEnum.EXECUTED.getCode());
                 list.add(cb.or(status01, status02));
+
                 // 根据商品未采购完成的
                 Join<PurchContract, PurchContractGoods> goodsJoin = root.join("purchContractGoodsList");
                 list.add(cb.lt(goodsJoin.get("prePurchContractNum").as(Integer.class), goodsJoin.get("purchaseNum").as(Integer.class)));
@@ -1022,7 +1040,6 @@ public class PurchContractServiceImpl implements PurchContractService {
             cell = row.getCell(4);
             cell.setCellValue(cell.getStringCellValue().replace("address", formatNullStr(purchContract.getPurchContractSignatoriesList().get(1).getAddress())));
         }
-
         row = sheet.getRow(17);
         // 开户行：
         if (purchContract.getPurchContractSignatoriesList().get(0).getOpeningBank() != null) {
