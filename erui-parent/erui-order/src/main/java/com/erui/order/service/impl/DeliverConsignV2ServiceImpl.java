@@ -319,6 +319,7 @@ public class DeliverConsignV2ServiceImpl implements DeliverConsignV2Service {
         deliverConsignAdd.setCountry(order.getCountry());
         deliverConsignAdd.setRegion(order.getRegion());
         deliverConsignAdd.setCreateTime(new Date());
+        deliverConsignAdd.setDeliverNoticeStatus(0);
         deliverConsignAdd.setStatus(deliverConsign.getStatus());
         deliverConsignAdd.setDeliverConsignGoodsSet(deliverConsign.getDeliverConsignGoodsSet());
         // 授信信息  and
