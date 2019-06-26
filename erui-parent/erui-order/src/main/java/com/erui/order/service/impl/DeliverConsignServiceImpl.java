@@ -698,7 +698,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 if (StringUtils.isNotBlank(eruiToken)) {
                     List<Integer> userList = getUserListByRoleNo(eruiToken, "O42"); // 获取O42订舱负责人
                     Map<String, String> stringStringMap = getInstockServiceImpl.ssoUser(eruiToken);
-                    String submenuId = stringStringMap.get("id");
+                    String submenuId = stringStringMap.get("id") != null ? stringStringMap.get("id") : "0";
 
                     // O42订舱负责人角色下面的人可以看到所有列表信息。
                     if (userList != null && userList.contains(Integer.parseInt(submenuId))) {
