@@ -278,6 +278,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if (deliverConsign.getStatus() == 3) {    //如果是提交操作保存 可用授信额度
             deliverConsignUpdate.setCreditAvailable(deliverConsign.getCreditAvailable());  //可用授信额度
             deliverConsignUpdate.setAdvanceMoney(deliverConsign.getAdvanceMoney());    //预收金额      /应收账款余额
+            deliverConsignUpdate.setSubmitTime(new Date()); //提交时设置提交时间
         }
         deliverConsignUpdate.setLineOfCredit(deliverConsign.getLineOfCredit());     //授信额度
         deliverConsignUpdate.setThisShipmentsMoney(deliverConsign.getThisShipmentsMoney());     //本批次发货金额
@@ -387,7 +388,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                         backLogService.updateBackLogByDelYn(backLog2);
                         backLog2.setFunctionExplainId(BackLog.ProjectStatusEnum.DELIVERCONSIGN_AUDIT.getNum());    //功能访问路径标识
                         backLogService.updateBackLogByDelYn(backLog2);
-                    }catch (Exception ex) {
+                    } catch (Exception ex) {
                         ex.printStackTrace();
                     }
                 } else {
@@ -459,6 +460,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         if (deliverConsignAdd.getStatus() == DeliverConsign.StatusEnum.SUBMIT.getCode()) {    //如果是提交操作保存 可用授信额度
             deliverConsignAdd.setCreditAvailable(deliverConsign.getCreditAvailable());  //可用授信额度
             deliverConsignAdd.setAdvanceMoney(deliverConsign.getAdvanceMoney());    //预收金额      /应收账款余额
+            deliverConsignAdd.setSubmitTime(new Date());
         }
         deliverConsignAdd.setLineOfCredit(deliverConsign.getLineOfCredit());     //授信额度
         deliverConsignAdd.setThisShipmentsMoney(deliverConsign.getThisShipmentsMoney());     //本批次发货金额
@@ -611,6 +613,20 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 //                if (condition.getStatus() != null) {
 //                    searchList.add(cb.equal(root.get("status").as(Integer.class), condition.getStatus()));
 //                }
+                if (condition.getSubmitTime() != null) {
+                    Date startDate = DateUtil.parseString2DateNoException(condition.getSubmitTime().toString(), "yyyy-MM-dd");
+                    Date startT = DateUtil.getOperationTime(startDate, 0, 0, 0);
+                    if (startDate != null) {
+                        searchList.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startT));
+                    }
+                }
+                if (condition.getSubmitTime() != null) {
+                    Date endDate = DateUtil.parseString2DateNoException(condition.getSubmitTime().toString(), "yyyy-MM-dd");
+                    Date endT = DateUtil.getOperationTime(endDate, 23, 59, 59);
+                    if (endDate != null) {
+                        searchList.add(cb.lessThan(root.get("createTime").as(Date.class), endT));
+                    }
+                }
                 // 根据出口通知单号模糊查询
                 if (StringUtil.isNotBlank(condition.getDeliverConsignNo())) {
                     searchList.add(cb.like(root.get("deliverConsignNo").as(String.class), "%" + condition.getDeliverConsignNo() + "%"));
