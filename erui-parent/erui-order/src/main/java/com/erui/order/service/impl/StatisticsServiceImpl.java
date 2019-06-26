@@ -703,7 +703,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 "regionZh", "crmCode", "customerType", "nameZh", "nameEn", "model", "contractGoodsNum", "unit", "totalPrice", "currencyBn",
                 "paymentModeBnName", "paymentDate", "currencyBnMoney", "profitPercent", "profit", "grantType", "deliveryDate",
                 "exeChgDate", /*"distributionDeptName", "agentName",*/ "acquireId", "businessName", "tradeTerms","projectStatus",
-                "processProgress", "totalLogisticsCost", "purchasingCostsD", "purchasingCostsF", "requirePurchaseDate", "purchRequisitionDate", "purchNo", "signingDate",
+                "processProgress", "projectCost", "purchasingCostsD", "purchasingCostsF", "requirePurchaseDate", "purchRequisitionDate", "purchNo", "signingDate",
                 "arrivalDate", "supplierName", "purchasePrice", "purchTotalPrice",
                 "arrivaledDate", "purchAgentName", "checkDate", "doneDate", "checkUserName", "instockDate", "deliverDetailDate", "leaveDate", "wareHousemanName", "logisticsCost",
                 "logisticsUserName", "bookingDate", "bookingTime", "leavePortTime", "arrivalPortTime", "accomplishDate", "currencyBnReceivableAccountRemaining"};
