@@ -181,6 +181,7 @@ public class InstockController {
                 Map<String, Object> map = new HashMap();
                 map.put("id", instockGoods.getId());
                 map.put("contractNo", goods.getContractNo()); // 销售合同号
+                map.put("supplierName", goods.getSupplierName()); // 供应商名称
                 map.put("projectNo", goods.getProjectNo()); // 项目号
                 map.put("sku", goods.getSku()); // 平台SKU
                 map.put("proType", goods.getProType()); // 产品分类
