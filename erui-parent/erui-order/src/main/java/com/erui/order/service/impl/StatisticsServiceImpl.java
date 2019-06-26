@@ -653,7 +653,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                     projectGoods.setLogisticsCost(g.getLogisticsCost()); // 20、物流费用金额
                     projectGoods.setLogisticsUserName(g.getLogisticsUserName()); // 21、物流经办人
                     projectGoods.setBookingDate(g.getBookingDate()); // 22、市场要求订舱日期
-                    projectGoods.setBookingTime(g.getAccomplishDate()); // 23、物流订舱日期 --> 实际完成时间
+                    projectGoods.setBookingTime(g.getSailingDate()); // 23、物流订舱日期 --> 航期或航班
                     projectGoods.setLeavePortTime(g.getLeavePortTime()); // 24、货物发运时间
 //                    projectGoods.setArrivalPortTime(g.getArrivalPortTime()); // 25、货物到达时间 -->确认收货的时间
                     projectGoods.setAccomplishDate(g.getAccomplishDate()); // 26、客户接收时间
