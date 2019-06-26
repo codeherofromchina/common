@@ -98,6 +98,12 @@ public class DeliverConsign {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Column(name = "create_time")
     private Date createTime;
+    /**
+     * 订舱提交时间日期
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @Column(name = "submit_time")
+    private Date submitTime;
 
     /**
      * 国家
@@ -412,6 +418,13 @@ public class DeliverConsign {
     private String taskId;
 
 
+    public Date getSubmitTime() {
+        return submitTime;
+    }
+
+    public void setSubmitTime(Date submitTime) {
+        this.submitTime = submitTime;
+    }
 
     public List<DeliverConsignPayment> getDeliverConsignPayments() {
         return deliverConsignPayments;
