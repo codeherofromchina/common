@@ -41,6 +41,7 @@ public class DeliverNotice {
      * 出口发货通知单ID
      */
     @Transient
+    @JsonIgnore
     private Integer deliverConsignId;
 
     /**
