@@ -192,6 +192,9 @@ public class Goods {
     //船期或航班
     @Column(name = "sailing_date")
     private Date sailingDate;
+    //离厂时间
+    @Column(name = "leave_factory")
+    private Date leaveFactory;
     //报关放行时间
     @Column(name = "customs_clearance")
     private Date customsClearance;
@@ -1069,5 +1072,13 @@ public class Goods {
 
     public void setBookingDate(Date bookingDate) {
         this.bookingDate = bookingDate;
+    }
+
+    public Date getLeaveFactory() {
+        return leaveFactory;
+    }
+
+    public void setLeaveFactory(Date leaveFactory) {
+        this.leaveFactory = leaveFactory;
     }
 }

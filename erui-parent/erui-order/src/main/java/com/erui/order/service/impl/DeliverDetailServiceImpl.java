@@ -953,6 +953,10 @@ public class DeliverDetailServiceImpl implements DeliverDetailService {
                 one.setLeavePortTime(deliverDetail.getLeavePortTime());//实际离港时间
                 if(goods.getLeavePortTime() == null) goods.setLeavePortTime(deliverDetail.getLeavePortTime());//实际离港时间
             }
+            //离厂时间
+            if (deliverDetail.getLeaveFactory() != null) {
+                if(goods.getLeaveFactory() == null) goods.setLeaveFactory(deliverDetail.getLeaveFactory());//离厂时间
+            }
             //预计抵达时间
             if (deliverDetail.getArrivalPortTime() != null) {
                 one.setArrivalPortTime(deliverDetail.getArrivalPortTime());//预计抵达时间
