@@ -325,6 +325,10 @@ public class IogisticsDataServiceImpl implements IogisticsDataService {
                     if (iogisticsData.getLeavePortTime() != null) {
                         if(goods.getLeavePortTime() == null) goods.setLeavePortTime(iogisticsData.getLeavePortTime());//实际离港时间
                     }
+                    //离厂时间
+                    if (iogisticsData.getLeaveFactory() != null) {
+                        if(goods.getLeaveFactory() == null) goods.setLeaveFactory(iogisticsData.getLeaveFactory());//离厂时间
+                    }
                     //预计抵达时间
                     if (iogisticsData.getArrivalPortTime() != null) {
                         if(goods.getArrivalPortTime() == null) goods.setArrivalPortTime(iogisticsData.getArrivalPortTime());//预计抵达时间
