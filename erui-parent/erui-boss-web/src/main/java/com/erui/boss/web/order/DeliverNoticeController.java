@@ -113,9 +113,9 @@ public class DeliverNoticeController {
         try {
             DeliverNotice detailNotice = new DeliverNotice();
             if(deliverNotice.getId() != null){
-                deliverNoticeService.queryDeliverNoticeDetail(deliverNotice.getId());
+                detailNotice = deliverNoticeService.queryDeliverNoticeDetail(deliverNotice.getId());
             }else{
-                deliverNoticeService.queryByDeliverConsignId(deliverNotice.getDeliverConsignId());
+                detailNotice = deliverNoticeService.queryByDeliverConsignId(deliverNotice.getDeliverConsignId());
             }
             return new Result<>(detailNotice);
         } catch (Exception e) {
