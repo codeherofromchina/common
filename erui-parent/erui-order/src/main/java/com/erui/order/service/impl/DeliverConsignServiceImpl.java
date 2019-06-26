@@ -806,7 +806,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     }
 
-
     /**
      * 看货通知管理   查询出口发货通知单
      *
