@@ -174,6 +174,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         }
 
         deliverNotice.setCreateTime(new Date());
+        deliverNotice.setTenant("erui");
 
         DeliverNotice deliverNotice1 = deliverNoticeDao.saveAndFlush(deliverNotice);
         if (deliverNotice.getAttachmentSet() != null && deliverNotice.getAttachmentSet().size() > 0) {
