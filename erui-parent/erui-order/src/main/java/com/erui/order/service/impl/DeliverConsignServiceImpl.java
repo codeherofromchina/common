@@ -725,7 +725,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 return cb.and(predicates);
             }
         }, pageRequest);
-
         return pageList;
     }
 
