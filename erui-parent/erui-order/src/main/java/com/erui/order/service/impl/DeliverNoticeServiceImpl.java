@@ -400,6 +400,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
     @Transactional(readOnly = true)
     public DeliverNotice queryDeliverNoticeDetail(Integer id) {
         DeliverNotice deliverNotice = deliverNoticeDao.findOne(id);
+        deliverNotice.setDeliverConsignId(deliverNotice.getDeliverConsign().getId());
         List<Attachment> attachments = attachmentService.queryAttachs(deliverNotice.getId(), Attachment.AttachmentCategory.DELIVERNOTICE.getCode());
         if (attachments != null && attachments.size() > 0) {
             deliverNotice.setAttachmentSet(attachments.stream().collect(Collectors.toSet()));
@@ -420,6 +421,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         DeliverConsign one = null; //出库通知单
         one = deliverConsignDao.findOne(id);
         DeliverNotice deliverNotice = one.getDeliverNotice();
+        deliverNotice.setDeliverConsignId(id);
         List<Attachment> attachments = attachmentService.queryAttachs(deliverNotice.getId(), Attachment.AttachmentCategory.DELIVERNOTICE.getCode());
         if (attachments != null && attachments.size() > 0) {
             deliverNotice.setAttachmentSet(attachments.stream().collect(Collectors.toSet()));

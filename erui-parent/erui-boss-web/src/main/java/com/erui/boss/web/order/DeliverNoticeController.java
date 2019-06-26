@@ -51,6 +51,7 @@ public class DeliverNoticeController {
             Page<DeliverNotice> pageList = deliverNoticeService.listByPage(condition);
             for (DeliverNotice deliverNotice : pageList){
                 deliverNotice.setDeliverDetail(null);
+                deliverNotice.setDeliverConsignId(deliverNotice.getDeliverConsign().getId());
             }
             return new Result<>(pageList);
         }catch (Exception e){
