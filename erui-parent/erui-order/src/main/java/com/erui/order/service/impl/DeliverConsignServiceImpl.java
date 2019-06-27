@@ -645,23 +645,17 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 //                if (condition.getStatus() != null) {
 //                    searchList.add(cb.equal(root.get("status").as(Integer.class), condition.getStatus()));
 //                }
-                if (condition.getStartTime() != null && condition.getEndTime() != null) {
-                    String startTime = condition.getStartTime();
-                    String endTime = condition.getEndTime();
-                    if (StringUtils.isNotBlank(startTime)) {
-                        Date startDate = DateUtil.parseString2DateNoException(startTime, "yyyy-MM-dd");
-                        Date startT = DateUtil.getOperationTime(startDate, 0, 0, 0);
-                        if (startDate != null) {
-                            searchList.add(cb.greaterThanOrEqualTo(root.get("submitTime").as(Date.class), startT));
-                        }
-                    }
-                    if (StringUtils.isNotBlank(endTime)) {
-                        Date endDate = DateUtil.parseString2DateNoException(endTime, "yyyy-MM-dd");
-                        Date endT = DateUtil.getOperationTime(endDate, 23, 59, 59);
-                        if (endDate != null) {
-                            searchList.add(cb.lessThan(root.get("submitTime").as(Date.class), endT));
-                        }
-                    }
+                //订舱提交 开始时间
+                if (condition.getStartTime() != null) {
+                    Date startT = DateUtil.getOperationTime(condition.getStartTime(), 0, 0, 0);
+                    Predicate startTime = cb.greaterThanOrEqualTo(root.get("submitTime").as(Date.class), startT);
+                    searchList.add(startTime);
+                }
+                //订舱提交 结束时间
+                if (condition.getEndTime() != null) {
+                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
+                    Predicate endTime = cb.lessThanOrEqualTo(root.get("submitTime").as(Date.class), endT);
+                    searchList.add(endTime);
                 }
                 // 根据出口通知单号模糊查询
                 if (StringUtil.isNotBlank(condition.getDeliverConsignNo())) {
