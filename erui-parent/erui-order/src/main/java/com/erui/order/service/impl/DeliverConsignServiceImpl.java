@@ -550,7 +550,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
             deliverConsign1.setAuditingStatus(Order.AuditingStatusEnum.PROCESSING.getStatus());
         }
 
-
         //出口通知单附件添加
         if (deliverConsign.getAttachmentSet() != null && deliverConsign.getAttachmentSet().size() > 0) {
             attachmentService.addAttachments(deliverConsign.getAttachmentSet(), deliverConsign1.getId(), Attachment.AttachmentCategory.DELIVERCONSIGN.getCode());
