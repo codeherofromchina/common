@@ -44,8 +44,6 @@ public class OrderListCondition {
     private String orderSource;
     //订单来源
     private Boolean deleteFlag;
-    //区域国家
-    //private String country;
     //判断权限
     private Integer type;
     //创建人id

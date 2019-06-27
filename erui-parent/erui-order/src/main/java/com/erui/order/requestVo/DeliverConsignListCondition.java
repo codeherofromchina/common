@@ -24,8 +24,10 @@ public class DeliverConsignListCondition {
 
     //发货申请部门
     private String deptId;
-    //订舱提交时间
-    private Date submitTime;
+    //订舱提交时间 开始
+    private Date startTime;
+    //订舱提交时间 结束
+    private Date endTime;
 
     // 分页信息参数
     private int page = 1; // 默认从0开始
@@ -33,12 +35,20 @@ public class DeliverConsignListCondition {
     // 语言 en / zh
     private String lang;
 
-    public Date getSubmitTime() {
-        return submitTime;
+    public Date getStartTime() {
+        return startTime;
     }
 
-    public void setSubmitTime(Date submitTime) {
-        this.submitTime = submitTime;
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
     }
 
     public String getDeliverConsignNo() {

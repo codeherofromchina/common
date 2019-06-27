@@ -3,6 +3,7 @@ package com.erui.order.model;
 import com.erui.order.entity.Goods;
 import com.erui.order.entity.Order;
 import com.erui.order.entity.Project;
+import com.erui.order.entity.ProjectProfit;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang3.StringUtils;
 
@@ -46,7 +47,19 @@ public class ProjectStatistics {
         this.grantType = order.getGrantType();
         this.currencyBnReceivableAccountRemaining = order.getReceivableAccountRemaining();
         if (project.getProjectProfit() != null) {
-            this.projectCost = project.getProjectProfit().getProjectCost();
+            ProjectProfit pt = project.getProjectProfit();
+            // 物流成本总计
+            BigDecimal projectCostAll = pt.getLandFreight() == null ? BigDecimal.ZERO : pt.getLandFreight();
+            projectCostAll = pt.getLandInsurance() == null ? projectCostAll : projectCostAll.add(pt.getLandInsurance());
+            projectCostAll = pt.getPortCharges() == null ? projectCostAll : projectCostAll.add(pt.getPortCharges());
+            projectCostAll = pt.getInspectionFee() == null ? projectCostAll : projectCostAll.add(pt.getInspectionFee());
+            projectCostAll = pt.getInternationalTransport() == null ? projectCostAll : projectCostAll.add(pt.getInternationalTransport());
+            projectCostAll = pt.getTariff() == null ? projectCostAll : projectCostAll.add(pt.getTariff());
+            projectCostAll = pt.getVat() == null ? projectCostAll : projectCostAll.add(pt.getVat());
+            projectCostAll = pt.getCustomsClearFee() == null ? projectCostAll : projectCostAll.add(pt.getCustomsClearFee());
+            projectCostAll = pt.getCustomsAgentFee() == null ? projectCostAll : projectCostAll.add(pt.getCustomsAgentFee());
+            projectCostAll = pt.getTransportionInsurance() == null ? projectCostAll : projectCostAll.add(pt.getTransportionInsurance());
+            if(projectCostAll.compareTo(BigDecimal.ZERO) == 1) this.projectCost = projectCostAll;
             this.purchasingCostsD = project.getProjectProfit().getPurchasingCostsD();
             this.purchasingCostsF = project.getProjectProfit().getPurchasingCostsF();
         }
@@ -176,7 +189,7 @@ public class ProjectStatistics {
     private BigDecimal purchasingCostsD;
     // 采购成本-国外 取项目中的
     private BigDecimal purchasingCostsF;
-    //物流成本总计
+    //物流费用总计
     private BigDecimal totalLogisticsCost;
 
     // 25、货物到达时间 订单表中的点击“确认收货”按钮的时间

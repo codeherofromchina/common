@@ -613,19 +613,17 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 //                if (condition.getStatus() != null) {
 //                    searchList.add(cb.equal(root.get("status").as(Integer.class), condition.getStatus()));
 //                }
-                if (condition.getSubmitTime() != null) {
-                    Date startDate = DateUtil.parseString2DateNoException(condition.getSubmitTime().toString(), "yyyy-MM-dd");
-                    Date startT = DateUtil.getOperationTime(startDate, 0, 0, 0);
-                    if (startDate != null) {
-                        searchList.add(cb.greaterThanOrEqualTo(root.get("createTime").as(Date.class), startT));
-                    }
+                //订舱提交 开始时间
+                if (condition.getStartTime() != null) {
+                    Date startT = DateUtil.getOperationTime(condition.getStartTime(), 0, 0, 0);
+                    Predicate startTime = cb.greaterThanOrEqualTo(root.get("submitTime").as(Date.class), startT);
+                    searchList.add(startTime);
                 }
-                if (condition.getSubmitTime() != null) {
-                    Date endDate = DateUtil.parseString2DateNoException(condition.getSubmitTime().toString(), "yyyy-MM-dd");
-                    Date endT = DateUtil.getOperationTime(endDate, 23, 59, 59);
-                    if (endDate != null) {
-                        searchList.add(cb.lessThan(root.get("createTime").as(Date.class), endT));
-                    }
+                //订舱提交 结束时间
+                if (condition.getEndTime() != null) {
+                    Date endT = DateUtil.getOperationTime(condition.getEndTime(), 23, 59, 59);
+                    Predicate endTime = cb.lessThanOrEqualTo(root.get("submitTime").as(Date.class), endT);
+                    searchList.add(endTime);
                 }
                 // 根据出口通知单号模糊查询
                 if (StringUtil.isNotBlank(condition.getDeliverConsignNo())) {
@@ -662,7 +660,7 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 if (StringUtils.isNotBlank(eruiToken)) {
                     List<Integer> userList = getUserListByRoleNo(eruiToken, "O42"); // 获取O42订舱负责人
                     Map<String, String> stringStringMap = getInstockServiceImpl.ssoUser(eruiToken);
-                    String submenuId = stringStringMap.get("id");
+                    String submenuId = stringStringMap.get("id") != null ? stringStringMap.get("id") : "0";
 
                     // O42订舱负责人角色下面的人可以看到所有列表信息。
                     if (userList != null && userList.contains(Integer.parseInt(submenuId))) {
@@ -689,7 +687,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
                 return cb.and(predicates);
             }
         }, pageRequest);
-
         return pageList;
     }
 
@@ -769,7 +766,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         return page;
 
     }
-
     //  出口发货通知单：出口发货通知单提交推送信息到出库，需要通知仓库分单员(根据分单员来发送短信)
     public void sendSms(Map<String, Object> map1) throws Exception {
 

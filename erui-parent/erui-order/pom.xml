@@ -186,7 +186,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <package.environment>test</package.environment>
+                <package.environment>production</package.environment>
             </properties>
         </profile>
         <profile>
