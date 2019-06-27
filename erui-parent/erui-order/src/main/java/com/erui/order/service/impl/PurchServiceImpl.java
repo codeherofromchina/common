@@ -2267,10 +2267,9 @@ public class PurchServiceImpl implements PurchService {
     public boolean saveQualityInspectType(Purch purch) throws Exception {
         Purch purchdb = purchDao.findOne(purch.getId());
         if (purchdb == null) return false;
-        if (purch.getPurchGoodsList() == null) return false;
-
+        if (purch.getPurchGoodsList() == null)
+            return false;
         Map<Integer, PurchGoods> purchGoodsListMap = purch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(PurchGoods::getId, vo -> vo));
-
         List<PurchGoods> dbPurchGoodsList = purchdb.getPurchGoodsList();
         for (PurchGoods purchGoods : dbPurchGoodsList) {
             purchGoods.setQualityInspectType(purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType() == null ? purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType() : purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType().trim());

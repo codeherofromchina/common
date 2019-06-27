@@ -605,7 +605,8 @@ public class StatisticsServiceImpl implements StatisticsService {
             projectGood01.setProfit(p.getProfit());
             projectGood01.setPurchasingCostsD(p.getPurchasingCostsD());
             projectGood01.setPurchasingCostsF(p.getPurchasingCostsF());
-            projectGood01.setProjectCost(p.getTotalLogisticsCost());
+            projectGood01.setLogisticsCost(p.getTotalLogisticsCost()); // 20、物流费用金额
+            projectGood01.setProjectCost(p.getProjectCost());
 
             if (p.getGoodsList() != null) {
                 List<Goods> goodsList = p.getGoodsList();
