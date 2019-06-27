@@ -275,9 +275,9 @@ public class Purch {
     private List<PurchGoods> purchGoodsList = new ArrayList<>();
 
     // 流程实例ID
-    @Column(name="process_id")
+    @Column(name = "process_id")
     private String processId;
-    @Column(name="task_id")
+    @Column(name = "task_id")
     private String taskId;
 
     /**
@@ -929,7 +929,7 @@ public class Purch {
      * 采购状态枚举
      */
     public static enum StatusEnum {
-        READY(1, "未进行/保存"), BEING(2, "进行中/提交"), DONE(3, "已完成"), CHANGE(5, "已变更");
+        READY(1, "未进行/保存"), BEING(2, "进行中/提交"), DONE(3, "已完成"), CHANGE(5, "已变更"), EXECUTING(11, "EXECUTING"), TRANING(12, "TRANING");
 
         private int code;
         private String msg;
