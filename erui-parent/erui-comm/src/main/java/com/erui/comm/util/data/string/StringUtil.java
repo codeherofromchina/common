@@ -810,7 +810,7 @@ public class StringUtil {
     }
 
     public static void main(String[] args) {
-        System.out.println("dncnslcnacl女厕所里打错了删除了你" + genNCR("20190624001"));
+        System.out.println("dncnslcnacl女厕所里打错了删除了你" + genNCR(null));
     }
 
 }

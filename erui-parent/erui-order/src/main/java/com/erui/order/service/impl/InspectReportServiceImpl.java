@@ -320,7 +320,7 @@ public class InspectReportServiceImpl implements InspectReportService {
 
         int sum = 0;  // 不合格商品总数量
         Project project = null; // 项目信息
-
+        Integer count = 0;
         for (InspectApplyGoods applyGoods : inspectGoodsList) {
             InspectApplyGoods paramApplyGoods = inspectGoodsMap.get(applyGoods.getId());
             if (paramApplyGoods == null) {
@@ -335,10 +335,14 @@ public class InspectReportServiceImpl implements InspectReportService {
             Integer samples = paramApplyGoods.getSamples();
             Integer unqualified = paramApplyGoods.getUnqualified();
             //如果有不合格数量时自动生成ncr编号
-            if (applyGoods.getUnqualified() > 0) {
-                // 根据数据库中最后的发货通知单单号重新自动生成
-                String oldNcrNo = inspectReportDao.findLaseNcrNo();
-                dbInspectReport.setNcrNo(StringUtil.genNCR(oldNcrNo));
+            if (statusEnum == InspectReport.StatusEnum.DONE && unqualified > 0) {
+                if (count < 1) {
+                    // 根据数据库中最后的发货通知单单号重新自动生成
+                    String prefix = "20";
+                    String oldNcrNo = inspectReportDao.findLaseNcrNo(prefix);
+                    dbInspectReport.setNcrNo(StringUtil.genNCR(oldNcrNo));
+                }
+                count++;
             }
             if (samples == null || (samples <= 0 && (purchGoods.getQualityInspectType() == null || !"QRL1".equals(purchGoods.getQualityInspectType().trim())))) {
                 throw new Exception(String.format("%s%s%s", "抽样数错误【SKU:" + goods.getSku() + "】", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Sampling error [SKU:" + goods.getSku() + "]"));

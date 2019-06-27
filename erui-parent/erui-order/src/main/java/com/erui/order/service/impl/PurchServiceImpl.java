@@ -702,7 +702,11 @@ public class PurchServiceImpl implements PurchService {
 
                 Purch.StatusEnum statusEnum = Purch.StatusEnum.fromCode(condition.getStatus());
                 if (statusEnum != null) {
-                    list.add(cb.equal(root.get("status").as(Integer.class), statusEnum.getCode()));
+                    if (statusEnum.getCode() < 10) {
+                        list.add(cb.equal(root.get("status").as(Integer.class), statusEnum.getCode()));
+                    } else {
+                        list.add(cb.equal(root.get("supplierStatus").as(String.class), statusEnum.getMsg()));
+                    }
                 }
 
                 Predicate auditCondition = null;
