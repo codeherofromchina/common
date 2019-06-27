@@ -801,7 +801,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
             // 获取名称
         	Object name = map.get("name");
             // 获取该名称下的拜访总数
-        	BigDecimal num = (BigDecimal) map.get("num");
+        	BigDecimal num = new BigDecimal((Long) map.get("num"));
             // 获取该名称下的平均销售人员数量
             Map<String, Object> avgManNumMap = avgManNumInMonthByAreaMap.get(name);
             // 名称 放到输出列表中
