@@ -237,10 +237,6 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
         }
         orderService.updateById(orderId, order);
 
-        //推送出库信息
-        String deliverDetailNo = createDeliverDetailNo();   //产品放行单号
-        DeliverDetail deliverDetail = pushOutbound(deliverConsign, deliverDetailNo);
-
         // 更新修正后的状态
         DeliverConsign deliverConsignSelective = new DeliverConsign();
         deliverConsignSelective.setId(deliverConsign.getId());
