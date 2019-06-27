@@ -55,10 +55,10 @@ public class DeliverNoticeController {
             }
             return new Result<>(pageList);
         }catch (Exception e){
-            logger.error("查询错误", e);
+            logger.error("看货通知单查询错误", e);
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setEnMsg(ResultStatusEnum.FAIL.getEnMsg());
-            result.setMsg("查询错误");
+            result.setMsg(e.getMessage());
             return result;
         }
     }
@@ -97,10 +97,10 @@ public class DeliverNoticeController {
                 return new Result<>();
             }
         } catch (Exception ex) {
-            logger.error("看货通知单操作失败：{}", deliverNotice, ex);
+            logger.error("看货通知单保存or提交：{}", deliverNotice, ex);
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setEnMsg(ResultStatusEnum.FAIL.getEnMsg());
-            result.setMsg("看货通知单操作失败");
+            result.setMsg(ex.getMessage());
         }
         return result;
     }
@@ -129,6 +129,7 @@ public class DeliverNoticeController {
             }
             return new Result<>(detailNotice);
         } catch (Exception e) {
+            logger.error("看货通知详情：{}", deliverNotice, e);
             result.setCode(ResultStatusEnum.FAIL.getCode());
             result.setEnMsg(ResultStatusEnum.FAIL.getEnMsg());
             result.setMsg(e.getMessage());
