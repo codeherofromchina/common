@@ -813,8 +813,12 @@ public class MemberInfoServiceImpl implements MemberInfoService {
             if (avgManNumMap != null) {
             	// 获取平均销售人数
             	BigDecimal avgNum = (BigDecimal) avgManNumMap.get("avgNum");
-                // 计算人均客户拜访次数的=周期内拜访总次数/周期内该维度的 平均人数；
-            	avgList.add(num.divide(avgNum,2, BigDecimal.ROUND_DOWN));
+            	if (avgNum != null && avgNum.compareTo(BigDecimal.ZERO) > 0) {
+            		// 计算人均客户拜访次数的=周期内拜访总次数/周期内该维度的 平均人数；
+                	avgList.add(num.divide(avgNum,2, BigDecimal.ROUND_DOWN));
+            	}else {
+            		avgList.add(BigDecimal.ZERO);
+            	}
            
             // 该名称下没有平均人数，则人均客户拜访次数 为0
             } else {
