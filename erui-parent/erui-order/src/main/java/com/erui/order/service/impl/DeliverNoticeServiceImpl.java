@@ -15,6 +15,7 @@ import com.erui.order.service.AttachmentService;
 import com.erui.order.service.BackLogService;
 import com.erui.order.service.DeliverNoticeService;
 import com.erui.order.service.StatisticsService;
+import com.erui.order.util.exception.MyException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -237,7 +238,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             }
             return true;
         } catch (Exception ex) {
-            return false;
+            throw new MyException(ex.getMessage());
         }
     }
 
