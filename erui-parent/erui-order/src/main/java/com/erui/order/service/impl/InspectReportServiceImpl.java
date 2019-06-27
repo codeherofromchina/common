@@ -331,7 +331,6 @@ public class InspectReportServiceImpl implements InspectReportService {
             PurchGoods purchGoods = applyGoods.getPurchGoods();
             Goods goods = purchGoods.getGoods();
 
-
             Integer samples = paramApplyGoods.getSamples();
             Integer unqualified = paramApplyGoods.getUnqualified();
             //如果有不合格数量时自动生成ncr编号
