@@ -8,7 +8,6 @@ import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.entity.*;
 import com.erui.order.service.DeliverConsignService;
 import com.erui.order.service.DeliverNoticeService;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +43,7 @@ public class DeliverNoticeController {
     @RequestMapping(value = "list")
     public Result<Object> lookMoneyInformManage(@RequestBody DeliverNotice condition) {
         int page = condition.getPage();
+        Result<Object> result = new Result<>();
         if (page < 1) {
             return new Result<>(ResultStatusEnum.PAGE_ERROR);
         }
@@ -56,8 +56,11 @@ public class DeliverNoticeController {
             return new Result<>(pageList);
         }catch (Exception e){
             logger.error("查询错误", e);
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setEnMsg(ResultStatusEnum.FAIL.getEnMsg());
+            result.setMsg("查询错误");
+            return result;
         }
-        return new Result<>(ResultStatusEnum.DATA_NULL);
     }
 
     /**
@@ -83,6 +86,7 @@ public class DeliverNoticeController {
             } else {
                 if(deliverNotice.getDeliverConsignId() == null){
                     result.setCode(ResultStatusEnum.FAIL.getCode());
+                    result.setEnMsg(ResultStatusEnum.FAIL.getEnMsg());
                     result.setMsg("出库通知单ID不能为空");
                     return result;
                 }else{
@@ -95,6 +99,7 @@ public class DeliverNoticeController {
         } catch (Exception ex) {
             logger.error("看货通知单操作失败：{}", deliverNotice, ex);
             result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setEnMsg(ResultStatusEnum.FAIL.getEnMsg());
             result.setMsg("看货通知单操作失败");
         }
         return result;
@@ -108,8 +113,12 @@ public class DeliverNoticeController {
      */
     @RequestMapping(value = "detail", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public Result<Object> exitRequisitionQuery(@RequestBody DeliverNotice deliverNotice) {
+        Result<Object> result = new Result<>();
         if(deliverNotice == null || (deliverNotice.getId() == null && deliverNotice.getDeliverConsignId() == null)){
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setEnMsg(ResultStatusEnum.FAIL.getEnMsg());
+            result.setMsg(ResultStatusEnum.FAIL.getMsg());
+            return result;
         }
         try {
             DeliverNotice detailNotice = new DeliverNotice();
@@ -120,7 +129,10 @@ public class DeliverNoticeController {
             }
             return new Result<>(detailNotice);
         } catch (Exception e) {
-            return new Result<>(ResultStatusEnum.DATA_NULL);
+            result.setCode(ResultStatusEnum.FAIL.getCode());
+            result.setEnMsg(ResultStatusEnum.FAIL.getEnMsg());
+            result.setMsg(e.getMessage());
+            return result;
         }
 
     }
