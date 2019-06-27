@@ -117,10 +117,19 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         return workbook;
     }
 
+//    @Override
+//    public Map<String, List<Object>> visitStatisticsByOrg(Map<String, Object> params) {
+//        List<Map<String, Object>> visitStatisticsData = memberInfoStatisticsMapper.visitStatisticsByOrg(params);
+//        Map<String, List<Object>> result = _handleVisitStatisticsData(visitStatisticsData);
+//        return result;
+//    }
+    
     @Override
     public Map<String, List<Object>> visitStatisticsByOrg(Map<String, Object> params) {
         List<Map<String, Object>> visitStatisticsData = memberInfoStatisticsMapper.visitStatisticsByOrg(params);
-        Map<String, List<Object>> result = _handleVisitStatisticsData(visitStatisticsData);
+        // 获取各个事业部的平均销售人员
+        List<Map<String, Object>> avgManNumInMonthByOrgList = salesmanNumsMapper.avgManNumInMonthByOrg(_changeDateToFirstDay(params));
+        Map<String, List<Object>> result = _handleNewVisitStatisticsData(visitStatisticsData,avgManNumInMonthByOrgList);
         return result;
     }
 
@@ -153,10 +162,19 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         return workbook;
     }
 
+//    @Override
+//    public Map<String, List<Object>> visitStatisticsByArea(Map<String, Object> params) {
+//        List<Map<String, Object>> visitStatisticsData = memberInfoStatisticsMapper.visitStatisticsByArea(params);
+//        Map<String, List<Object>> result = _handleVisitStatisticsData(visitStatisticsData);
+//        return result;
+//    }
+    
     @Override
     public Map<String, List<Object>> visitStatisticsByArea(Map<String, Object> params) {
         List<Map<String, Object>> visitStatisticsData = memberInfoStatisticsMapper.visitStatisticsByArea(params);
-        Map<String, List<Object>> result = _handleVisitStatisticsData(visitStatisticsData);
+        // 获取各个地区的平均销售人员
+        List<Map<String, Object>> avgManNumInMonthByAreaList = salesmanNumsMapper.avgManNumInMonthByArea(_changeDateToFirstDay(params));
+        Map<String, List<Object>> result = _handleNewVisitStatisticsData(visitStatisticsData,avgManNumInMonthByAreaList);
         return result;
     }
 
@@ -189,10 +207,19 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         return workbook;
     }
 
+//    @Override
+//    public Map<String, List<Object>> visitStatisticsByCountry(Map<String, Object> params) {
+//        List<Map<String, Object>> visitStatisticsData = memberInfoStatisticsMapper.visitStatisticsByCountry(params);
+//        Map<String, List<Object>> result = _handleVisitStatisticsData(visitStatisticsData);
+//        return result;
+//    }
+    
     @Override
     public Map<String, List<Object>> visitStatisticsByCountry(Map<String, Object> params) {
         List<Map<String, Object>> visitStatisticsData = memberInfoStatisticsMapper.visitStatisticsByCountry(params);
-        Map<String, List<Object>> result = _handleVisitStatisticsData(visitStatisticsData);
+        // 获取各个国家的平均销售人员
+        List<Map<String, Object>> avgManNumInMonthByCountryList = salesmanNumsMapper.avgManNumInMonthByCountry(_changeDateToFirstDay(params));
+        Map<String, List<Object>> result = _handleNewVisitStatisticsData(visitStatisticsData,avgManNumInMonthByCountryList);
         return result;
     }
 
@@ -750,6 +777,55 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         return result;
     }
 
+    /**
+     * 优化，处理客户拜访统计数据
+     * 人均客户拜访次数的公式修改为：周期内拜访总次数/周期内该维度的 平均人数
+     * 人数平均值为时间维度跨度对应的人数除以时间相关的月份个数（例如选择2.28-3.15，取二月人数与三月人数的平均值）
+     * 
+     * @param gradeList
+     * @return
+     */
+    private Map<String, List<Object>> _handleNewVisitStatisticsData(List<Map<String, Object>> gradeList,List<Map<String, Object>> avgManNumInMonthList) {
+        
+    	// 遍历平均销售人数集合，将名称放到名称列表中，并将集合转换成 名称为key，元素为value的map
+        Map<String, Map<String, Object>> avgManNumInMonthByAreaMap = avgManNumInMonthList.stream().collect(Collectors.toMap(vo -> {
+            String name = (String) vo.get("name");
+            return name;
+        }, vo -> vo));
+    	
+    	Map<String, List<Object>> result = new HashMap<>();
+        List<Object> nameList = new ArrayList<>();
+        List<Object> numList = new ArrayList<>();
+        List<Object> avgList = new ArrayList<>();
+        for (Map<String, Object> map : gradeList) {
+            // 获取名称
+        	Object name = map.get("name");
+            // 获取该名称下的拜访总数
+        	BigDecimal num = (BigDecimal) map.get("num");
+            // 获取该名称下的平均销售人员数量
+            Map<String, Object> avgManNumMap = avgManNumInMonthByAreaMap.get(name);
+            // 名称 放到输出列表中
+            nameList.add(name);
+            // 总数放到输出列表中
+            numList.add(num);
+            
+            // 如果该名称下的有平均销售人员数量，则计算人均客户拜访次数的=周期内拜访总次数/周期内该维度的 平均人数；
+            if (avgManNumMap != null) {
+            	// 获取平均销售人数
+            	BigDecimal avgNum = (BigDecimal) avgManNumMap.get("avgNum");
+                // 计算人均客户拜访次数的=周期内拜访总次数/周期内该维度的 平均人数；
+            	avgList.add(num.divide(avgNum,2, BigDecimal.ROUND_DOWN));
+           
+            // 该名称下没有平均人数，则人均客户拜访次数 为0
+            } else {
+                avgList.add(BigDecimal.ZERO);
+            }
+        }
+        result.put("nameList", nameList);
+        result.put("numList", numList);
+        result.put("avgList", avgList);
+        return result;
+    }
 
     /**
      * 处理会员等级数据
