@@ -2270,7 +2270,6 @@ public class PurchServiceImpl implements PurchService {
         if (purch.getPurchGoodsList() == null)
             return false;
         Map<Integer, PurchGoods> purchGoodsListMap = purch.getPurchGoodsList().parallelStream().collect(Collectors.toMap(PurchGoods::getId, vo -> vo));
-
         List<PurchGoods> dbPurchGoodsList = purchdb.getPurchGoodsList();
         for (PurchGoods purchGoods : dbPurchGoodsList) {
             purchGoods.setQualityInspectType(purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType() == null ? purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType() : purchGoodsListMap.get(purchGoods.getId()).getQualityInspectType().trim());
