@@ -210,6 +210,12 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             }
             one.setStatus(deliverNotice.getStatus());
 
+            List<Attachment> attachments = attachmentService.queryAttachs(deliverNotice.getId(), Attachment.AttachmentCategory.DELIVERNOTICE.getCode());
+            if (attachments != null && attachments.size() > 0) {
+                one.setAttachmentSet(attachments.stream().collect(Collectors.toSet()));
+                one.getAttachmentSet().size();
+            }
+
             if (deliverNotice.getStatus() == DeliverNotice.StatusEnum.SUBMIT.getCode()) {
                 deliverNotice.setSendDate(new Date()); // 下单日期 --> 取点击“提交”按钮日期
                 deliverNotice.setHandleStatus(1); // 未处理
