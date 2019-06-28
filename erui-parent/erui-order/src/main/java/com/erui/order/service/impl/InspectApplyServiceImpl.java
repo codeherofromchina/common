@@ -221,8 +221,12 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 if (qualityId != null) {
                     List<InspectApplyGoods> listIGood = handledApplyGoods.stream().filter(vo -> qualityId.equals(vo.getGoods().getProject().getQualityUid())).collect(Collectors.toList());
                     mapGoods.put(qualityId, listIGood);
+                } else {
+                    throw new Exception(String.format("%s%s%s", "缺少质检经办人", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Error"));
                 }
             }
+        } else {
+            throw new Exception(String.format("%s%s%s", "缺少质检经办人", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Error"));
         }
         String lastApplyNo = null;
         String applyNo = null;
