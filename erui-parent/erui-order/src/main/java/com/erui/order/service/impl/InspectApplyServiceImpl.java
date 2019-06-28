@@ -316,7 +316,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 //  判断采购是否已经完成并修正
                 checkPurchHasDone(inspectApplyAdd.getPurch());
             }
-
             if (directInstockGoods) {
                 // 厂家直接发货添加 入库办理 事项
                 //推送给分单人待办事项  办理分单
