@@ -639,6 +639,21 @@ public class DeliverConsignServiceImpl implements DeliverConsignService {
 
     }
 
+
+    @Override
+    public void perfectingPersonnel(Integer deliverConsignId, Long bookingOfficerUserId, Long operationSpecialistUserId) {
+        User bookingOfficerUser = userService.findUserById(bookingOfficerUserId);
+        User operationSpecialistUser = userService.findUserById(operationSpecialistUserId);
+        DeliverConsign deliverConsign = new DeliverConsign();
+        deliverConsign.setId(deliverConsignId);
+        deliverConsign.setBookingOfficer(bookingOfficerUser.getName());
+        deliverConsign.setBookingOfficerId(bookingOfficerUser.getId().intValue());
+        deliverConsign.setOperationSpecialist(operationSpecialistUser.getName());
+        deliverConsign.setOperationSpecialistId(operationSpecialistUser.getId().intValue());
+
+        deliverConsignMapper.updateByPrimaryKeySelective(deliverConsign);
+    }
+
     /**
      * 根据订单中crm编码，查询授信信息
      *
