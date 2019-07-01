@@ -240,7 +240,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
             // 推送出库信息
             if (one.getStatus() == DeliverNotice.StatusEnum.DONE.getCode()) {
-                pushOutStock(one.getDeliverConsign(), one);
+                pushOutStock(one.getDeliverConsign(), save);
             }
             return true;
         } catch (Exception ex) {
