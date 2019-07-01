@@ -217,8 +217,8 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             }
 
             if (deliverNotice.getStatus() == DeliverNotice.StatusEnum.SUBMIT.getCode()) {
-                deliverNotice.setSendDate(new Date()); // 下单日期 --> 取点击“提交”按钮日期
-                deliverNotice.setHandleStatus(1); // 未处理
+                one.setSendDate(new Date()); // 下单日期 --> 取点击“提交”按钮日期
+                one.setHandleStatus(1); // 未处理
             }else if (deliverNotice.getStatus() == DeliverNotice.StatusEnum.DONE.getCode()) {
                 one.setHandleStatus(2); // 已处理
             }
