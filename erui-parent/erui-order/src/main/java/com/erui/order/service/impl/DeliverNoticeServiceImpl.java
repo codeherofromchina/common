@@ -217,12 +217,12 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             }
 
             if (deliverNotice.getStatus() == DeliverNotice.StatusEnum.SUBMIT.getCode()) {
-                deliverNotice.setSendDate(new Date()); // 下单日期 --> 取点击“提交”按钮日期
-                deliverNotice.setHandleStatus(1); // 未处理
+                one.setSendDate(new Date()); // 下单日期 --> 取点击“提交”按钮日期
+                one.setHandleStatus(1); // 未处理
             }else if (deliverNotice.getStatus() == DeliverNotice.StatusEnum.DONE.getCode()) {
                 one.setHandleStatus(2); // 已处理
             }
-            deliverNotice.setUpdateTime(new Date());
+            one.setUpdateTime(new Date());
 
             DeliverNotice save = deliverNoticeDao.saveAndFlush(one);
             // 附件处理
@@ -240,7 +240,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
             // 推送出库信息
             if (one.getStatus() == DeliverNotice.StatusEnum.DONE.getCode()) {
-                pushOutStock(one.getDeliverConsign(), one);
+                pushOutStock(one.getDeliverConsign(), save);
             }
             return true;
         } catch (Exception ex) {

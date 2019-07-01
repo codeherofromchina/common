@@ -5,6 +5,7 @@ import com.erui.boss.web.util.ResultStatusEnum;
 import com.erui.comm.ThreadLocalUtil;
 import com.erui.comm.pojo.AttachmentVo;
 import com.erui.comm.pojo.BookingSpaceAuditRequest;
+import com.erui.comm.pojo.LogisticsAuditRequest;
 import com.erui.comm.util.CookiesUtil;
 import com.erui.comm.util.data.string.StringUtil;
 import com.erui.order.entity.DeliverConsign;
@@ -16,6 +17,7 @@ import com.erui.order.service.OrderService;
 import com.erui.order.util.BpmUtils;
 import com.erui.order.v2.model.Attachment;
 import com.erui.order.v2.service.AttachmentService;
+import com.erui.order.v2.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,8 @@ public class DeliverConsignController {
     private OrderService orderService;
     @Autowired
     private AttachmentService attachmentService;
+    @Autowired
+    private UserService userService;
 
     /**
      * 根据ID获取出口通知单
@@ -57,6 +61,58 @@ public class DeliverConsignController {
     public Result<Object> get(@RequestParam(name = "id") Integer id) throws Exception {
         DeliverConsign deliverConsign = deliverConsignService.findById(id);
         return new Result<>(deliverConsign);
+    }
+
+
+    /**
+     * 出口通知单物流经办人审核
+     * @return
+     */
+    @RequestMapping(value = "logisticsAudit", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
+    public Result<Object> logisticsAudit(HttpServletRequest request, @RequestBody LogisticsAuditRequest logisticsAuditRequest) throws Exception {
+        Result<Object> result = new Result<>();
+        String eruiToken = CookiesUtil.getEruiToken(request);
+
+        // 参数检查
+        String taskId = logisticsAuditRequest.getTaskId();
+        Integer deliverConsignId = logisticsAuditRequest.getDeliverConsignId();
+        com.erui.order.v2.model.DeliverConsign deliverConsign = deliverConsignServiceV2.selectById(deliverConsignId);
+        if (deliverConsign == null) {
+            result.setStatus(ResultStatusEnum.PARAM_ERROR);
+            result.setMsg("出口通知单不存在");
+            return result;
+        }
+        if (StringUtils.isBlank(taskId)) {
+            result.setStatus(ResultStatusEnum.PARAM_ERROR);
+            result.setMsg("任务ID不存在");
+            return result;
+        }
+        String bookingOfficerUserNo = userService.findUserNoById(logisticsAuditRequest.getBookingOfficerId()); // 查找订舱专员工号
+        if (StringUtils.isBlank(bookingOfficerUserNo)) {
+            result.setStatus(ResultStatusEnum.PARAM_ERROR);
+            result.setMsg("订舱专员不存在");
+            return result;
+        }
+        String operationSpecialistUserNo = userService.findUserNoById(logisticsAuditRequest.getOperationSpecialistId()); // 查找操作专员工号
+        if (StringUtils.isBlank(operationSpecialistUserNo)) {
+            result.setStatus(ResultStatusEnum.PARAM_ERROR);
+            result.setMsg("操作专员不存在");
+            return result;
+        }
+
+        // 实现业务
+        deliverConsignServiceV2.perfectingPersonnel(deliverConsignId, logisticsAuditRequest.getBookingOfficerId(), logisticsAuditRequest.getOperationSpecialistId());
+        try {
+            Map<String, Object> localVariables = new HashMap<>();
+            localVariables.put("assignee_bo", bookingOfficerUserNo);
+            localVariables.put("assignee_op", operationSpecialistUserNo);
+            BpmUtils.completeTask(taskId, eruiToken, null, localVariables, "同意");
+        }catch (Exception e) {
+            // 业务流完成失败
+            e.printStackTrace();
+            throw e;
+        }
+        return result;
     }
 
     /**

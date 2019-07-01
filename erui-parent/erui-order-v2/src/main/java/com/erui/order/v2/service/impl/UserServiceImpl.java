@@ -43,9 +43,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public String findUserNoById(Long id) {
         if (id != null) {
-            User User = UserMapper.selectByPrimaryKey(id);
-            if (User != null) {
-                return User.getUserNo();
+            User user = UserMapper.selectByPrimaryKey(id);
+            if (user != null && StringUtils.equalsIgnoreCase(user.getDeletedFlag(),"N")
+                    && StringUtils.equalsIgnoreCase(user.getStatus(), "NORMAL")) {
+                return user.getUserNo();
             }
         }
         return null;
@@ -75,6 +76,23 @@ public class UserServiceImpl implements UserService {
         UserExample example = new UserExample();
         UserExample.Criteria criteria = example.createCriteria();
         criteria.andUserNoEqualTo(userNo).andDeletedFlagEqualTo("N")
+                .andStatusEqualTo("NORMAL");
+
+        List<User> Users = UserMapper.selectByExample(example);
+        if (Users != null && Users.size() > 0) {
+            return Users.get(0);
+        }
+        return null;
+    }
+
+    @Override
+    public User findUserById(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        UserExample example = new UserExample();
+        UserExample.Criteria criteria = example.createCriteria();
+        criteria.andIdEqualTo(userId).andDeletedFlagEqualTo("N")
                 .andStatusEqualTo("NORMAL");
 
         List<User> Users = UserMapper.selectByExample(example);
