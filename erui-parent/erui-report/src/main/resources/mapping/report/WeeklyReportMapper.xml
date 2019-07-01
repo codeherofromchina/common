@@ -84,82 +84,91 @@
     <!--根据时间查询各个地区询单总数量-->
     <select id="selectInquiryCountWhereTimeGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
             SELECT
-            COUNT(DISTINCT t1.serial_no) AS total, t3.`name` as area
-            FROM
-            erui_rfq_new.inquiry AS t1
-            LEFT JOIN
-            erui_operation.market_area_country AS t2 ON t1.country_bn = t2.country_bn
-            LEFT JOIN
-            erui_operation.market_area AS t3 ON t2.market_area_bn = t3.bn
-            AND t3.deleted_flag = 'N'
-            AND t3.lang = 'zh'
-            WHERE
-            t1.deleted_flag = 'N'
-            AND t1.status <![CDATA[ <> ]]> 'DRAFT'
-            AND EXISTS( SELECT
-            inquiry_id
-            FROM
-            erui_rfq_new.inquiry_check_log
-            WHERE
-            inquiry_id = t1.id AND action = 'CREATE'
-            AND out_node = 'BIZ_GRABING'
-            GROUP BY inquiry_id
-            HAVING MIN(out_at) BETWEEN DATE_FORMAT(#{startTime},"%Y/%m/%d %H:%i:%s")
-                                AND DATE_FORMAT(#{endTime},"%Y/%m/%d %H:%i:%s"))
-            AND t3.bn IS NOT NULL
-            GROUP BY t3.bn
+				COUNT( DISTINCT serial_no ) AS total,
+				countryCn AS area 
+			FROM
+				(
+				SELECT
+					t1.serial_no AS serial_no,
+					( CASE t1.country_bn WHEN 'China' THEN IF ( g.`name` = '国内销售部', '国内销售', '中国' ) ELSE t3.`name` END ) AS countryCn 
+				FROM
+					erui_rfq_new.inquiry AS t1
+					LEFT OUTER JOIN erui_sys.group_user gu ON t1.obtain_id = gu.user_id
+					LEFT OUTER JOIN erui_sys.`group` g ON gu.group_id = g.id
+					LEFT JOIN erui_operation.market_area_country AS t2 ON t1.country_bn = t2.country_bn
+					LEFT JOIN erui_operation.market_area AS t3 ON t2.market_area_bn = t3.bn 
+					AND t3.deleted_flag = 'N' 
+					AND t3.lang = 'zh' 
+				WHERE
+					t1.deleted_flag = 'N' 
+					AND t1.STATUS <![CDATA[ <> ]]>  'DRAFT' 
+					AND EXISTS (
+					SELECT
+						inquiry_id 
+					FROM
+						erui_rfq_new.inquiry_check_log 
+					WHERE
+						inquiry_id = t1.id 
+						AND action = 'CREATE' 
+						AND out_node = 'BIZ_GRABING' 
+					GROUP BY
+						inquiry_id 
+					HAVING
+						MIN( out_at ) BETWEEN DATE_FORMAT( #{startTime}, "%Y/%m/%d %H:%i:%s" ) 
+						AND DATE_FORMAT( #{endTime}, "%Y/%m/%d %H:%i:%s" ) 
+					) 
+					AND t3.bn IS NOT NULL 
+				) AS tb 
+			GROUP BY
+				countryCn
     </select>
 
     <select id="selectQuoteInfoWhereTimeGroupByCountry" parameterType="java.util.Map" resultType="java.util.Map">
            SELECT
-    count(id)AS total_num,
-    sum(
-        ifnull(total_quote_price, 0)
-    )AS total_price,
-    countryCn AS area
-FROM
-    (
-        SELECT
-            t1.id,
-            t2.total_quote_price,
-            (
-                CASE t1.country_bn
-                WHEN 'China' THEN
-                    '中国'
-                ELSE
-                    t4.`name`
-                END
-            )AS countryCn,
-            t5.createAt
-        FROM
-            erui_rfq_new.inquiry t1
-        LEFT OUTER JOIN erui_rfq_new.quote_info qi ON t1.id = qi.inquiry_id
-        LEFT OUTER JOIN erui_rfq_new.final_quote t2 ON t1.id = t2.inquiry_id,
-        erui_operation.market_area_country t3,
-        erui_operation.market_area t4,
-        (
-            SELECT
-                inquiry_id,
-                out_at AS createAt
-            FROM
-                erui_rfq_new.inquiry_check_log
-            WHERE
-                out_node = 'QUOTE_SENT'
-            GROUP BY
-                inquiry_id
-			HAVING max(out_at) BETWEEN DATE_FORMAT(#{startTime}, "%Y/%m/%d %H:%i:%s") AND DATE_FORMAT(#{endTime}, "%Y/%m/%d %H:%i:%s"))AS t5
-            WHERE
-            t1.country_bn = t3.country_bn
-    AND t1.deleted_flag = 'N'
-    AND t2.deleted_flag = 'N'
-    AND t3.market_area_bn = t4.bn
-    AND t4.lang = 'zh'
-    AND t5.inquiry_id = t1.id
-    AND t2.trade_terms_bn = qi.trade_terms_bn
-    AND t1.`status` IN('MARKET_CONFIRMING','QUOTE_SENT','INQUIRY_CLOSED','INQUIRY_CLOSE','INQUIRY_CONFIRM')
-    )AS tb
-GROUP BY
-    countryCn
+				count( id ) AS total_num,
+				sum( ifnull( total_quote_price, 0 ) ) AS total_price,
+				countryCn AS area 
+			FROM
+				(
+				SELECT
+					t1.id,
+					t2.total_quote_price,
+					( CASE t1.country_bn WHEN 'China' THEN IF ( g.`name` = '国内销售部', '国内销售', '中国' ) ELSE t4.`name` END ) AS countryCn,
+					t5.createAt 
+				FROM
+					erui_rfq_new.inquiry t1
+					LEFT OUTER JOIN erui_rfq_new.quote_info qi ON t1.id = qi.inquiry_id
+					LEFT OUTER JOIN erui_rfq_new.final_quote t2 ON t1.id = t2.inquiry_id
+					LEFT OUTER JOIN erui_sys.group_user gu ON t1.obtain_id = gu.user_id
+					LEFT OUTER JOIN erui_sys.`group` g ON gu.group_id = g.id,
+					erui_operation.market_area_country t3,
+					erui_operation.market_area t4,
+					(
+					SELECT
+						inquiry_id,
+						out_at AS createAt 
+					FROM
+						erui_rfq_new.inquiry_check_log 
+					WHERE
+						out_node = 'QUOTE_SENT' 
+					GROUP BY
+						inquiry_id 
+					HAVING
+						max( out_at ) BETWEEN DATE_FORMAT( #{startTime}, "%Y/%m/%d %H:%i:%s" ) 
+						AND DATE_FORMAT( #{endTime}, "%Y/%m/%d %H:%i:%s" ) 
+					) AS t5 
+				WHERE
+					t1.country_bn = t3.country_bn 
+					AND t1.deleted_flag = 'N' 
+					AND t2.deleted_flag = 'N' 
+					AND t3.market_area_bn = t4.bn 
+					AND t4.lang = 'zh' 
+					AND t5.inquiry_id = t1.id 
+					AND t2.trade_terms_bn = qi.trade_terms_bn 
+					AND t1.`status` IN ( 'MARKET_CONFIRMING', 'QUOTE_SENT', 'INQUIRY_CLOSED', 'INQUIRY_CLOSE', 'INQUIRY_CONFIRM' ) 
+				) AS tb 
+			GROUP BY
+				countryCn
     </select>
 
 
@@ -168,7 +177,7 @@ GROUP BY
             , SUM(ifnull(total_price_usd, 0)) AS total_price
         FROM (
             SELECT CASE t1.country
-                    WHEN 'China' THEN '中国'
+                    WHEN 'China' THEN if(t1.exec_co_name='国内销售部','国内销售','中国') 
                     ELSE t2.name
                 END AS countryCn, t1.id, t1.total_price_usd ,t3.start_date
             FROM erui_order.`order` t1, erui_operation.market_area t2 , erui_order.project t3

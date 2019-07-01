@@ -40,7 +40,7 @@ public class MemberInfoController {
     public Result<Object> efficiency(@RequestBody Map<String, Object> params) {
         Map<String, List<Object>> data = null;
         params = ParamsUtils.verifyParam(params, DateUtil.SHORT_FORMAT_STR, null);
-        if (params == null) { 
+        if (params == null) {
             return new Result<>(ResultStatusEnum.PARAM_ERROR);
         }
         String type = String.valueOf(params.get("type"));
