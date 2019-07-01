@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class BuyerStatisticsServiceImpl extends BaseService<BuyerStatisticsMapper> implements BuyerStatisticsService {
-    private static final String[] AREAS = new String[]{"北美", "泛俄", "非洲", "南美", "欧洲", "亚太", "中东", "中国" };
+    private static final String[] AREAS = new String[]{"北美", "泛俄", "非洲", "南美", "欧洲", "亚太", "中东", "中国","国内销售" };
     @Autowired
     private BuyerStatisticsMapper buyerStatisticsMapper;
 
