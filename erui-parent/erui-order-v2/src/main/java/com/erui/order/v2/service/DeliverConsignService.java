@@ -75,4 +75,13 @@ public interface DeliverConsignService {
     void deleteAuditUser(Long deliverConsignId, String actId);
 
     void setInspectData(String processInstanceId);
+
+    /**
+     * 完善订舱人员
+     * 完善订舱信息的订舱专员和操作专员
+     * @param deliverConsignId
+     * @param bookingOfficerUserId
+     * @param operationSpecialistUserId
+     */
+    void perfectingPersonnel(Integer deliverConsignId, Long bookingOfficerUserId, Long operationSpecialistUserId);
 }

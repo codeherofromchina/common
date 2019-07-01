@@ -34,4 +34,11 @@ public interface UserService {
      * @return
      */
     User findUserNoByUserNo(String userNo);
+
+    /**
+     * 通过主键查找用户信息
+     * @param userId
+     * @return
+     */
+    User findUserById(Long userId);
 }

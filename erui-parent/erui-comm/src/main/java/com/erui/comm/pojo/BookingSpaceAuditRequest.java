@@ -4,9 +4,11 @@ package com.erui.comm.pojo;
 
 /**
  * 出口通知单订舱专员审核 请求实体
+ * 废弃，订舱专员不审核了
  * @Auther 王晓丹
  * @Date 2019/6/12 下午5:15
  */
+@Deprecated
 public class BookingSpaceAuditRequest {
     private Integer deliverConsignId;
     private String taskId;

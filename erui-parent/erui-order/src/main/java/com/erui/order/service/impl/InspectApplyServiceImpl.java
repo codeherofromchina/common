@@ -221,8 +221,12 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 if (qualityId != null) {
                     List<InspectApplyGoods> listIGood = handledApplyGoods.stream().filter(vo -> qualityId.equals(vo.getGoods().getProject().getQualityUid())).collect(Collectors.toList());
                     mapGoods.put(qualityId, listIGood);
+                } else {
+                    throw new Exception(String.format("%s%s%s", "缺少品控经办人", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Error"));
                 }
             }
+        } else {
+            throw new Exception(String.format("%s%s%s", "缺少品控经办人", Constant.ZH_EN_EXCEPTION_SPLIT_SYMBOL, "Error"));
         }
         String lastApplyNo = null;
         String applyNo = null;
@@ -312,7 +316,6 @@ public class InspectApplyServiceImpl implements InspectApplyService {
                 //  判断采购是否已经完成并修正
                 checkPurchHasDone(inspectApplyAdd.getPurch());
             }
-
             if (directInstockGoods) {
                 // 厂家直接发货添加 入库办理 事项
                 //推送给分单人待办事项  办理分单
