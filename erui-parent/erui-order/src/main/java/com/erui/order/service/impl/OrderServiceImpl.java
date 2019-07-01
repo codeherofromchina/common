@@ -547,19 +547,12 @@ public class OrderServiceImpl implements OrderService {
         if (pageList.hasContent()) {
             pageList.getContent().forEach(vo -> {
                 //vo.setAttachmentSet(null);
-                if (vo.getDeliverConsignC() && vo.getStatus() != null && vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
+                if (vo.getStatus() != null && vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
                     boolean flag;
                     if (vo.getGoodsList() != null || vo.getGoodsList().size() > 0) {
                         flag = vo.getGoodsList().parallelStream().anyMatch(goods -> goods.getOutstockApplyNum() < goods.getContractGoodsNum());
                     } else {
                         flag = false;
-                    }
-                    if (vo.getDeliverConsign() != null && vo.getDeliverConsign().size() > 0) {
-                        for (DeliverConsign deliverConsign : vo.getDeliverConsign()) {
-                            if (deliverConsign.getStatus() != 3) {
-                                flag = true;
-                            }
-                        }
                     }
                     if (flag) {
                         vo.setDeliverConsignC(flag);
