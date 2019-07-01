@@ -542,7 +542,7 @@ public class PurchContractServiceImpl implements PurchContractService {
             skus.add(gjson);
         }
         params.put("type", "O");
-        params.put("source", "ORDE");
+        params.put("source", "ORDER");
         params.put("skus", skus);
         Map<String, String> header = new HashMap<>();
         header.put("Cookie", "eruitoken=" + eruiToken);
