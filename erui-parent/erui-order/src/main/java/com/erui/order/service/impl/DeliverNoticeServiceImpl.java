@@ -222,7 +222,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             }else if (deliverNotice.getStatus() == DeliverNotice.StatusEnum.DONE.getCode()) {
                 one.setHandleStatus(2); // 已处理
             }
-            deliverNotice.setUpdateTime(new Date());
+            one.setUpdateTime(new Date());
 
             DeliverNotice save = deliverNoticeDao.saveAndFlush(one);
             // 附件处理
