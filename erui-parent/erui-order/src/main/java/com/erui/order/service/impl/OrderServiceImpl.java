@@ -949,7 +949,6 @@ public class OrderServiceImpl implements OrderService {
             } else {
                 backLogService.updateBackLogByDelYn(backLog2);
             }
-
             if (StringUtils.isNotBlank(auditingUserId) && !isComeMore) {
                 Integer[] userIdArr = Arrays.stream(auditingUserId.split(",")).map(vo -> Integer.parseInt(vo)).toArray(Integer[]::new);
                 // 推送待办事件
