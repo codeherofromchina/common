@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class WeeklyReportServiceImpl extends BaseService<WeeklyReportMapper> implements WeeklyReportService {
     @Autowired
     private BuyerStatisticsService buyerStatisticsService;
-    private static final String[] AREAS = new String[]{"北美", "泛俄", "非洲", "南美", "欧洲", "亚太", "中东", "中国" };
+    private static final String[] AREAS = new String[]{"北美", "泛俄", "非洲", "南美", "欧洲", "亚太", "中东", "中国", "国内销售" };
     //    private static final String[] ORGS = new String[]{"易瑞-钻完井设备", "易瑞-工业工具", "易瑞-电力电工", "易瑞-工业品设备", "易瑞-安防和劳保设备", "油田设备", "康博瑞"};
 //    private static final String[] ORGS = new String[]{"易瑞-钻完井设备", "易瑞-采油工程事业部", "易瑞-工业品事业部", "油田设备", "康博瑞"};
     private static final String[] ORGS = new String[]{"易瑞-钻完井设备事业部", "易瑞-采油工程事业部", "易瑞-工业品事业部" };
