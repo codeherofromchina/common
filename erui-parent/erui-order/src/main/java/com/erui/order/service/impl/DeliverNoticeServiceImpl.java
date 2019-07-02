@@ -145,7 +145,8 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
 
         deliverNotice.setDeliverConsign(one);
         deliverNotice.setDeliverConsignNo(one.getDeliverConsignNo());
-        deliverNotice.setProjectNo(one.getOrder().getGoodsList().get(0).getProjectNo());
+        if(one.getDeliverConsignGoodsSet() != null && one.getDeliverConsignGoodsSet().size() > 0)
+            deliverNotice.setProjectNo(one.getDeliverConsignGoodsSet().get(0).getGoods().getProjectNo());
         deliverNotice.setContractNo(one.getContractNo());
         deliverNotice.setOperationSpecialistId(one.getOperationSpecialistId()); // 单证操作 --> 取操作专员信息
         deliverNotice.setOperationSpecialist(one.getOperationSpecialist()); // 单证操作 --> 取操作专员信息
