@@ -324,6 +324,7 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
         deliverDetail.setStatus(DeliverDetail.StatusEnum.SAVED_OUTSTOCK.getStatusCode());
         deliverDetail.setDeliverConsignGoodsList(new ArrayList<>(deliverConsign1.getDeliverConsignGoodsSet()));
         deliverDetail.setOutCheck(1); // 是否外检 默认为1
+        deliverDetail.setDeliverNotice(deliverNotice);
         try {
             DeliverDetail deliverDetail1 = deliverDetailDao.saveAndFlush(deliverDetail);
             //项目执行跟踪：推送看货通知时间，订舱人
