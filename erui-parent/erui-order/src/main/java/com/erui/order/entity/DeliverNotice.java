@@ -92,7 +92,7 @@ public class DeliverNotice {
     private String operationSpecialist;
 
     /**
-     * 下单日期
+     * 下单日期(取点击“提交”看货通知单按钮日期)
      */
     @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     @Column(name = "send_date")
@@ -186,6 +186,13 @@ public class DeliverNotice {
      */
     @Column(name = "handle_status")
     private Integer handleStatus;
+
+    /**
+     * 仓库出具发运箱单日期(取点击“提交”上传箱单按钮日期)
+     */
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    @Column(name = "packing_time")
+    private Date packingTime;
 
     /**
      * 更新时间
@@ -537,5 +544,13 @@ public class DeliverNotice {
 
     public void setNumbers(Integer numbers) {
         this.numbers = numbers;
+    }
+
+    public Date getPackingTime() {
+        return packingTime;
+    }
+
+    public void setPackingTime(Date packingTime) {
+        this.packingTime = packingTime;
     }
 }

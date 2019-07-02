@@ -217,9 +217,10 @@ public class DeliverNoticeServiceImpl implements DeliverNoticeService {
             }
 
             if (deliverNotice.getStatus() == DeliverNotice.StatusEnum.SUBMIT.getCode()) {
-                one.setSendDate(new Date()); // 下单日期 --> 取点击“提交”按钮日期
+                one.setSendDate(new Date()); // 下单日期 --> 取点击“提交”看货通知单按钮日期
                 one.setHandleStatus(1); // 未处理
             }else if (deliverNotice.getStatus() == DeliverNotice.StatusEnum.DONE.getCode()) {
+                one.setPackingTime(new Date()); // 仓库出具发运箱单日期 --> 取点击“提交”上传箱单按钮日期
                 one.setHandleStatus(2); // 已处理
             }
             one.setUpdateTime(new Date());
