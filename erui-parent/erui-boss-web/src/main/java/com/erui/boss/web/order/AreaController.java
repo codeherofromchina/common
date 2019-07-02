@@ -81,7 +81,6 @@ public class AreaController {
         return new Result<>(map1);
 
 
-
     }
 
 }
