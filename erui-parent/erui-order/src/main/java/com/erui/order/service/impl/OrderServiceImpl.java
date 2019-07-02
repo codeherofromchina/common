@@ -547,7 +547,7 @@ public class OrderServiceImpl implements OrderService {
         if (pageList.hasContent()) {
             pageList.getContent().forEach(vo -> {
                 //vo.setAttachmentSet(null);
-                if (vo.getDeliverConsignC() && vo.getStatus() != null && vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
+                if (vo.getStatus() != null && vo.getStatus() == Order.StatusEnum.EXECUTING.getCode()) {
                     boolean flag;
                     if (vo.getGoodsList() != null || vo.getGoodsList().size() > 0) {
                         flag = vo.getGoodsList().parallelStream().anyMatch(goods -> goods.getOutstockApplyNum() < goods.getContractGoodsNum());
@@ -560,11 +560,9 @@ public class OrderServiceImpl implements OrderService {
                         vo.setDeliverConsignC(Boolean.FALSE);
                     }
                 }
-                //vo.setOrderPayments(null);
                 if (vo.getDeliverConsignC() == false && iogisticsDataService.findStatusAndNumber(vo.getId())) {
                     vo.setOrderFinish(Boolean.TRUE);
                 }
-                // vo.setGoodsList(null);
             });
         }
         return pageList;
@@ -942,7 +940,6 @@ public class OrderServiceImpl implements OrderService {
             } else {
                 backLogService.updateBackLogByDelYn(backLog2);
             }
-
             if (StringUtils.isNotBlank(auditingUserId) && !isComeMore) {
                 Integer[] userIdArr = Arrays.stream(auditingUserId.split(",")).map(vo -> Integer.parseInt(vo)).toArray(Integer[]::new);
                 // 推送待办事件
@@ -1223,7 +1220,7 @@ public class OrderServiceImpl implements OrderService {
                         default:
                             Integer overseasSales = addOrderVo.getOverseasSales();
 //                            if (overseasSales != null && overseasSales == 3) {
-                            if(false) {
+                            if (false) {
                                 // 海外销售类型 为3 海外销（当地采购 走现货审核流程
                                 processResp = BpmUtils.startProcessInstanceByKey("spot_order", null, eruiToken, "order:" + orderUpdate.getId(), bpmInitVar);
                                 orderUpdate.setAuditingProcess("task_cm"); //第一个节点通知失败，写固定第一个节点
