@@ -226,6 +226,9 @@ public class BpmUtils {
         CheckLog checkLog = new CheckLog();
         checkLog.setCreateTime(bpmLog.getDate("createTime"));
         Integer auditProcess = newCheckLog2oldCheckLogCodeMap.get(bpmLog.getString("taskDefKey"));
+        if(auditProcess == null){ // 未知节点
+            auditProcess = Integer.valueOf(210);
+        }
         checkLog.setAuditingProcess(auditProcess);
         if (auditProcess != null) {
             checkLog.setType(auditProcess/100);

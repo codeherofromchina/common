@@ -397,6 +397,9 @@ public class CheckLogServiceImpl implements CheckLogService {
                 auditProcess = newCheckLog2oldCheckLogPurchMap.get(bpmLog.getString("taskDefKey"));
                 break;
         }
+        if(auditProcess == null){ // 未知节点
+            auditProcess = Integer.valueOf(210);
+        }
         checkLog.setAuditingProcess(auditProcess);
         if (auditProcess != null) {
             checkLog.setType(auditProcess / 100);
