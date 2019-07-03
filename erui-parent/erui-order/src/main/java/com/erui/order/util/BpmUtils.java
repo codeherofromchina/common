@@ -226,6 +226,9 @@ public class BpmUtils {
         CheckLog checkLog = new CheckLog();
         checkLog.setCreateTime(bpmLog.getDate("createTime"));
         Integer auditProcess = newCheckLog2oldCheckLogCodeMap.get(bpmLog.getString("taskDefKey"));
+        if(auditProcess == null){ // 未知节点
+            auditProcess = Integer.valueOf(210);
+        }
         checkLog.setAuditingProcess(auditProcess);
         if (auditProcess != null) {
             checkLog.setType(auditProcess/100);
@@ -236,19 +239,20 @@ public class BpmUtils {
     }
 
     private static Map<String, Integer> newCheckLog2oldCheckLogCodeMap = new HashMap<String, Integer>(){{
-        put("task_mm",Integer.valueOf(100)); // '完善订单信息'
-        put("task_cm",Integer.valueOf(101)); // '国家负责人审核'
-        put("task_rm",Integer.valueOf(102)); // '地区总经理审核'
-        put("task_vp",Integer.valueOf(103)); // '分管领导审核'
-        put("task_fn",Integer.valueOf(104)); // '融资负责人审核'
-        put("task_la",Integer.valueOf(105)); // '法务负责人审核'
-        put("task_fa",Integer.valueOf(106)); // '结算负责人审核'
-        put("task_pm",Integer.valueOf(201)); // '事业部项目负责人审核'
-        put("task_lg",Integer.valueOf(202)); // '物流经办人审核'
-        put("task_pu",Integer.valueOf(204)); // '采购经办人审核'
-        put("task_pc",Integer.valueOf(205)); // '品控经办人审核'
-        put("task_gm",Integer.valueOf(206)); // '事业部总经理审核'
-        put("task_ceo",Integer.valueOf(207)); // '总裁审核'
-        put("task_ed",Integer.valueOf(208)); // '董事长审核'
+        put("task_mm", Integer.valueOf(100)); // '完善订单信息'
+        put("task_cm", Integer.valueOf(101)); // '国家负责人审核'
+        put("task_rm", Integer.valueOf(102)); // '地区总经理审核'
+        put("task_vp", Integer.valueOf(103)); // '分管领导审核'
+        put("task_fn", Integer.valueOf(104)); // '融资负责人审核'
+        put("task_la", Integer.valueOf(105)); // '法务负责人审核'
+        put("task_fa", Integer.valueOf(106)); // '结算负责人审核'
+        put("task_pm", Integer.valueOf(201)); // '事业部项目负责人审核'
+        put("task_lg", Integer.valueOf(202)); // '物流经办人审核'
+        put("task_pu", Integer.valueOf(204)); // '采购经办人审核'
+        put("task_pc", Integer.valueOf(205)); // '品控经办人审核'
+        put("task_gm", Integer.valueOf(206)); // '事业部总经理审核'
+        put("task_ceo", Integer.valueOf(207)); // '总裁审核'
+        put("task_ed", Integer.valueOf(208)); // '董事长审核'
+        put("task_alg", Integer.valueOf(209)); // '分配物流经办人'
     }};
 }

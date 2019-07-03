@@ -80,7 +80,6 @@ public class AreaController {
         System.out.println("0------------");
         return new Result<>(map1);
 
-
     }
 
 }
